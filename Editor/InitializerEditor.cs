@@ -138,13 +138,6 @@ namespace ME.ECSEditor {
                 return false;
                 #endif
             }, true, InitializerBase.ConfigurationType.DebugAndRelease, InitializerBase.CodeSize.Light, InitializerBase.RuntimeSpeed.Heavy),
-            new InitializerBase.DefineInfo(true, "ENTITY_API_VERSION1", "Turn on Entity API with SetData/ReadData/GetData methods.", () => {
-                #if ENTITY_API_VERSION1_DEPRECATED
-                return true;
-                #else
-                return false;
-                #endif
-            }, true, InitializerBase.ConfigurationType.DebugAndRelease, InitializerBase.CodeSize.Unknown, InitializerBase.RuntimeSpeed.Unknown, "2.6"),
             new InitializerBase.DefineInfo(false, "BUFFER_SLICED_DISABLED", "Turn on to use Sliced Buffers which allows to add entities in Get<> API.", () => {
                 #if BUFFER_SLICED_DISABLED
                 return true;
@@ -152,29 +145,6 @@ namespace ME.ECSEditor {
                 return false;
                 #endif
             }, true, InitializerBase.ConfigurationType.DebugAndRelease, InitializerBase.CodeSize.Light, InitializerBase.RuntimeSpeed.Light),
-            #if FILTERS_STORAGE_LEGACY
-            new InitializerBase.DefineInfo(true, "ARCHETYPE_SIZE_128", "Set archetype max bits size to 128 (Components in filters).", () => {
-                #if ARCHETYPE_SIZE_128
-                return true;
-                #else
-                return false;
-                #endif
-            }, true, InitializerBase.ConfigurationType.DebugAndRelease, InitializerBase.CodeSize.Unknown, InitializerBase.RuntimeSpeed.Unknown),
-            new InitializerBase.DefineInfo(true, "ARCHETYPE_SIZE_192", "Set archetype max bits size to 192 (Components in filters).", () => {
-                #if ARCHETYPE_SIZE_192
-                return true;
-                #else
-                return false;
-                #endif
-            }, true, InitializerBase.ConfigurationType.DebugAndRelease, InitializerBase.CodeSize.Unknown, InitializerBase.RuntimeSpeed.Unknown),
-            new InitializerBase.DefineInfo(true, "ARCHETYPE_SIZE_256", "Set archetype max bits size to 256 (Components in filters).", () => {
-                #if ARCHETYPE_SIZE_256
-                return true;
-                #else
-                return false;
-                #endif
-            }, true, InitializerBase.ConfigurationType.DebugAndRelease, InitializerBase.CodeSize.Unknown, InitializerBase.RuntimeSpeed.Unknown),
-            #endif
             new InitializerBase.DefineInfo(true, "VIEWS_REGISTER_VIEW_SOURCE_CHECK_STATE", "Forbid RegisterViewSource after world initialization.", () => {
                 #if VIEWS_REGISTER_VIEW_SOURCE_CHECK_STATE
                 return true;
@@ -189,13 +159,6 @@ namespace ME.ECSEditor {
                 return false;
                 #endif
             }, true, InitializerBase.ConfigurationType.DebugOnly, InitializerBase.CodeSize.Light, InitializerBase.RuntimeSpeed.Heavy),
-            new InitializerBase.DefineInfo(true, "FILTERS_STORAGE_LEGACY", "Legacy storage instead of Archetypes.", () => {
-                #if FILTERS_STORAGE_LEGACY
-                return true;
-                #else
-                return false;
-                #endif
-            }, true, InitializerBase.ConfigurationType.DebugAndRelease, InitializerBase.CodeSize.Unknown, InitializerBase.RuntimeSpeed.Unknown, "2.6"),
             new InitializerBase.DefineInfo(true, "FIXED_POINT_MATH", "Fixed-Point Math.", () => {
                 #if FIXED_POINT_MATH
                 return true;

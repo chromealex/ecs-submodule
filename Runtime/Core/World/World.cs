@@ -163,14 +163,6 @@ namespace ME.ECS {
         private const int WORLDS_CAPACITY = 4;
         private const int FILTERS_CACHE_CAPACITY = 10;
         
-        #if FILTERS_STORAGE_LEGACY
-        private static class FiltersDirectCache {
-
-            internal static BufferArray<BufferArray<bool>> dic = new BufferArray<BufferArray<bool>>(null, 0); //new bool[World.WORLDS_CAPACITY][];
-
-        }
-        #endif
-
         private static int registryWorldId = 0;
 
         public int id { get; private set; }
@@ -277,10 +269,6 @@ namespace ME.ECS {
             this.OnRecycleComponents();
             this.OnRecycleStructComponents();
         
-            #if FILTERS_STORAGE_LEGACY
-            if (FiltersDirectCache.dic.arr != null) PoolArray<bool>.Recycle(ref FiltersDirectCache.dic.arr[this.id]);
-            #endif
-
             PoolDictionary<System.Type, IFeatureBase>.Recycle(ref this.features);
 
             for (int i = this.systemGroupsLength - 1; i >= 0; --i) {
@@ -419,17 +407,7 @@ namespace ME.ECS {
             var networkModule = this.GetModule<ME.ECS.Network.INetworkModuleBase>();
             var data = networkModule.GetSerializer().DeserializeWorld(worldData);
 
-            // Make a ref of current filters to the new state
-            #if FILTERS_STORAGE_LEGACY
-            this.GetState().filters.Clear();
-            data.state.filters = this.GetState().filters;
-            this.GetState().filters = null;
-            #endif
-
             this.SetState<TState>(data.state);
-            #if FILTERS_STORAGE_LEGACY
-            data.state.filters.OnDeserialize(this.GetEntitiesCount());
-            #endif
             statesHistory.AddEvents(data.events.events);
 
             statesHistory.BeginAddEvents();
@@ -676,10 +654,6 @@ namespace ME.ECS {
                 this.id = ++World.registryWorldId;
 
             }
-
-            #if FILTERS_STORAGE_LEGACY
-            ArrayUtils.Resize(this.id, ref FiltersDirectCache.dic);
-            #endif
 
         }
 
@@ -1425,7 +1399,6 @@ namespace ME.ECS {
 
         internal void UpdateEntityOnCreate(in Entity entity, bool isNew) {
 
-            #if !FILTERS_STORAGE_LEGACY
             if (isNew == true) {
                 ComponentsInitializerWorld.Init(in entity);
                 this.currentState.storage.versions.Validate(in entity);
@@ -1434,12 +1407,6 @@ namespace ME.ECS {
             } else {
                 this.CreateEntityPlugins(entity, false);
             }
-            #else
-            if (isNew == true) ComponentsInitializerWorld.Init(in entity);
-            this.currentState.storage.versions.Validate(in entity);
-            this.CreateEntityPlugins(entity, isNew);
-            this.CreateEntityInFilters(entity);
-            #endif
 
         }
 
@@ -2685,34 +2652,12 @@ namespace ME.ECS {
                                     #pragma warning restore
                                     if (this.settings.useJobsForSystems == true && jobs == true) {
 
-                                        #if FILTERS_STORAGE_LEGACY
-                                        var arrEntities = system.filter.ToArray();
-                                        
-                                        var filter = this.GetFilter(system.filter.id);
-                                        var currentPools = Pools.current;
-                                        Pools.current = this.currentThreadPools;
-                                        {
-                                            var job = new ForeachFilterJob() {
-                                                deltaTime = fixedDeltaTime,
-                                                slice = arrEntities,
-                                                dataContains = filter.data.dataContains,
-                                                dataVersions = (filter.data.onVersionChangedOnly == 1 ? filter.data.dataVersions : default),
-                                            };
-                                            var jobHandle = job.Schedule(arrEntities.Length, batch);
-                                            jobHandle.Complete();
-                                        }
-                                        arrEntities.Dispose();
-                                        Pools.current = currentPools;
-                                        
-                                        filter.UseVersioned();
-                                        #else
                                         // TODO: Make a job
                                         foreach (var entity in system.filter) {
 
                                             system.AdvanceTick(in entity, fixedDeltaTime);
 
                                         }
-                                        #endif
                                         
                                     } else {
 

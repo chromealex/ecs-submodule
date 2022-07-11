@@ -1507,10 +1507,7 @@ namespace ME.ECS {
                 #if !COMPONENTS_VERSION_NO_STATE_DISABLED
                 if (AllComponentTypes<TComponent>.isVersionedNoState == true) ++reg.versionsNoState.arr[entity.id];
                 #endif
-                #if FILTERS_STORAGE_LEGACY
-                if (ComponentTypes<TComponent>.isFilterVersioned == true) this.UpdateFilterByStructComponentVersioned<TComponent>(in entity);
-                #endif
-
+                
             }
 
             return ref SharedGroupsAPI<TComponent>.Get(ref reg.sharedStorage, entity.id, groupId);
@@ -1552,9 +1549,7 @@ namespace ME.ECS {
 
                 state = false;
                 this.currentState.structComponents.entitiesIndexer.Remove(entity.id, AllComponentTypes<TComponent>.typeId);
-                #if FILTERS_STORAGE_LEGACY
-                if (ComponentTypes<TComponent>.isFilterVersioned == true) this.UpdateFilterByStructComponentVersioned<TComponent>(in entity);
-                #endif
+                
                 if (ComponentTypes<TComponent>.typeId >= 0) {
 
                     this.currentState.storage.archetypes.Remove<TComponent>(in entity);
@@ -1628,9 +1623,6 @@ namespace ME.ECS {
 
             #if !COMPONENTS_VERSION_NO_STATE_DISABLED
             if (AllComponentTypes<TComponent>.isVersionedNoState == true) ++reg.versionsNoState.arr[entity.id];
-            #endif
-            #if FILTERS_STORAGE_LEGACY
-            if (ComponentTypes<TComponent>.isFilterVersioned == true) this.UpdateFilterByStructComponentVersioned<TComponent>(in entity);
             #endif
             
         }

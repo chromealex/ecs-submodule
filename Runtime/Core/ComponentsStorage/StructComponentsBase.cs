@@ -229,10 +229,6 @@ namespace ME.ECS {
             if (AllComponentTypes<TComponent>.isVersionedNoState == true) ArrayUtils.Resize(capacity, ref this.versionsNoState, true);
             #endif
             
-            #if FILTERS_STORAGE_LEGACY
-            this.world.currentState.storage.archetypes.Validate(capacity);
-            #endif
-            
             return false;
 
         }

@@ -9,7 +9,6 @@ using ME.ECS.Collections;
 using Unity.IL2CPP.CompilerServices;
 using Il2Cpp = Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute;
 
-#if !FILTERS_STORAGE_LEGACY
 namespace ME.ECS.FiltersArchetype {
 
     [Il2Cpp(Option.NullChecks, false)]
@@ -1419,4 +1418,3 @@ namespace ME.ECS.FiltersArchetype {
     }
 
 }
-#endif

@@ -2,7 +2,6 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-#if !FILTERS_STORAGE_LEGACY
 namespace ME.ECS.Tests {
 
     public class Tests_Entities_Archetypes {
@@ -119,4 +118,3 @@ namespace ME.ECS.Tests {
     }
 
 }
-#endif

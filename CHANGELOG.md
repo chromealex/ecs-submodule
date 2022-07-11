@@ -1,3 +1,9 @@
+# Version 2.7
+* Runtime.Core: 
+  * ENTITY_API_VERSION1_DEPRECATED removed
+  * Legacy Filters removed
+
+11/07/2022
 # Version 2.6
 * Runtime.Core: 
   * FILTERS_LAMBDA_DISABLED define added

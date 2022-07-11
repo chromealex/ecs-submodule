@@ -11,17 +11,9 @@ namespace ME.ECS {
         [ME.ECS.Serializer.SerializeField]
         public Entity sharedEntity;
 
-        #if FILTERS_STORAGE_LEGACY
-        public FiltersStorage filters;
-        [ME.ECS.Serializer.SerializeField]
-        public Storage storage;
-        #endif
-        
-        #if !FILTERS_STORAGE_LEGACY
         [ME.ECS.Serializer.SerializeField]
         public ME.ECS.FiltersArchetype.FiltersArchetypeStorage filters;
         public ref ME.ECS.FiltersArchetype.FiltersArchetypeStorage storage => ref this.filters;
-        #endif
         
         #if !ENTITY_TIMERS_DISABLED
         [ME.ECS.Serializer.SerializeField]
@@ -46,9 +38,6 @@ namespace ME.ECS {
             
             world.Register(ref this.filters, freeze, restore);
             world.Register(ref this.structComponents, freeze, restore);
-            #if FILTERS_STORAGE_LEGACY
-            world.Register(ref this.storage, freeze, restore);
-            #endif
             this.globalEvents.Initialize();
             #if !ENTITY_TIMERS_DISABLED
             this.timers.Initialize();
@@ -64,9 +53,6 @@ namespace ME.ECS {
 
             this.filters.CopyFrom(other.filters);
             this.structComponents.CopyFrom(other.structComponents);
-            #if FILTERS_STORAGE_LEGACY
-            this.storage.CopyFrom(other.storage);
-            #endif
             this.globalEvents.CopyFrom(in other.globalEvents);
             #if !ENTITY_TIMERS_DISABLED
             this.timers.CopyFrom(in other.timers);
@@ -87,10 +73,7 @@ namespace ME.ECS {
             this.globalEvents = default;
             WorldUtilities.Release(ref this.filters);
             WorldUtilities.Release(ref this.structComponents);
-            #if FILTERS_STORAGE_LEGACY
-            WorldUtilities.Release(ref this.storage);
-            #endif
-
+            
         }
 
         public virtual byte[] Serialize<T>() where T : State {

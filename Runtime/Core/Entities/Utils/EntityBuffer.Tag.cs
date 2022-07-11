@@ -40,10 +40,7 @@ namespace ME.ECS {
                 #if !COMPONENTS_VERSION_NO_STATE_DISABLED
                 if (AllComponentTypes<T>.isVersionedNoState == true) ++reg.versionsNoState.arr[entity.id];
                 #endif
-                #if FILTERS_STORAGE_LEGACY
-                if (ComponentTypes<T>.isFilterVersioned == true) world.UpdateFilterByStructComponentVersioned<T>(in entity);
-                #endif
-
+                
                 if (world.currentState.structComponents.entitiesIndexer.GetCount(entity.id) == 0 &&
                     (world.currentState.storage.flags.Get(entity.id) & (byte)EntityFlag.DestroyWithoutComponents) != 0) {
                     entity.SetOneShot<IsEntityEmptyOneShot>();
@@ -120,10 +117,7 @@ namespace ME.ECS {
             #if !COMPONENTS_VERSION_NO_STATE_DISABLED
             if (AllComponentTypes<T>.isVersionedNoState == true) ++reg.versionsNoState.arr[entity.id];
             #endif
-            #if FILTERS_STORAGE_LEGACY
-            if (ComponentTypes<T>.isFilterVersioned == true) world.UpdateFilterByStructComponentVersioned<T>(in entity);
-            #endif
-
+            
             return result;
 
         }

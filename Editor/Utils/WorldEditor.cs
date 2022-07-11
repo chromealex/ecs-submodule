@@ -345,19 +345,6 @@ namespace ME.ECSEditor {
             
         }
         
-        #if FILTERS_STORAGE_LEGACY
-        public FiltersStorage GetFilters() {
-
-            return WorldHelper.GetFilters(this.world);
-
-        }
-
-        public Storage GetEntitiesStorage() {
-
-            return WorldHelper.GetEntitiesStorage(this.world);
-
-        }
-        #else
         public ME.ECS.FiltersArchetype.FiltersArchetypeStorage GetFilters() {
 
             return WorldHelper.GetFilters(this.world);
@@ -369,8 +356,7 @@ namespace ME.ECSEditor {
             return WorldHelper.GetEntitiesStorage(this.world);
 
         }
-        #endif
-
+        
         public IStructComponentsContainer GetStructComponentsStorage() {
 
             return WorldHelper.GetStructComponentsStorage(this.world);

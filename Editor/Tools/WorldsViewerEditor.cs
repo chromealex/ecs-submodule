@@ -706,21 +706,6 @@ namespace ME.ECSEditor {
                             var filtersCnt = 0;
                             var containsFilters = PoolListCopyable<FilterData>.Spawn(1);
                             var filters = world.GetFilters();
-                            #if FILTERS_STORAGE_LEGACY
-                            for (int i = 0; i < filters.filters.Length; ++i) {
-
-                                var filter = filters.filters.arr[i];
-                                if (filter == null) continue;
-                                
-                                if (filter.Contains(entityData) == true) {
-
-                                    containsFilters.Add(filter);
-                                    ++filtersCnt;
-
-                                }
-
-                            }
-                            #else
                             for (int i = 0; i < filters.filters.Count; ++i) {
 
                                 var filter = filters.filters[i];
@@ -733,8 +718,7 @@ namespace ME.ECSEditor {
 
                                 }
 
-                            }
-                            #endif                            
+                            }                          
 
                             var foldoutFilters = world.IsFoldOutFilters("Filters", entityData.id);
                             GUILayoutExt.FoldOut(ref foldoutFilters, "Filters (" + filtersCnt.ToString() + ")", () => {
@@ -1215,32 +1199,6 @@ namespace ME.ECSEditor {
 
                                 });
 
-                                #if FILTERS_STORAGE_LEGACY
-                                var filtersCount = 0;
-                                var filtersArr = filters.GetData();
-                                for (int f = 0; f < filtersArr.Length; ++f) {
-                                    if (filtersArr.arr[f] != null) ++filtersCount;
-                                }
-                                GUILayoutExt.FoldOut(ref worldEditor.foldoutFilters, $"Filters ({filtersCount})", () => {
-                                    
-                                    GUILayoutExt.Padding(4f, () => {
-
-                                        GUILayout.BeginVertical();
-                                        for (int f = 0; f < filtersArr.Length; ++f) {
-
-                                            var filter = filtersArr.arr[f];
-                                            if (filter == null) continue;
-
-                                            WorldsViewerEditor.DrawFilter(filters, filter);
-                                            
-                                        }
-                                        GUILayout.EndVertical();
-
-                                    });
-                                    
-                                });
-                                #endif
-
                             });
 
                             if (worldEditor.foldout == true) {
@@ -1271,56 +1229,6 @@ namespace ME.ECSEditor {
 
         }
 
-        #if FILTERS_STORAGE_LEGACY
-        public static void DrawFilter(FiltersStorage filters, FilterData filter) {
-            
-            var cellHeight = 25f;
-            var padding = 2f;
-            var margin = 1f;
-            var tableStyle = (GUIStyle)"Box";
-            var dataStyle = new GUIStyle(EditorStyles.label);
-            dataStyle.richText = true;
-            GUILayout.BeginHorizontal();
-            {
-                GUILayoutExt.Box(
-                    padding,
-                    margin,
-                    () => {
-
-                        var names = filter.GetAllNames();
-                        for (int i = 0; i < names.Length; ++i) {
-
-                            GUILayout.BeginHorizontal();
-                            {
-                                if (GUILayout.Button("Open", EditorStyles.toolbarButton, GUILayout.Width(38f)) == true) {
-
-                                    var file = filter.GetEditorStackTraceFilename(i);
-                                    var line = filter.GetEditorStackTraceLineNumber(i);
-                                    AssetDatabase.OpenAsset(AssetDatabase.LoadAssetAtPath<MonoScript>(file), line);
-
-                                }
-                                GUILayoutExt.DataLabel(string.Format("<b>{0}</b>", names.arr[i]), GUILayout.ExpandWidth(false));
-                            }
-                            GUILayout.EndHorizontal();
-                            
-                        }
-
-                        var style = new GUIStyle(EditorStyles.miniLabel);
-                        style.wordWrap = true;
-                        GUILayout.Label(filter.ToEditorTypesString(), style);
-                        GUILayout.Label("Objects count: " + filter.Count.ToString(), dataStyle);
-                        var inUseCount = filter.GetArchetypeContains().Count + filter.GetArchetypeNotContains().Count;
-                        var max = filters.GetAllFiltersArchetypeCount();
-                        GUILayoutExt.ProgressBar(inUseCount, max, drawLabel: true);
-                        
-                    },
-                    tableStyle,
-                    GUILayout.ExpandWidth(true), GUILayout.Height(cellHeight));
-            }
-            GUILayout.EndHorizontal();
-
-        }
-        #else
         public static void DrawFilter(ME.ECS.FiltersArchetype.FiltersArchetypeStorage filters, FilterData filter) {
             
             var cellHeight = 25f;
@@ -1366,7 +1274,6 @@ namespace ME.ECSEditor {
             GUILayout.EndHorizontal();
 
         }
-        #endif
 
         private bool ToggleMethod(WorldEditor worldEditor, object instance, string methodName, ref bool state) {
 

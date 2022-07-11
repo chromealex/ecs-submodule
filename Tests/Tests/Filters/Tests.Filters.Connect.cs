@@ -1,4 +1,3 @@
-#if !FILTERS_STORAGE_LEGACY
 namespace ME.ECS.Tests {
 
     public class Tests_Filters_Connect {
@@ -101,4 +100,3 @@ namespace ME.ECS.Tests {
     }
 
 }
-#endif

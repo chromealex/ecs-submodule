@@ -79,28 +79,6 @@ namespace ME.ECSEditor.Tools {
                         new TestInfo(TestMethod.Recycle),
                     },
                 });
-                #if FILTERS_STORAGE_LEGACY
-                collectedComponents.Add(new TestItem() {
-                    type = typeof(ME.ECS.Storage),
-                    tests = new [] {
-                        new TestInfo(TestMethod.CopyFrom),
-                        new TestInfo(TestMethod.Recycle),
-                    },
-                });
-                collectedComponents.Add(new TestItem() {
-                    type = typeof(ME.ECS.FilterBurstData),
-                    tests = new [] {
-                        new TestInfo(TestMethod.CopyFrom),
-                    },
-                });
-                collectedComponents.Add(new TestItem() {
-                    type = typeof(ME.ECS.FiltersStorage),
-                    tests = new [] {
-                        new TestInfo(TestMethod.CopyFrom),
-                        new TestInfo(TestMethod.Recycle),
-                    },
-                });
-                #else
                 collectedComponents.Add(new TestItem() {
                     type = typeof(ME.ECS.FiltersArchetype.FiltersArchetypeStorage),
                     tests = new [] {
@@ -108,7 +86,6 @@ namespace ME.ECSEditor.Tools {
                         new TestInfo(TestMethod.Recycle),
                     },
                 });
-                #endif
                 collectedComponents.Add(new TestItem() {
                     type = this.FindType(typeof(ME.ECS.World)),
                     tests = new [] {
