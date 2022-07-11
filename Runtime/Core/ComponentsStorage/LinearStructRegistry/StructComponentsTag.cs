@@ -17,6 +17,13 @@ namespace ME.ECS {
         internal NativeBufferArraySliced<byte> componentStates;
 
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        public override ref byte GetState(in Entity entity) {
+
+            return ref this.componentStates[entity.id];
+
+        }
+
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         public override bool TryRead(in Entity entity, out TComponent component) {
             throw new System.NotImplementedException();
         }

@@ -1838,10 +1838,19 @@ namespace ME.ECS {
             E.IS_ALIVE(in entity);
             
             var reg = (StructComponentsBase<TComponent>)this.currentState.structComponents.list.arr[AllComponentTypes<TComponent>.typeId];
-            ref var bucket = ref reg.Get(in entity);
-            reg.Replace(ref bucket, in data);
-            DataBufferUtilsBase.PushSetCreate_INTERNAL(ref bucket.state, this, reg, in entity, StorageType.Default, makeRequest: false);
-            
+            if (AllComponentTypes<TComponent>.isTag == true) {
+                
+                ref var state = ref reg.GetState(in entity);
+                DataBufferUtilsBase.PushSetCreate_INTERNAL(ref state, this, reg, in entity, StorageType.Default, makeRequest: false);
+                
+            } else {
+
+                ref var bucket = ref reg.Get(in entity);
+                reg.Replace(ref bucket, in data);
+                DataBufferUtilsBase.PushSetCreate_INTERNAL(ref bucket.state, this, reg, in entity, StorageType.Default, makeRequest: false);
+
+            }
+
             /*
             if (AllComponentTypes<TComponent>.isBlittable == true) {
                 

@@ -13,6 +13,11 @@ namespace ME.ECS {
         internal BufferArraySliced<Component<TComponent>> components;
 
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        public override ref byte GetState(in Entity entity) {
+            throw new System.NotImplementedException();
+        }
+
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         public override bool TryRead(in Entity entity, out TComponent component) {
             ref var bucket = ref this.components[entity.id];
             component = bucket.data;

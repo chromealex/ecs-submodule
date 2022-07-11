@@ -146,6 +146,9 @@ namespace ME.ECS {
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         public abstract ref Component<TComponent> Get(in Entity entity);
 
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        public abstract ref byte GetState(in Entity entity);
+
         public override int GetCustomHash() => 0;
 
         public virtual void UpdateVersion(ref Component<TComponent> bucket) {

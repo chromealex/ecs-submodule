@@ -70,7 +70,7 @@ namespace ME.ECS {
             #endif
             
             world.currentState.storage.versions.Increment(in entity);
-            reg.UpdateVersion(in entity);
+            if (AllComponentTypes<T>.isTag == false) reg.UpdateVersion(in entity);
             #if !COMPONENTS_VERSION_NO_STATE_DISABLED
             if (AllComponentTypes<T>.isVersionedNoState == true) ++reg.versionsNoState.arr[entity.id];
             #endif
