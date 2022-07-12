@@ -454,12 +454,6 @@ namespace ME.ECSEditor {
 
                     }
 
-                    if (isUnmanaged == true) {
-
-                        isBlittable = false;
-
-                    }
-                    
                     var isTag = false;
                     if (isBlittableForced == false && hasFields == false && isStatic == false) {
 
@@ -471,6 +465,13 @@ namespace ME.ECSEditor {
 
                     }
                     
+                    if (isUnmanaged == true) {
+
+                        isBlittable = false;
+                        isTag = false;
+
+                    }
+
                     if (isCopyable == false && hasFields == true && isStatic == false && isOneShot == false) {
                         
                         // Check for managed types
