@@ -3,7 +3,7 @@ using ME.ECS.Extensions;
 
 namespace ME.ECS {
     
-    using Collections;
+    using Collections.V3;
     using MemPtr = System.Int64;
 
     public struct UnmanagedComponentsStorage {
@@ -11,22 +11,22 @@ namespace ME.ECS {
         [System.Runtime.InteropServices.StructLayoutAttribute(System.Runtime.InteropServices.LayoutKind.Sequential)]
         public struct Item<T> where T : struct, IComponentBase {
 
-            public Collections.V2.MemArraySlicedAllocator<Component<T>> components;
+            public MemArraySlicedAllocator<Component<T>> components;
             public long maxVersion;
 
-            public void Dispose(ref Collections.V2.MemoryAllocator allocator) {
+            public void Dispose(ref MemoryAllocator allocator) {
                 
                 this.components.Dispose(ref allocator);
                 
             }
             
-            public void Merge(ref Collections.V2.MemoryAllocator allocator) {
+            public void Merge(ref MemoryAllocator allocator) {
 
                 this.components.Merge(ref allocator);
 
             }
 
-            public bool Validate(ref Collections.V2.MemoryAllocator allocator, int entityId) {
+            public bool Validate(ref MemoryAllocator allocator, int entityId) {
 
                 var resized = false;
                 this.components.Resize(ref allocator, entityId + 1, out resized);
@@ -40,7 +40,7 @@ namespace ME.ECS {
 
             }
 
-            public byte CopyFromState(ref Collections.V2.MemoryAllocator allocator, int from, int to) {
+            public byte CopyFromState(ref MemoryAllocator allocator, int from, int to) {
 
                 ref var bucket = ref this.components[in allocator, from];
                 this.components[in allocator, to] = bucket;
@@ -76,8 +76,8 @@ namespace ME.ECS {
 
         }
 
-        public Collections.V2.MemoryAllocator allocator;
-        public Collections.V2.MemArrayAllocator<MemPtr> items;
+        public MemoryAllocator allocator;
+        public MemArrayAllocator<MemPtr> items;
 
         public void Initialize() {
 
