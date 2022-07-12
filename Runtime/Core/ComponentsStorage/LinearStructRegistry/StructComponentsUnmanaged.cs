@@ -129,7 +129,7 @@ namespace ME.ECS {
         #endif
         protected override StructRegistryBase SpawnInstance() {
 
-            return PoolRegistries.SpawnBlittable<TComponent>();
+            return PoolRegistries.SpawnUnmanaged<TComponent>();
 
         }
 
