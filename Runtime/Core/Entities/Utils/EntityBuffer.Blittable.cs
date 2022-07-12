@@ -56,6 +56,28 @@ namespace ME.ECS {
             
         }
 
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        public static bool PushRemove_INTERNAL<T>(World world, in Entity entity, ref UnmanagedComponentsStorage storage, ref UnmanagedComponentsStorage.Item<T> reg) where T : struct, IComponentBase {
+
+            ref var bucket = ref reg.components[in storage.allocator, entity.id];
+            reg.RemoveData(in entity, ref bucket);
+            ref var state = ref bucket.state;
+            var stReg = (StructComponentsBase<T>)world.currentState.structComponents.list[entity.id];
+            return DataBufferUtilsBase.PushRemoveCreate_INTERNAL(ref state, world, in entity, stReg, StorageType.Default);
+
+        }
+
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        public static void PushSet_INTERNAL<T>(World world, in Entity entity, ref UnmanagedComponentsStorage storage, ref UnmanagedComponentsStorage.Item<T> reg, in T data) where T : struct, IComponentBase {
+
+            ref var bucket = ref reg.components[in storage.allocator, entity.id];
+            reg.Replace(in storage, ref bucket, in data);
+            ref var state = ref bucket.state;
+            var stReg = (StructComponentsBase<T>)world.currentState.structComponents.list[entity.id];
+            DataBufferUtilsBase.PushSetCreate_INTERNAL(ref state, world, stReg, in entity, StorageType.Default, makeRequest: false);
+
+        }
+
     }
 
 }

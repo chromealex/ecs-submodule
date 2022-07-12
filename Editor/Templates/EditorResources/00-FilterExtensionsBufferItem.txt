@@ -31,7 +31,8 @@ public unsafe struct FilterBag<#ITEMS_TYPE#> : IFilterBag #ITEMS_WHERE# {
         if (this.Length > 0) {
             this.regs = new Unity.Collections.NativeArray<Ptr>(#INDEX#, allocator);
             this.componentOps = new Ops(this.Length);
-            var allRegs = world.currentState.structComponents.GetAllRegistries();
+            ref var allRegs = ref world.currentState.structComponents.unmanagedComponentsStorage;
+            ref var memAllocator = ref world.currentState.structComponents.unmanagedComponentsStorage.allocator;
             #REGS_INIT#
         }
         Unity.Collections.NativeLeakDetection.Mode = mode;
@@ -47,7 +48,8 @@ public unsafe struct FilterBag<#ITEMS_TYPE#> : IFilterBag #ITEMS_WHERE# {
         UnityEngine.Profiling.Profiler.BeginSample("Push");
         #endif
         var world = Worlds.currentWorld;
-        var allRegs = world.currentState.structComponents.GetAllRegistries();
+        ref var allRegs = ref world.currentState.structComponents.unmanagedComponentsStorage;
+        ref var memAllocator = ref world.currentState.structComponents.unmanagedComponentsStorage.allocator;
         var ops = this.componentOps;
         for (int i = 0; i < ops.Length; ++i) {
             if (ops.Read(i, out var op) == true) {
