@@ -148,11 +148,12 @@ namespace ME.ECS {
         #endif
         public override bool Validate(int capacity) {
 
-            ref var storage = ref this.storage;
-            ref var reg = ref storage.GetRegistry<TComponent>();
-            var resized = reg.Validate(ref storage.allocator, capacity);
-            base.Validate(capacity);
-            return resized;
+            //ref var storage = ref this.storage;
+            //ref var reg = ref storage.GetRegistry<TComponent>();
+            //var resized = reg.Validate(ref storage.allocator, capacity);
+            this.storage.Validate<TComponent>(capacity);
+            return base.Validate(capacity);
+            //return resized;
 
         }
 

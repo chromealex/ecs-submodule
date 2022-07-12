@@ -2032,11 +2032,22 @@ namespace ME.ECS {
             E.IS_LOGIC_STEP(this);
             E.IS_ALIVE(in entity);
 
+            ((StructComponentsBase<TComponent>)this.currentState.structComponents.list.arr[AllComponentTypes<TComponent>.typeId]).RemoveObject(in entity, StorageType.Default);
+
+            /*
             if (AllComponentTypes<TComponent>.isBlittable == true) {
              
-                var reg = (StructComponentsBlittable<TComponent>)this.currentState.structComponents.list.arr[AllComponentTypes<TComponent>.typeId];
-                DataBlittableBufferUtils.PushRemove_INTERNAL(this, in entity, reg, StorageType.Default);
-   
+                if (AllComponentTypes<TComponent>.isCopyable == true) {
+                    
+                    
+                    
+                } else {
+                    
+                    var reg = (StructComponentsUnmanaged<TComponent>)this.currentState.structComponents.list.arr[AllComponentTypes<TComponent>.typeId];
+                    DataUnmanagedBufferUtils.PushRemove_INTERNAL(this, in entity, reg, StorageType.Default);
+
+                }
+
             } else {
 
                 if (AllComponentTypes<TComponent>.isTag == true) {
@@ -2051,7 +2062,7 @@ namespace ME.ECS {
 
                 }
 
-            }
+            }*/
 
         }
 
