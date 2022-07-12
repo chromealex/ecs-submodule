@@ -13,7 +13,7 @@ namespace ME.ECS.Collections {
 
             public static void Init(ref ME.ECS.StructComponentsContainer structComponentsContainer) {
 
-                structComponentsContainer.ValidateBlittable<IntrusiveData>(false);
+                structComponentsContainer.ValidateUnmanaged<IntrusiveData>(false);
 
             }
 

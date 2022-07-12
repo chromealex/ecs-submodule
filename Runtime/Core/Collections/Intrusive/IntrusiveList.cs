@@ -145,7 +145,7 @@ namespace ME.ECS.Collections {
 
             if (this.data == Entity.Null) {
                 this.data = new Entity(EntityFlag.None);
-                this.data.ValidateDataBlittable<IntrusiveData>();
+                this.data.ValidateDataUnmanaged<IntrusiveData>();
                 this.data.Set(new IntrusiveData());
             }
             

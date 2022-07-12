@@ -13,17 +13,17 @@ namespace ME.ECS {
 
         public static void Init(ref ME.ECS.StructComponentsContainer structComponentsContainer) {
     
-            structComponentsContainer.ValidateBlittable<ME.ECS.Transform.Position>();
-            structComponentsContainer.ValidateBlittable<ME.ECS.Transform.Rotation>();
-            structComponentsContainer.ValidateBlittable<ME.ECS.Transform.Scale>();
+            structComponentsContainer.ValidateUnmanaged<ME.ECS.Transform.Position>();
+            structComponentsContainer.ValidateUnmanaged<ME.ECS.Transform.Rotation>();
+            structComponentsContainer.ValidateUnmanaged<ME.ECS.Transform.Scale>();
 
         }
         
         public static void Init(in Entity entity) {
 
-            entity.ValidateDataBlittable<ME.ECS.Transform.Position>();
-            entity.ValidateDataBlittable<ME.ECS.Transform.Rotation>();
-            entity.ValidateDataBlittable<ME.ECS.Transform.Scale>();
+            entity.ValidateDataUnmanaged<ME.ECS.Transform.Position>();
+            entity.ValidateDataUnmanaged<ME.ECS.Transform.Rotation>();
+            entity.ValidateDataUnmanaged<ME.ECS.Transform.Scale>();
 
         }
     

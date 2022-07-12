@@ -71,8 +71,8 @@ namespace ME.ECS.Tests {
                 WorldUtilities.InitComponentTypeId<TestComponent2>(false, isBlittable: true);
                 ComponentsInitializerWorld.Setup((e) => {
                             
-                    e.ValidateDataBlittable<TestComponent>();
-                    e.ValidateDataBlittable<TestComponent2>();
+                    e.ValidateDataUnmanaged<TestComponent>();
+                    e.ValidateDataUnmanaged<TestComponent2>();
                             
                 });
                 

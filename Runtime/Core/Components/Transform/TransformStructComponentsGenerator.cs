@@ -24,8 +24,8 @@ namespace ME.ECS {
 
         public static void Init(ref ME.ECS.StructComponentsContainer structComponentsContainer) {
     
-            structComponentsContainer.ValidateBlittable<ME.ECS.Transform.Nodes>();
-            structComponentsContainer.ValidateBlittable<ME.ECS.Transform.Container>();
+            structComponentsContainer.ValidateUnmanaged<ME.ECS.Transform.Nodes>();
+            structComponentsContainer.ValidateUnmanaged<ME.ECS.Transform.Container>();
 
             Transform2DComponentsInitializer.Init(ref structComponentsContainer);
             Transform3DComponentsInitializer.Init(ref structComponentsContainer);
@@ -34,8 +34,8 @@ namespace ME.ECS {
     
         public static void Init(in Entity entity) {
 
-            entity.ValidateDataBlittable<ME.ECS.Transform.Nodes>();
-            entity.ValidateDataBlittable<ME.ECS.Transform.Container>();
+            entity.ValidateDataUnmanaged<ME.ECS.Transform.Nodes>();
+            entity.ValidateDataUnmanaged<ME.ECS.Transform.Container>();
             
             Transform2DComponentsInitializer.Init(in entity);
             Transform3DComponentsInitializer.Init(in entity);

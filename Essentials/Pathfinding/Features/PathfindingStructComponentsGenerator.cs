@@ -16,7 +16,7 @@ namespace ME.ECS {
             WorldUtilities.InitComponentTypeId<ME.ECS.Pathfinding.Features.Pathfinding.Components.IsPathBuilt>(true, false, false, false, false, false);
             
             structComponentsContainer.ValidateCopyable<ME.ECS.Pathfinding.Features.Pathfinding.Components.PathfindingInstance>(false);
-            structComponentsContainer.ValidateBlittable<ME.ECS.Pathfinding.Features.Pathfinding.Components.CalculatePath>(false);
+            structComponentsContainer.ValidateUnmanaged<ME.ECS.Pathfinding.Features.Pathfinding.Components.CalculatePath>(false);
             structComponentsContainer.ValidateCopyable<ME.ECS.Pathfinding.Features.PathfindingAstar.Components.Path>(false);
             structComponentsContainer.ValidateCopyable<ME.ECS.Pathfinding.Features.PathfindingFlowField.Components.PathFlowField>(false);
             structComponentsContainer.ValidateTag<ME.ECS.Pathfinding.Features.Pathfinding.Components.IsPathfinding>(true);
@@ -30,7 +30,7 @@ namespace ME.ECS {
         public static void InitEntity(Entity entity) {
 
             entity.ValidateDataCopyable<ME.ECS.Pathfinding.Features.Pathfinding.Components.PathfindingInstance>();
-            entity.ValidateDataBlittable<ME.ECS.Pathfinding.Features.Pathfinding.Components.CalculatePath>();
+            entity.ValidateDataUnmanaged<ME.ECS.Pathfinding.Features.Pathfinding.Components.CalculatePath>();
             entity.ValidateDataCopyable<ME.ECS.Pathfinding.Features.PathfindingAstar.Components.Path>();
             entity.ValidateDataCopyable<ME.ECS.Pathfinding.Features.PathfindingFlowField.Components.PathFlowField>();
             entity.ValidateDataTag<ME.ECS.Pathfinding.Features.Pathfinding.Components.IsPathfinding>(true);

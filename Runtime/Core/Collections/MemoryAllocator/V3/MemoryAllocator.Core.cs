@@ -47,6 +47,18 @@ namespace ME.ECS.Collections.V3 {
             [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
             public static bool operator !=(MemBlockOffset a, MemBlockOffset b) => a.value != b.value;
 
+            public bool Equals(MemBlockOffset other) {
+                return this.value == other.value;
+            }
+
+            public override bool Equals(object obj) {
+                return obj is MemBlockOffset other && Equals(other);
+            }
+
+            public override int GetHashCode() {
+                return this.value.GetHashCode();
+            }
+
         }
 
         public static void ZmClearZone(MemZone* zone) {

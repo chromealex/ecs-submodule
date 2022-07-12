@@ -153,8 +153,8 @@ namespace ME.ECS.Collections {
             
             if (this.data == Entity.Null) {
                 this.data = new Entity(EntityFlag.None);
-                this.data.ValidateDataBlittable<IntrusiveData>();
-                this.data.ValidateDataBlittable<IntrusiveSortedListData>();
+                this.data.ValidateDataUnmanaged<IntrusiveData>();
+                this.data.ValidateDataUnmanaged<IntrusiveSortedListData>();
                 this.data.Set(new IntrusiveSortedListData());
             }
             

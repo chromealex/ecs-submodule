@@ -29,12 +29,12 @@ namespace ME.ECS {
             
             noStateStructComponentsContainer.Validate<IsEntityOneShot>(true);
             noStateStructComponentsContainer.Validate<IsEntityEmptyOneShot>(true);
-            structComponentsContainer.ValidateBlittable<ME.ECS.Views.ViewComponent>(false);
-            structComponentsContainer.ValidateBlittable<ME.ECS.Collections.IntrusiveData>(false);
-            structComponentsContainer.ValidateBlittable<ME.ECS.Collections.IntrusiveSortedListData>(false);
-            structComponentsContainer.ValidateBlittable<ME.ECS.Collections.IntrusiveListNode>(false);
-            structComponentsContainer.ValidateBlittable<ME.ECS.Collections.IntrusiveHashSetBucket>(false);
-            structComponentsContainer.ValidateBlittable<ME.ECS.Collections.IntrusiveHashSetData>(false);
+            structComponentsContainer.ValidateUnmanaged<ME.ECS.Views.ViewComponent>(false);
+            structComponentsContainer.ValidateUnmanaged<ME.ECS.Collections.IntrusiveData>(false);
+            structComponentsContainer.ValidateUnmanaged<ME.ECS.Collections.IntrusiveSortedListData>(false);
+            structComponentsContainer.ValidateUnmanaged<ME.ECS.Collections.IntrusiveListNode>(false);
+            structComponentsContainer.ValidateUnmanaged<ME.ECS.Collections.IntrusiveHashSetBucket>(false);
+            structComponentsContainer.ValidateUnmanaged<ME.ECS.Collections.IntrusiveHashSetData>(false);
 
             ME.ECS.DataConfigs.DataConfig.Init(ref structComponentsContainer);
             TransformComponentsInitializer.Init(ref structComponentsContainer);
@@ -48,12 +48,12 @@ namespace ME.ECS {
             
             entity.ValidateDataOneShot<IsEntityOneShot>(true);
             entity.ValidateDataOneShot<IsEntityEmptyOneShot>(true);
-            entity.ValidateDataBlittable<ME.ECS.Views.ViewComponent>(false);
-            entity.ValidateDataBlittable<ME.ECS.Collections.IntrusiveData>(false);
-            entity.ValidateDataBlittable<ME.ECS.Collections.IntrusiveSortedListData>(false);
-            entity.ValidateDataBlittable<ME.ECS.Collections.IntrusiveListNode>(false);
-            entity.ValidateDataBlittable<ME.ECS.Collections.IntrusiveHashSetBucket>(false);
-            entity.ValidateDataBlittable<ME.ECS.Collections.IntrusiveHashSetData>(false);
+            entity.ValidateDataUnmanaged<ME.ECS.Views.ViewComponent>(false);
+            entity.ValidateDataUnmanaged<ME.ECS.Collections.IntrusiveData>(false);
+            entity.ValidateDataUnmanaged<ME.ECS.Collections.IntrusiveSortedListData>(false);
+            entity.ValidateDataUnmanaged<ME.ECS.Collections.IntrusiveListNode>(false);
+            entity.ValidateDataUnmanaged<ME.ECS.Collections.IntrusiveHashSetBucket>(false);
+            entity.ValidateDataUnmanaged<ME.ECS.Collections.IntrusiveHashSetData>(false);
 
             ME.ECS.DataConfigs.DataConfig.Init(in entity);
             TransformComponentsInitializer.Init(in entity);

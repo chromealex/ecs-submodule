@@ -548,8 +548,6 @@ namespace ME.ECS {
         #endif
         private void Validate<TComponent>(int code, bool isTag) where TComponent : struct, IComponentBase {
 
-            this.unmanagedComponentsStorage.ValidateTypeId<TComponent>(code);
-            
             if (ArrayUtils.WillResize(code, ref this.list) == true) {
 
                 ArrayUtils.Resize(code, ref this.list, true);
@@ -666,6 +664,62 @@ namespace ME.ECS {
             if (this.list.arr[code] == null) {
 
                 var instance = PoolRegistries.SpawnBlittable<TComponent>();
+                this.list.arr[code] = instance;
+
+            }
+
+        }
+        #endregion
+        
+        #region Unmanaged
+        #if ECS_COMPILE_IL2CPP_OPTIONS
+        [Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.NullChecks, false),
+         Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.ArrayBoundsChecks, false),
+         Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.DivideByZeroChecks, false)]
+        #endif
+        public void ValidateUnmanaged<TComponent>(bool isTag = false) where TComponent : struct, IComponentBase {
+
+            var code = WorldUtilities.GetAllComponentTypeId<TComponent>();
+            if (isTag == true) WorldUtilities.SetComponentAsTag<TComponent>();
+            this.ValidateUnmanaged<TComponent>(code, isTag);
+
+        }
+
+        #if ECS_COMPILE_IL2CPP_OPTIONS
+        [Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.NullChecks, false),
+         Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.ArrayBoundsChecks, false),
+         Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.DivideByZeroChecks, false)]
+        #endif
+        public void ValidateUnmanaged<TComponent>(in Entity entity, bool isTag = false) where TComponent : struct, IComponentBase {
+
+            var code = WorldUtilities.GetAllComponentTypeId<TComponent>();
+            this.ValidateUnmanaged<TComponent>(code, isTag);
+            var reg = (StructComponentsUnmanaged<TComponent>)this.list.arr[code];
+            reg.Validate(entity.id);
+
+        }
+
+        #if ECS_COMPILE_IL2CPP_OPTIONS
+        [Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.NullChecks, false),
+         Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.ArrayBoundsChecks, false),
+         Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.DivideByZeroChecks, false)]
+        #endif
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
+        private void ValidateUnmanaged<TComponent>(int code, bool isTag) where TComponent : struct, IComponentBase {
+
+            this.unmanagedComponentsStorage.ValidateTypeId<TComponent>(code);
+
+            if (ArrayUtils.WillResize(code, ref this.list) == true) {
+
+                ArrayUtils.Resize(code, ref this.list, true);
+
+            }
+
+            if (this.list.arr[code] == null) {
+
+                var instance = PoolRegistries.SpawnUnmanaged<TComponent>();
                 this.list.arr[code] = instance;
 
             }
@@ -1173,6 +1227,12 @@ namespace ME.ECS {
         public void ValidateDataCopyable<TComponent>(in Entity entity, bool isTag = false) where TComponent : struct, IComponentBase, IStructCopyable<TComponent> {
 
             this.currentState.structComponents.ValidateCopyable<TComponent>(in entity, isTag);
+
+        }
+
+        public void ValidateDataUnmanaged<TComponent>(in Entity entity, bool isTag = false) where TComponent : struct, IComponentBase {
+
+            this.currentState.structComponents.ValidateUnmanaged<TComponent>(in entity, isTag);
 
         }
 

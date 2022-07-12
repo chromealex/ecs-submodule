@@ -199,7 +199,7 @@ namespace ME.ECS.Tests {
                 WorldUtilities.InitComponentTypeId<TestComponent>(false, isBlittable: true);
                 ComponentsInitializerWorld.Setup((e) => {
                             
-                    e.ValidateDataBlittable<TestComponent>();
+                    e.ValidateDataUnmanaged<TestComponent>();
                             
                 });
                 
@@ -220,7 +220,7 @@ namespace ME.ECS.Tests {
                 WorldUtilities.InitComponentTypeId<TestComponent>(false, isBlittable: true);
                 ComponentsInitializerWorld.Setup((e) => {
                             
-                    e.ValidateDataBlittable<TestComponent>();
+                    e.ValidateDataUnmanaged<TestComponent>();
                             
                 });
                 
@@ -241,7 +241,7 @@ namespace ME.ECS.Tests {
                 WorldUtilities.InitComponentTypeId<TestComponent>(false, isBlittable: true);
                 ComponentsInitializerWorld.Setup((e) => {
                             
-                    e.ValidateDataBlittable<TestComponent>();
+                    e.ValidateDataUnmanaged<TestComponent>();
                             
                 });
                 
@@ -262,7 +262,7 @@ namespace ME.ECS.Tests {
                 WorldUtilities.InitComponentTypeId<TestComponent>(false, isBlittable: true);
                 ComponentsInitializerWorld.Setup((e) => {
                             
-                    e.ValidateDataBlittable<TestComponent>();
+                    e.ValidateDataUnmanaged<TestComponent>();
                             
                 });
                 

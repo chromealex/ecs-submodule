@@ -105,8 +105,8 @@ namespace ME.ECS.Tests {
                 CoreComponentsInitializer.Init(ref str, ref str2);
                 WorldUtilities.InitComponentTypeId<TestData>(isBlittable: true);
                 WorldUtilities.InitComponentTypeId<TestData2>(isBlittable: true);
-                str.ValidateBlittable<TestData>();
-                str.ValidateBlittable<TestData2>();
+                str.ValidateUnmanaged<TestData>();
+                str.ValidateUnmanaged<TestData2>();
                 
             }, (w) => {
                 

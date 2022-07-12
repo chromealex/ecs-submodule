@@ -11,13 +11,13 @@ namespace ME.ECS {
 
         public static void Init(ref ME.ECS.StructComponentsContainer structComponentsContainer) {
     
-            structComponentsContainer.ValidateBlittable<ME.ECS.Camera.Camera>();
+            structComponentsContainer.ValidateUnmanaged<ME.ECS.Camera.Camera>();
 
         }
     
         public static void Init(in Entity entity) {
 
-            entity.ValidateDataBlittable<ME.ECS.Camera.Camera>();
+            entity.ValidateDataUnmanaged<ME.ECS.Camera.Camera>();
             
         }
 

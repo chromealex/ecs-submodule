@@ -25,11 +25,17 @@ namespace ME.ECS {
 			
         }
 
-		public static StructComponentsOneShot<T> SpawnOneShot<T>() where T : struct, IComponentBase, IComponentOneShot {
+        public static StructComponentsOneShot<T> SpawnOneShot<T>() where T : struct, IComponentBase, IComponentOneShot {
 
-			return Pools.current.PoolSpawn(new Data(), (data) => new StructComponentsOneShot<T>(), null);
+            return Pools.current.PoolSpawn(new Data(), (data) => new StructComponentsOneShot<T>(), null);
 			
-		}
+        }
+
+        public static StructComponentsUnmanaged<T> SpawnUnmanaged<T>() where T : struct, IComponentBase {
+
+            return Pools.current.PoolSpawn(new Data(), (data) => new StructComponentsUnmanaged<T>(), null);
+			
+        }
 
 		public static StructComponentsCopyable<T> SpawnCopyable<T>() where T : struct, IComponentBase, IStructCopyable<T> {
 

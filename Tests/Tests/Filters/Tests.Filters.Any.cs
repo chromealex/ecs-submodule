@@ -109,10 +109,10 @@ namespace ME.ECS.Tests {
                 WorldUtilities.InitComponentTypeId<TestComponent3>(false, true, true);
                 ComponentsInitializerWorld.Setup((e) => {
                             
-                    e.ValidateDataBlittable<TestComponent>();
-                    e.ValidateDataBlittable<TestComponent1>();
-                    e.ValidateDataBlittable<TestComponent2>();
-                    e.ValidateDataBlittable<TestComponent3>();
+                    e.ValidateDataUnmanaged<TestComponent>();
+                    e.ValidateDataUnmanaged<TestComponent1>();
+                    e.ValidateDataUnmanaged<TestComponent2>();
+                    e.ValidateDataUnmanaged<TestComponent3>();
                             
                 });
                 
