@@ -62,7 +62,7 @@ namespace ME.ECS {
             ref var bucket = ref reg.components[in storage.allocator, entity.id];
             reg.RemoveData(in entity, ref bucket);
             ref var state = ref bucket.state;
-            var stReg = (StructComponentsBase<T>)world.currentState.structComponents.list[entity.id];
+            var stReg = (StructComponentsBase<T>)world.currentState.structComponents.list[AllComponentTypes<T>.typeId];
             return DataBufferUtilsBase.PushRemoveCreate_INTERNAL(ref state, world, in entity, stReg, StorageType.Default);
 
         }
@@ -73,7 +73,7 @@ namespace ME.ECS {
             ref var bucket = ref reg.components[in storage.allocator, entity.id];
             reg.Replace(in storage, ref bucket, in data);
             ref var state = ref bucket.state;
-            var stReg = (StructComponentsBase<T>)world.currentState.structComponents.list[entity.id];
+            var stReg = (StructComponentsBase<T>)world.currentState.structComponents.list[AllComponentTypes<T>.typeId];
             DataBufferUtilsBase.PushSetCreate_INTERNAL(ref state, world, stReg, in entity, StorageType.Default, makeRequest: false);
 
         }
