@@ -983,6 +983,8 @@ namespace ME.ECS {
             this.entitiesIndexer.Recycle();
             ArrayUtils.Recycle(ref this.nextTickTasks, new CopyTask());
             
+            this.unmanagedComponentsStorage.Dispose();
+            
             if (this.list.arr != null) {
 
                 for (int i = 0; i < this.list.Length; ++i) {
@@ -1079,6 +1081,7 @@ namespace ME.ECS {
 
             //this.OnRecycle();
 
+            this.unmanagedComponentsStorage.CopyFrom(in other.unmanagedComponentsStorage);
             this.entitiesIndexer.CopyFrom(in other.entitiesIndexer);
 
             ArrayUtils.Copy(other.dirtyMap, ref this.dirtyMap);
