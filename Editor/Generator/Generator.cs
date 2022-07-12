@@ -447,6 +447,19 @@ namespace ME.ECSEditor {
 
                     }
 
+                    var isUnmanaged = isBlittable;
+                    if (isCopyable == true && isBlittable == true) {
+
+                        isUnmanaged = false;
+
+                    }
+
+                    if (isUnmanaged == true) {
+
+                        isBlittable = false;
+
+                    }
+                    
                     var isTag = false;
                     if (isBlittableForced == false && hasFields == false && isStatic == false) {
 
@@ -476,9 +489,10 @@ namespace ME.ECSEditor {
                         resItem = resItem.Replace("#ISTAG#", hasFields == true ? "false" : "true");
                         resItem = resItem.Replace("#ISSHARED#", isShared == true ? "true" : "false");
                         resItem = resItem.Replace("#ISSIMPLE#", isSimple == true ? "true" : "false");
-                        resItem = resItem.Replace("#ISBLITTABLE#", isBlittable == true ? "true" : "false");
+                        resItem = resItem.Replace("#ISBLITTABLE#", isUnmanaged == true || isBlittable == true ? "true" : "false");
                         resItem = resItem.Replace("#TAG#", isTag == true ? "Tag" : "");
                         resItem = resItem.Replace("#COPYABLE#", isCopyable == true ? "Copyable" : "");
+                        resItem = resItem.Replace("#UNMANAGED#", isUnmanaged == true ? "Unmanaged" : "");
                         resItem = resItem.Replace("#BLITTABLE#", isBlittable == true ? "Blittable" : "");
                         resItem = resItem.Replace("#DISPOSABLE#", isDisposable == true ? "Disposable" : "");
                         resItem = resItem.Replace("#ONESHOT#", isOneShot == true ? "OneShot" : "");
@@ -503,9 +517,10 @@ namespace ME.ECSEditor {
                             resItem2 = resItem2.Replace("#ISTAG#", hasFields == true ? "false" : "true");
                             resItem2 = resItem2.Replace("#ISSHARED#", isShared == true ? "true" : "false");
                             resItem2 = resItem2.Replace("#ISSIMPLE#", isSimple == true ? "true" : "false");
-                            resItem2 = resItem2.Replace("#ISBLITTABLE#", isBlittable == true ? "true" : "false");
+                            resItem2 = resItem2.Replace("#ISBLITTABLE#", isUnmanaged == true || isBlittable == true ? "true" : "false");
                             resItem2 = resItem2.Replace("#TAG#", isTag == true ? "Tag" : "");
                             resItem2 = resItem2.Replace("#COPYABLE#", isCopyable == true ? "Copyable" : "");
+                            resItem2 = resItem2.Replace("#UNMANAGED#", isUnmanaged == true ? "Unmanaged" : "");
                             resItem2 = resItem2.Replace("#BLITTABLE#", isBlittable == true ? "Blittable" : "");
                             resItem2 = resItem2.Replace("#DISPOSABLE#", isDisposable == true ? "Disposable" : "");
                             resItem2 = resItem2.Replace("#ONESHOT#", isOneShot == true ? "OneShot" : "");
@@ -534,7 +549,7 @@ namespace ME.ECSEditor {
                         resItem3 = resItem3.Replace("#ISTAG#", hasFields == true ? "false" : "true");
                         resItem3 = resItem3.Replace("#ISSHARED#", isShared == true ? "true" : "false");
                         resItem3 = resItem3.Replace("#ISSIMPLE#", isSimple == true ? "true" : "false");
-                        resItem3 = resItem3.Replace("#ISBLITTABLE#", isBlittable == true ? "true" : "false");
+                        resItem3 = resItem3.Replace("#ISBLITTABLE#", isUnmanaged == true || isBlittable == true ? "true" : "false");
                         resItem3 = resItem3.Replace("#ISCOPYABLE#", isCopyable == true ? "true" : "false");
                         resItem3 = resItem3.Replace("#ISDISPOSABLE#", isDisposable == true ? "true" : "false");
                         resItem3 = resItem3.Replace("#ISONESHOT#", isOneShot == true ? "true" : "false");

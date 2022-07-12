@@ -361,6 +361,8 @@ namespace ME.ECS {
         [ME.ECS.Serializer.SerializeField]
         private ListCopyable<int> dirtyMap;
 
+        public UnmanagedComponentsStorage unmanagedComponentsStorage;
+
         public bool IsCreated() {
 
             return this.isCreated;
@@ -376,8 +378,10 @@ namespace ME.ECS {
             this.entitiesIndexer.Initialize(100);
 
             ArrayUtils.Resize(100, ref this.list, false);
+            
+            this.unmanagedComponentsStorage.Initialize();
             this.isCreated = true;
-
+            
         }
 
         public void Merge() {
@@ -394,7 +398,7 @@ namespace ME.ECS {
                 this.list.arr[idx].Merge();
 
             }
-
+            
             this.dirtyMap.Clear();
 
         }
@@ -544,6 +548,8 @@ namespace ME.ECS {
         #endif
         private void Validate<TComponent>(int code, bool isTag) where TComponent : struct, IComponentBase {
 
+            this.unmanagedComponentsStorage.ValidateTypeId<TComponent>(code);
+            
             if (ArrayUtils.WillResize(code, ref this.list) == true) {
 
                 ArrayUtils.Resize(code, ref this.list, true);

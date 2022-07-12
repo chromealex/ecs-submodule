@@ -15,13 +15,12 @@ namespace ME.ECS.Collections {
 
     }
 
-    public unsafe interface IMemoryAllocator<TAllocator, TMemPtr> {
+    public unsafe interface IMemoryAllocator<TAllocator, TMemPtr> : System.IDisposable {
 
         /// 
         /// Constructors
         /// 
         TAllocator Initialize(long initialSize, long maxSize = -1L);
-        void Dispose();
         void CopyFrom(in TAllocator other);
 
         /// 

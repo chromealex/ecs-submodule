@@ -33,5 +33,29 @@ namespace ME.ECS {
         }
 
     }
-    
+
+    public static class DataUnmanagedBufferUtils {
+
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        public static bool PushRemove_INTERNAL<T>(World world, in Entity entity, StructComponentsUnmanaged<T> reg, StorageType storageType = StorageType.Default) where T : struct, IComponentBase {
+
+            ref var bucket = ref reg.Get(in entity);
+            reg.RemoveData(in entity, ref bucket);
+            ref var state = ref bucket.state;
+            return DataBufferUtilsBase.PushRemoveCreate_INTERNAL(ref state, world, in entity, reg, storageType);
+
+        }
+
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        public static bool PushSet_INTERNAL<T>(World world, in Entity entity, StructComponentsUnmanaged<T> reg, in T data, StorageType storageType = StorageType.Default) where T : struct, IComponentBase {
+
+            ref var bucket = ref reg.Get(in entity);
+            reg.Replace(ref bucket, in data);
+            ref var state = ref bucket.state;
+            return DataBufferUtilsBase.PushSetCreate_INTERNAL(ref state, world, reg, in entity, storageType, makeRequest: false);
+            
+        }
+
+    }
+
 }

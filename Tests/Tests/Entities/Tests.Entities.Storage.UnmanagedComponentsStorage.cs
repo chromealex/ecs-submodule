@@ -1,9 +1,9 @@
-﻿
+﻿/*
 namespace ME.ECS.Tests {
 
     public class Tests_Entities_Storage_UnmanagedComponentsStorage {
 
-        public struct TestComponent {
+        public struct TestComponent : IComponentBase {
 
             public int value;
 
@@ -16,9 +16,10 @@ namespace ME.ECS.Tests {
             ME.ECS.Pools.current = new ME.ECS.PoolImplementation(isNull: false);
             var reg = new UnmanagedComponentsStorage();
             reg.Initialize();
+            var entityId = 100;
             try {
                 WorldUtilities.InitComponentTypeId<TestComponent>();
-                reg.Validate<TestComponent>();
+                reg.Validate<TestComponent>(entityId);
                 for (int i = 0; i < 100; ++i) {
                     reg.Validate<TestComponent>(i);
                 }
@@ -35,9 +36,10 @@ namespace ME.ECS.Tests {
             ME.ECS.Pools.current = new ME.ECS.PoolImplementation(isNull: false);
             var reg = new UnmanagedComponentsStorage();
             reg.Initialize();
+            var entityId = 100;
             try {
                 WorldUtilities.InitComponentTypeId<TestComponent>();
-                reg.Validate<TestComponent>();
+                reg.Validate<TestComponent>(entityId);
                 for (int i = 0; i < 100; ++i) {
                     reg.Validate<TestComponent>(i);
                 }
@@ -131,4 +133,4 @@ namespace ME.ECS.Tests {
 
     }
 
-}
+}*/
