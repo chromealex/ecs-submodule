@@ -30,7 +30,7 @@ namespace ME.ECS {
 
     }
 
-    public enum DestroyViewBehaviour {
+    public enum DestroyViewBehaviour : byte {
 
         DestroyWithEntity = 0,
         LeaveOnScene = 1,
@@ -385,14 +385,15 @@ namespace ME.ECS.Views {
         public readonly Entity entity;
         public readonly ViewId prefabSourceId;
         public readonly Tick creationTick;
-        public readonly DestroyViewBehaviour destroyViewBehaviour;
-
+        public readonly byte destroyViewBehaviourStorage;
+        public DestroyViewBehaviour destroyViewBehaviour => (DestroyViewBehaviour)this.destroyViewBehaviourStorage;
+        
         public ViewInfo(Entity entity, ViewId prefabSourceId, Tick creationTick, DestroyViewBehaviour destroyViewBehaviour) {
 
             this.entity = entity;
             this.prefabSourceId = prefabSourceId;
             this.creationTick = creationTick;
-            this.destroyViewBehaviour = destroyViewBehaviour;
+            this.destroyViewBehaviourStorage = (byte)destroyViewBehaviour;
 
         }
 
