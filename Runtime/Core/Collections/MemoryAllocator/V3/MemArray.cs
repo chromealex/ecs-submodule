@@ -78,8 +78,8 @@ namespace ME.ECS.Collections.V3 {
         public bool isCreated => this.ptr != 0L;
 
         public MemArrayAllocator(ref MemoryAllocator allocator, int length) {
-
-            this.ptr = allocator.AllocArrayUnmanaged<T>(length);
+            
+            this.ptr = length > 0 ? allocator.AllocArrayUnmanaged<T>(length) : 0;
             this.Length = length;
 
         }
