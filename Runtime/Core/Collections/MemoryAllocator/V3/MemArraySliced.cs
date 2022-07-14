@@ -83,15 +83,16 @@ namespace ME.ECS.Collections.V3 {
 
             //var arr = PoolArrayNative<T>.Spawn(this.Length);
             //if (this.data.isCreated == true) NativeArrayUtils.Copy(this.data, 0, ref arr, 0, this.data.Length);
-            var ptr = this.data.Length;
+            var elementSize = Unity.Collections.LowLevel.Unsafe.UnsafeUtility.SizeOf<T>();
+            var ptr = this.data.Length * elementSize;
             this.data.Resize(ref allocator, this.Length);
             for (int i = 0, length = this.tails.Length; i < length; ++i) {
 
                 ref var tail = ref this.tails[in allocator, i];
                 if (tail.isCreated == false) continue;
 
-                allocator.MemCopy(this.data.GetMemPtr(), ptr, tail.GetMemPtr(), 0, tail.Length);
-                ptr += tail.Length;
+                allocator.MemCopy(this.data.GetMemPtr(), ptr, tail.GetMemPtr(), 0, tail.Length * elementSize);
+                ptr += tail.Length * elementSize;
                 tail.Dispose(ref allocator);
 
             }
@@ -156,7 +157,8 @@ namespace ME.ECS.Collections.V3 {
                 var size = this.Length;
                 tails.Resize(ref allocator, idx + 1, options);
                 var bucketSize = index + MemArraySlicedAllocator<T>.BUCKET_SIZE - size;
-                tails[in allocator, idx] = new MemArrayAllocator<T>(ref allocator, bucketSize);
+                var newTail = new MemArrayAllocator<T>(ref allocator, bucketSize);
+                tails[in allocator, idx] = newTail;
                 this.tails = tails;
                 this.tailsLength += bucketSize;
                 result = true;
