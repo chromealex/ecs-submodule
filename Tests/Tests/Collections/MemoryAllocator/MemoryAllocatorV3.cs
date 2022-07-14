@@ -370,6 +370,105 @@ namespace ME.ECS.Tests.MemoryAllocator.V3 {
             allocator.Dispose();
 
         }
+        
+         //-----sliced
+
+        private MemArraySlicedAllocator<int> PrepareSlicedArray(ref MemoryAllocator allocator) {
+            
+            var data = new MemArraySlicedAllocator<int>(ref allocator, 0);
+            data = data.Resize(ref allocator,2, out _);
+            
+            data[in allocator, 0] = 1;
+            data[in allocator, 1] = 2;
+
+            data = data.Resize(ref allocator,4, out _);
+            data[in allocator, 2] = 3;
+            data[in allocator, 3] = 4;
+
+            data = data.Resize(ref allocator,6, out _);
+            data[in allocator, 4] = 5;
+            data[in allocator, 5] = 6;
+
+            data = data.Resize(ref allocator,8, out _);
+            data[in allocator, 6] = 7;
+            data[in allocator, 7] = 8;
+
+            data = data.Resize(ref allocator,10, out _);
+            data[in allocator, 8] = 9;
+            data[in allocator, 9] = 10;
+
+            data = data.Resize(ref allocator,12, out _);
+            data[in allocator, 10] = 11;
+            data[in allocator, 11] = 12;
+
+            return data;
+
+        }
+        
+        [Test]
+        public void SlicedArrayValidateData() {
+
+            var allocator = Base.GetAllocator(1);
+            var buffer = this.PrepareSlicedArray(ref allocator);
+
+            for (int i = 0; i < 12; i++) {
+                Assert.AreEqual(i + 1, buffer[in allocator, i]);
+            }
+
+            buffer.Dispose(ref allocator);
+            allocator.Dispose();
+        }
+
+        [Test]
+        public void SlicedArrayChange() {
+
+            var allocator = Base.GetAllocator(1);
+            var buffer = this.PrepareSlicedArray(ref allocator);
+            ref var data = ref buffer[in allocator, 5];
+            buffer = buffer.Resize(ref allocator, 14, out _);
+            data = 0x9876543;
+            
+            Assert.AreEqual(data, buffer[in allocator, 5]);
+        
+            buffer.Dispose(ref allocator);
+            allocator.Dispose();
+        }
+
+        [Test]
+        public void SlicedArrayAdd() {
+
+            var allocator = Base.GetAllocator(1);
+            var buffer = this.PrepareSlicedArray(ref allocator);
+            Assert.AreEqual(6, buffer[in allocator, 5]);
+            Assert.AreEqual(12, buffer[in allocator, 11]);
+            Assert.AreEqual(13, buffer.Length);
+
+            buffer.Dispose(ref allocator);
+            allocator.Dispose();
+
+        }
+
+        [Test]
+        public void SlicedArrayMerge() {
+
+            var allocator = Base.GetAllocator(1);
+            var buffer = this.PrepareSlicedArray(ref allocator);
+            var len = buffer.Length;
+            var merged = buffer.Merge(ref allocator);
+            Assert.AreEqual(6, merged[in allocator, 5]);
+            Assert.AreEqual(12, merged[in allocator, 11]);
+            Assert.AreEqual(len, merged.Length);
+            
+            merged = merged.Resize(ref allocator,20, out _);
+            
+            merged[in allocator, 16] = 17;
+            merged[in allocator, 17] = 18;
+            
+            
+            merged.Dispose(ref allocator);
+            allocator.Dispose();
+
+        }
 
     }
     
