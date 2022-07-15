@@ -2,7 +2,7 @@
 
 namespace ME.ECS.Pathfinding.Features.Pathfinding.Components {
 
-    public enum PathType {
+    public enum PathType : byte {
 
         AStar,
         FlowField,
@@ -21,7 +21,11 @@ namespace ME.ECS.Pathfinding.Features.Pathfinding.Components {
         public float3 to;
         public bool alignToGraphNodes;
         public ME.ECS.Pathfinding.Constraint constraint;
-        public PathType pathType;
+        public byte pathTypeValue;
+        public PathType pathType {
+            get => (PathType)this.pathTypeValue;
+            set => this.pathTypeValue = (byte)value;
+        }
         public bool burstEnabled;
         public bool cacheEnabled;
 
