@@ -141,7 +141,7 @@ namespace ME.ECS.Collections.V3 {
         /// 
         /// Arrays
         /// 
-        public ref T RefArray<T>(MemPtr ptr, int index) where T : unmanaged {
+        public readonly ref T RefArray<T>(MemPtr ptr, int index) where T : unmanaged {
             var size = sizeof(T);
             return ref UnsafeUtility.AsRef<T>(this.GetUnsafePtr(ptr + index * size));
         }
@@ -156,7 +156,7 @@ namespace ME.ECS.Collections.V3 {
             return this.Alloc(size * length);
         }
 
-        public ref T RefArrayUnmanaged<T>(MemPtr ptr, int index) where T : struct {
+        public readonly ref T RefArrayUnmanaged<T>(MemPtr ptr, int index) where T : struct {
             var size = UnsafeUtility.SizeOf<T>();
             return ref UnsafeUtility.AsRef<T>(this.GetUnsafePtr(ptr + index * size));
         }
