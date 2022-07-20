@@ -1,6 +1,8 @@
 ﻿namespace ME.ECS.Collections.V3 {
 
+    #if UNITY_EDITOR
     [UnityEditor.InitializeOnLoadAttribute]
+    #endif
     public static class StaticAllocators {
 
         private static readonly Destructor finalize = new Destructor();
