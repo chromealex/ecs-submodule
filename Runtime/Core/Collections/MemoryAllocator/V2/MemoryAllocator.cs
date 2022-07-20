@@ -13,7 +13,7 @@ namespace ME.ECS.Collections.V2 {
     #endif
     public static class StaticAllocators {
 
-        private static readonly Destructor finalize = new Destructor();
+        //private static readonly Destructor finalize = new Destructor();
 
         private static MemoryAllocator persistent;
         private static MemoryAllocator temp;
@@ -29,7 +29,7 @@ namespace ME.ECS.Collections.V2 {
             
         }
         
-        static StaticAllocators() {
+        /*static StaticAllocators() {
             
             // 4 MB of persistent memory + no max size
             StaticAllocators.persistent = new MemoryAllocator().Initialize(4 * 1024 * 1024, -1);
@@ -44,7 +44,7 @@ namespace ME.ECS.Collections.V2 {
                 StaticAllocators.persistent.Dispose();
                 StaticAllocators.temp.Dispose();
             }
-        }
+        }*/
 
     }
 
