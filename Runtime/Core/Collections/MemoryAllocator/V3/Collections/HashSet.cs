@@ -215,6 +215,7 @@ namespace ME.ECS.Collections.MemoryAllocator {
             int size = HashHelpers.GetPrime(capacity);
             this.buckets = new MemArrayAllocator<int>(ref allocator, size);
             this.slots = new MemArrayAllocator<Slot>(ref allocator, size);
+            this.freeList = -1;
         }
 
         /// <summary>
