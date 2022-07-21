@@ -1,5 +1,6 @@
 # Version 2.7
 * Runtime.Core: 
+  * MemoryAllocator List collection added
   * ENTITY_API_VERSION1_DEPRECATED removed
   * Legacy Filters removed
 

@@ -39,7 +39,7 @@ namespace ME.ECS {
             [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
             #endif
             get {
-                return Worlds.currentWorld;
+                return Worlds.current;
             }
         }
 

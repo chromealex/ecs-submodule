@@ -13,8 +13,8 @@ namespace ME.ECS {
     #endif
     public partial class StructComponentsUnmanaged<TComponent> : StructComponentsBase<TComponent>, IComponentsUnmanaged where TComponent : struct, IComponentBase {
 
-        public ref UnmanagedComponentsStorage storage => ref this.world.currentState.structComponents.unmanagedComponentsStorage;
-        public ref UnmanagedComponentsStorage.Item<TComponent> registry => ref this.storage.GetRegistry<TComponent>();
+        private ref UnmanagedComponentsStorage storage => ref this.world.currentState.structComponents.unmanagedComponentsStorage;
+        private ref UnmanagedComponentsStorage.Item<TComponent> registry => ref this.storage.GetRegistry<TComponent>();
         
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         public override ref byte GetState(in Entity entity) {
