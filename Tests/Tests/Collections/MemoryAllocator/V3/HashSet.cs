@@ -20,6 +20,34 @@ namespace ME.ECS.Tests.MemoryAllocator.V3.Collections {
         }
 
         [Test]
+        public void ForEach() {
+
+            var allocator = Base.GetAllocator(10);
+
+            var list = new HashSet<Vector3>(ref allocator, 10);
+            for (int i = 0; i < 100; ++i) {
+
+                list.Add(ref allocator, new Vector3(i, i, i));
+                
+            }
+
+            var cnt = 0;
+            var e = list.GetEnumerator(in allocator);
+            while (e.MoveNext() == true) {
+                Assert.IsTrue(e.Current.x >= 0 && e.Current.x < 100);
+                Debug.Log(e.Current.x);
+                ++cnt;
+            }
+            e.Dispose();
+            
+            Assert.IsTrue(list.Count == 100);
+            Assert.IsTrue(cnt == 100);
+
+            allocator.Dispose();
+
+        }
+
+        [Test]
         public void Add() {
 
             var allocator = Base.GetAllocator(10);
@@ -49,7 +77,11 @@ namespace ME.ECS.Tests.MemoryAllocator.V3.Collections {
                 
             }
             
-            Assert.IsTrue(list.Contains(ref allocator, new Vector3(50, 50, 50)));
+            for (int i = 0; i < 100; ++i) {
+
+                Assert.IsTrue(list.Contains(ref allocator, new Vector3(i, i, i)));
+                
+            }
             
             allocator.Dispose();
 

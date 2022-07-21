@@ -72,8 +72,12 @@ namespace ME.ECS.Tests.MemoryAllocator.V3.Collections {
                 
             }
             
-            Assert.IsTrue(list.Contains(ref allocator, new Vector3(50, 50, 50)));
-            
+            for (int i = 0; i < 100; ++i) {
+
+                Assert.IsTrue(list.Contains(ref allocator, new Vector3(i, i, i)));
+                
+            }
+
             allocator.Dispose();
 
         }
