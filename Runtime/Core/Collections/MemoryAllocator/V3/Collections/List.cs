@@ -4,7 +4,7 @@ namespace ME.ECS.Collections.MemoryAllocator {
     
     public struct List<T> where T : unmanaged {
 
-        public MemArrayAllocator<T> arr;
+        private MemArrayAllocator<T> arr;
         private int count;
 
         public bool isCreated => this.arr.isCreated;
@@ -24,8 +24,9 @@ namespace ME.ECS.Collections.MemoryAllocator {
 
         }
 
-        public void Clear() {
+        public void Clear(in MemoryAllocator allocator) {
 
+            this.arr.Clear(in allocator);
             this.count = 0;
 
         }
@@ -41,6 +42,7 @@ namespace ME.ECS.Collections.MemoryAllocator {
 
         private void EnsureCapacity(ref MemoryAllocator allocator, int capacity) {
 
+            capacity = Helpers.NextPot(capacity);
             this.arr.Resize(ref allocator, capacity, ClearOptions.UninitializedMemory);
             
         }

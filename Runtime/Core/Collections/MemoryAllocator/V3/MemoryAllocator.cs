@@ -124,11 +124,11 @@ namespace ME.ECS.Collections.V3 {
             return newPtr;
         }
 
-        public void MemCopy(MemPtr dest, long destOffset, MemPtr source, long sourceOffset, long length) {
+        public readonly void MemCopy(MemPtr dest, long destOffset, MemPtr source, long sourceOffset, long length) {
             UnsafeUtility.MemCpy(this.GetUnsafePtr(dest + destOffset), this.GetUnsafePtr(source + sourceOffset), length);
         }
 
-        public void MemClear(MemPtr dest, long destOffset, long length) {
+        public readonly void MemClear(MemPtr dest, long destOffset, long length) {
             UnsafeUtility.MemClear(this.GetUnsafePtr(dest + destOffset), length);
         }
 

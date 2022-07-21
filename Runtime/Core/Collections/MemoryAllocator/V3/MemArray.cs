@@ -91,7 +91,7 @@ namespace ME.ECS.Collections.V3 {
 
         }
 
-        public MemPtr GetMemPtr() {
+        public readonly MemPtr GetMemPtr() {
             return this.ptr;
         }
 
@@ -119,13 +119,13 @@ namespace ME.ECS.Collections.V3 {
 
         }
 
-        public void Clear(ref MemoryAllocator allocator) {
+        public void Clear(in MemoryAllocator allocator) {
 
-            this.Clear(ref allocator, 0, this.Length);
+            this.Clear(in allocator, 0, this.Length);
 
         }
 
-        public void Clear(ref MemoryAllocator allocator, int index, int length) {
+        public void Clear(in MemoryAllocator allocator, int index, int length) {
 
             var size = Unity.Collections.LowLevel.Unsafe.UnsafeUtility.SizeOf<T>();
             allocator.MemClear(this.ptr, index * size, length * size);

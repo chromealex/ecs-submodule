@@ -1,6 +1,7 @@
 # Version 2.7
 * Tests.Tests: V3 List tests added
 * Runtime.Core: 
+  * MemoryAllocator HashSet collection added
   * MemoryAllocator List collection added
   * ENTITY_API_VERSION1_DEPRECATED removed
   * Legacy Filters removed
