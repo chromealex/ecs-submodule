@@ -983,8 +983,6 @@ namespace ME.ECS {
             this.entitiesIndexer.Recycle();
             ArrayUtils.Recycle(ref this.nextTickTasks, new CopyTask());
             
-            this.unmanagedComponentsStorage.Dispose();
-            
             if (this.list.arr != null) {
 
                 for (int i = 0; i < this.list.Length; ++i) {
@@ -1003,6 +1001,8 @@ namespace ME.ECS {
             }
 
             if (this.dirtyMap != null) PoolListCopyable<int>.Recycle(ref this.dirtyMap);
+            
+            this.unmanagedComponentsStorage.Dispose();
 
             this.isCreated = default;
 
