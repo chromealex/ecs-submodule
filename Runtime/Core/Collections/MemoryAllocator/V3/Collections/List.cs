@@ -23,6 +23,12 @@ namespace ME.ECS.Collections.MemoryAllocator {
             this.count = default;
 
         }
+
+        public void Clear() {
+
+            this.count = 0;
+
+        }
         
         public ref T this[in MemoryAllocator allocator, int index] {
             get {
