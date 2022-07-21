@@ -1,4 +1,5 @@
 # Version 2.7
+* Tests.Tests: V3 List tests added
 * Runtime.Core: 
   * MemoryAllocator List collection added
   * ENTITY_API_VERSION1_DEPRECATED removed

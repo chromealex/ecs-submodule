@@ -54,6 +54,23 @@ namespace ME.ECS.Collections.MemoryAllocator {
 
         }
 
+        public bool Contains<U>(ref MemoryAllocator allocator, U obj) where U : unmanaged, System.IEquatable<U> {
+            
+            for (int i = 0; i < this.count; ++i) {
+
+                var asU = Unity.Collections.LowLevel.Unsafe.UnsafeUtility.As<T, U>(ref this.arr[in allocator, i]);
+                if (asU.Equals(obj) == true) {
+
+                    return true;
+
+                }
+                
+            }
+
+            return false;
+
+        }
+
         public bool Remove<U>(ref MemoryAllocator allocator, U obj) where U : unmanaged, System.IEquatable<U> {
 
             for (int i = 0; i < this.count; ++i) {
