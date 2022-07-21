@@ -25,20 +25,28 @@ namespace ME.ECS.Collections.V3 {
         public void Dispose() {
 
             MemoryAllocator.ZmFreeZone(this.zone);
-
             this.zone = null;
+
+            this.maxSize = default;
+
         }
 
         public void CopyFrom(in MemoryAllocator other) {
 
-            if (this.zone == null) {
-                this.zone = MemoryAllocator.ZmCreateZone(other.zone->size);
-            } else if (this.zone->size != other.zone->size) {
+            if (other.zone == null && this.zone == null) {
+                
+            } else if (other.zone == null && this.zone != null) {
                 MemoryAllocator.ZmFreeZone(this.zone);
-                this.zone = MemoryAllocator.ZmCreateZone(other.zone->size);
+                this.zone = null;
+            } else {
+                if (this.zone == null) {
+                    this.zone = MemoryAllocator.ZmCreateZone(other.zone->size);
+                } else if (this.zone->size != other.zone->size) {
+                    MemoryAllocator.ZmFreeZone(this.zone);
+                    this.zone = MemoryAllocator.ZmCreateZone(other.zone->size);
+                }
+                UnsafeUtility.MemCpy(this.zone, other.zone, other.zone->size);
             }
-
-            UnsafeUtility.MemCpy(this.zone, other.zone, other.zone->size);
 
             this.maxSize = other.maxSize;
         }

@@ -89,7 +89,8 @@ namespace ME.ECS {
         public void Dispose() {
             
             this.allocator.Dispose();
-            
+            this.items = default;
+
         }
 
         public void CopyFrom(in UnmanagedComponentsStorage other) {
