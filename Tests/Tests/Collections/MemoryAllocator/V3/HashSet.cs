@@ -70,14 +70,15 @@ namespace ME.ECS.Tests.MemoryAllocator.V3.Collections {
 
             var allocator = Base.GetAllocator(10);
 
+            var cnt = 2;
             var list = new HashSet<Vector3>(ref allocator, 10);
-            for (int i = 0; i < 100; ++i) {
+            for (int i = 0; i < cnt; ++i) {
 
                 list.Add(ref allocator, new Vector3(i, i, i));
                 
             }
             
-            for (int i = 0; i < 100; ++i) {
+            for (int i = 0; i < cnt; ++i) {
 
                 Assert.IsTrue(list.Contains(ref allocator, new Vector3(i, i, i)));
                 

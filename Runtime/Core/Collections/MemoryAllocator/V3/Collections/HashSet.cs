@@ -263,6 +263,8 @@ namespace ME.ECS.Collections.MemoryAllocator {
                 newSlots[in allocator, i].next = newBuckets[in allocator, bucket] - 1;
                 newBuckets[in allocator, bucket] = i + 1;
             }
+            if (this.slots.isCreated == true) this.slots.Dispose(ref allocator);
+            if (this.buckets.isCreated == true) this.buckets.Dispose(ref allocator);
             this.slots = newSlots;
             this.buckets = newBuckets;
         }
