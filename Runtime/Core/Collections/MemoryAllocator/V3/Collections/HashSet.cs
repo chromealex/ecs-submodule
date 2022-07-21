@@ -71,7 +71,7 @@ namespace ME.ECS.Collections.MemoryAllocator {
             this.Initialize(ref allocator, capacity);
 
         }
-
+        
         public readonly Enumerator GetEnumerator(in MemoryAllocator allocator) {
             
             return new Enumerator(in allocator, this);
@@ -313,6 +313,7 @@ namespace ME.ECS.Collections.MemoryAllocator {
             this.slots[in allocator, index].hashCode = hashCode;
             this.slots[in allocator, index].value = value;
             this.slots[in allocator, index].next = this.buckets[in allocator, bucket] - 1;
+            UnityEngine.Debug.Log($"Bucket:Set:{bucket} = {(index + 1)}");
             this.buckets[in allocator, bucket] = index + 1;
             this.count++;
             this.version++;

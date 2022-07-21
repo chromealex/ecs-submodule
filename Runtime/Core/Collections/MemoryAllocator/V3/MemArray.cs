@@ -77,10 +77,14 @@ namespace ME.ECS.Collections.V3 {
         public int Length;
         public bool isCreated => this.ptr != 0L;
 
-        public MemArrayAllocator(ref MemoryAllocator allocator, int length) {
+        public MemArrayAllocator(ref MemoryAllocator allocator, int length, ClearOptions clearOptions = ClearOptions.ClearMemory) {
             
             this.ptr = length > 0 ? allocator.AllocArrayUnmanaged<T>(length) : 0;
             this.Length = length;
+
+            if (clearOptions == ClearOptions.ClearMemory) {
+                this.Clear(in allocator);
+            }
 
         }
 

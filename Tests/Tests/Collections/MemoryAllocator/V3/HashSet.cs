@@ -35,7 +35,6 @@ namespace ME.ECS.Tests.MemoryAllocator.V3.Collections {
             var e = list.GetEnumerator(in allocator);
             while (e.MoveNext() == true) {
                 Assert.IsTrue(e.Current.x >= 0 && e.Current.x < 100);
-                Debug.Log(e.Current.x);
                 ++cnt;
             }
             e.Dispose();
