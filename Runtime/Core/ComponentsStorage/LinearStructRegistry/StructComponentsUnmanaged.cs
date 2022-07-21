@@ -135,9 +135,9 @@ namespace ME.ECS {
 
         public override void OnRecycle() {
 
-            ref var storage = ref this.storage;
-            ref var reg = ref storage.GetRegistry<TComponent>();
-            reg.Dispose(ref storage.allocator);
+            //ref var storage = ref this.storage;
+            //ref var reg = ref storage.GetRegistry<TComponent>();
+            //reg.Dispose(ref storage.allocator);
 
             base.OnRecycle();
             
