@@ -10,7 +10,7 @@ namespace ME.ECSEditor {
 
         public static ME.ECS.FiltersArchetype.FiltersArchetypeStorage GetFilters(World world) {
 
-            return world.currentState.filters;
+            return world.currentState.storage;
 
         }
         

@@ -147,7 +147,7 @@ namespace ME.ECS {
                 this.archIndex = 0;
                 //this.localEnumerator.Dispose();
 
-                ref var filters = ref Worlds.current.currentState.filters;
+                ref var filters = ref Worlds.current.currentState.storage;
                 --filters.forEachMode;
 
                 if (filters.forEachMode == 0) {
@@ -166,7 +166,7 @@ namespace ME.ECS {
         public Enumerator GetEnumerator() {
 
             var world = Worlds.current;
-            ref var filters = ref world.currentState.filters;
+            ref var filters = ref world.currentState.storage;
             filters.UpdateFilters();
             ++filters.forEachMode;
 
@@ -200,7 +200,7 @@ namespace ME.ECS {
             #if INLINE_METHODS
             [MethodImplAttribute(MethodImplOptions.AggressiveInlining)]
             #endif
-            get => Worlds.current.currentState.filters.Count(this);
+            get => Worlds.current.currentState.storage.Count(this);
         }
 
         #if INLINE_METHODS
@@ -325,13 +325,13 @@ namespace ME.ECS {
             
             System.Action<Entity> setAction = (e) => {
                 if (new T().Execute(Worlds.current.ReadDataUnsafe(e, globalTypeId), unsafeData) == true) {
-                    Worlds.current.currentState.filters.Set(e, lambdaTypeId, true);
+                    Worlds.current.currentState.storage.Set(e, lambdaTypeId, true);
                 } else {
-                    Worlds.current.currentState.filters.Remove(e, lambdaTypeId, true);
+                    Worlds.current.currentState.storage.Remove(e, lambdaTypeId, true);
                 }
             };
             System.Action<Entity> removeAction = (e) => {
-                Worlds.current.currentState.filters.Remove(e, lambdaTypeId, true);
+                Worlds.current.currentState.storage.Remove(e, lambdaTypeId, true);
             };
             
             WorldUtilities.SetComponentFilterLambdaByType(type);
@@ -447,7 +447,7 @@ namespace ME.ECS {
         #endif
         public void GetBounds(out int min, out int max) {
 
-            var filterData = Worlds.current.currentState.filters.GetFilter(this.id);
+            var filterData = Worlds.current.currentState.storage.GetFilter(this.id);
             min = int.MaxValue;
             max = int.MinValue;
             foreach (var archId in filterData.archetypes) {
@@ -480,7 +480,7 @@ namespace ME.ECS {
         #endif
         public Unity.Collections.NativeArray<Entity> ToArray(Unity.Collections.Allocator allocator = Unity.Collections.Allocator.Persistent) {
 
-            var filterData = Worlds.current.currentState.filters.GetFilter(this.id);
+            var filterData = Worlds.current.currentState.storage.GetFilter(this.id);
             var result = new Unity.Collections.NativeList<Entity>(filterData.archetypes.Count * 10, allocator);
             foreach (var entity in this) {
                 result.Add(entity);
@@ -503,7 +503,7 @@ namespace ME.ECS {
 
             min = int.MaxValue;
             max = int.MinValue;
-            var filterData = Worlds.current.currentState.filters.GetFilter(this.id);
+            var filterData = Worlds.current.currentState.storage.GetFilter(this.id);
             var result = new Unity.Collections.NativeList<Entity>(filterData.archetypes.Count * 10, allocator);
             foreach (var entity in this) {
                 if (entity.id < min) {
@@ -531,7 +531,7 @@ namespace ME.ECS {
         #endif
         public Unity.Collections.NativeList<int> ToList(Unity.Collections.Allocator allocator, out Unity.Collections.NativeArray<int> idToIndex) {
 
-            var filterData = Worlds.current.currentState.filters.GetFilter(this.id);
+            var filterData = Worlds.current.currentState.storage.GetFilter(this.id);
             var result = new Unity.Collections.NativeList<int>(filterData.archetypes.Count * 10, allocator);
             var max = -1;
             foreach (var entity in this) {
@@ -557,7 +557,7 @@ namespace ME.ECS {
 
             min = int.MaxValue;
             max = int.MinValue;
-            var filterData = Worlds.current.currentState.filters.GetFilter(this.id);
+            var filterData = Worlds.current.currentState.storage.GetFilter(this.id);
             var result = new Unity.Collections.NativeList<int>(filterData.archetypes.Count * 10, allocator);
             foreach (var entity in this) {
                 if (entity.id < min) {
@@ -579,7 +579,7 @@ namespace ME.ECS {
         #endif
         public Unity.Collections.NativeList<int> ToList(Unity.Collections.Allocator allocator) {
 
-            var filterData = Worlds.current.currentState.filters.GetFilter(this.id);
+            var filterData = Worlds.current.currentState.storage.GetFilter(this.id);
             var result = new Unity.Collections.NativeList<int>(filterData.archetypes.Count * 10, allocator);
             foreach (var entity in this) {
                 result.Add(entity.id);
@@ -591,14 +591,14 @@ namespace ME.ECS {
 
         public bool Contains(in Entity entity) {
 
-            var filterData = Worlds.current.currentState.filters.GetFilter(this.id);
+            var filterData = Worlds.current.currentState.storage.GetFilter(this.id);
             return filterData.Contains(in entity);
 
         }
 
         public bool Contains(int entityId) {
 
-            var filterData = Worlds.current.currentState.filters.GetFilter(this.id);
+            var filterData = Worlds.current.currentState.storage.GetFilter(this.id);
             return filterData.Contains(entityId);
 
         }
@@ -677,7 +677,7 @@ namespace ME.ECS {
 
         public ref ME.ECS.FiltersArchetype.FiltersArchetypeStorage storage {
             [MethodImplAttribute(MethodImplOptions.AggressiveInlining)]
-            get => ref Worlds.current.currentState.filters;
+            get => ref Worlds.current.currentState.storage;
         }
 
         [ME.ECS.Serializer.SerializeField]
@@ -1013,7 +1013,7 @@ namespace ME.ECS {
         public delegate void InnerFilterBuilderDelegate(FilterBuilder builder);
         public delegate Entity ConnectCustomGetEntityDelegate(in Entity entity);
         
-        internal ME.ECS.FiltersArchetype.FiltersArchetypeStorage storage => Worlds.current.currentState.filters;
+        internal ME.ECS.FiltersArchetype.FiltersArchetypeStorage storage => Worlds.current.currentState.storage;
 
         internal FilterInternalData data;
 
@@ -1022,12 +1022,12 @@ namespace ME.ECS {
 
             System.Action<Entity> setAction = (e) => {
                 if (new T().Execute(in e.Read<TComponent>())) {
-                    Worlds.current.currentState.filters.Set<T>(e);
+                    Worlds.current.currentState.storage.Set<T>(e);
                 } else {
-                    Worlds.current.currentState.filters.Remove<T>(e);
+                    Worlds.current.currentState.storage.Remove<T>(e);
                 }
             };
-            System.Action<Entity> removeAction = (e) => { Worlds.current.currentState.filters.Remove<T>(e); };
+            System.Action<Entity> removeAction = (e) => { Worlds.current.currentState.storage.Remove<T>(e); };
 
             WorldUtilities.SetComponentTypeId<T>();
             WorldUtilities.SetComponentTypeId<TComponent>();

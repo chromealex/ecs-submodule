@@ -3,6 +3,7 @@
   * MemoryAllocator HashSet tests added
   * MemoryAllocator List tests added
 * Runtime.Core: 
+  * Collections refactoring
   * MemoryAllocator HashSet collection added
   * MemoryAllocator List collection added
   * ENTITY_API_VERSION1_DEPRECATED removed

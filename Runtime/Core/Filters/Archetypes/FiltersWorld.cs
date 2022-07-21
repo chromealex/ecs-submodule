@@ -77,21 +77,21 @@ namespace ME.ECS {
         public void SetEntityCapacityInFilters(int capacity) {
 
             // On change capacity
-            this.currentState.filters.SetCapacity(capacity);
+            this.currentState.storage.SetCapacity(capacity);
 
         }
 
         public void CreateEntityInFilters(in Entity entity) {
 
             // On create new entity
-            this.currentState.filters.SetCapacity(entity.id + 1);
+            this.currentState.storage.SetCapacity(entity.id + 1);
 
         }
 
         public void RemoveFromAllFilters(in Entity entity) {
 
             // On destroy entity
-            this.currentState.filters.Remove(in entity);
+            this.currentState.storage.Remove(in entity);
 
         }
 
@@ -99,7 +99,7 @@ namespace ME.ECS {
         public void UpdateFilters(in EntitiesGroup group) {
 
             // Force to update entity group in filters
-            this.currentState.filters.UpdateFilters();
+            this.currentState.storage.UpdateFilters();
 
         }
         #endif
@@ -107,19 +107,19 @@ namespace ME.ECS {
         public void UpdateFilters(in Entity entity) {
 
             // Force to update entity in filters
-            this.currentState.filters.UpdateFilters();
+            this.currentState.storage.UpdateFilters();
 
         }
 
         public void AddFilterByStructComponent(in Entity entity, int componentId, bool checkLambda) {
 
-            this.currentState.filters.Set(in entity, componentId, checkLambda);
+            this.currentState.storage.Set(in entity, componentId, checkLambda);
 
         }
 
         public void RemoveFilterByStructComponent(in Entity entity, int componentId, bool checkLambda) {
 
-            this.currentState.filters.Remove(in entity, componentId, checkLambda);
+            this.currentState.storage.Remove(in entity, componentId, checkLambda);
 
         }
 
@@ -127,25 +127,25 @@ namespace ME.ECS {
 
         public void ValidateFilterByStructComponent(in Entity entity, int componentId, bool makeRequest = false) {
 
-            this.currentState.filters.Validate(in entity, componentId, makeRequest);
+            this.currentState.storage.Validate(in entity, componentId, makeRequest);
 
         }
 
         public void ValidateFilterByStructComponent<T>(in Entity entity, bool makeRequest = false) where T : struct, IComponentBase {
 
-            this.currentState.filters.Validate<T>(in entity, makeRequest);
+            this.currentState.storage.Validate<T>(in entity, makeRequest);
 
         }
 
         public void AddFilterByStructComponent<T>(in Entity entity) where T : struct, IComponentBase {
 
-            this.currentState.filters.Set<T>(in entity);
+            this.currentState.storage.Set<T>(in entity);
 
         }
 
         public void RemoveFilterByStructComponent<T>(in Entity entity) where T : struct, IComponentBase {
 
-            this.currentState.filters.Remove<T>(in entity);
+            this.currentState.storage.Remove<T>(in entity);
 
         }
 
@@ -168,7 +168,7 @@ namespace ME.ECS {
 
         public FilterData GetFilter(int id) {
 
-            return this.currentState.filters.GetFilter(id);
+            return this.currentState.storage.GetFilter(id);
 
         }
 

@@ -6,7 +6,7 @@ using System.Collections.Generic;
 
 namespace ME.ECS {
 
-    public class Pools {
+    public static class Pools {
 
         public static bool isActive = true;
         public static IPoolImplementation current = new PoolImplementation(isNull: true);
