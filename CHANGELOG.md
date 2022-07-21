@@ -1,5 +1,7 @@
 # Version 2.7
-* Tests.Tests: V3 List tests added
+* Tests.Tests: 
+  * MemoryAllocator HashSet tests added
+  * MemoryAllocator List tests added
 * Runtime.Core: 
   * MemoryAllocator HashSet collection added
   * MemoryAllocator List collection added

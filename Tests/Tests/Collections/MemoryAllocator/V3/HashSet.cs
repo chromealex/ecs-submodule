@@ -14,7 +14,7 @@ namespace ME.ECS.Tests.MemoryAllocator.V3.Collections {
             var list = new HashSet<Vector3>(ref allocator, 10);
             Assert.IsTrue(list.isCreated);
             list.Dispose(ref allocator);
-
+            
             allocator.Dispose();
 
         }
