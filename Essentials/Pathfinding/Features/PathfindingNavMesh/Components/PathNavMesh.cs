@@ -5,16 +5,20 @@ namespace ME.ECS.Pathfinding.Features.PathfindingNavMesh.Components {
 
     public struct PathNavMesh : ICopyable<PathNavMesh> {
 
-        public ME.ECS.Pathfinding.PathCompleteState result;
+        public byte resultValue;
+        public ME.ECS.Pathfinding.PathCompleteState result {
+            get => (ME.ECS.Pathfinding.PathCompleteState)this.resultValue;
+            set => this.resultValue = (byte)value;
+        }
         public ME.ECS.Collections.ListCopyable<float3> path;
 
         public void CopyFrom(in PathNavMesh other) {
-            this.result = other.result;
+            this.resultValue = other.resultValue;
             ArrayUtils.Copy(other.path, ref this.path);
         }
 
         public void OnRecycle() {
-            this.result = default;
+            this.resultValue = default;
             PoolListCopyable<float3>.Recycle(ref this.path);
         }
 
