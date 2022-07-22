@@ -4,6 +4,36 @@ namespace ME.ECS.Collections.MemoryAllocator {
     
     public struct List<T> where T : unmanaged {
 
+        public struct Enumerator : System.Collections.Generic.IEnumerator<T> {
+            
+            private readonly MemoryAllocator allocator;
+            private readonly List<T> list;
+            private int index;
+
+            internal Enumerator(in MemoryAllocator allocator, List<T> list) {
+                this.allocator = allocator;
+                this.list = list;
+                this.index = -1;
+            }
+
+            public void Dispose() {
+            }
+
+            public bool MoveNext() {
+                ++this.index;
+                return this.index < this.list.count;
+            }
+
+            public T Current => this.list[in this.allocator, this.index];
+
+            object System.Collections.IEnumerator.Current => this.Current;
+
+            void System.Collections.IEnumerator.Reset() {
+                this.index = -1;
+            }
+            
+        }
+        
         private MemArrayAllocator<T> arr;
         private int count;
 
@@ -24,6 +54,12 @@ namespace ME.ECS.Collections.MemoryAllocator {
 
         }
 
+        public readonly Enumerator GetEnumerator(in MemoryAllocator allocator) {
+            
+            return new Enumerator(in allocator, this);
+            
+        }
+        
         public void Clear(in MemoryAllocator allocator) {
 
             this.arr.Clear(in allocator);
@@ -56,7 +92,7 @@ namespace ME.ECS.Collections.MemoryAllocator {
 
         }
 
-        public bool Contains<U>(ref MemoryAllocator allocator, U obj) where U : unmanaged, System.IEquatable<U> {
+        public readonly bool Contains<U>(in MemoryAllocator allocator, U obj) where U : unmanaged, System.IEquatable<U> {
             
             for (int i = 0; i < this.count; ++i) {
 

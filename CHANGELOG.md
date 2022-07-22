@@ -1,10 +1,12 @@
 # Version 2.7
-* Runtime.Serialization: MemoryAllocator serializator added
+* Runtime.Serialization: MemoryAllocator serializer added
 * Tests.Tests: 
   * MemoryAllocator HashSet tests added
   * MemoryAllocator List tests added
+  * MemoryAllocator Dictionary tests added
 * Runtime.Core: 
   * Collections refactoring
+  * MemoryAllocator Dictionary collection added
   * MemoryAllocator HashSet collection added
   * MemoryAllocator List collection added
   * ENTITY_API_VERSION1_DEPRECATED removed

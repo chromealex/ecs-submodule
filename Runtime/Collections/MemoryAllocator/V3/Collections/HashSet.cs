@@ -3,7 +3,7 @@ namespace ME.ECS.Collections.MemoryAllocator {
     using ME.ECS.Collections.V3;
     using Unity.Collections.LowLevel.Unsafe;
     
-    public struct HashSet<T> where T : unmanaged, System.IEquatable<T> {
+    public struct HashSet<T> where T : unmanaged {
         
         public struct Enumerator : System.Collections.Generic.IEnumerator<T> {
             
@@ -46,6 +46,7 @@ namespace ME.ECS.Collections.MemoryAllocator {
                 this.index = 0;
                 this.current = default(T);
             }
+            
         }
 
         private struct Slot {
@@ -110,13 +111,14 @@ namespace ME.ECS.Collections.MemoryAllocator {
         /// <param name="allocator"></param>
         /// <param name="item">item to check for containment</param>
         /// <returns>true if item contained; false if not</returns>
-        public bool Contains(ref MemoryAllocator allocator, T item) {
+        public readonly bool Contains(in MemoryAllocator allocator, T item) {
             if (this.buckets.isCreated == true) {
+                var c = System.Collections.Generic.EqualityComparer<T>.Default;
                 int hashCode = this.InternalGetHashCode(item);
                 // see note at "HashSet" level describing why "- 1" appears in for loop
                 for (int i = this.buckets[in allocator, hashCode % this.buckets.Length] - 1; i >= 0; i = this.slots[in allocator, i].next) {
                     if (this.slots[in allocator, i].hashCode == hashCode &&
-                        this.slots[in allocator, i].value.Equals(item) == true) {
+                        c.Equals(this.slots[in allocator, i].value, item) == true) {
                         return true;
                     }
                 }
@@ -133,12 +135,13 @@ namespace ME.ECS.Collections.MemoryAllocator {
         /// <returns>true if removed; false if not (i.e. if the item wasn't in the HashSet)</returns>
         public bool Remove(ref MemoryAllocator allocator, T item) {
             if (this.buckets.isCreated == true) {
+                var c = System.Collections.Generic.EqualityComparer<T>.Default;
                 int hashCode = this.InternalGetHashCode(item);
                 int bucket = hashCode % this.buckets.Length;
                 int last = -1;
                 for (int i = this.buckets[in allocator, bucket] - 1; i >= 0; last = i, i = this.slots[in allocator, i].next) {
                     if (this.slots[in allocator, i].hashCode == hashCode &&
-                        this.slots[in allocator, i].value.Equals(item) == true) {
+                        c.Equals(this.slots[in allocator, i].value, item) == true) {
                         if (last < 0) {
                             // first iteration; update buckets
                             this.buckets[in allocator, bucket] = this.slots[in allocator, i].next + 1;
@@ -192,7 +195,7 @@ namespace ME.ECS.Collections.MemoryAllocator {
         /// a value that has more complete data than the value you currently have, although their
         /// comparer functions indicate they are equal.
         /// </remarks>
-        public bool TryGetValue(ref MemoryAllocator allocator, T equalValue, out T actualValue) {
+        public readonly bool TryGetValue(ref MemoryAllocator allocator, T equalValue, out T actualValue) {
             if (this.buckets.isCreated == true) {
                 int i = this.InternalIndexOf(ref allocator, equalValue);
                 if (i >= 0) {
@@ -250,7 +253,7 @@ namespace ME.ECS.Collections.MemoryAllocator {
                 Helpers.Copy(ref allocator, in this.slots, 0, in newSlots, 0, this.lastIndex);
             }
 
-            if(forceNewHashCodes) {
+            if (forceNewHashCodes == true) {
                 for(int i = 0; i < this.lastIndex; i++) {
                     if(newSlots[in allocator, i].hashCode != -1) {
                         newSlots[in allocator, i].hashCode = this.InternalGetHashCode(newSlots[in allocator, i].value);
@@ -284,17 +287,12 @@ namespace ME.ECS.Collections.MemoryAllocator {
 
             int hashCode = this.InternalGetHashCode(value);
             int bucket = hashCode % this.buckets.Length;
-#if FEATURE_RANDOMIZED_STRING_HASHING && !FEATURE_NETCORE
-            int collisionCount = 0;
-#endif
+            var c = System.Collections.Generic.EqualityComparer<T>.Default;
             for (int i = this.buckets[in allocator, hashCode % this.buckets.Length] - 1; i >= 0; i = this.slots[in allocator, i].next) {
                 if (this.slots[in allocator, i].hashCode == hashCode &&
-                    this.slots[in allocator, i].value.Equals(value) == true) {
+                    c.Equals(this.slots[in allocator, i].value, value) == true) {
                     return false;
                 }
-#if FEATURE_RANDOMIZED_STRING_HASHING && !FEATURE_NETCORE
-                collisionCount++;
-#endif
             }
 
             int index;
@@ -318,13 +316,6 @@ namespace ME.ECS.Collections.MemoryAllocator {
             this.count++;
             this.version++;
 
-#if FEATURE_RANDOMIZED_STRING_HASHING && !FEATURE_NETCORE
-            if(collisionCount > HashHelpers.HashCollisionThreshold && HashHelpers.IsWellKnownEqualityComparer(m_comparer)) {
-                m_comparer = (IEqualityComparer<T>) HashHelpers.GetRandomizedEqualityComparer(m_comparer);
-                SetCapacity(m_buckets.Length, true);
-            }
-#endif // FEATURE_RANDOMIZED_STRING_HASHING
-
             return true;
         }
 
@@ -345,11 +336,12 @@ namespace ME.ECS.Collections.MemoryAllocator {
         /// <param name="allocator"></param>
         /// <param name="item"></param>
         /// <returns></returns>
-        private int InternalIndexOf(ref MemoryAllocator allocator, T item) {
+        private readonly int InternalIndexOf(ref MemoryAllocator allocator, T item) {
             int hashCode = this.InternalGetHashCode(item);
+            var c = System.Collections.Generic.EqualityComparer<T>.Default;
             for (int i = this.buckets[in allocator, hashCode % this.buckets.Length] - 1; i >= 0; i = this.slots[in allocator, i].next) {
                 if ((this.slots[in allocator, i].hashCode) == hashCode &&
-                    this.slots[in allocator, i].value.Equals(item) == true) {
+                    c.Equals(this.slots[in allocator, i].value, item) == true) {
                     return i;
                 }
             }
@@ -362,7 +354,7 @@ namespace ME.ECS.Collections.MemoryAllocator {
         /// </summary>
         /// <param name="item"></param>
         /// <returns>hash code</returns>
-        private int InternalGetHashCode(T item) {
+        private readonly int InternalGetHashCode(T item) {
             return System.Collections.Generic.EqualityComparer<T>.Default.GetHashCode(item) & HashSet<T>.LOWER31_BIT_MASK;
         }
         #endregion
