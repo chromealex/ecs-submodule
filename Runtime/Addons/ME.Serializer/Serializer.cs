@@ -23,7 +23,7 @@ namespace ME.ECS.Serializer {
 
     public enum TypeValue : byte {
 
-        Null = 199,
+        Null = 190,
         PackerObject = 255,
         Meta = 254,
         MetaType = 253,
@@ -89,6 +89,7 @@ namespace ME.ECS.Serializer {
         RPCId = 202,
         NextTickTask = 201,
         UnsafeData = 200,
+        MemoryAllocator = 199,
 
     }
 

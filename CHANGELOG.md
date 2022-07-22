@@ -1,4 +1,5 @@
 # Version 2.7
+* Runtime.Serialization: MemoryAllocator serializator added
 * Tests.Tests: 
   * MemoryAllocator HashSet tests added
   * MemoryAllocator List tests added

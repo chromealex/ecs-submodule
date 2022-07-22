@@ -8,8 +8,8 @@ namespace ME.ECS.Collections.V3 {
 
     public unsafe partial struct MemoryAllocator : IMemoryAllocator<MemoryAllocator, MemPtr> {
 
-        private MemZone* zone;
-        private long maxSize;
+        internal MemZone* zone;
+        internal long maxSize;
 
         /// 
         /// Constructors

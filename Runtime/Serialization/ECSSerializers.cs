@@ -311,6 +311,7 @@ namespace ME.ECS.Serializer {
             ser.Add(new HistoryEventSerializer());
             ser.Add(new BufferArraySerializer());
             ser.Add(new DisposeSentinelSerializer());
+            ser.Add(new MemoryAllocatorSerializer());
             ser.Add(new GenericIntDictionarySerializer());
             ser.Add(new GenericULongDictionarySerializer());
             ser.Add(new NextTickTaskSerializer());
