@@ -88,11 +88,14 @@ namespace ME.ECS.Collections.V3 {
         private MemPtr ptr;
         [ME.ECS.Serializer.SerializeField]
         public int Length;
+        [ME.ECS.Serializer.SerializeField]
+        private int growFactor;
         public bool isCreated => this.ptr != 0L;
 
-        public MemArrayAllocator(ref MemoryAllocator allocator, int length, ClearOptions clearOptions = ClearOptions.ClearMemory) {
+        public MemArrayAllocator(ref MemoryAllocator allocator, int length, ClearOptions clearOptions = ClearOptions.ClearMemory, int growFactor = 1) {
             
             this.ptr = length > 0 ? allocator.AllocArrayUnmanaged<T>(length) : 0;
+            this.growFactor = growFactor;
             this.Length = length;
 
             if (clearOptions == ClearOptions.ClearMemory) {
@@ -119,14 +122,20 @@ namespace ME.ECS.Collections.V3 {
         }
 
         public ref T this[in MemoryAllocator allocator, int index] {
-            get => ref allocator.RefArrayUnmanaged<T>(this.ptr, index); 
+            get {
+                E.RANGE(index, 0, this.Length);
+                return ref allocator.RefArrayUnmanaged<T>(this.ptr, index);
+            }
         }
 
         public ref T this[MemoryAllocator allocator, int index] {
-            get => ref allocator.RefArrayUnmanaged<T>(this.ptr, index); 
+            get {
+                E.RANGE(index, 0, this.Length);
+                return ref allocator.RefArrayUnmanaged<T>(this.ptr, index);
+            }
         }
 
-        public bool Resize(ref MemoryAllocator allocator, int newLength, ClearOptions options = ClearOptions.ClearMemory) {
+        public bool Resize(ref MemoryAllocator allocator, int newLength, ClearOptions options = ClearOptions.ClearMemory, int growFactor = 1) {
 
             if (newLength <= this.Length) {
 
@@ -134,6 +143,9 @@ namespace ME.ECS.Collections.V3 {
                 
             }
 
+            newLength *= this.growFactor;
+
+            if (this.isCreated == false) this.growFactor = growFactor;
             this.ptr = allocator.ReAllocArrayUnmanaged<T>(this.ptr, newLength, options);
             this.Length = newLength;
             return true;

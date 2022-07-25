@@ -34,7 +34,7 @@ namespace ME.ECS {
 
         public EntityVersions(ref MemoryAllocator allocator, int capacity) {
 
-            this.values = default;
+            this.values = new MemArrayAllocator<ushort>(ref allocator, capacity, ME.ECS.Collections.ClearOptions.ClearMemory, growFactor: 2);
             this.Validate(ref allocator, capacity);
             
         }
@@ -141,7 +141,7 @@ namespace ME.ECS {
         #endif
         public void Reset(ref MemoryAllocator allocator, int entityId) {
 
-            this.Validate(ref allocator, entityId);
+            this.Validate(ref allocator, entityId + 1);
             this.values[in allocator, entityId] = default;
 
         }
@@ -170,7 +170,7 @@ namespace ME.ECS {
 
         public EntityFlags(ref MemoryAllocator allocator, int capacity) {
 
-            this.values = default;
+            this.values = new MemArrayAllocator<byte>(ref allocator, capacity, ME.ECS.Collections.ClearOptions.ClearMemory, growFactor: 2);
             this.Validate(ref allocator, capacity);
             
         }
@@ -253,7 +253,7 @@ namespace ME.ECS {
         #endif
         public void Reset(ref MemoryAllocator allocator, int entityId) {
 
-            this.Validate(ref allocator, entityId);
+            this.Validate(ref allocator, entityId + 1);
             this.values[in allocator, entityId] = default;
 
         }

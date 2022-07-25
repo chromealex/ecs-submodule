@@ -75,7 +75,7 @@ namespace ME.ECS.Tests {
                     var entity = st.Alloc(ref allocator);
                     list.Add(entity);
                     //NUnit.Framework.Assert.AreEqual(entity.id, i);
-                    NUnit.Framework.Assert.AreEqual(entity.generation, v);
+                    NUnit.Framework.Assert.AreEqual(v, entity.generation);
 
                     //NUnit.Framework.Assert.AreEqual(st.AliveCount, i + 1);
 
@@ -95,7 +95,7 @@ namespace ME.ECS.Tests {
                     var entity = st.Alloc(ref allocator);
                     list.Add(entity);
                     //NUnit.Framework.Assert.AreEqual(entity.id, i);
-                    NUnit.Framework.Assert.AreEqual(entity.generation, v);
+                    NUnit.Framework.Assert.AreEqual(v, entity.generation);
 
                     //NUnit.Framework.Assert.AreEqual(st.AliveCount, i + 1);
 

@@ -57,6 +57,17 @@ namespace ME.ECS {
             
         }
 
+        [System.Diagnostics.Conditional("WORLD_EXCEPTIONS")]
+        public static void RANGE(int index, int lowBound, int highBound) {
+            
+            if (index < lowBound || index >= highBound) {
+                
+                throw new OutOfBoundsException($"index {index} must be in range {lowBound}..{highBound}");
+                
+            }
+            
+        }
+
     }
     
     public class OutOfBoundsException : System.Exception {
