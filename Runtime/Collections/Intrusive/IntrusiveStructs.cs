@@ -5,15 +5,15 @@ namespace ME.ECS.Collections {
         public static void Initialize() {
             
             WorldUtilities.InitComponentTypeId<IntrusiveData>();
-            ComponentInitializer.Init(ref Worlds.currentWorld.GetStructComponents());
+            ComponentInitializer.Init(Worlds.current.currentState);
             
         }
 
         private static class ComponentInitializer {
 
-            public static void Init(ref ME.ECS.StructComponentsContainer structComponentsContainer) {
+            public static void Init(State state) {
 
-                structComponentsContainer.ValidateUnmanaged<IntrusiveData>(false);
+                state.structComponents.ValidateUnmanaged<IntrusiveData>(ref state.allocator, false);
 
             }
 

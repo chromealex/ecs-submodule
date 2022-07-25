@@ -100,13 +100,13 @@ namespace ME.ECS.Tests {
             TestsHelper.Do((w) => {
                 
                 ref var str = ref w.GetStructComponents();
-                ref var str2 = ref w.GetNoStateStructComponents();
+                ref var str2 = ref w.GetNoStateData();
                 CoreComponentsInitializer.InitTypeId();
-                CoreComponentsInitializer.Init(ref str, ref str2);
+                CoreComponentsInitializer.Init(w.GetState(), ref str2);
                 WorldUtilities.InitComponentTypeId<TestData>(isBlittable: true);
                 WorldUtilities.InitComponentTypeId<TestData2>(isBlittable: true);
-                str.ValidateUnmanaged<TestData>();
-                str.ValidateUnmanaged<TestData2>();
+                str.ValidateUnmanaged<TestData>(ref w.GetState().allocator);
+                str.ValidateUnmanaged<TestData2>(ref w.GetState().allocator);
                 
             }, (w) => {
                 

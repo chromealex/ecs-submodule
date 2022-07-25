@@ -13,15 +13,16 @@ namespace ME.ECS {
     #endif
     public partial class StructComponentsUnmanaged<TComponent> : StructComponentsBase<TComponent>, IComponentsUnmanaged where TComponent : struct, IComponentBase {
 
+        private ref ME.ECS.Collections.V3.MemoryAllocator allocator => ref this.world.currentState.allocator;
         private ref UnmanagedComponentsStorage storage => ref this.world.currentState.structComponents.unmanagedComponentsStorage;
-        private ref UnmanagedComponentsStorage.Item<TComponent> registry => ref this.storage.GetRegistry<TComponent>();
+        private ref UnmanagedComponentsStorage.Item<TComponent> registry => ref this.storage.GetRegistry<TComponent>(in this.allocator);
         
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         public override ref byte GetState(in Entity entity) {
 
             ref var storage = ref this.storage;
-            ref var reg = ref storage.GetRegistry<TComponent>();
-            return ref reg.components[in storage.allocator, entity.id].state;
+            ref var reg = ref storage.GetRegistry<TComponent>(in this.allocator);
+            return ref reg.components[in this.allocator, entity.id].state;
             
         }
 
@@ -29,8 +30,8 @@ namespace ME.ECS {
         public override bool TryRead(in Entity entity, out TComponent component) {
             
             ref var storage = ref this.storage;
-            ref var reg = ref storage.GetRegistry<TComponent>();
-            ref var item = ref reg.components[in storage.allocator, entity.id];
+            ref var reg = ref storage.GetRegistry<TComponent>(in this.allocator);
+            ref var item = ref reg.components[in this.allocator, entity.id];
             component = item.data;
             return item.state > 0;
             
@@ -40,16 +41,16 @@ namespace ME.ECS {
         public override ref Component<TComponent> Get(in Entity entity) {
 
             ref var storage = ref this.storage;
-            ref var reg = ref storage.GetRegistry<TComponent>();
-            return ref reg.components[in storage.allocator, entity.id];
+            ref var reg = ref storage.GetRegistry<TComponent>(in this.allocator);
+            return ref reg.components[in this.allocator, entity.id];
 
         }
 
         public override UnsafeData CreateObjectUnsafe(in Entity entity) {
             
             ref var storage = ref this.storage;
-            ref var reg = ref storage.GetRegistry<TComponent>();
-            ref var data = ref reg.components[in storage.allocator, entity.id].data;
+            ref var reg = ref storage.GetRegistry<TComponent>(in this.allocator);
+            ref var data = ref reg.components[in this.allocator, entity.id].data;
             return new UnsafeData().SetAsUnmanaged(data);
 
         }
@@ -72,8 +73,8 @@ namespace ME.ECS {
         public override long GetVersion(int entityId) {
 
             ref var storage = ref this.storage;
-            ref var reg = ref storage.GetRegistry<TComponent>();
-            return reg.components[in storage.allocator, entityId].version;
+            ref var reg = ref storage.GetRegistry<TComponent>(in this.allocator);
+            return reg.components[in this.allocator, entityId].version;
 
         }
 
@@ -96,8 +97,8 @@ namespace ME.ECS {
             if (AllComponentTypes<TComponent>.isVersioned == true) {
                 var v = (long)this.world.GetCurrentTick();
                 ref var storage = ref this.storage;
-                ref var reg = ref storage.GetRegistry<TComponent>();
-                reg.components[in storage.allocator, entity.id].version = v;
+                ref var reg = ref storage.GetRegistry<TComponent>(in this.allocator);
+                reg.components[in this.allocator, entity.id].version = v;
             }
 
         }
@@ -119,8 +120,8 @@ namespace ME.ECS {
         public override void Merge() {
 
             ref var storage = ref this.storage;
-            ref var reg = ref storage.GetRegistry<TComponent>();
-            reg.Merge(ref storage.allocator);
+            ref var reg = ref storage.GetRegistry<TComponent>(in this.allocator);
+            reg.Merge(ref this.allocator);
 
         }
 
@@ -151,7 +152,7 @@ namespace ME.ECS {
             //ref var storage = ref this.storage;
             //ref var reg = ref storage.GetRegistry<TComponent>();
             //var resized = reg.Validate(ref storage.allocator, capacity);
-            this.storage.Validate<TComponent>(capacity);
+            this.storage.Validate<TComponent>(ref this.allocator, capacity);
             return base.Validate(capacity);
             //return resized;
 

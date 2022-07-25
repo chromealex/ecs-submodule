@@ -12,7 +12,7 @@
 
         }
 
-        static partial void Init(ref ME.ECS.StructComponentsContainer structComponentsContainer, ref ME.ECS.StructComponentsContainer noStateStructComponentsContainer) {
+        static partial void Init(State state, ref ME.ECS.World.NoState noState) {
 
             WorldUtilities.ResetTypeIds();
 
@@ -21,7 +21,7 @@
 #CONTENT3#
 
             ComponentsInitializerWorld.Setup(ComponentsInitializerWorldGen.Init);
-            CoreComponentsInitializer.Init(ref structComponentsContainer, ref noStateStructComponentsContainer);
+            CoreComponentsInitializer.Init(state, ref noState);
 
 #CONTENT#
 

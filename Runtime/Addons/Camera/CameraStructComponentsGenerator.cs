@@ -9,9 +9,9 @@ namespace ME.ECS {
             
         }
 
-        public static void Init(ref ME.ECS.StructComponentsContainer structComponentsContainer) {
+        public static void Init(State state) {
     
-            structComponentsContainer.ValidateUnmanaged<ME.ECS.Camera.Camera>();
+            state.structComponents.ValidateUnmanaged<ME.ECS.Camera.Camera>(ref state.allocator);
 
         }
     

@@ -92,10 +92,11 @@ namespace ME.ECS {
 public unsafe struct FilterBag<T0> : IFilterBag  where T0:unmanaged,IComponentBase {
     public readonly int Length;
     [Unity.Collections.NativeDisableParallelForRestriction][Unity.Collections.ReadOnlyAttribute]  private Unity.Collections.NativeArray<Ptr> regs;
-    [Unity.Collections.NativeDisableParallelForRestriction][Unity.Collections.ReadOnlyAttribute]  private ME.ECS.Collections.NativeBufferArray<Entity> entities;
+    [Unity.Collections.NativeDisableParallelForRestriction][Unity.Collections.ReadOnlyAttribute]  private ME.ECS.Collections.V3.MemArrayAllocator<Entity> entities;
     [Unity.Collections.NativeDisableParallelForRestriction][Unity.Collections.ReadOnlyAttribute]  private Unity.Collections.NativeList<int> indexes;
     [Unity.Collections.NativeDisableParallelForRestriction][Unity.Collections.ReadOnlyAttribute]  private Unity.Collections.NativeArray<int> entityToIndex;
     [Unity.Collections.NativeDisableParallelForRestriction] private Ops componentOps;
+    [Unity.Collections.NativeDisableParallelForRestriction] private ME.ECS.Collections.V3.MemoryAllocator allocator;
     public int Count => this.Length;
     public Tick tick;
     private EntityVersions entityVersions;
@@ -114,11 +115,12 @@ public unsafe struct FilterBag<T0> : IFilterBag  where T0:unmanaged,IComponentBa
         this.Length = filterArr.Length;
         this.regs = default;
         this.componentOps = default;
+        this.allocator = world.currentState.allocator;
         if (this.Length > 0) {
             this.regs = new Unity.Collections.NativeArray<Ptr>(1, allocator);
             this.componentOps = new Ops(this.Length);
             ref var allRegs = ref world.currentState.structComponents.unmanagedComponentsStorage;
-            ref var memAllocator = ref world.currentState.structComponents.unmanagedComponentsStorage.allocator;
+            ref var memAllocator = ref world.currentState.allocator;
             ref var regT0 = ref memAllocator.Ref<UnmanagedComponentsStorage.Item<T0>>(allRegs.items[in memAllocator, AllComponentTypes<T0>.typeId]);
 regT0.Merge(ref memAllocator);
 this.regs[0] = new Ptr() { value = regT0.components.GetUnsafePtr(ref memAllocator) };
@@ -138,21 +140,21 @@ this.regs[0] = new Ptr() { value = regT0.components.GetUnsafePtr(ref memAllocato
         #endif
         var world = Worlds.currentWorld;
         ref var allRegs = ref world.currentState.structComponents.unmanagedComponentsStorage;
-        ref var memAllocator = ref world.currentState.structComponents.unmanagedComponentsStorage.allocator;
+        ref var memAllocator = ref world.currentState.allocator;
         var ops = this.componentOps;
         for (int i = 0; i < ops.Length; ++i) {
             if (ops.Read(i, out var op) == true) {
-                var entity = this.entities[this.indexes[op.entityIndex]];
+                var entity = this.entities[in memAllocator, this.indexes[op.entityIndex]];
                 if (op.code == 2 && op.componentId == -1) {
                     world.RemoveEntity(in entity);
                 } else {
                     if (op.componentId == AllComponentTypes<T0>.typeId) {
     if (op.code == 1) {
         ref var reg = ref memAllocator.Ref<UnmanagedComponentsStorage.Item<T0>>(allRegs.items[in memAllocator, AllComponentTypes<T0>.typeId]);
-        DataUnmanagedBufferUtils.PushSet_INTERNAL(world, in entity, ref allRegs, ref reg, this.ReadT0(op.entityIndex));
+        DataUnmanagedBufferUtils.PushSet_INTERNAL(world, in entity, ref memAllocator, ref reg, this.ReadT0(op.entityIndex));
     } else if (op.code == 2) {
         ref var reg = ref memAllocator.Ref<UnmanagedComponentsStorage.Item<T0>>(allRegs.items[in memAllocator, AllComponentTypes<T0>.typeId]);
-        DataUnmanagedBufferUtils.PushRemove_INTERNAL(world, in entity, ref allRegs, ref reg);
+        DataUnmanagedBufferUtils.PushRemove_INTERNAL(world, in entity, ref memAllocator, ref reg);
     }
 }
                 }
@@ -167,7 +169,7 @@ this.regs[0] = new Ptr() { value = regT0.components.GetUnsafePtr(ref memAllocato
     public int GetIndexByEntityId(int id) => this.entityToIndex[id];
     public void DestroyEntity(int index) => this.componentOps.Write(new Op() { entityIndex = index, componentId = -1, code = 2, });
     public int GetEntityId(int index) => this.indexes[index];
-    public ref readonly Entity GetEntity(int index) => ref this.entities.GetRefRead(this.indexes[index]);
+    public ref readonly Entity GetEntity(int index) => ref this.entities[this.allocator, this.indexes[index]];
     public void Revert() => this.Dispose();
     private void Dispose() {
         if (this.Length > 0) {
@@ -183,7 +185,7 @@ this.regs[0] = new Ptr() { value = regT0.components.GetUnsafePtr(ref memAllocato
 public void Set(int index, in T0 component) {
     var entityId = this.indexes[index];
     ref var componentData = ref UnsafeUtility.ArrayElementAsRef<Component<T0>>(this.regs[0].value, this.indexes[index]);
-    if (DataBlittableBurstBufferUtils.NeedToPush(this.tick, ref this.entityVersions, entityId, ref componentData, in component) == true) {
+    if (DataBlittableBurstBufferUtils.NeedToPush(in this.allocator, this.tick, ref this.entityVersions, entityId, ref componentData, in component) == true) {
         this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T0>.burstTypeId.Data, code = 1, });
         componentData.data = component;
     }
@@ -207,10 +209,11 @@ public long GetVersionT0(int index) => UnsafeUtility.ArrayElementAsRef<Component
 public unsafe struct FilterBag<T0,T1> : IFilterBag  where T0:unmanaged,IComponentBase where T1:unmanaged,IComponentBase {
     public readonly int Length;
     [Unity.Collections.NativeDisableParallelForRestriction][Unity.Collections.ReadOnlyAttribute]  private Unity.Collections.NativeArray<Ptr> regs;
-    [Unity.Collections.NativeDisableParallelForRestriction][Unity.Collections.ReadOnlyAttribute]  private ME.ECS.Collections.NativeBufferArray<Entity> entities;
+    [Unity.Collections.NativeDisableParallelForRestriction][Unity.Collections.ReadOnlyAttribute]  private ME.ECS.Collections.V3.MemArrayAllocator<Entity> entities;
     [Unity.Collections.NativeDisableParallelForRestriction][Unity.Collections.ReadOnlyAttribute]  private Unity.Collections.NativeList<int> indexes;
     [Unity.Collections.NativeDisableParallelForRestriction][Unity.Collections.ReadOnlyAttribute]  private Unity.Collections.NativeArray<int> entityToIndex;
     [Unity.Collections.NativeDisableParallelForRestriction] private Ops componentOps;
+    [Unity.Collections.NativeDisableParallelForRestriction] private ME.ECS.Collections.V3.MemoryAllocator allocator;
     public int Count => this.Length;
     public Tick tick;
     private EntityVersions entityVersions;
@@ -229,11 +232,12 @@ public unsafe struct FilterBag<T0,T1> : IFilterBag  where T0:unmanaged,IComponen
         this.Length = filterArr.Length;
         this.regs = default;
         this.componentOps = default;
+        this.allocator = world.currentState.allocator;
         if (this.Length > 0) {
             this.regs = new Unity.Collections.NativeArray<Ptr>(2, allocator);
             this.componentOps = new Ops(this.Length);
             ref var allRegs = ref world.currentState.structComponents.unmanagedComponentsStorage;
-            ref var memAllocator = ref world.currentState.structComponents.unmanagedComponentsStorage.allocator;
+            ref var memAllocator = ref world.currentState.allocator;
             ref var regT0 = ref memAllocator.Ref<UnmanagedComponentsStorage.Item<T0>>(allRegs.items[in memAllocator, AllComponentTypes<T0>.typeId]);
 regT0.Merge(ref memAllocator);
 this.regs[0] = new Ptr() { value = regT0.components.GetUnsafePtr(ref memAllocator) };
@@ -256,29 +260,29 @@ this.regs[1] = new Ptr() { value = regT1.components.GetUnsafePtr(ref memAllocato
         #endif
         var world = Worlds.currentWorld;
         ref var allRegs = ref world.currentState.structComponents.unmanagedComponentsStorage;
-        ref var memAllocator = ref world.currentState.structComponents.unmanagedComponentsStorage.allocator;
+        ref var memAllocator = ref world.currentState.allocator;
         var ops = this.componentOps;
         for (int i = 0; i < ops.Length; ++i) {
             if (ops.Read(i, out var op) == true) {
-                var entity = this.entities[this.indexes[op.entityIndex]];
+                var entity = this.entities[in memAllocator, this.indexes[op.entityIndex]];
                 if (op.code == 2 && op.componentId == -1) {
                     world.RemoveEntity(in entity);
                 } else {
                     if (op.componentId == AllComponentTypes<T0>.typeId) {
     if (op.code == 1) {
         ref var reg = ref memAllocator.Ref<UnmanagedComponentsStorage.Item<T0>>(allRegs.items[in memAllocator, AllComponentTypes<T0>.typeId]);
-        DataUnmanagedBufferUtils.PushSet_INTERNAL(world, in entity, ref allRegs, ref reg, this.ReadT0(op.entityIndex));
+        DataUnmanagedBufferUtils.PushSet_INTERNAL(world, in entity, ref memAllocator, ref reg, this.ReadT0(op.entityIndex));
     } else if (op.code == 2) {
         ref var reg = ref memAllocator.Ref<UnmanagedComponentsStorage.Item<T0>>(allRegs.items[in memAllocator, AllComponentTypes<T0>.typeId]);
-        DataUnmanagedBufferUtils.PushRemove_INTERNAL(world, in entity, ref allRegs, ref reg);
+        DataUnmanagedBufferUtils.PushRemove_INTERNAL(world, in entity, ref memAllocator, ref reg);
     }
 }if (op.componentId == AllComponentTypes<T1>.typeId) {
     if (op.code == 1) {
         ref var reg = ref memAllocator.Ref<UnmanagedComponentsStorage.Item<T1>>(allRegs.items[in memAllocator, AllComponentTypes<T1>.typeId]);
-        DataUnmanagedBufferUtils.PushSet_INTERNAL(world, in entity, ref allRegs, ref reg, this.ReadT1(op.entityIndex));
+        DataUnmanagedBufferUtils.PushSet_INTERNAL(world, in entity, ref memAllocator, ref reg, this.ReadT1(op.entityIndex));
     } else if (op.code == 2) {
         ref var reg = ref memAllocator.Ref<UnmanagedComponentsStorage.Item<T1>>(allRegs.items[in memAllocator, AllComponentTypes<T1>.typeId]);
-        DataUnmanagedBufferUtils.PushRemove_INTERNAL(world, in entity, ref allRegs, ref reg);
+        DataUnmanagedBufferUtils.PushRemove_INTERNAL(world, in entity, ref memAllocator, ref reg);
     }
 }
                 }
@@ -293,7 +297,7 @@ this.regs[1] = new Ptr() { value = regT1.components.GetUnsafePtr(ref memAllocato
     public int GetIndexByEntityId(int id) => this.entityToIndex[id];
     public void DestroyEntity(int index) => this.componentOps.Write(new Op() { entityIndex = index, componentId = -1, code = 2, });
     public int GetEntityId(int index) => this.indexes[index];
-    public ref readonly Entity GetEntity(int index) => ref this.entities.GetRefRead(this.indexes[index]);
+    public ref readonly Entity GetEntity(int index) => ref this.entities[this.allocator, this.indexes[index]];
     public void Revert() => this.Dispose();
     private void Dispose() {
         if (this.Length > 0) {
@@ -309,7 +313,7 @@ this.regs[1] = new Ptr() { value = regT1.components.GetUnsafePtr(ref memAllocato
 public void Set(int index, in T0 component) {
     var entityId = this.indexes[index];
     ref var componentData = ref UnsafeUtility.ArrayElementAsRef<Component<T0>>(this.regs[0].value, this.indexes[index]);
-    if (DataBlittableBurstBufferUtils.NeedToPush(this.tick, ref this.entityVersions, entityId, ref componentData, in component) == true) {
+    if (DataBlittableBurstBufferUtils.NeedToPush(in this.allocator, this.tick, ref this.entityVersions, entityId, ref componentData, in component) == true) {
         this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T0>.burstTypeId.Data, code = 1, });
         componentData.data = component;
     }
@@ -325,7 +329,7 @@ public void RemoveT1(int index) { this.componentOps.Write(new Op() { entityIndex
 public void Set(int index, in T1 component) {
     var entityId = this.indexes[index];
     ref var componentData = ref UnsafeUtility.ArrayElementAsRef<Component<T1>>(this.regs[1].value, this.indexes[index]);
-    if (DataBlittableBurstBufferUtils.NeedToPush(this.tick, ref this.entityVersions, entityId, ref componentData, in component) == true) {
+    if (DataBlittableBurstBufferUtils.NeedToPush(in this.allocator, this.tick, ref this.entityVersions, entityId, ref componentData, in component) == true) {
         this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T1>.burstTypeId.Data, code = 1, });
         componentData.data = component;
     }
@@ -349,10 +353,11 @@ public long GetVersionT1(int index) => UnsafeUtility.ArrayElementAsRef<Component
 public unsafe struct FilterBag<T0,T1,T2> : IFilterBag  where T0:unmanaged,IComponentBase where T1:unmanaged,IComponentBase where T2:unmanaged,IComponentBase {
     public readonly int Length;
     [Unity.Collections.NativeDisableParallelForRestriction][Unity.Collections.ReadOnlyAttribute]  private Unity.Collections.NativeArray<Ptr> regs;
-    [Unity.Collections.NativeDisableParallelForRestriction][Unity.Collections.ReadOnlyAttribute]  private ME.ECS.Collections.NativeBufferArray<Entity> entities;
+    [Unity.Collections.NativeDisableParallelForRestriction][Unity.Collections.ReadOnlyAttribute]  private ME.ECS.Collections.V3.MemArrayAllocator<Entity> entities;
     [Unity.Collections.NativeDisableParallelForRestriction][Unity.Collections.ReadOnlyAttribute]  private Unity.Collections.NativeList<int> indexes;
     [Unity.Collections.NativeDisableParallelForRestriction][Unity.Collections.ReadOnlyAttribute]  private Unity.Collections.NativeArray<int> entityToIndex;
     [Unity.Collections.NativeDisableParallelForRestriction] private Ops componentOps;
+    [Unity.Collections.NativeDisableParallelForRestriction] private ME.ECS.Collections.V3.MemoryAllocator allocator;
     public int Count => this.Length;
     public Tick tick;
     private EntityVersions entityVersions;
@@ -371,11 +376,12 @@ public unsafe struct FilterBag<T0,T1,T2> : IFilterBag  where T0:unmanaged,ICompo
         this.Length = filterArr.Length;
         this.regs = default;
         this.componentOps = default;
+        this.allocator = world.currentState.allocator;
         if (this.Length > 0) {
             this.regs = new Unity.Collections.NativeArray<Ptr>(3, allocator);
             this.componentOps = new Ops(this.Length);
             ref var allRegs = ref world.currentState.structComponents.unmanagedComponentsStorage;
-            ref var memAllocator = ref world.currentState.structComponents.unmanagedComponentsStorage.allocator;
+            ref var memAllocator = ref world.currentState.allocator;
             ref var regT0 = ref memAllocator.Ref<UnmanagedComponentsStorage.Item<T0>>(allRegs.items[in memAllocator, AllComponentTypes<T0>.typeId]);
 regT0.Merge(ref memAllocator);
 this.regs[0] = new Ptr() { value = regT0.components.GetUnsafePtr(ref memAllocator) };
@@ -401,37 +407,37 @@ this.regs[2] = new Ptr() { value = regT2.components.GetUnsafePtr(ref memAllocato
         #endif
         var world = Worlds.currentWorld;
         ref var allRegs = ref world.currentState.structComponents.unmanagedComponentsStorage;
-        ref var memAllocator = ref world.currentState.structComponents.unmanagedComponentsStorage.allocator;
+        ref var memAllocator = ref world.currentState.allocator;
         var ops = this.componentOps;
         for (int i = 0; i < ops.Length; ++i) {
             if (ops.Read(i, out var op) == true) {
-                var entity = this.entities[this.indexes[op.entityIndex]];
+                var entity = this.entities[in memAllocator, this.indexes[op.entityIndex]];
                 if (op.code == 2 && op.componentId == -1) {
                     world.RemoveEntity(in entity);
                 } else {
                     if (op.componentId == AllComponentTypes<T0>.typeId) {
     if (op.code == 1) {
         ref var reg = ref memAllocator.Ref<UnmanagedComponentsStorage.Item<T0>>(allRegs.items[in memAllocator, AllComponentTypes<T0>.typeId]);
-        DataUnmanagedBufferUtils.PushSet_INTERNAL(world, in entity, ref allRegs, ref reg, this.ReadT0(op.entityIndex));
+        DataUnmanagedBufferUtils.PushSet_INTERNAL(world, in entity, ref memAllocator, ref reg, this.ReadT0(op.entityIndex));
     } else if (op.code == 2) {
         ref var reg = ref memAllocator.Ref<UnmanagedComponentsStorage.Item<T0>>(allRegs.items[in memAllocator, AllComponentTypes<T0>.typeId]);
-        DataUnmanagedBufferUtils.PushRemove_INTERNAL(world, in entity, ref allRegs, ref reg);
+        DataUnmanagedBufferUtils.PushRemove_INTERNAL(world, in entity, ref memAllocator, ref reg);
     }
 }if (op.componentId == AllComponentTypes<T1>.typeId) {
     if (op.code == 1) {
         ref var reg = ref memAllocator.Ref<UnmanagedComponentsStorage.Item<T1>>(allRegs.items[in memAllocator, AllComponentTypes<T1>.typeId]);
-        DataUnmanagedBufferUtils.PushSet_INTERNAL(world, in entity, ref allRegs, ref reg, this.ReadT1(op.entityIndex));
+        DataUnmanagedBufferUtils.PushSet_INTERNAL(world, in entity, ref memAllocator, ref reg, this.ReadT1(op.entityIndex));
     } else if (op.code == 2) {
         ref var reg = ref memAllocator.Ref<UnmanagedComponentsStorage.Item<T1>>(allRegs.items[in memAllocator, AllComponentTypes<T1>.typeId]);
-        DataUnmanagedBufferUtils.PushRemove_INTERNAL(world, in entity, ref allRegs, ref reg);
+        DataUnmanagedBufferUtils.PushRemove_INTERNAL(world, in entity, ref memAllocator, ref reg);
     }
 }if (op.componentId == AllComponentTypes<T2>.typeId) {
     if (op.code == 1) {
         ref var reg = ref memAllocator.Ref<UnmanagedComponentsStorage.Item<T2>>(allRegs.items[in memAllocator, AllComponentTypes<T2>.typeId]);
-        DataUnmanagedBufferUtils.PushSet_INTERNAL(world, in entity, ref allRegs, ref reg, this.ReadT2(op.entityIndex));
+        DataUnmanagedBufferUtils.PushSet_INTERNAL(world, in entity, ref memAllocator, ref reg, this.ReadT2(op.entityIndex));
     } else if (op.code == 2) {
         ref var reg = ref memAllocator.Ref<UnmanagedComponentsStorage.Item<T2>>(allRegs.items[in memAllocator, AllComponentTypes<T2>.typeId]);
-        DataUnmanagedBufferUtils.PushRemove_INTERNAL(world, in entity, ref allRegs, ref reg);
+        DataUnmanagedBufferUtils.PushRemove_INTERNAL(world, in entity, ref memAllocator, ref reg);
     }
 }
                 }
@@ -446,7 +452,7 @@ this.regs[2] = new Ptr() { value = regT2.components.GetUnsafePtr(ref memAllocato
     public int GetIndexByEntityId(int id) => this.entityToIndex[id];
     public void DestroyEntity(int index) => this.componentOps.Write(new Op() { entityIndex = index, componentId = -1, code = 2, });
     public int GetEntityId(int index) => this.indexes[index];
-    public ref readonly Entity GetEntity(int index) => ref this.entities.GetRefRead(this.indexes[index]);
+    public ref readonly Entity GetEntity(int index) => ref this.entities[this.allocator, this.indexes[index]];
     public void Revert() => this.Dispose();
     private void Dispose() {
         if (this.Length > 0) {
@@ -462,7 +468,7 @@ this.regs[2] = new Ptr() { value = regT2.components.GetUnsafePtr(ref memAllocato
 public void Set(int index, in T0 component) {
     var entityId = this.indexes[index];
     ref var componentData = ref UnsafeUtility.ArrayElementAsRef<Component<T0>>(this.regs[0].value, this.indexes[index]);
-    if (DataBlittableBurstBufferUtils.NeedToPush(this.tick, ref this.entityVersions, entityId, ref componentData, in component) == true) {
+    if (DataBlittableBurstBufferUtils.NeedToPush(in this.allocator, this.tick, ref this.entityVersions, entityId, ref componentData, in component) == true) {
         this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T0>.burstTypeId.Data, code = 1, });
         componentData.data = component;
     }
@@ -478,7 +484,7 @@ public void RemoveT1(int index) { this.componentOps.Write(new Op() { entityIndex
 public void Set(int index, in T1 component) {
     var entityId = this.indexes[index];
     ref var componentData = ref UnsafeUtility.ArrayElementAsRef<Component<T1>>(this.regs[1].value, this.indexes[index]);
-    if (DataBlittableBurstBufferUtils.NeedToPush(this.tick, ref this.entityVersions, entityId, ref componentData, in component) == true) {
+    if (DataBlittableBurstBufferUtils.NeedToPush(in this.allocator, this.tick, ref this.entityVersions, entityId, ref componentData, in component) == true) {
         this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T1>.burstTypeId.Data, code = 1, });
         componentData.data = component;
     }
@@ -494,7 +500,7 @@ public void RemoveT2(int index) { this.componentOps.Write(new Op() { entityIndex
 public void Set(int index, in T2 component) {
     var entityId = this.indexes[index];
     ref var componentData = ref UnsafeUtility.ArrayElementAsRef<Component<T2>>(this.regs[2].value, this.indexes[index]);
-    if (DataBlittableBurstBufferUtils.NeedToPush(this.tick, ref this.entityVersions, entityId, ref componentData, in component) == true) {
+    if (DataBlittableBurstBufferUtils.NeedToPush(in this.allocator, this.tick, ref this.entityVersions, entityId, ref componentData, in component) == true) {
         this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T2>.burstTypeId.Data, code = 1, });
         componentData.data = component;
     }
@@ -518,10 +524,11 @@ public long GetVersionT2(int index) => UnsafeUtility.ArrayElementAsRef<Component
 public unsafe struct FilterBag<T0,T1,T2,T3> : IFilterBag  where T0:unmanaged,IComponentBase where T1:unmanaged,IComponentBase where T2:unmanaged,IComponentBase where T3:unmanaged,IComponentBase {
     public readonly int Length;
     [Unity.Collections.NativeDisableParallelForRestriction][Unity.Collections.ReadOnlyAttribute]  private Unity.Collections.NativeArray<Ptr> regs;
-    [Unity.Collections.NativeDisableParallelForRestriction][Unity.Collections.ReadOnlyAttribute]  private ME.ECS.Collections.NativeBufferArray<Entity> entities;
+    [Unity.Collections.NativeDisableParallelForRestriction][Unity.Collections.ReadOnlyAttribute]  private ME.ECS.Collections.V3.MemArrayAllocator<Entity> entities;
     [Unity.Collections.NativeDisableParallelForRestriction][Unity.Collections.ReadOnlyAttribute]  private Unity.Collections.NativeList<int> indexes;
     [Unity.Collections.NativeDisableParallelForRestriction][Unity.Collections.ReadOnlyAttribute]  private Unity.Collections.NativeArray<int> entityToIndex;
     [Unity.Collections.NativeDisableParallelForRestriction] private Ops componentOps;
+    [Unity.Collections.NativeDisableParallelForRestriction] private ME.ECS.Collections.V3.MemoryAllocator allocator;
     public int Count => this.Length;
     public Tick tick;
     private EntityVersions entityVersions;
@@ -540,11 +547,12 @@ public unsafe struct FilterBag<T0,T1,T2,T3> : IFilterBag  where T0:unmanaged,ICo
         this.Length = filterArr.Length;
         this.regs = default;
         this.componentOps = default;
+        this.allocator = world.currentState.allocator;
         if (this.Length > 0) {
             this.regs = new Unity.Collections.NativeArray<Ptr>(4, allocator);
             this.componentOps = new Ops(this.Length);
             ref var allRegs = ref world.currentState.structComponents.unmanagedComponentsStorage;
-            ref var memAllocator = ref world.currentState.structComponents.unmanagedComponentsStorage.allocator;
+            ref var memAllocator = ref world.currentState.allocator;
             ref var regT0 = ref memAllocator.Ref<UnmanagedComponentsStorage.Item<T0>>(allRegs.items[in memAllocator, AllComponentTypes<T0>.typeId]);
 regT0.Merge(ref memAllocator);
 this.regs[0] = new Ptr() { value = regT0.components.GetUnsafePtr(ref memAllocator) };
@@ -573,45 +581,45 @@ this.regs[3] = new Ptr() { value = regT3.components.GetUnsafePtr(ref memAllocato
         #endif
         var world = Worlds.currentWorld;
         ref var allRegs = ref world.currentState.structComponents.unmanagedComponentsStorage;
-        ref var memAllocator = ref world.currentState.structComponents.unmanagedComponentsStorage.allocator;
+        ref var memAllocator = ref world.currentState.allocator;
         var ops = this.componentOps;
         for (int i = 0; i < ops.Length; ++i) {
             if (ops.Read(i, out var op) == true) {
-                var entity = this.entities[this.indexes[op.entityIndex]];
+                var entity = this.entities[in memAllocator, this.indexes[op.entityIndex]];
                 if (op.code == 2 && op.componentId == -1) {
                     world.RemoveEntity(in entity);
                 } else {
                     if (op.componentId == AllComponentTypes<T0>.typeId) {
     if (op.code == 1) {
         ref var reg = ref memAllocator.Ref<UnmanagedComponentsStorage.Item<T0>>(allRegs.items[in memAllocator, AllComponentTypes<T0>.typeId]);
-        DataUnmanagedBufferUtils.PushSet_INTERNAL(world, in entity, ref allRegs, ref reg, this.ReadT0(op.entityIndex));
+        DataUnmanagedBufferUtils.PushSet_INTERNAL(world, in entity, ref memAllocator, ref reg, this.ReadT0(op.entityIndex));
     } else if (op.code == 2) {
         ref var reg = ref memAllocator.Ref<UnmanagedComponentsStorage.Item<T0>>(allRegs.items[in memAllocator, AllComponentTypes<T0>.typeId]);
-        DataUnmanagedBufferUtils.PushRemove_INTERNAL(world, in entity, ref allRegs, ref reg);
+        DataUnmanagedBufferUtils.PushRemove_INTERNAL(world, in entity, ref memAllocator, ref reg);
     }
 }if (op.componentId == AllComponentTypes<T1>.typeId) {
     if (op.code == 1) {
         ref var reg = ref memAllocator.Ref<UnmanagedComponentsStorage.Item<T1>>(allRegs.items[in memAllocator, AllComponentTypes<T1>.typeId]);
-        DataUnmanagedBufferUtils.PushSet_INTERNAL(world, in entity, ref allRegs, ref reg, this.ReadT1(op.entityIndex));
+        DataUnmanagedBufferUtils.PushSet_INTERNAL(world, in entity, ref memAllocator, ref reg, this.ReadT1(op.entityIndex));
     } else if (op.code == 2) {
         ref var reg = ref memAllocator.Ref<UnmanagedComponentsStorage.Item<T1>>(allRegs.items[in memAllocator, AllComponentTypes<T1>.typeId]);
-        DataUnmanagedBufferUtils.PushRemove_INTERNAL(world, in entity, ref allRegs, ref reg);
+        DataUnmanagedBufferUtils.PushRemove_INTERNAL(world, in entity, ref memAllocator, ref reg);
     }
 }if (op.componentId == AllComponentTypes<T2>.typeId) {
     if (op.code == 1) {
         ref var reg = ref memAllocator.Ref<UnmanagedComponentsStorage.Item<T2>>(allRegs.items[in memAllocator, AllComponentTypes<T2>.typeId]);
-        DataUnmanagedBufferUtils.PushSet_INTERNAL(world, in entity, ref allRegs, ref reg, this.ReadT2(op.entityIndex));
+        DataUnmanagedBufferUtils.PushSet_INTERNAL(world, in entity, ref memAllocator, ref reg, this.ReadT2(op.entityIndex));
     } else if (op.code == 2) {
         ref var reg = ref memAllocator.Ref<UnmanagedComponentsStorage.Item<T2>>(allRegs.items[in memAllocator, AllComponentTypes<T2>.typeId]);
-        DataUnmanagedBufferUtils.PushRemove_INTERNAL(world, in entity, ref allRegs, ref reg);
+        DataUnmanagedBufferUtils.PushRemove_INTERNAL(world, in entity, ref memAllocator, ref reg);
     }
 }if (op.componentId == AllComponentTypes<T3>.typeId) {
     if (op.code == 1) {
         ref var reg = ref memAllocator.Ref<UnmanagedComponentsStorage.Item<T3>>(allRegs.items[in memAllocator, AllComponentTypes<T3>.typeId]);
-        DataUnmanagedBufferUtils.PushSet_INTERNAL(world, in entity, ref allRegs, ref reg, this.ReadT3(op.entityIndex));
+        DataUnmanagedBufferUtils.PushSet_INTERNAL(world, in entity, ref memAllocator, ref reg, this.ReadT3(op.entityIndex));
     } else if (op.code == 2) {
         ref var reg = ref memAllocator.Ref<UnmanagedComponentsStorage.Item<T3>>(allRegs.items[in memAllocator, AllComponentTypes<T3>.typeId]);
-        DataUnmanagedBufferUtils.PushRemove_INTERNAL(world, in entity, ref allRegs, ref reg);
+        DataUnmanagedBufferUtils.PushRemove_INTERNAL(world, in entity, ref memAllocator, ref reg);
     }
 }
                 }
@@ -626,7 +634,7 @@ this.regs[3] = new Ptr() { value = regT3.components.GetUnsafePtr(ref memAllocato
     public int GetIndexByEntityId(int id) => this.entityToIndex[id];
     public void DestroyEntity(int index) => this.componentOps.Write(new Op() { entityIndex = index, componentId = -1, code = 2, });
     public int GetEntityId(int index) => this.indexes[index];
-    public ref readonly Entity GetEntity(int index) => ref this.entities.GetRefRead(this.indexes[index]);
+    public ref readonly Entity GetEntity(int index) => ref this.entities[this.allocator, this.indexes[index]];
     public void Revert() => this.Dispose();
     private void Dispose() {
         if (this.Length > 0) {
@@ -642,7 +650,7 @@ this.regs[3] = new Ptr() { value = regT3.components.GetUnsafePtr(ref memAllocato
 public void Set(int index, in T0 component) {
     var entityId = this.indexes[index];
     ref var componentData = ref UnsafeUtility.ArrayElementAsRef<Component<T0>>(this.regs[0].value, this.indexes[index]);
-    if (DataBlittableBurstBufferUtils.NeedToPush(this.tick, ref this.entityVersions, entityId, ref componentData, in component) == true) {
+    if (DataBlittableBurstBufferUtils.NeedToPush(in this.allocator, this.tick, ref this.entityVersions, entityId, ref componentData, in component) == true) {
         this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T0>.burstTypeId.Data, code = 1, });
         componentData.data = component;
     }
@@ -658,7 +666,7 @@ public void RemoveT1(int index) { this.componentOps.Write(new Op() { entityIndex
 public void Set(int index, in T1 component) {
     var entityId = this.indexes[index];
     ref var componentData = ref UnsafeUtility.ArrayElementAsRef<Component<T1>>(this.regs[1].value, this.indexes[index]);
-    if (DataBlittableBurstBufferUtils.NeedToPush(this.tick, ref this.entityVersions, entityId, ref componentData, in component) == true) {
+    if (DataBlittableBurstBufferUtils.NeedToPush(in this.allocator, this.tick, ref this.entityVersions, entityId, ref componentData, in component) == true) {
         this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T1>.burstTypeId.Data, code = 1, });
         componentData.data = component;
     }
@@ -674,7 +682,7 @@ public void RemoveT2(int index) { this.componentOps.Write(new Op() { entityIndex
 public void Set(int index, in T2 component) {
     var entityId = this.indexes[index];
     ref var componentData = ref UnsafeUtility.ArrayElementAsRef<Component<T2>>(this.regs[2].value, this.indexes[index]);
-    if (DataBlittableBurstBufferUtils.NeedToPush(this.tick, ref this.entityVersions, entityId, ref componentData, in component) == true) {
+    if (DataBlittableBurstBufferUtils.NeedToPush(in this.allocator, this.tick, ref this.entityVersions, entityId, ref componentData, in component) == true) {
         this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T2>.burstTypeId.Data, code = 1, });
         componentData.data = component;
     }
@@ -690,7 +698,7 @@ public void RemoveT3(int index) { this.componentOps.Write(new Op() { entityIndex
 public void Set(int index, in T3 component) {
     var entityId = this.indexes[index];
     ref var componentData = ref UnsafeUtility.ArrayElementAsRef<Component<T3>>(this.regs[3].value, this.indexes[index]);
-    if (DataBlittableBurstBufferUtils.NeedToPush(this.tick, ref this.entityVersions, entityId, ref componentData, in component) == true) {
+    if (DataBlittableBurstBufferUtils.NeedToPush(in this.allocator, this.tick, ref this.entityVersions, entityId, ref componentData, in component) == true) {
         this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T3>.burstTypeId.Data, code = 1, });
         componentData.data = component;
     }
@@ -714,10 +722,11 @@ public long GetVersionT3(int index) => UnsafeUtility.ArrayElementAsRef<Component
 public unsafe struct FilterBag<T0,T1,T2,T3,T4> : IFilterBag  where T0:unmanaged,IComponentBase where T1:unmanaged,IComponentBase where T2:unmanaged,IComponentBase where T3:unmanaged,IComponentBase where T4:unmanaged,IComponentBase {
     public readonly int Length;
     [Unity.Collections.NativeDisableParallelForRestriction][Unity.Collections.ReadOnlyAttribute]  private Unity.Collections.NativeArray<Ptr> regs;
-    [Unity.Collections.NativeDisableParallelForRestriction][Unity.Collections.ReadOnlyAttribute]  private ME.ECS.Collections.NativeBufferArray<Entity> entities;
+    [Unity.Collections.NativeDisableParallelForRestriction][Unity.Collections.ReadOnlyAttribute]  private ME.ECS.Collections.V3.MemArrayAllocator<Entity> entities;
     [Unity.Collections.NativeDisableParallelForRestriction][Unity.Collections.ReadOnlyAttribute]  private Unity.Collections.NativeList<int> indexes;
     [Unity.Collections.NativeDisableParallelForRestriction][Unity.Collections.ReadOnlyAttribute]  private Unity.Collections.NativeArray<int> entityToIndex;
     [Unity.Collections.NativeDisableParallelForRestriction] private Ops componentOps;
+    [Unity.Collections.NativeDisableParallelForRestriction] private ME.ECS.Collections.V3.MemoryAllocator allocator;
     public int Count => this.Length;
     public Tick tick;
     private EntityVersions entityVersions;
@@ -736,11 +745,12 @@ public unsafe struct FilterBag<T0,T1,T2,T3,T4> : IFilterBag  where T0:unmanaged,
         this.Length = filterArr.Length;
         this.regs = default;
         this.componentOps = default;
+        this.allocator = world.currentState.allocator;
         if (this.Length > 0) {
             this.regs = new Unity.Collections.NativeArray<Ptr>(5, allocator);
             this.componentOps = new Ops(this.Length);
             ref var allRegs = ref world.currentState.structComponents.unmanagedComponentsStorage;
-            ref var memAllocator = ref world.currentState.structComponents.unmanagedComponentsStorage.allocator;
+            ref var memAllocator = ref world.currentState.allocator;
             ref var regT0 = ref memAllocator.Ref<UnmanagedComponentsStorage.Item<T0>>(allRegs.items[in memAllocator, AllComponentTypes<T0>.typeId]);
 regT0.Merge(ref memAllocator);
 this.regs[0] = new Ptr() { value = regT0.components.GetUnsafePtr(ref memAllocator) };
@@ -772,53 +782,53 @@ this.regs[4] = new Ptr() { value = regT4.components.GetUnsafePtr(ref memAllocato
         #endif
         var world = Worlds.currentWorld;
         ref var allRegs = ref world.currentState.structComponents.unmanagedComponentsStorage;
-        ref var memAllocator = ref world.currentState.structComponents.unmanagedComponentsStorage.allocator;
+        ref var memAllocator = ref world.currentState.allocator;
         var ops = this.componentOps;
         for (int i = 0; i < ops.Length; ++i) {
             if (ops.Read(i, out var op) == true) {
-                var entity = this.entities[this.indexes[op.entityIndex]];
+                var entity = this.entities[in memAllocator, this.indexes[op.entityIndex]];
                 if (op.code == 2 && op.componentId == -1) {
                     world.RemoveEntity(in entity);
                 } else {
                     if (op.componentId == AllComponentTypes<T0>.typeId) {
     if (op.code == 1) {
         ref var reg = ref memAllocator.Ref<UnmanagedComponentsStorage.Item<T0>>(allRegs.items[in memAllocator, AllComponentTypes<T0>.typeId]);
-        DataUnmanagedBufferUtils.PushSet_INTERNAL(world, in entity, ref allRegs, ref reg, this.ReadT0(op.entityIndex));
+        DataUnmanagedBufferUtils.PushSet_INTERNAL(world, in entity, ref memAllocator, ref reg, this.ReadT0(op.entityIndex));
     } else if (op.code == 2) {
         ref var reg = ref memAllocator.Ref<UnmanagedComponentsStorage.Item<T0>>(allRegs.items[in memAllocator, AllComponentTypes<T0>.typeId]);
-        DataUnmanagedBufferUtils.PushRemove_INTERNAL(world, in entity, ref allRegs, ref reg);
+        DataUnmanagedBufferUtils.PushRemove_INTERNAL(world, in entity, ref memAllocator, ref reg);
     }
 }if (op.componentId == AllComponentTypes<T1>.typeId) {
     if (op.code == 1) {
         ref var reg = ref memAllocator.Ref<UnmanagedComponentsStorage.Item<T1>>(allRegs.items[in memAllocator, AllComponentTypes<T1>.typeId]);
-        DataUnmanagedBufferUtils.PushSet_INTERNAL(world, in entity, ref allRegs, ref reg, this.ReadT1(op.entityIndex));
+        DataUnmanagedBufferUtils.PushSet_INTERNAL(world, in entity, ref memAllocator, ref reg, this.ReadT1(op.entityIndex));
     } else if (op.code == 2) {
         ref var reg = ref memAllocator.Ref<UnmanagedComponentsStorage.Item<T1>>(allRegs.items[in memAllocator, AllComponentTypes<T1>.typeId]);
-        DataUnmanagedBufferUtils.PushRemove_INTERNAL(world, in entity, ref allRegs, ref reg);
+        DataUnmanagedBufferUtils.PushRemove_INTERNAL(world, in entity, ref memAllocator, ref reg);
     }
 }if (op.componentId == AllComponentTypes<T2>.typeId) {
     if (op.code == 1) {
         ref var reg = ref memAllocator.Ref<UnmanagedComponentsStorage.Item<T2>>(allRegs.items[in memAllocator, AllComponentTypes<T2>.typeId]);
-        DataUnmanagedBufferUtils.PushSet_INTERNAL(world, in entity, ref allRegs, ref reg, this.ReadT2(op.entityIndex));
+        DataUnmanagedBufferUtils.PushSet_INTERNAL(world, in entity, ref memAllocator, ref reg, this.ReadT2(op.entityIndex));
     } else if (op.code == 2) {
         ref var reg = ref memAllocator.Ref<UnmanagedComponentsStorage.Item<T2>>(allRegs.items[in memAllocator, AllComponentTypes<T2>.typeId]);
-        DataUnmanagedBufferUtils.PushRemove_INTERNAL(world, in entity, ref allRegs, ref reg);
+        DataUnmanagedBufferUtils.PushRemove_INTERNAL(world, in entity, ref memAllocator, ref reg);
     }
 }if (op.componentId == AllComponentTypes<T3>.typeId) {
     if (op.code == 1) {
         ref var reg = ref memAllocator.Ref<UnmanagedComponentsStorage.Item<T3>>(allRegs.items[in memAllocator, AllComponentTypes<T3>.typeId]);
-        DataUnmanagedBufferUtils.PushSet_INTERNAL(world, in entity, ref allRegs, ref reg, this.ReadT3(op.entityIndex));
+        DataUnmanagedBufferUtils.PushSet_INTERNAL(world, in entity, ref memAllocator, ref reg, this.ReadT3(op.entityIndex));
     } else if (op.code == 2) {
         ref var reg = ref memAllocator.Ref<UnmanagedComponentsStorage.Item<T3>>(allRegs.items[in memAllocator, AllComponentTypes<T3>.typeId]);
-        DataUnmanagedBufferUtils.PushRemove_INTERNAL(world, in entity, ref allRegs, ref reg);
+        DataUnmanagedBufferUtils.PushRemove_INTERNAL(world, in entity, ref memAllocator, ref reg);
     }
 }if (op.componentId == AllComponentTypes<T4>.typeId) {
     if (op.code == 1) {
         ref var reg = ref memAllocator.Ref<UnmanagedComponentsStorage.Item<T4>>(allRegs.items[in memAllocator, AllComponentTypes<T4>.typeId]);
-        DataUnmanagedBufferUtils.PushSet_INTERNAL(world, in entity, ref allRegs, ref reg, this.ReadT4(op.entityIndex));
+        DataUnmanagedBufferUtils.PushSet_INTERNAL(world, in entity, ref memAllocator, ref reg, this.ReadT4(op.entityIndex));
     } else if (op.code == 2) {
         ref var reg = ref memAllocator.Ref<UnmanagedComponentsStorage.Item<T4>>(allRegs.items[in memAllocator, AllComponentTypes<T4>.typeId]);
-        DataUnmanagedBufferUtils.PushRemove_INTERNAL(world, in entity, ref allRegs, ref reg);
+        DataUnmanagedBufferUtils.PushRemove_INTERNAL(world, in entity, ref memAllocator, ref reg);
     }
 }
                 }
@@ -833,7 +843,7 @@ this.regs[4] = new Ptr() { value = regT4.components.GetUnsafePtr(ref memAllocato
     public int GetIndexByEntityId(int id) => this.entityToIndex[id];
     public void DestroyEntity(int index) => this.componentOps.Write(new Op() { entityIndex = index, componentId = -1, code = 2, });
     public int GetEntityId(int index) => this.indexes[index];
-    public ref readonly Entity GetEntity(int index) => ref this.entities.GetRefRead(this.indexes[index]);
+    public ref readonly Entity GetEntity(int index) => ref this.entities[this.allocator, this.indexes[index]];
     public void Revert() => this.Dispose();
     private void Dispose() {
         if (this.Length > 0) {
@@ -849,7 +859,7 @@ this.regs[4] = new Ptr() { value = regT4.components.GetUnsafePtr(ref memAllocato
 public void Set(int index, in T0 component) {
     var entityId = this.indexes[index];
     ref var componentData = ref UnsafeUtility.ArrayElementAsRef<Component<T0>>(this.regs[0].value, this.indexes[index]);
-    if (DataBlittableBurstBufferUtils.NeedToPush(this.tick, ref this.entityVersions, entityId, ref componentData, in component) == true) {
+    if (DataBlittableBurstBufferUtils.NeedToPush(in this.allocator, this.tick, ref this.entityVersions, entityId, ref componentData, in component) == true) {
         this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T0>.burstTypeId.Data, code = 1, });
         componentData.data = component;
     }
@@ -865,7 +875,7 @@ public void RemoveT1(int index) { this.componentOps.Write(new Op() { entityIndex
 public void Set(int index, in T1 component) {
     var entityId = this.indexes[index];
     ref var componentData = ref UnsafeUtility.ArrayElementAsRef<Component<T1>>(this.regs[1].value, this.indexes[index]);
-    if (DataBlittableBurstBufferUtils.NeedToPush(this.tick, ref this.entityVersions, entityId, ref componentData, in component) == true) {
+    if (DataBlittableBurstBufferUtils.NeedToPush(in this.allocator, this.tick, ref this.entityVersions, entityId, ref componentData, in component) == true) {
         this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T1>.burstTypeId.Data, code = 1, });
         componentData.data = component;
     }
@@ -881,7 +891,7 @@ public void RemoveT2(int index) { this.componentOps.Write(new Op() { entityIndex
 public void Set(int index, in T2 component) {
     var entityId = this.indexes[index];
     ref var componentData = ref UnsafeUtility.ArrayElementAsRef<Component<T2>>(this.regs[2].value, this.indexes[index]);
-    if (DataBlittableBurstBufferUtils.NeedToPush(this.tick, ref this.entityVersions, entityId, ref componentData, in component) == true) {
+    if (DataBlittableBurstBufferUtils.NeedToPush(in this.allocator, this.tick, ref this.entityVersions, entityId, ref componentData, in component) == true) {
         this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T2>.burstTypeId.Data, code = 1, });
         componentData.data = component;
     }
@@ -897,7 +907,7 @@ public void RemoveT3(int index) { this.componentOps.Write(new Op() { entityIndex
 public void Set(int index, in T3 component) {
     var entityId = this.indexes[index];
     ref var componentData = ref UnsafeUtility.ArrayElementAsRef<Component<T3>>(this.regs[3].value, this.indexes[index]);
-    if (DataBlittableBurstBufferUtils.NeedToPush(this.tick, ref this.entityVersions, entityId, ref componentData, in component) == true) {
+    if (DataBlittableBurstBufferUtils.NeedToPush(in this.allocator, this.tick, ref this.entityVersions, entityId, ref componentData, in component) == true) {
         this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T3>.burstTypeId.Data, code = 1, });
         componentData.data = component;
     }
@@ -913,7 +923,7 @@ public void RemoveT4(int index) { this.componentOps.Write(new Op() { entityIndex
 public void Set(int index, in T4 component) {
     var entityId = this.indexes[index];
     ref var componentData = ref UnsafeUtility.ArrayElementAsRef<Component<T4>>(this.regs[4].value, this.indexes[index]);
-    if (DataBlittableBurstBufferUtils.NeedToPush(this.tick, ref this.entityVersions, entityId, ref componentData, in component) == true) {
+    if (DataBlittableBurstBufferUtils.NeedToPush(in this.allocator, this.tick, ref this.entityVersions, entityId, ref componentData, in component) == true) {
         this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T4>.burstTypeId.Data, code = 1, });
         componentData.data = component;
     }
@@ -937,10 +947,11 @@ public long GetVersionT4(int index) => UnsafeUtility.ArrayElementAsRef<Component
 public unsafe struct FilterBag<T0,T1,T2,T3,T4,T5> : IFilterBag  where T0:unmanaged,IComponentBase where T1:unmanaged,IComponentBase where T2:unmanaged,IComponentBase where T3:unmanaged,IComponentBase where T4:unmanaged,IComponentBase where T5:unmanaged,IComponentBase {
     public readonly int Length;
     [Unity.Collections.NativeDisableParallelForRestriction][Unity.Collections.ReadOnlyAttribute]  private Unity.Collections.NativeArray<Ptr> regs;
-    [Unity.Collections.NativeDisableParallelForRestriction][Unity.Collections.ReadOnlyAttribute]  private ME.ECS.Collections.NativeBufferArray<Entity> entities;
+    [Unity.Collections.NativeDisableParallelForRestriction][Unity.Collections.ReadOnlyAttribute]  private ME.ECS.Collections.V3.MemArrayAllocator<Entity> entities;
     [Unity.Collections.NativeDisableParallelForRestriction][Unity.Collections.ReadOnlyAttribute]  private Unity.Collections.NativeList<int> indexes;
     [Unity.Collections.NativeDisableParallelForRestriction][Unity.Collections.ReadOnlyAttribute]  private Unity.Collections.NativeArray<int> entityToIndex;
     [Unity.Collections.NativeDisableParallelForRestriction] private Ops componentOps;
+    [Unity.Collections.NativeDisableParallelForRestriction] private ME.ECS.Collections.V3.MemoryAllocator allocator;
     public int Count => this.Length;
     public Tick tick;
     private EntityVersions entityVersions;
@@ -959,11 +970,12 @@ public unsafe struct FilterBag<T0,T1,T2,T3,T4,T5> : IFilterBag  where T0:unmanag
         this.Length = filterArr.Length;
         this.regs = default;
         this.componentOps = default;
+        this.allocator = world.currentState.allocator;
         if (this.Length > 0) {
             this.regs = new Unity.Collections.NativeArray<Ptr>(6, allocator);
             this.componentOps = new Ops(this.Length);
             ref var allRegs = ref world.currentState.structComponents.unmanagedComponentsStorage;
-            ref var memAllocator = ref world.currentState.structComponents.unmanagedComponentsStorage.allocator;
+            ref var memAllocator = ref world.currentState.allocator;
             ref var regT0 = ref memAllocator.Ref<UnmanagedComponentsStorage.Item<T0>>(allRegs.items[in memAllocator, AllComponentTypes<T0>.typeId]);
 regT0.Merge(ref memAllocator);
 this.regs[0] = new Ptr() { value = regT0.components.GetUnsafePtr(ref memAllocator) };
@@ -998,61 +1010,61 @@ this.regs[5] = new Ptr() { value = regT5.components.GetUnsafePtr(ref memAllocato
         #endif
         var world = Worlds.currentWorld;
         ref var allRegs = ref world.currentState.structComponents.unmanagedComponentsStorage;
-        ref var memAllocator = ref world.currentState.structComponents.unmanagedComponentsStorage.allocator;
+        ref var memAllocator = ref world.currentState.allocator;
         var ops = this.componentOps;
         for (int i = 0; i < ops.Length; ++i) {
             if (ops.Read(i, out var op) == true) {
-                var entity = this.entities[this.indexes[op.entityIndex]];
+                var entity = this.entities[in memAllocator, this.indexes[op.entityIndex]];
                 if (op.code == 2 && op.componentId == -1) {
                     world.RemoveEntity(in entity);
                 } else {
                     if (op.componentId == AllComponentTypes<T0>.typeId) {
     if (op.code == 1) {
         ref var reg = ref memAllocator.Ref<UnmanagedComponentsStorage.Item<T0>>(allRegs.items[in memAllocator, AllComponentTypes<T0>.typeId]);
-        DataUnmanagedBufferUtils.PushSet_INTERNAL(world, in entity, ref allRegs, ref reg, this.ReadT0(op.entityIndex));
+        DataUnmanagedBufferUtils.PushSet_INTERNAL(world, in entity, ref memAllocator, ref reg, this.ReadT0(op.entityIndex));
     } else if (op.code == 2) {
         ref var reg = ref memAllocator.Ref<UnmanagedComponentsStorage.Item<T0>>(allRegs.items[in memAllocator, AllComponentTypes<T0>.typeId]);
-        DataUnmanagedBufferUtils.PushRemove_INTERNAL(world, in entity, ref allRegs, ref reg);
+        DataUnmanagedBufferUtils.PushRemove_INTERNAL(world, in entity, ref memAllocator, ref reg);
     }
 }if (op.componentId == AllComponentTypes<T1>.typeId) {
     if (op.code == 1) {
         ref var reg = ref memAllocator.Ref<UnmanagedComponentsStorage.Item<T1>>(allRegs.items[in memAllocator, AllComponentTypes<T1>.typeId]);
-        DataUnmanagedBufferUtils.PushSet_INTERNAL(world, in entity, ref allRegs, ref reg, this.ReadT1(op.entityIndex));
+        DataUnmanagedBufferUtils.PushSet_INTERNAL(world, in entity, ref memAllocator, ref reg, this.ReadT1(op.entityIndex));
     } else if (op.code == 2) {
         ref var reg = ref memAllocator.Ref<UnmanagedComponentsStorage.Item<T1>>(allRegs.items[in memAllocator, AllComponentTypes<T1>.typeId]);
-        DataUnmanagedBufferUtils.PushRemove_INTERNAL(world, in entity, ref allRegs, ref reg);
+        DataUnmanagedBufferUtils.PushRemove_INTERNAL(world, in entity, ref memAllocator, ref reg);
     }
 }if (op.componentId == AllComponentTypes<T2>.typeId) {
     if (op.code == 1) {
         ref var reg = ref memAllocator.Ref<UnmanagedComponentsStorage.Item<T2>>(allRegs.items[in memAllocator, AllComponentTypes<T2>.typeId]);
-        DataUnmanagedBufferUtils.PushSet_INTERNAL(world, in entity, ref allRegs, ref reg, this.ReadT2(op.entityIndex));
+        DataUnmanagedBufferUtils.PushSet_INTERNAL(world, in entity, ref memAllocator, ref reg, this.ReadT2(op.entityIndex));
     } else if (op.code == 2) {
         ref var reg = ref memAllocator.Ref<UnmanagedComponentsStorage.Item<T2>>(allRegs.items[in memAllocator, AllComponentTypes<T2>.typeId]);
-        DataUnmanagedBufferUtils.PushRemove_INTERNAL(world, in entity, ref allRegs, ref reg);
+        DataUnmanagedBufferUtils.PushRemove_INTERNAL(world, in entity, ref memAllocator, ref reg);
     }
 }if (op.componentId == AllComponentTypes<T3>.typeId) {
     if (op.code == 1) {
         ref var reg = ref memAllocator.Ref<UnmanagedComponentsStorage.Item<T3>>(allRegs.items[in memAllocator, AllComponentTypes<T3>.typeId]);
-        DataUnmanagedBufferUtils.PushSet_INTERNAL(world, in entity, ref allRegs, ref reg, this.ReadT3(op.entityIndex));
+        DataUnmanagedBufferUtils.PushSet_INTERNAL(world, in entity, ref memAllocator, ref reg, this.ReadT3(op.entityIndex));
     } else if (op.code == 2) {
         ref var reg = ref memAllocator.Ref<UnmanagedComponentsStorage.Item<T3>>(allRegs.items[in memAllocator, AllComponentTypes<T3>.typeId]);
-        DataUnmanagedBufferUtils.PushRemove_INTERNAL(world, in entity, ref allRegs, ref reg);
+        DataUnmanagedBufferUtils.PushRemove_INTERNAL(world, in entity, ref memAllocator, ref reg);
     }
 }if (op.componentId == AllComponentTypes<T4>.typeId) {
     if (op.code == 1) {
         ref var reg = ref memAllocator.Ref<UnmanagedComponentsStorage.Item<T4>>(allRegs.items[in memAllocator, AllComponentTypes<T4>.typeId]);
-        DataUnmanagedBufferUtils.PushSet_INTERNAL(world, in entity, ref allRegs, ref reg, this.ReadT4(op.entityIndex));
+        DataUnmanagedBufferUtils.PushSet_INTERNAL(world, in entity, ref memAllocator, ref reg, this.ReadT4(op.entityIndex));
     } else if (op.code == 2) {
         ref var reg = ref memAllocator.Ref<UnmanagedComponentsStorage.Item<T4>>(allRegs.items[in memAllocator, AllComponentTypes<T4>.typeId]);
-        DataUnmanagedBufferUtils.PushRemove_INTERNAL(world, in entity, ref allRegs, ref reg);
+        DataUnmanagedBufferUtils.PushRemove_INTERNAL(world, in entity, ref memAllocator, ref reg);
     }
 }if (op.componentId == AllComponentTypes<T5>.typeId) {
     if (op.code == 1) {
         ref var reg = ref memAllocator.Ref<UnmanagedComponentsStorage.Item<T5>>(allRegs.items[in memAllocator, AllComponentTypes<T5>.typeId]);
-        DataUnmanagedBufferUtils.PushSet_INTERNAL(world, in entity, ref allRegs, ref reg, this.ReadT5(op.entityIndex));
+        DataUnmanagedBufferUtils.PushSet_INTERNAL(world, in entity, ref memAllocator, ref reg, this.ReadT5(op.entityIndex));
     } else if (op.code == 2) {
         ref var reg = ref memAllocator.Ref<UnmanagedComponentsStorage.Item<T5>>(allRegs.items[in memAllocator, AllComponentTypes<T5>.typeId]);
-        DataUnmanagedBufferUtils.PushRemove_INTERNAL(world, in entity, ref allRegs, ref reg);
+        DataUnmanagedBufferUtils.PushRemove_INTERNAL(world, in entity, ref memAllocator, ref reg);
     }
 }
                 }
@@ -1067,7 +1079,7 @@ this.regs[5] = new Ptr() { value = regT5.components.GetUnsafePtr(ref memAllocato
     public int GetIndexByEntityId(int id) => this.entityToIndex[id];
     public void DestroyEntity(int index) => this.componentOps.Write(new Op() { entityIndex = index, componentId = -1, code = 2, });
     public int GetEntityId(int index) => this.indexes[index];
-    public ref readonly Entity GetEntity(int index) => ref this.entities.GetRefRead(this.indexes[index]);
+    public ref readonly Entity GetEntity(int index) => ref this.entities[this.allocator, this.indexes[index]];
     public void Revert() => this.Dispose();
     private void Dispose() {
         if (this.Length > 0) {
@@ -1083,7 +1095,7 @@ this.regs[5] = new Ptr() { value = regT5.components.GetUnsafePtr(ref memAllocato
 public void Set(int index, in T0 component) {
     var entityId = this.indexes[index];
     ref var componentData = ref UnsafeUtility.ArrayElementAsRef<Component<T0>>(this.regs[0].value, this.indexes[index]);
-    if (DataBlittableBurstBufferUtils.NeedToPush(this.tick, ref this.entityVersions, entityId, ref componentData, in component) == true) {
+    if (DataBlittableBurstBufferUtils.NeedToPush(in this.allocator, this.tick, ref this.entityVersions, entityId, ref componentData, in component) == true) {
         this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T0>.burstTypeId.Data, code = 1, });
         componentData.data = component;
     }
@@ -1099,7 +1111,7 @@ public void RemoveT1(int index) { this.componentOps.Write(new Op() { entityIndex
 public void Set(int index, in T1 component) {
     var entityId = this.indexes[index];
     ref var componentData = ref UnsafeUtility.ArrayElementAsRef<Component<T1>>(this.regs[1].value, this.indexes[index]);
-    if (DataBlittableBurstBufferUtils.NeedToPush(this.tick, ref this.entityVersions, entityId, ref componentData, in component) == true) {
+    if (DataBlittableBurstBufferUtils.NeedToPush(in this.allocator, this.tick, ref this.entityVersions, entityId, ref componentData, in component) == true) {
         this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T1>.burstTypeId.Data, code = 1, });
         componentData.data = component;
     }
@@ -1115,7 +1127,7 @@ public void RemoveT2(int index) { this.componentOps.Write(new Op() { entityIndex
 public void Set(int index, in T2 component) {
     var entityId = this.indexes[index];
     ref var componentData = ref UnsafeUtility.ArrayElementAsRef<Component<T2>>(this.regs[2].value, this.indexes[index]);
-    if (DataBlittableBurstBufferUtils.NeedToPush(this.tick, ref this.entityVersions, entityId, ref componentData, in component) == true) {
+    if (DataBlittableBurstBufferUtils.NeedToPush(in this.allocator, this.tick, ref this.entityVersions, entityId, ref componentData, in component) == true) {
         this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T2>.burstTypeId.Data, code = 1, });
         componentData.data = component;
     }
@@ -1131,7 +1143,7 @@ public void RemoveT3(int index) { this.componentOps.Write(new Op() { entityIndex
 public void Set(int index, in T3 component) {
     var entityId = this.indexes[index];
     ref var componentData = ref UnsafeUtility.ArrayElementAsRef<Component<T3>>(this.regs[3].value, this.indexes[index]);
-    if (DataBlittableBurstBufferUtils.NeedToPush(this.tick, ref this.entityVersions, entityId, ref componentData, in component) == true) {
+    if (DataBlittableBurstBufferUtils.NeedToPush(in this.allocator, this.tick, ref this.entityVersions, entityId, ref componentData, in component) == true) {
         this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T3>.burstTypeId.Data, code = 1, });
         componentData.data = component;
     }
@@ -1147,7 +1159,7 @@ public void RemoveT4(int index) { this.componentOps.Write(new Op() { entityIndex
 public void Set(int index, in T4 component) {
     var entityId = this.indexes[index];
     ref var componentData = ref UnsafeUtility.ArrayElementAsRef<Component<T4>>(this.regs[4].value, this.indexes[index]);
-    if (DataBlittableBurstBufferUtils.NeedToPush(this.tick, ref this.entityVersions, entityId, ref componentData, in component) == true) {
+    if (DataBlittableBurstBufferUtils.NeedToPush(in this.allocator, this.tick, ref this.entityVersions, entityId, ref componentData, in component) == true) {
         this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T4>.burstTypeId.Data, code = 1, });
         componentData.data = component;
     }
@@ -1163,7 +1175,7 @@ public void RemoveT5(int index) { this.componentOps.Write(new Op() { entityIndex
 public void Set(int index, in T5 component) {
     var entityId = this.indexes[index];
     ref var componentData = ref UnsafeUtility.ArrayElementAsRef<Component<T5>>(this.regs[5].value, this.indexes[index]);
-    if (DataBlittableBurstBufferUtils.NeedToPush(this.tick, ref this.entityVersions, entityId, ref componentData, in component) == true) {
+    if (DataBlittableBurstBufferUtils.NeedToPush(in this.allocator, this.tick, ref this.entityVersions, entityId, ref componentData, in component) == true) {
         this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T5>.burstTypeId.Data, code = 1, });
         componentData.data = component;
     }
@@ -1187,10 +1199,11 @@ public long GetVersionT5(int index) => UnsafeUtility.ArrayElementAsRef<Component
 public unsafe struct FilterBag<T0,T1,T2,T3,T4,T5,T6> : IFilterBag  where T0:unmanaged,IComponentBase where T1:unmanaged,IComponentBase where T2:unmanaged,IComponentBase where T3:unmanaged,IComponentBase where T4:unmanaged,IComponentBase where T5:unmanaged,IComponentBase where T6:unmanaged,IComponentBase {
     public readonly int Length;
     [Unity.Collections.NativeDisableParallelForRestriction][Unity.Collections.ReadOnlyAttribute]  private Unity.Collections.NativeArray<Ptr> regs;
-    [Unity.Collections.NativeDisableParallelForRestriction][Unity.Collections.ReadOnlyAttribute]  private ME.ECS.Collections.NativeBufferArray<Entity> entities;
+    [Unity.Collections.NativeDisableParallelForRestriction][Unity.Collections.ReadOnlyAttribute]  private ME.ECS.Collections.V3.MemArrayAllocator<Entity> entities;
     [Unity.Collections.NativeDisableParallelForRestriction][Unity.Collections.ReadOnlyAttribute]  private Unity.Collections.NativeList<int> indexes;
     [Unity.Collections.NativeDisableParallelForRestriction][Unity.Collections.ReadOnlyAttribute]  private Unity.Collections.NativeArray<int> entityToIndex;
     [Unity.Collections.NativeDisableParallelForRestriction] private Ops componentOps;
+    [Unity.Collections.NativeDisableParallelForRestriction] private ME.ECS.Collections.V3.MemoryAllocator allocator;
     public int Count => this.Length;
     public Tick tick;
     private EntityVersions entityVersions;
@@ -1209,11 +1222,12 @@ public unsafe struct FilterBag<T0,T1,T2,T3,T4,T5,T6> : IFilterBag  where T0:unma
         this.Length = filterArr.Length;
         this.regs = default;
         this.componentOps = default;
+        this.allocator = world.currentState.allocator;
         if (this.Length > 0) {
             this.regs = new Unity.Collections.NativeArray<Ptr>(7, allocator);
             this.componentOps = new Ops(this.Length);
             ref var allRegs = ref world.currentState.structComponents.unmanagedComponentsStorage;
-            ref var memAllocator = ref world.currentState.structComponents.unmanagedComponentsStorage.allocator;
+            ref var memAllocator = ref world.currentState.allocator;
             ref var regT0 = ref memAllocator.Ref<UnmanagedComponentsStorage.Item<T0>>(allRegs.items[in memAllocator, AllComponentTypes<T0>.typeId]);
 regT0.Merge(ref memAllocator);
 this.regs[0] = new Ptr() { value = regT0.components.GetUnsafePtr(ref memAllocator) };
@@ -1251,69 +1265,69 @@ this.regs[6] = new Ptr() { value = regT6.components.GetUnsafePtr(ref memAllocato
         #endif
         var world = Worlds.currentWorld;
         ref var allRegs = ref world.currentState.structComponents.unmanagedComponentsStorage;
-        ref var memAllocator = ref world.currentState.structComponents.unmanagedComponentsStorage.allocator;
+        ref var memAllocator = ref world.currentState.allocator;
         var ops = this.componentOps;
         for (int i = 0; i < ops.Length; ++i) {
             if (ops.Read(i, out var op) == true) {
-                var entity = this.entities[this.indexes[op.entityIndex]];
+                var entity = this.entities[in memAllocator, this.indexes[op.entityIndex]];
                 if (op.code == 2 && op.componentId == -1) {
                     world.RemoveEntity(in entity);
                 } else {
                     if (op.componentId == AllComponentTypes<T0>.typeId) {
     if (op.code == 1) {
         ref var reg = ref memAllocator.Ref<UnmanagedComponentsStorage.Item<T0>>(allRegs.items[in memAllocator, AllComponentTypes<T0>.typeId]);
-        DataUnmanagedBufferUtils.PushSet_INTERNAL(world, in entity, ref allRegs, ref reg, this.ReadT0(op.entityIndex));
+        DataUnmanagedBufferUtils.PushSet_INTERNAL(world, in entity, ref memAllocator, ref reg, this.ReadT0(op.entityIndex));
     } else if (op.code == 2) {
         ref var reg = ref memAllocator.Ref<UnmanagedComponentsStorage.Item<T0>>(allRegs.items[in memAllocator, AllComponentTypes<T0>.typeId]);
-        DataUnmanagedBufferUtils.PushRemove_INTERNAL(world, in entity, ref allRegs, ref reg);
+        DataUnmanagedBufferUtils.PushRemove_INTERNAL(world, in entity, ref memAllocator, ref reg);
     }
 }if (op.componentId == AllComponentTypes<T1>.typeId) {
     if (op.code == 1) {
         ref var reg = ref memAllocator.Ref<UnmanagedComponentsStorage.Item<T1>>(allRegs.items[in memAllocator, AllComponentTypes<T1>.typeId]);
-        DataUnmanagedBufferUtils.PushSet_INTERNAL(world, in entity, ref allRegs, ref reg, this.ReadT1(op.entityIndex));
+        DataUnmanagedBufferUtils.PushSet_INTERNAL(world, in entity, ref memAllocator, ref reg, this.ReadT1(op.entityIndex));
     } else if (op.code == 2) {
         ref var reg = ref memAllocator.Ref<UnmanagedComponentsStorage.Item<T1>>(allRegs.items[in memAllocator, AllComponentTypes<T1>.typeId]);
-        DataUnmanagedBufferUtils.PushRemove_INTERNAL(world, in entity, ref allRegs, ref reg);
+        DataUnmanagedBufferUtils.PushRemove_INTERNAL(world, in entity, ref memAllocator, ref reg);
     }
 }if (op.componentId == AllComponentTypes<T2>.typeId) {
     if (op.code == 1) {
         ref var reg = ref memAllocator.Ref<UnmanagedComponentsStorage.Item<T2>>(allRegs.items[in memAllocator, AllComponentTypes<T2>.typeId]);
-        DataUnmanagedBufferUtils.PushSet_INTERNAL(world, in entity, ref allRegs, ref reg, this.ReadT2(op.entityIndex));
+        DataUnmanagedBufferUtils.PushSet_INTERNAL(world, in entity, ref memAllocator, ref reg, this.ReadT2(op.entityIndex));
     } else if (op.code == 2) {
         ref var reg = ref memAllocator.Ref<UnmanagedComponentsStorage.Item<T2>>(allRegs.items[in memAllocator, AllComponentTypes<T2>.typeId]);
-        DataUnmanagedBufferUtils.PushRemove_INTERNAL(world, in entity, ref allRegs, ref reg);
+        DataUnmanagedBufferUtils.PushRemove_INTERNAL(world, in entity, ref memAllocator, ref reg);
     }
 }if (op.componentId == AllComponentTypes<T3>.typeId) {
     if (op.code == 1) {
         ref var reg = ref memAllocator.Ref<UnmanagedComponentsStorage.Item<T3>>(allRegs.items[in memAllocator, AllComponentTypes<T3>.typeId]);
-        DataUnmanagedBufferUtils.PushSet_INTERNAL(world, in entity, ref allRegs, ref reg, this.ReadT3(op.entityIndex));
+        DataUnmanagedBufferUtils.PushSet_INTERNAL(world, in entity, ref memAllocator, ref reg, this.ReadT3(op.entityIndex));
     } else if (op.code == 2) {
         ref var reg = ref memAllocator.Ref<UnmanagedComponentsStorage.Item<T3>>(allRegs.items[in memAllocator, AllComponentTypes<T3>.typeId]);
-        DataUnmanagedBufferUtils.PushRemove_INTERNAL(world, in entity, ref allRegs, ref reg);
+        DataUnmanagedBufferUtils.PushRemove_INTERNAL(world, in entity, ref memAllocator, ref reg);
     }
 }if (op.componentId == AllComponentTypes<T4>.typeId) {
     if (op.code == 1) {
         ref var reg = ref memAllocator.Ref<UnmanagedComponentsStorage.Item<T4>>(allRegs.items[in memAllocator, AllComponentTypes<T4>.typeId]);
-        DataUnmanagedBufferUtils.PushSet_INTERNAL(world, in entity, ref allRegs, ref reg, this.ReadT4(op.entityIndex));
+        DataUnmanagedBufferUtils.PushSet_INTERNAL(world, in entity, ref memAllocator, ref reg, this.ReadT4(op.entityIndex));
     } else if (op.code == 2) {
         ref var reg = ref memAllocator.Ref<UnmanagedComponentsStorage.Item<T4>>(allRegs.items[in memAllocator, AllComponentTypes<T4>.typeId]);
-        DataUnmanagedBufferUtils.PushRemove_INTERNAL(world, in entity, ref allRegs, ref reg);
+        DataUnmanagedBufferUtils.PushRemove_INTERNAL(world, in entity, ref memAllocator, ref reg);
     }
 }if (op.componentId == AllComponentTypes<T5>.typeId) {
     if (op.code == 1) {
         ref var reg = ref memAllocator.Ref<UnmanagedComponentsStorage.Item<T5>>(allRegs.items[in memAllocator, AllComponentTypes<T5>.typeId]);
-        DataUnmanagedBufferUtils.PushSet_INTERNAL(world, in entity, ref allRegs, ref reg, this.ReadT5(op.entityIndex));
+        DataUnmanagedBufferUtils.PushSet_INTERNAL(world, in entity, ref memAllocator, ref reg, this.ReadT5(op.entityIndex));
     } else if (op.code == 2) {
         ref var reg = ref memAllocator.Ref<UnmanagedComponentsStorage.Item<T5>>(allRegs.items[in memAllocator, AllComponentTypes<T5>.typeId]);
-        DataUnmanagedBufferUtils.PushRemove_INTERNAL(world, in entity, ref allRegs, ref reg);
+        DataUnmanagedBufferUtils.PushRemove_INTERNAL(world, in entity, ref memAllocator, ref reg);
     }
 }if (op.componentId == AllComponentTypes<T6>.typeId) {
     if (op.code == 1) {
         ref var reg = ref memAllocator.Ref<UnmanagedComponentsStorage.Item<T6>>(allRegs.items[in memAllocator, AllComponentTypes<T6>.typeId]);
-        DataUnmanagedBufferUtils.PushSet_INTERNAL(world, in entity, ref allRegs, ref reg, this.ReadT6(op.entityIndex));
+        DataUnmanagedBufferUtils.PushSet_INTERNAL(world, in entity, ref memAllocator, ref reg, this.ReadT6(op.entityIndex));
     } else if (op.code == 2) {
         ref var reg = ref memAllocator.Ref<UnmanagedComponentsStorage.Item<T6>>(allRegs.items[in memAllocator, AllComponentTypes<T6>.typeId]);
-        DataUnmanagedBufferUtils.PushRemove_INTERNAL(world, in entity, ref allRegs, ref reg);
+        DataUnmanagedBufferUtils.PushRemove_INTERNAL(world, in entity, ref memAllocator, ref reg);
     }
 }
                 }
@@ -1328,7 +1342,7 @@ this.regs[6] = new Ptr() { value = regT6.components.GetUnsafePtr(ref memAllocato
     public int GetIndexByEntityId(int id) => this.entityToIndex[id];
     public void DestroyEntity(int index) => this.componentOps.Write(new Op() { entityIndex = index, componentId = -1, code = 2, });
     public int GetEntityId(int index) => this.indexes[index];
-    public ref readonly Entity GetEntity(int index) => ref this.entities.GetRefRead(this.indexes[index]);
+    public ref readonly Entity GetEntity(int index) => ref this.entities[this.allocator, this.indexes[index]];
     public void Revert() => this.Dispose();
     private void Dispose() {
         if (this.Length > 0) {
@@ -1344,7 +1358,7 @@ this.regs[6] = new Ptr() { value = regT6.components.GetUnsafePtr(ref memAllocato
 public void Set(int index, in T0 component) {
     var entityId = this.indexes[index];
     ref var componentData = ref UnsafeUtility.ArrayElementAsRef<Component<T0>>(this.regs[0].value, this.indexes[index]);
-    if (DataBlittableBurstBufferUtils.NeedToPush(this.tick, ref this.entityVersions, entityId, ref componentData, in component) == true) {
+    if (DataBlittableBurstBufferUtils.NeedToPush(in this.allocator, this.tick, ref this.entityVersions, entityId, ref componentData, in component) == true) {
         this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T0>.burstTypeId.Data, code = 1, });
         componentData.data = component;
     }
@@ -1360,7 +1374,7 @@ public void RemoveT1(int index) { this.componentOps.Write(new Op() { entityIndex
 public void Set(int index, in T1 component) {
     var entityId = this.indexes[index];
     ref var componentData = ref UnsafeUtility.ArrayElementAsRef<Component<T1>>(this.regs[1].value, this.indexes[index]);
-    if (DataBlittableBurstBufferUtils.NeedToPush(this.tick, ref this.entityVersions, entityId, ref componentData, in component) == true) {
+    if (DataBlittableBurstBufferUtils.NeedToPush(in this.allocator, this.tick, ref this.entityVersions, entityId, ref componentData, in component) == true) {
         this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T1>.burstTypeId.Data, code = 1, });
         componentData.data = component;
     }
@@ -1376,7 +1390,7 @@ public void RemoveT2(int index) { this.componentOps.Write(new Op() { entityIndex
 public void Set(int index, in T2 component) {
     var entityId = this.indexes[index];
     ref var componentData = ref UnsafeUtility.ArrayElementAsRef<Component<T2>>(this.regs[2].value, this.indexes[index]);
-    if (DataBlittableBurstBufferUtils.NeedToPush(this.tick, ref this.entityVersions, entityId, ref componentData, in component) == true) {
+    if (DataBlittableBurstBufferUtils.NeedToPush(in this.allocator, this.tick, ref this.entityVersions, entityId, ref componentData, in component) == true) {
         this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T2>.burstTypeId.Data, code = 1, });
         componentData.data = component;
     }
@@ -1392,7 +1406,7 @@ public void RemoveT3(int index) { this.componentOps.Write(new Op() { entityIndex
 public void Set(int index, in T3 component) {
     var entityId = this.indexes[index];
     ref var componentData = ref UnsafeUtility.ArrayElementAsRef<Component<T3>>(this.regs[3].value, this.indexes[index]);
-    if (DataBlittableBurstBufferUtils.NeedToPush(this.tick, ref this.entityVersions, entityId, ref componentData, in component) == true) {
+    if (DataBlittableBurstBufferUtils.NeedToPush(in this.allocator, this.tick, ref this.entityVersions, entityId, ref componentData, in component) == true) {
         this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T3>.burstTypeId.Data, code = 1, });
         componentData.data = component;
     }
@@ -1408,7 +1422,7 @@ public void RemoveT4(int index) { this.componentOps.Write(new Op() { entityIndex
 public void Set(int index, in T4 component) {
     var entityId = this.indexes[index];
     ref var componentData = ref UnsafeUtility.ArrayElementAsRef<Component<T4>>(this.regs[4].value, this.indexes[index]);
-    if (DataBlittableBurstBufferUtils.NeedToPush(this.tick, ref this.entityVersions, entityId, ref componentData, in component) == true) {
+    if (DataBlittableBurstBufferUtils.NeedToPush(in this.allocator, this.tick, ref this.entityVersions, entityId, ref componentData, in component) == true) {
         this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T4>.burstTypeId.Data, code = 1, });
         componentData.data = component;
     }
@@ -1424,7 +1438,7 @@ public void RemoveT5(int index) { this.componentOps.Write(new Op() { entityIndex
 public void Set(int index, in T5 component) {
     var entityId = this.indexes[index];
     ref var componentData = ref UnsafeUtility.ArrayElementAsRef<Component<T5>>(this.regs[5].value, this.indexes[index]);
-    if (DataBlittableBurstBufferUtils.NeedToPush(this.tick, ref this.entityVersions, entityId, ref componentData, in component) == true) {
+    if (DataBlittableBurstBufferUtils.NeedToPush(in this.allocator, this.tick, ref this.entityVersions, entityId, ref componentData, in component) == true) {
         this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T5>.burstTypeId.Data, code = 1, });
         componentData.data = component;
     }
@@ -1440,7 +1454,7 @@ public void RemoveT6(int index) { this.componentOps.Write(new Op() { entityIndex
 public void Set(int index, in T6 component) {
     var entityId = this.indexes[index];
     ref var componentData = ref UnsafeUtility.ArrayElementAsRef<Component<T6>>(this.regs[6].value, this.indexes[index]);
-    if (DataBlittableBurstBufferUtils.NeedToPush(this.tick, ref this.entityVersions, entityId, ref componentData, in component) == true) {
+    if (DataBlittableBurstBufferUtils.NeedToPush(in this.allocator, this.tick, ref this.entityVersions, entityId, ref componentData, in component) == true) {
         this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T6>.burstTypeId.Data, code = 1, });
         componentData.data = component;
     }
@@ -1464,10 +1478,11 @@ public long GetVersionT6(int index) => UnsafeUtility.ArrayElementAsRef<Component
 public unsafe struct FilterBag<T0,T1,T2,T3,T4,T5,T6,T7> : IFilterBag  where T0:unmanaged,IComponentBase where T1:unmanaged,IComponentBase where T2:unmanaged,IComponentBase where T3:unmanaged,IComponentBase where T4:unmanaged,IComponentBase where T5:unmanaged,IComponentBase where T6:unmanaged,IComponentBase where T7:unmanaged,IComponentBase {
     public readonly int Length;
     [Unity.Collections.NativeDisableParallelForRestriction][Unity.Collections.ReadOnlyAttribute]  private Unity.Collections.NativeArray<Ptr> regs;
-    [Unity.Collections.NativeDisableParallelForRestriction][Unity.Collections.ReadOnlyAttribute]  private ME.ECS.Collections.NativeBufferArray<Entity> entities;
+    [Unity.Collections.NativeDisableParallelForRestriction][Unity.Collections.ReadOnlyAttribute]  private ME.ECS.Collections.V3.MemArrayAllocator<Entity> entities;
     [Unity.Collections.NativeDisableParallelForRestriction][Unity.Collections.ReadOnlyAttribute]  private Unity.Collections.NativeList<int> indexes;
     [Unity.Collections.NativeDisableParallelForRestriction][Unity.Collections.ReadOnlyAttribute]  private Unity.Collections.NativeArray<int> entityToIndex;
     [Unity.Collections.NativeDisableParallelForRestriction] private Ops componentOps;
+    [Unity.Collections.NativeDisableParallelForRestriction] private ME.ECS.Collections.V3.MemoryAllocator allocator;
     public int Count => this.Length;
     public Tick tick;
     private EntityVersions entityVersions;
@@ -1486,11 +1501,12 @@ public unsafe struct FilterBag<T0,T1,T2,T3,T4,T5,T6,T7> : IFilterBag  where T0:u
         this.Length = filterArr.Length;
         this.regs = default;
         this.componentOps = default;
+        this.allocator = world.currentState.allocator;
         if (this.Length > 0) {
             this.regs = new Unity.Collections.NativeArray<Ptr>(8, allocator);
             this.componentOps = new Ops(this.Length);
             ref var allRegs = ref world.currentState.structComponents.unmanagedComponentsStorage;
-            ref var memAllocator = ref world.currentState.structComponents.unmanagedComponentsStorage.allocator;
+            ref var memAllocator = ref world.currentState.allocator;
             ref var regT0 = ref memAllocator.Ref<UnmanagedComponentsStorage.Item<T0>>(allRegs.items[in memAllocator, AllComponentTypes<T0>.typeId]);
 regT0.Merge(ref memAllocator);
 this.regs[0] = new Ptr() { value = regT0.components.GetUnsafePtr(ref memAllocator) };
@@ -1531,77 +1547,77 @@ this.regs[7] = new Ptr() { value = regT7.components.GetUnsafePtr(ref memAllocato
         #endif
         var world = Worlds.currentWorld;
         ref var allRegs = ref world.currentState.structComponents.unmanagedComponentsStorage;
-        ref var memAllocator = ref world.currentState.structComponents.unmanagedComponentsStorage.allocator;
+        ref var memAllocator = ref world.currentState.allocator;
         var ops = this.componentOps;
         for (int i = 0; i < ops.Length; ++i) {
             if (ops.Read(i, out var op) == true) {
-                var entity = this.entities[this.indexes[op.entityIndex]];
+                var entity = this.entities[in memAllocator, this.indexes[op.entityIndex]];
                 if (op.code == 2 && op.componentId == -1) {
                     world.RemoveEntity(in entity);
                 } else {
                     if (op.componentId == AllComponentTypes<T0>.typeId) {
     if (op.code == 1) {
         ref var reg = ref memAllocator.Ref<UnmanagedComponentsStorage.Item<T0>>(allRegs.items[in memAllocator, AllComponentTypes<T0>.typeId]);
-        DataUnmanagedBufferUtils.PushSet_INTERNAL(world, in entity, ref allRegs, ref reg, this.ReadT0(op.entityIndex));
+        DataUnmanagedBufferUtils.PushSet_INTERNAL(world, in entity, ref memAllocator, ref reg, this.ReadT0(op.entityIndex));
     } else if (op.code == 2) {
         ref var reg = ref memAllocator.Ref<UnmanagedComponentsStorage.Item<T0>>(allRegs.items[in memAllocator, AllComponentTypes<T0>.typeId]);
-        DataUnmanagedBufferUtils.PushRemove_INTERNAL(world, in entity, ref allRegs, ref reg);
+        DataUnmanagedBufferUtils.PushRemove_INTERNAL(world, in entity, ref memAllocator, ref reg);
     }
 }if (op.componentId == AllComponentTypes<T1>.typeId) {
     if (op.code == 1) {
         ref var reg = ref memAllocator.Ref<UnmanagedComponentsStorage.Item<T1>>(allRegs.items[in memAllocator, AllComponentTypes<T1>.typeId]);
-        DataUnmanagedBufferUtils.PushSet_INTERNAL(world, in entity, ref allRegs, ref reg, this.ReadT1(op.entityIndex));
+        DataUnmanagedBufferUtils.PushSet_INTERNAL(world, in entity, ref memAllocator, ref reg, this.ReadT1(op.entityIndex));
     } else if (op.code == 2) {
         ref var reg = ref memAllocator.Ref<UnmanagedComponentsStorage.Item<T1>>(allRegs.items[in memAllocator, AllComponentTypes<T1>.typeId]);
-        DataUnmanagedBufferUtils.PushRemove_INTERNAL(world, in entity, ref allRegs, ref reg);
+        DataUnmanagedBufferUtils.PushRemove_INTERNAL(world, in entity, ref memAllocator, ref reg);
     }
 }if (op.componentId == AllComponentTypes<T2>.typeId) {
     if (op.code == 1) {
         ref var reg = ref memAllocator.Ref<UnmanagedComponentsStorage.Item<T2>>(allRegs.items[in memAllocator, AllComponentTypes<T2>.typeId]);
-        DataUnmanagedBufferUtils.PushSet_INTERNAL(world, in entity, ref allRegs, ref reg, this.ReadT2(op.entityIndex));
+        DataUnmanagedBufferUtils.PushSet_INTERNAL(world, in entity, ref memAllocator, ref reg, this.ReadT2(op.entityIndex));
     } else if (op.code == 2) {
         ref var reg = ref memAllocator.Ref<UnmanagedComponentsStorage.Item<T2>>(allRegs.items[in memAllocator, AllComponentTypes<T2>.typeId]);
-        DataUnmanagedBufferUtils.PushRemove_INTERNAL(world, in entity, ref allRegs, ref reg);
+        DataUnmanagedBufferUtils.PushRemove_INTERNAL(world, in entity, ref memAllocator, ref reg);
     }
 }if (op.componentId == AllComponentTypes<T3>.typeId) {
     if (op.code == 1) {
         ref var reg = ref memAllocator.Ref<UnmanagedComponentsStorage.Item<T3>>(allRegs.items[in memAllocator, AllComponentTypes<T3>.typeId]);
-        DataUnmanagedBufferUtils.PushSet_INTERNAL(world, in entity, ref allRegs, ref reg, this.ReadT3(op.entityIndex));
+        DataUnmanagedBufferUtils.PushSet_INTERNAL(world, in entity, ref memAllocator, ref reg, this.ReadT3(op.entityIndex));
     } else if (op.code == 2) {
         ref var reg = ref memAllocator.Ref<UnmanagedComponentsStorage.Item<T3>>(allRegs.items[in memAllocator, AllComponentTypes<T3>.typeId]);
-        DataUnmanagedBufferUtils.PushRemove_INTERNAL(world, in entity, ref allRegs, ref reg);
+        DataUnmanagedBufferUtils.PushRemove_INTERNAL(world, in entity, ref memAllocator, ref reg);
     }
 }if (op.componentId == AllComponentTypes<T4>.typeId) {
     if (op.code == 1) {
         ref var reg = ref memAllocator.Ref<UnmanagedComponentsStorage.Item<T4>>(allRegs.items[in memAllocator, AllComponentTypes<T4>.typeId]);
-        DataUnmanagedBufferUtils.PushSet_INTERNAL(world, in entity, ref allRegs, ref reg, this.ReadT4(op.entityIndex));
+        DataUnmanagedBufferUtils.PushSet_INTERNAL(world, in entity, ref memAllocator, ref reg, this.ReadT4(op.entityIndex));
     } else if (op.code == 2) {
         ref var reg = ref memAllocator.Ref<UnmanagedComponentsStorage.Item<T4>>(allRegs.items[in memAllocator, AllComponentTypes<T4>.typeId]);
-        DataUnmanagedBufferUtils.PushRemove_INTERNAL(world, in entity, ref allRegs, ref reg);
+        DataUnmanagedBufferUtils.PushRemove_INTERNAL(world, in entity, ref memAllocator, ref reg);
     }
 }if (op.componentId == AllComponentTypes<T5>.typeId) {
     if (op.code == 1) {
         ref var reg = ref memAllocator.Ref<UnmanagedComponentsStorage.Item<T5>>(allRegs.items[in memAllocator, AllComponentTypes<T5>.typeId]);
-        DataUnmanagedBufferUtils.PushSet_INTERNAL(world, in entity, ref allRegs, ref reg, this.ReadT5(op.entityIndex));
+        DataUnmanagedBufferUtils.PushSet_INTERNAL(world, in entity, ref memAllocator, ref reg, this.ReadT5(op.entityIndex));
     } else if (op.code == 2) {
         ref var reg = ref memAllocator.Ref<UnmanagedComponentsStorage.Item<T5>>(allRegs.items[in memAllocator, AllComponentTypes<T5>.typeId]);
-        DataUnmanagedBufferUtils.PushRemove_INTERNAL(world, in entity, ref allRegs, ref reg);
+        DataUnmanagedBufferUtils.PushRemove_INTERNAL(world, in entity, ref memAllocator, ref reg);
     }
 }if (op.componentId == AllComponentTypes<T6>.typeId) {
     if (op.code == 1) {
         ref var reg = ref memAllocator.Ref<UnmanagedComponentsStorage.Item<T6>>(allRegs.items[in memAllocator, AllComponentTypes<T6>.typeId]);
-        DataUnmanagedBufferUtils.PushSet_INTERNAL(world, in entity, ref allRegs, ref reg, this.ReadT6(op.entityIndex));
+        DataUnmanagedBufferUtils.PushSet_INTERNAL(world, in entity, ref memAllocator, ref reg, this.ReadT6(op.entityIndex));
     } else if (op.code == 2) {
         ref var reg = ref memAllocator.Ref<UnmanagedComponentsStorage.Item<T6>>(allRegs.items[in memAllocator, AllComponentTypes<T6>.typeId]);
-        DataUnmanagedBufferUtils.PushRemove_INTERNAL(world, in entity, ref allRegs, ref reg);
+        DataUnmanagedBufferUtils.PushRemove_INTERNAL(world, in entity, ref memAllocator, ref reg);
     }
 }if (op.componentId == AllComponentTypes<T7>.typeId) {
     if (op.code == 1) {
         ref var reg = ref memAllocator.Ref<UnmanagedComponentsStorage.Item<T7>>(allRegs.items[in memAllocator, AllComponentTypes<T7>.typeId]);
-        DataUnmanagedBufferUtils.PushSet_INTERNAL(world, in entity, ref allRegs, ref reg, this.ReadT7(op.entityIndex));
+        DataUnmanagedBufferUtils.PushSet_INTERNAL(world, in entity, ref memAllocator, ref reg, this.ReadT7(op.entityIndex));
     } else if (op.code == 2) {
         ref var reg = ref memAllocator.Ref<UnmanagedComponentsStorage.Item<T7>>(allRegs.items[in memAllocator, AllComponentTypes<T7>.typeId]);
-        DataUnmanagedBufferUtils.PushRemove_INTERNAL(world, in entity, ref allRegs, ref reg);
+        DataUnmanagedBufferUtils.PushRemove_INTERNAL(world, in entity, ref memAllocator, ref reg);
     }
 }
                 }
@@ -1616,7 +1632,7 @@ this.regs[7] = new Ptr() { value = regT7.components.GetUnsafePtr(ref memAllocato
     public int GetIndexByEntityId(int id) => this.entityToIndex[id];
     public void DestroyEntity(int index) => this.componentOps.Write(new Op() { entityIndex = index, componentId = -1, code = 2, });
     public int GetEntityId(int index) => this.indexes[index];
-    public ref readonly Entity GetEntity(int index) => ref this.entities.GetRefRead(this.indexes[index]);
+    public ref readonly Entity GetEntity(int index) => ref this.entities[this.allocator, this.indexes[index]];
     public void Revert() => this.Dispose();
     private void Dispose() {
         if (this.Length > 0) {
@@ -1632,7 +1648,7 @@ this.regs[7] = new Ptr() { value = regT7.components.GetUnsafePtr(ref memAllocato
 public void Set(int index, in T0 component) {
     var entityId = this.indexes[index];
     ref var componentData = ref UnsafeUtility.ArrayElementAsRef<Component<T0>>(this.regs[0].value, this.indexes[index]);
-    if (DataBlittableBurstBufferUtils.NeedToPush(this.tick, ref this.entityVersions, entityId, ref componentData, in component) == true) {
+    if (DataBlittableBurstBufferUtils.NeedToPush(in this.allocator, this.tick, ref this.entityVersions, entityId, ref componentData, in component) == true) {
         this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T0>.burstTypeId.Data, code = 1, });
         componentData.data = component;
     }
@@ -1648,7 +1664,7 @@ public void RemoveT1(int index) { this.componentOps.Write(new Op() { entityIndex
 public void Set(int index, in T1 component) {
     var entityId = this.indexes[index];
     ref var componentData = ref UnsafeUtility.ArrayElementAsRef<Component<T1>>(this.regs[1].value, this.indexes[index]);
-    if (DataBlittableBurstBufferUtils.NeedToPush(this.tick, ref this.entityVersions, entityId, ref componentData, in component) == true) {
+    if (DataBlittableBurstBufferUtils.NeedToPush(in this.allocator, this.tick, ref this.entityVersions, entityId, ref componentData, in component) == true) {
         this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T1>.burstTypeId.Data, code = 1, });
         componentData.data = component;
     }
@@ -1664,7 +1680,7 @@ public void RemoveT2(int index) { this.componentOps.Write(new Op() { entityIndex
 public void Set(int index, in T2 component) {
     var entityId = this.indexes[index];
     ref var componentData = ref UnsafeUtility.ArrayElementAsRef<Component<T2>>(this.regs[2].value, this.indexes[index]);
-    if (DataBlittableBurstBufferUtils.NeedToPush(this.tick, ref this.entityVersions, entityId, ref componentData, in component) == true) {
+    if (DataBlittableBurstBufferUtils.NeedToPush(in this.allocator, this.tick, ref this.entityVersions, entityId, ref componentData, in component) == true) {
         this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T2>.burstTypeId.Data, code = 1, });
         componentData.data = component;
     }
@@ -1680,7 +1696,7 @@ public void RemoveT3(int index) { this.componentOps.Write(new Op() { entityIndex
 public void Set(int index, in T3 component) {
     var entityId = this.indexes[index];
     ref var componentData = ref UnsafeUtility.ArrayElementAsRef<Component<T3>>(this.regs[3].value, this.indexes[index]);
-    if (DataBlittableBurstBufferUtils.NeedToPush(this.tick, ref this.entityVersions, entityId, ref componentData, in component) == true) {
+    if (DataBlittableBurstBufferUtils.NeedToPush(in this.allocator, this.tick, ref this.entityVersions, entityId, ref componentData, in component) == true) {
         this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T3>.burstTypeId.Data, code = 1, });
         componentData.data = component;
     }
@@ -1696,7 +1712,7 @@ public void RemoveT4(int index) { this.componentOps.Write(new Op() { entityIndex
 public void Set(int index, in T4 component) {
     var entityId = this.indexes[index];
     ref var componentData = ref UnsafeUtility.ArrayElementAsRef<Component<T4>>(this.regs[4].value, this.indexes[index]);
-    if (DataBlittableBurstBufferUtils.NeedToPush(this.tick, ref this.entityVersions, entityId, ref componentData, in component) == true) {
+    if (DataBlittableBurstBufferUtils.NeedToPush(in this.allocator, this.tick, ref this.entityVersions, entityId, ref componentData, in component) == true) {
         this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T4>.burstTypeId.Data, code = 1, });
         componentData.data = component;
     }
@@ -1712,7 +1728,7 @@ public void RemoveT5(int index) { this.componentOps.Write(new Op() { entityIndex
 public void Set(int index, in T5 component) {
     var entityId = this.indexes[index];
     ref var componentData = ref UnsafeUtility.ArrayElementAsRef<Component<T5>>(this.regs[5].value, this.indexes[index]);
-    if (DataBlittableBurstBufferUtils.NeedToPush(this.tick, ref this.entityVersions, entityId, ref componentData, in component) == true) {
+    if (DataBlittableBurstBufferUtils.NeedToPush(in this.allocator, this.tick, ref this.entityVersions, entityId, ref componentData, in component) == true) {
         this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T5>.burstTypeId.Data, code = 1, });
         componentData.data = component;
     }
@@ -1728,7 +1744,7 @@ public void RemoveT6(int index) { this.componentOps.Write(new Op() { entityIndex
 public void Set(int index, in T6 component) {
     var entityId = this.indexes[index];
     ref var componentData = ref UnsafeUtility.ArrayElementAsRef<Component<T6>>(this.regs[6].value, this.indexes[index]);
-    if (DataBlittableBurstBufferUtils.NeedToPush(this.tick, ref this.entityVersions, entityId, ref componentData, in component) == true) {
+    if (DataBlittableBurstBufferUtils.NeedToPush(in this.allocator, this.tick, ref this.entityVersions, entityId, ref componentData, in component) == true) {
         this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T6>.burstTypeId.Data, code = 1, });
         componentData.data = component;
     }
@@ -1744,7 +1760,7 @@ public void RemoveT7(int index) { this.componentOps.Write(new Op() { entityIndex
 public void Set(int index, in T7 component) {
     var entityId = this.indexes[index];
     ref var componentData = ref UnsafeUtility.ArrayElementAsRef<Component<T7>>(this.regs[7].value, this.indexes[index]);
-    if (DataBlittableBurstBufferUtils.NeedToPush(this.tick, ref this.entityVersions, entityId, ref componentData, in component) == true) {
+    if (DataBlittableBurstBufferUtils.NeedToPush(in this.allocator, this.tick, ref this.entityVersions, entityId, ref componentData, in component) == true) {
         this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T7>.burstTypeId.Data, code = 1, });
         componentData.data = component;
     }
@@ -1768,10 +1784,11 @@ public long GetVersionT7(int index) => UnsafeUtility.ArrayElementAsRef<Component
 public unsafe struct FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8> : IFilterBag  where T0:unmanaged,IComponentBase where T1:unmanaged,IComponentBase where T2:unmanaged,IComponentBase where T3:unmanaged,IComponentBase where T4:unmanaged,IComponentBase where T5:unmanaged,IComponentBase where T6:unmanaged,IComponentBase where T7:unmanaged,IComponentBase where T8:unmanaged,IComponentBase {
     public readonly int Length;
     [Unity.Collections.NativeDisableParallelForRestriction][Unity.Collections.ReadOnlyAttribute]  private Unity.Collections.NativeArray<Ptr> regs;
-    [Unity.Collections.NativeDisableParallelForRestriction][Unity.Collections.ReadOnlyAttribute]  private ME.ECS.Collections.NativeBufferArray<Entity> entities;
+    [Unity.Collections.NativeDisableParallelForRestriction][Unity.Collections.ReadOnlyAttribute]  private ME.ECS.Collections.V3.MemArrayAllocator<Entity> entities;
     [Unity.Collections.NativeDisableParallelForRestriction][Unity.Collections.ReadOnlyAttribute]  private Unity.Collections.NativeList<int> indexes;
     [Unity.Collections.NativeDisableParallelForRestriction][Unity.Collections.ReadOnlyAttribute]  private Unity.Collections.NativeArray<int> entityToIndex;
     [Unity.Collections.NativeDisableParallelForRestriction] private Ops componentOps;
+    [Unity.Collections.NativeDisableParallelForRestriction] private ME.ECS.Collections.V3.MemoryAllocator allocator;
     public int Count => this.Length;
     public Tick tick;
     private EntityVersions entityVersions;
@@ -1790,11 +1807,12 @@ public unsafe struct FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8> : IFilterBag  where T
         this.Length = filterArr.Length;
         this.regs = default;
         this.componentOps = default;
+        this.allocator = world.currentState.allocator;
         if (this.Length > 0) {
             this.regs = new Unity.Collections.NativeArray<Ptr>(9, allocator);
             this.componentOps = new Ops(this.Length);
             ref var allRegs = ref world.currentState.structComponents.unmanagedComponentsStorage;
-            ref var memAllocator = ref world.currentState.structComponents.unmanagedComponentsStorage.allocator;
+            ref var memAllocator = ref world.currentState.allocator;
             ref var regT0 = ref memAllocator.Ref<UnmanagedComponentsStorage.Item<T0>>(allRegs.items[in memAllocator, AllComponentTypes<T0>.typeId]);
 regT0.Merge(ref memAllocator);
 this.regs[0] = new Ptr() { value = regT0.components.GetUnsafePtr(ref memAllocator) };
@@ -1838,85 +1856,85 @@ this.regs[8] = new Ptr() { value = regT8.components.GetUnsafePtr(ref memAllocato
         #endif
         var world = Worlds.currentWorld;
         ref var allRegs = ref world.currentState.structComponents.unmanagedComponentsStorage;
-        ref var memAllocator = ref world.currentState.structComponents.unmanagedComponentsStorage.allocator;
+        ref var memAllocator = ref world.currentState.allocator;
         var ops = this.componentOps;
         for (int i = 0; i < ops.Length; ++i) {
             if (ops.Read(i, out var op) == true) {
-                var entity = this.entities[this.indexes[op.entityIndex]];
+                var entity = this.entities[in memAllocator, this.indexes[op.entityIndex]];
                 if (op.code == 2 && op.componentId == -1) {
                     world.RemoveEntity(in entity);
                 } else {
                     if (op.componentId == AllComponentTypes<T0>.typeId) {
     if (op.code == 1) {
         ref var reg = ref memAllocator.Ref<UnmanagedComponentsStorage.Item<T0>>(allRegs.items[in memAllocator, AllComponentTypes<T0>.typeId]);
-        DataUnmanagedBufferUtils.PushSet_INTERNAL(world, in entity, ref allRegs, ref reg, this.ReadT0(op.entityIndex));
+        DataUnmanagedBufferUtils.PushSet_INTERNAL(world, in entity, ref memAllocator, ref reg, this.ReadT0(op.entityIndex));
     } else if (op.code == 2) {
         ref var reg = ref memAllocator.Ref<UnmanagedComponentsStorage.Item<T0>>(allRegs.items[in memAllocator, AllComponentTypes<T0>.typeId]);
-        DataUnmanagedBufferUtils.PushRemove_INTERNAL(world, in entity, ref allRegs, ref reg);
+        DataUnmanagedBufferUtils.PushRemove_INTERNAL(world, in entity, ref memAllocator, ref reg);
     }
 }if (op.componentId == AllComponentTypes<T1>.typeId) {
     if (op.code == 1) {
         ref var reg = ref memAllocator.Ref<UnmanagedComponentsStorage.Item<T1>>(allRegs.items[in memAllocator, AllComponentTypes<T1>.typeId]);
-        DataUnmanagedBufferUtils.PushSet_INTERNAL(world, in entity, ref allRegs, ref reg, this.ReadT1(op.entityIndex));
+        DataUnmanagedBufferUtils.PushSet_INTERNAL(world, in entity, ref memAllocator, ref reg, this.ReadT1(op.entityIndex));
     } else if (op.code == 2) {
         ref var reg = ref memAllocator.Ref<UnmanagedComponentsStorage.Item<T1>>(allRegs.items[in memAllocator, AllComponentTypes<T1>.typeId]);
-        DataUnmanagedBufferUtils.PushRemove_INTERNAL(world, in entity, ref allRegs, ref reg);
+        DataUnmanagedBufferUtils.PushRemove_INTERNAL(world, in entity, ref memAllocator, ref reg);
     }
 }if (op.componentId == AllComponentTypes<T2>.typeId) {
     if (op.code == 1) {
         ref var reg = ref memAllocator.Ref<UnmanagedComponentsStorage.Item<T2>>(allRegs.items[in memAllocator, AllComponentTypes<T2>.typeId]);
-        DataUnmanagedBufferUtils.PushSet_INTERNAL(world, in entity, ref allRegs, ref reg, this.ReadT2(op.entityIndex));
+        DataUnmanagedBufferUtils.PushSet_INTERNAL(world, in entity, ref memAllocator, ref reg, this.ReadT2(op.entityIndex));
     } else if (op.code == 2) {
         ref var reg = ref memAllocator.Ref<UnmanagedComponentsStorage.Item<T2>>(allRegs.items[in memAllocator, AllComponentTypes<T2>.typeId]);
-        DataUnmanagedBufferUtils.PushRemove_INTERNAL(world, in entity, ref allRegs, ref reg);
+        DataUnmanagedBufferUtils.PushRemove_INTERNAL(world, in entity, ref memAllocator, ref reg);
     }
 }if (op.componentId == AllComponentTypes<T3>.typeId) {
     if (op.code == 1) {
         ref var reg = ref memAllocator.Ref<UnmanagedComponentsStorage.Item<T3>>(allRegs.items[in memAllocator, AllComponentTypes<T3>.typeId]);
-        DataUnmanagedBufferUtils.PushSet_INTERNAL(world, in entity, ref allRegs, ref reg, this.ReadT3(op.entityIndex));
+        DataUnmanagedBufferUtils.PushSet_INTERNAL(world, in entity, ref memAllocator, ref reg, this.ReadT3(op.entityIndex));
     } else if (op.code == 2) {
         ref var reg = ref memAllocator.Ref<UnmanagedComponentsStorage.Item<T3>>(allRegs.items[in memAllocator, AllComponentTypes<T3>.typeId]);
-        DataUnmanagedBufferUtils.PushRemove_INTERNAL(world, in entity, ref allRegs, ref reg);
+        DataUnmanagedBufferUtils.PushRemove_INTERNAL(world, in entity, ref memAllocator, ref reg);
     }
 }if (op.componentId == AllComponentTypes<T4>.typeId) {
     if (op.code == 1) {
         ref var reg = ref memAllocator.Ref<UnmanagedComponentsStorage.Item<T4>>(allRegs.items[in memAllocator, AllComponentTypes<T4>.typeId]);
-        DataUnmanagedBufferUtils.PushSet_INTERNAL(world, in entity, ref allRegs, ref reg, this.ReadT4(op.entityIndex));
+        DataUnmanagedBufferUtils.PushSet_INTERNAL(world, in entity, ref memAllocator, ref reg, this.ReadT4(op.entityIndex));
     } else if (op.code == 2) {
         ref var reg = ref memAllocator.Ref<UnmanagedComponentsStorage.Item<T4>>(allRegs.items[in memAllocator, AllComponentTypes<T4>.typeId]);
-        DataUnmanagedBufferUtils.PushRemove_INTERNAL(world, in entity, ref allRegs, ref reg);
+        DataUnmanagedBufferUtils.PushRemove_INTERNAL(world, in entity, ref memAllocator, ref reg);
     }
 }if (op.componentId == AllComponentTypes<T5>.typeId) {
     if (op.code == 1) {
         ref var reg = ref memAllocator.Ref<UnmanagedComponentsStorage.Item<T5>>(allRegs.items[in memAllocator, AllComponentTypes<T5>.typeId]);
-        DataUnmanagedBufferUtils.PushSet_INTERNAL(world, in entity, ref allRegs, ref reg, this.ReadT5(op.entityIndex));
+        DataUnmanagedBufferUtils.PushSet_INTERNAL(world, in entity, ref memAllocator, ref reg, this.ReadT5(op.entityIndex));
     } else if (op.code == 2) {
         ref var reg = ref memAllocator.Ref<UnmanagedComponentsStorage.Item<T5>>(allRegs.items[in memAllocator, AllComponentTypes<T5>.typeId]);
-        DataUnmanagedBufferUtils.PushRemove_INTERNAL(world, in entity, ref allRegs, ref reg);
+        DataUnmanagedBufferUtils.PushRemove_INTERNAL(world, in entity, ref memAllocator, ref reg);
     }
 }if (op.componentId == AllComponentTypes<T6>.typeId) {
     if (op.code == 1) {
         ref var reg = ref memAllocator.Ref<UnmanagedComponentsStorage.Item<T6>>(allRegs.items[in memAllocator, AllComponentTypes<T6>.typeId]);
-        DataUnmanagedBufferUtils.PushSet_INTERNAL(world, in entity, ref allRegs, ref reg, this.ReadT6(op.entityIndex));
+        DataUnmanagedBufferUtils.PushSet_INTERNAL(world, in entity, ref memAllocator, ref reg, this.ReadT6(op.entityIndex));
     } else if (op.code == 2) {
         ref var reg = ref memAllocator.Ref<UnmanagedComponentsStorage.Item<T6>>(allRegs.items[in memAllocator, AllComponentTypes<T6>.typeId]);
-        DataUnmanagedBufferUtils.PushRemove_INTERNAL(world, in entity, ref allRegs, ref reg);
+        DataUnmanagedBufferUtils.PushRemove_INTERNAL(world, in entity, ref memAllocator, ref reg);
     }
 }if (op.componentId == AllComponentTypes<T7>.typeId) {
     if (op.code == 1) {
         ref var reg = ref memAllocator.Ref<UnmanagedComponentsStorage.Item<T7>>(allRegs.items[in memAllocator, AllComponentTypes<T7>.typeId]);
-        DataUnmanagedBufferUtils.PushSet_INTERNAL(world, in entity, ref allRegs, ref reg, this.ReadT7(op.entityIndex));
+        DataUnmanagedBufferUtils.PushSet_INTERNAL(world, in entity, ref memAllocator, ref reg, this.ReadT7(op.entityIndex));
     } else if (op.code == 2) {
         ref var reg = ref memAllocator.Ref<UnmanagedComponentsStorage.Item<T7>>(allRegs.items[in memAllocator, AllComponentTypes<T7>.typeId]);
-        DataUnmanagedBufferUtils.PushRemove_INTERNAL(world, in entity, ref allRegs, ref reg);
+        DataUnmanagedBufferUtils.PushRemove_INTERNAL(world, in entity, ref memAllocator, ref reg);
     }
 }if (op.componentId == AllComponentTypes<T8>.typeId) {
     if (op.code == 1) {
         ref var reg = ref memAllocator.Ref<UnmanagedComponentsStorage.Item<T8>>(allRegs.items[in memAllocator, AllComponentTypes<T8>.typeId]);
-        DataUnmanagedBufferUtils.PushSet_INTERNAL(world, in entity, ref allRegs, ref reg, this.ReadT8(op.entityIndex));
+        DataUnmanagedBufferUtils.PushSet_INTERNAL(world, in entity, ref memAllocator, ref reg, this.ReadT8(op.entityIndex));
     } else if (op.code == 2) {
         ref var reg = ref memAllocator.Ref<UnmanagedComponentsStorage.Item<T8>>(allRegs.items[in memAllocator, AllComponentTypes<T8>.typeId]);
-        DataUnmanagedBufferUtils.PushRemove_INTERNAL(world, in entity, ref allRegs, ref reg);
+        DataUnmanagedBufferUtils.PushRemove_INTERNAL(world, in entity, ref memAllocator, ref reg);
     }
 }
                 }
@@ -1931,7 +1949,7 @@ this.regs[8] = new Ptr() { value = regT8.components.GetUnsafePtr(ref memAllocato
     public int GetIndexByEntityId(int id) => this.entityToIndex[id];
     public void DestroyEntity(int index) => this.componentOps.Write(new Op() { entityIndex = index, componentId = -1, code = 2, });
     public int GetEntityId(int index) => this.indexes[index];
-    public ref readonly Entity GetEntity(int index) => ref this.entities.GetRefRead(this.indexes[index]);
+    public ref readonly Entity GetEntity(int index) => ref this.entities[this.allocator, this.indexes[index]];
     public void Revert() => this.Dispose();
     private void Dispose() {
         if (this.Length > 0) {
@@ -1947,7 +1965,7 @@ this.regs[8] = new Ptr() { value = regT8.components.GetUnsafePtr(ref memAllocato
 public void Set(int index, in T0 component) {
     var entityId = this.indexes[index];
     ref var componentData = ref UnsafeUtility.ArrayElementAsRef<Component<T0>>(this.regs[0].value, this.indexes[index]);
-    if (DataBlittableBurstBufferUtils.NeedToPush(this.tick, ref this.entityVersions, entityId, ref componentData, in component) == true) {
+    if (DataBlittableBurstBufferUtils.NeedToPush(in this.allocator, this.tick, ref this.entityVersions, entityId, ref componentData, in component) == true) {
         this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T0>.burstTypeId.Data, code = 1, });
         componentData.data = component;
     }
@@ -1963,7 +1981,7 @@ public void RemoveT1(int index) { this.componentOps.Write(new Op() { entityIndex
 public void Set(int index, in T1 component) {
     var entityId = this.indexes[index];
     ref var componentData = ref UnsafeUtility.ArrayElementAsRef<Component<T1>>(this.regs[1].value, this.indexes[index]);
-    if (DataBlittableBurstBufferUtils.NeedToPush(this.tick, ref this.entityVersions, entityId, ref componentData, in component) == true) {
+    if (DataBlittableBurstBufferUtils.NeedToPush(in this.allocator, this.tick, ref this.entityVersions, entityId, ref componentData, in component) == true) {
         this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T1>.burstTypeId.Data, code = 1, });
         componentData.data = component;
     }
@@ -1979,7 +1997,7 @@ public void RemoveT2(int index) { this.componentOps.Write(new Op() { entityIndex
 public void Set(int index, in T2 component) {
     var entityId = this.indexes[index];
     ref var componentData = ref UnsafeUtility.ArrayElementAsRef<Component<T2>>(this.regs[2].value, this.indexes[index]);
-    if (DataBlittableBurstBufferUtils.NeedToPush(this.tick, ref this.entityVersions, entityId, ref componentData, in component) == true) {
+    if (DataBlittableBurstBufferUtils.NeedToPush(in this.allocator, this.tick, ref this.entityVersions, entityId, ref componentData, in component) == true) {
         this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T2>.burstTypeId.Data, code = 1, });
         componentData.data = component;
     }
@@ -1995,7 +2013,7 @@ public void RemoveT3(int index) { this.componentOps.Write(new Op() { entityIndex
 public void Set(int index, in T3 component) {
     var entityId = this.indexes[index];
     ref var componentData = ref UnsafeUtility.ArrayElementAsRef<Component<T3>>(this.regs[3].value, this.indexes[index]);
-    if (DataBlittableBurstBufferUtils.NeedToPush(this.tick, ref this.entityVersions, entityId, ref componentData, in component) == true) {
+    if (DataBlittableBurstBufferUtils.NeedToPush(in this.allocator, this.tick, ref this.entityVersions, entityId, ref componentData, in component) == true) {
         this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T3>.burstTypeId.Data, code = 1, });
         componentData.data = component;
     }
@@ -2011,7 +2029,7 @@ public void RemoveT4(int index) { this.componentOps.Write(new Op() { entityIndex
 public void Set(int index, in T4 component) {
     var entityId = this.indexes[index];
     ref var componentData = ref UnsafeUtility.ArrayElementAsRef<Component<T4>>(this.regs[4].value, this.indexes[index]);
-    if (DataBlittableBurstBufferUtils.NeedToPush(this.tick, ref this.entityVersions, entityId, ref componentData, in component) == true) {
+    if (DataBlittableBurstBufferUtils.NeedToPush(in this.allocator, this.tick, ref this.entityVersions, entityId, ref componentData, in component) == true) {
         this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T4>.burstTypeId.Data, code = 1, });
         componentData.data = component;
     }
@@ -2027,7 +2045,7 @@ public void RemoveT5(int index) { this.componentOps.Write(new Op() { entityIndex
 public void Set(int index, in T5 component) {
     var entityId = this.indexes[index];
     ref var componentData = ref UnsafeUtility.ArrayElementAsRef<Component<T5>>(this.regs[5].value, this.indexes[index]);
-    if (DataBlittableBurstBufferUtils.NeedToPush(this.tick, ref this.entityVersions, entityId, ref componentData, in component) == true) {
+    if (DataBlittableBurstBufferUtils.NeedToPush(in this.allocator, this.tick, ref this.entityVersions, entityId, ref componentData, in component) == true) {
         this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T5>.burstTypeId.Data, code = 1, });
         componentData.data = component;
     }
@@ -2043,7 +2061,7 @@ public void RemoveT6(int index) { this.componentOps.Write(new Op() { entityIndex
 public void Set(int index, in T6 component) {
     var entityId = this.indexes[index];
     ref var componentData = ref UnsafeUtility.ArrayElementAsRef<Component<T6>>(this.regs[6].value, this.indexes[index]);
-    if (DataBlittableBurstBufferUtils.NeedToPush(this.tick, ref this.entityVersions, entityId, ref componentData, in component) == true) {
+    if (DataBlittableBurstBufferUtils.NeedToPush(in this.allocator, this.tick, ref this.entityVersions, entityId, ref componentData, in component) == true) {
         this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T6>.burstTypeId.Data, code = 1, });
         componentData.data = component;
     }
@@ -2059,7 +2077,7 @@ public void RemoveT7(int index) { this.componentOps.Write(new Op() { entityIndex
 public void Set(int index, in T7 component) {
     var entityId = this.indexes[index];
     ref var componentData = ref UnsafeUtility.ArrayElementAsRef<Component<T7>>(this.regs[7].value, this.indexes[index]);
-    if (DataBlittableBurstBufferUtils.NeedToPush(this.tick, ref this.entityVersions, entityId, ref componentData, in component) == true) {
+    if (DataBlittableBurstBufferUtils.NeedToPush(in this.allocator, this.tick, ref this.entityVersions, entityId, ref componentData, in component) == true) {
         this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T7>.burstTypeId.Data, code = 1, });
         componentData.data = component;
     }
@@ -2075,7 +2093,7 @@ public void RemoveT8(int index) { this.componentOps.Write(new Op() { entityIndex
 public void Set(int index, in T8 component) {
     var entityId = this.indexes[index];
     ref var componentData = ref UnsafeUtility.ArrayElementAsRef<Component<T8>>(this.regs[8].value, this.indexes[index]);
-    if (DataBlittableBurstBufferUtils.NeedToPush(this.tick, ref this.entityVersions, entityId, ref componentData, in component) == true) {
+    if (DataBlittableBurstBufferUtils.NeedToPush(in this.allocator, this.tick, ref this.entityVersions, entityId, ref componentData, in component) == true) {
         this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T8>.burstTypeId.Data, code = 1, });
         componentData.data = component;
     }

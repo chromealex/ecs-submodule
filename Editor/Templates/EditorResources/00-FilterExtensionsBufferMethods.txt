@@ -2,7 +2,7 @@ public void RemoveT#INDEX#(int index) { this.componentOps.Write(new Op() { entit
 public void Set(int index, in T#INDEX# component) {
     var entityId = this.indexes[index];
     ref var componentData = ref UnsafeUtility.ArrayElementAsRef<Component<T#INDEX#>>(this.regs[#INDEX#].value, this.indexes[index]);
-    if (DataBlittableBurstBufferUtils.NeedToPush(this.tick, ref this.entityVersions, entityId, ref componentData, in component) == true) {
+    if (DataBlittableBurstBufferUtils.NeedToPush(in this.allocator, this.tick, ref this.entityVersions, entityId, ref componentData, in component) == true) {
         this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T#INDEX#>.burstTypeId.Data, code = 1, });
         componentData.data = component;
     }

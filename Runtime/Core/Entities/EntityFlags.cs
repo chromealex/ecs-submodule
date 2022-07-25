@@ -4,7 +4,7 @@
 
 namespace ME.ECS {
 
-    using Collections;
+    using Collections.V3;
 
     [System.Flags]
     public enum EntityFlag : int {
@@ -29,90 +29,84 @@ namespace ME.ECS {
     public struct EntityVersions {
 
         [ME.ECS.Serializer.SerializeField]
-        private NativeBufferArray<ushort> values;
+        private MemArrayAllocator<ushort> values;
         private static ushort defaultValue;
 
-        public EntityVersions(int capacity) {
+        public EntityVersions(ref MemoryAllocator allocator, int capacity) {
 
             this.values = default;
-            this.Validate(capacity);
+            this.Validate(ref allocator, capacity);
             
         }
 
-        public override int GetHashCode() {
+        public int GetHash(in MemoryAllocator allocator) {
 
             var hash = 0;
             for (int i = 0; i < this.values.Length; ++i) {
-                hash ^= (int)(this.values.arr[i] + 100000);
+                hash ^= (int)(this.values[in allocator, i] + 100000);
             }
 
             return hash;
 
         }
 
-        public void Recycle() {
+        public void Dispose(ref MemoryAllocator allocator) {
 
-            PoolArrayNative<ushort>.Recycle(ref this.values);
-
-        }
-
-        #if INLINE_METHODS
-        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-        #endif
-        public void Validate(int capacity) {
-
-            NativeArrayUtils.Resize(capacity, ref this.values);
+            this.values.Dispose(ref allocator);
 
         }
 
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
-        public void Validate(in Entity entity) {
+        public void Validate(ref MemoryAllocator allocator, int capacity) {
 
-            var id = entity.id;
-            NativeArrayUtils.Resize(id, ref this.values, true);
-
-        }
-
-        public void CopyFrom(EntityVersions other) {
-
-            NativeArrayUtils.Copy(in other.values, ref this.values);
+            this.values.Resize(ref allocator, capacity);
 
         }
 
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
-        public ref ushort Get(int entityId) {
+        public void Validate(ref MemoryAllocator allocator, in Entity entity) {
 
-            return ref this.values[entityId];
+            this.values.Resize(ref allocator, entity.id + 1);
+            //NativeArrayUtils.Resize(id, ref this.values, true);
 
         }
 
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
-        public ref ushort Get(in Entity entity) {
+        public ref ushort Get(in MemoryAllocator allocator, int entityId) {
+
+            return ref this.values[in allocator, entityId];
+
+        }
+
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
+        public ref ushort Get(in MemoryAllocator allocator, in Entity entity) {
 
             var id = entity.id;
             if (id >= this.values.Length) return ref EntityVersions.defaultValue;
-            return ref this.values[id];
+            return ref this.values[in allocator, id];
 
         }
 
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
-        public void Increment(in Entity entity) {
+        public void Increment(in MemoryAllocator allocator, in Entity entity) {
 
             unchecked {
-                ++this.values[entity.id];
+                ++this.values[in allocator, entity.id];
             }
 
             #if ENTITY_VERSION_INCREMENT_ACTIONS
             World world = Worlds.currentWorld;
-            world.RaiseEntityVersionIncrementAction(entity, this.values.arr[entity.id]);
+            world.RaiseEntityVersionIncrementAction(entity, this.values[in allocator, entity.id]);
             #endif
 
         }
@@ -120,15 +114,15 @@ namespace ME.ECS {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
-        public void Increment(int entityId) {
+        public void Increment(in MemoryAllocator allocator, int entityId) {
 
             unchecked {
-                ++this.values[entityId];
+                ++this.values[in allocator, entityId];
             }
 
             #if ENTITY_VERSION_INCREMENT_ACTIONS
             World world = Worlds.currentWorld;
-            world.RaiseEntityVersionIncrementAction(world.GetEntityById(entityId), this.values.arr[entityId]);
+            world.RaiseEntityVersionIncrementAction(world.GetEntityById(entityId), this.values[in allocator, entityId]);
             #endif
 
         }
@@ -136,29 +130,29 @@ namespace ME.ECS {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
-        public void Reset(in Entity entity) {
+        public void Reset(in MemoryAllocator allocator, in Entity entity) {
 
-            this.values[entity.id] = default;
-
-        }
-
-        #if INLINE_METHODS
-        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-        #endif
-        public void Reset(int entityId) {
-
-            this.Validate(entityId);
-            this.values[entityId] = default;
+            this.values[in allocator, entity.id] = default;
 
         }
 
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
-        public void Reset(int fromId, int toId) {
+        public void Reset(ref MemoryAllocator allocator, int entityId) {
 
-            NativeArrayUtils.Clear(this.values, fromId, toId - fromId);
+            this.Validate(ref allocator, entityId);
+            this.values[in allocator, entityId] = default;
 
+        }
+
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
+        public void Reset(ref MemoryAllocator allocator, int fromId, int toId) {
+
+            this.values.Clear(in allocator, fromId, toId - fromId);
+            
         }
 
     }
@@ -171,112 +165,105 @@ namespace ME.ECS {
     public struct EntityFlags {
 
         [ME.ECS.Serializer.SerializeField]
-        private BufferArray<byte> values;
+        private MemArrayAllocator<byte> values;
         private static byte defaultValue;
 
-        public EntityFlags(int capacity) {
+        public EntityFlags(ref MemoryAllocator allocator, int capacity) {
 
             this.values = default;
-            this.Validate(capacity);
+            this.Validate(ref allocator, capacity);
             
         }
 
-        public override int GetHashCode() {
+        public int GetHash(in MemoryAllocator allocator) {
 
             var hash = 0;
             for (int i = 0; i < this.values.Length; ++i) {
-                hash ^= (this.values.arr[i] + 100000);
+                hash ^= (this.values[in allocator, i] + 100000);
             }
 
             return hash;
 
         }
 
-        public void Recycle() {
+        public void Dispose(ref MemoryAllocator allocator) {
 
-            PoolArray<byte>.Recycle(ref this.values);
-
-        }
-
-        #if INLINE_METHODS
-        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-        #endif
-        public void Validate(int capacity) {
-
-            ArrayUtils.Resize(capacity, ref this.values);
+            this.values.Dispose(ref allocator);
 
         }
 
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
-        public void Validate(in Entity entity) {
+        public void Validate(ref MemoryAllocator allocator, int capacity) {
 
-            var id = entity.id;
-            ArrayUtils.Resize(id, ref this.values, true);
-
-        }
-
-        public void CopyFrom(EntityFlags other) {
-
-            ArrayUtils.Copy(in other.values, ref this.values);
+            this.values.Resize(ref allocator, capacity);
 
         }
 
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
-        public ref byte Get(int entityId) {
+        public void Validate(ref MemoryAllocator allocator, in Entity entity) {
 
-            return ref this.values.arr[entityId];
+            this.values.Resize(ref allocator, entity.id + 1);
 
         }
 
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
-        public ref byte Get(in Entity entity) {
+        public ref byte Get(in MemoryAllocator allocator, int entityId) {
+
+            return ref this.values[in allocator, entityId];
+
+        }
+
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
+        public ref byte Get(in MemoryAllocator allocator, in Entity entity) {
 
             var id = entity.id;
             if (id >= this.values.Length) return ref EntityFlags.defaultValue;
-            return ref this.values.arr[id];
+            return ref this.values[in allocator, id];
 
         }
 
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
-        public void Set(int entityId, EntityFlag flags) {
+        public void Set(in MemoryAllocator allocator, int entityId, EntityFlag flags) {
 
-            this.values.arr[entityId] = (byte)flags;
-
-        }
-
-        #if INLINE_METHODS
-        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-        #endif
-        public void Reset(in Entity entity) {
-
-            this.values.arr[entity.id] = default;
+            this.values[in allocator, entityId] = (byte)flags;
 
         }
 
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
-        public void Reset(int entityId) {
+        public void Reset(in MemoryAllocator allocator, in Entity entity) {
 
-            this.Validate(entityId);
-            this.values.arr[entityId] = default;
+            this.values[in allocator, entity.id] = default;
 
         }
 
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
-        public void Reset(int fromId, int toId) {
+        public void Reset(ref MemoryAllocator allocator, int entityId) {
 
-            System.Array.Clear(this.values.arr, fromId, toId - fromId);
+            this.Validate(ref allocator, entityId);
+            this.values[in allocator, entityId] = default;
+
+        }
+
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
+        public void Reset(ref MemoryAllocator allocator, int fromId, int toId) {
+
+            this.values.Clear(in allocator, fromId, toId - fromId);
 
         }
 

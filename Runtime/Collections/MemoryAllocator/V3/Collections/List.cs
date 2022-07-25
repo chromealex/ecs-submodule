@@ -34,7 +34,9 @@ namespace ME.ECS.Collections.MemoryAllocator {
             
         }
         
+        [ME.ECS.Serializer.SerializeField]
         private MemArrayAllocator<T> arr;
+        [ME.ECS.Serializer.SerializeField]
         private int count;
 
         public bool isCreated => this.arr.isCreated;
@@ -76,10 +78,10 @@ namespace ME.ECS.Collections.MemoryAllocator {
             }
         }
 
-        private void EnsureCapacity(ref MemoryAllocator allocator, int capacity) {
+        public bool EnsureCapacity(ref MemoryAllocator allocator, int capacity) {
 
             capacity = Helpers.NextPot(capacity);
-            this.arr.Resize(ref allocator, capacity, ClearOptions.UninitializedMemory);
+            return this.arr.Resize(ref allocator, capacity, ClearOptions.UninitializedMemory);
             
         }
         
@@ -160,6 +162,62 @@ namespace ME.ECS.Collections.MemoryAllocator {
             
             return true;
 
+        }
+
+        public bool Resize(ref MemoryAllocator allocator, int newLength, ClearOptions options = ClearOptions.ClearMemory) {
+
+            if (this.isCreated == false) {
+                
+                this = new List<T>(ref allocator, newLength);
+                
+            }
+            
+            if (newLength <= this.Count) {
+
+                return false;
+                
+            }
+
+            this.arr.Resize(ref allocator, newLength, options);
+            this.count = newLength;
+            return true;
+
+        }
+
+        public void AddRange(ref MemoryAllocator allocator, List<T> collection) {
+
+            var index = this.count;
+            if (collection.isCreated == false)
+                ThrowHelper.ThrowArgumentNullException(ExceptionArgument.collection);
+            if ((uint) index > (uint) this.count)
+                throw new System.IndexOutOfRangeException();
+            int count = collection.Count;
+            if (count > 0) {
+                this.EnsureCapacity(ref allocator, this.count + count);
+                if (index < this.count) {
+                    allocator.MemCopy(this.arr.GetMemPtr(), index + count, this.arr.GetMemPtr(), index, this.count - index);
+                }
+
+                if (this.arr.GetMemPtr() == collection.arr.GetMemPtr()) {
+                    allocator.MemCopy(this.arr.GetMemPtr(), index, this.arr.GetMemPtr(), 0, index);
+                    allocator.MemCopy(this.arr.GetMemPtr(), index * 2, this.arr.GetMemPtr(), index + count, this.count - index);
+                } else {
+                    collection.CopyTo(ref allocator, this.arr, index);
+                }
+
+                this.count += count;
+            }
+            
+        }
+
+        public void CopyTo(ref MemoryAllocator allocator, MemArrayAllocator<T> arr, int index) {
+            
+            if (arr.isCreated == false) {
+                ThrowHelper.ThrowArgumentException(ExceptionResource.Arg_RankMultiDimNotSupported);
+            }
+
+            allocator.MemCopy(arr.GetMemPtr(), index, this.arr.GetMemPtr(), 0, this.count);
+            
         }
 
     }

@@ -4,6 +4,20 @@ using Unity.Collections.LowLevel.Unsafe;
 
 namespace ME.ECS.Collections.V3 {
 
+    public class MemoryAllocatorProxy {
+
+        private MemoryAllocator allocator;
+        
+        public MemoryAllocatorProxy(MemoryAllocator allocator) {
+
+            this.allocator = allocator;
+
+        }
+        
+        
+
+    }
+
     public unsafe partial struct MemoryAllocator {
 
         private const int ZONE_ID = 0x1d4a11;

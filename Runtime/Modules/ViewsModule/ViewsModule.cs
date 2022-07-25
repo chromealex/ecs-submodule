@@ -1201,11 +1201,11 @@ namespace ME.ECS.Views {
             }
             
             var allEntities = this.world.GetAliveEntities();
-            if (allEntities != null) {
+            if (allEntities.isCreated == true) {
                 
                 for (int j = 0; j < allEntities.Count; ++j) {
 
-                    ref var entityId = ref allEntities[j];
+                    ref var entityId = ref allEntities[in this.world.currentState.allocator, j];
 
                     var ent = this.world.GetEntityById(entityId);
                     ref readonly var view = ref ent.Read<ViewComponent>();

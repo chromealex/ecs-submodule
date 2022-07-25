@@ -186,7 +186,7 @@ namespace ME.ECS {
         public override void Set(in EntitiesGroup @group, TComponent component, bool setBits = true) {
             for (int i = group.fromId; i <= group.toId; ++i) {
                 var entityId = i;
-                var entity = this.world.currentState.storage.cache[entityId];
+                var entity = this.world.currentState.storage.cache[in this.world.currentState.allocator, entityId];
                 DataTagBufferUtils.PushSet_INTERNAL(this.world, in entity, this, component, StorageType.Default);
             }
         }
@@ -194,7 +194,7 @@ namespace ME.ECS {
         public override void SetObject(in EntitiesGroup @group, IComponentBase data, bool setBits = true) {
             for (int i = group.fromId; i <= group.toId; ++i) {
                 var entityId = i;
-                var entity = this.world.currentState.storage.cache[entityId];
+                var entity = this.world.currentState.storage.cache[in this.world.currentState.allocator, entityId];
                 DataTagBufferUtils.PushSet_INTERNAL(this.world, in entity, this, (TComponent)data, StorageType.Default);
             }
         }
@@ -202,7 +202,7 @@ namespace ME.ECS {
         public override void Remove(in EntitiesGroup @group, bool setBits = true) {
             for (int i = group.fromId; i <= group.toId; ++i) {
                 var entityId = i;
-                var entity = this.world.currentState.storage.cache[entityId];
+                var entity = this.world.currentState.storage.cache[in this.world.currentState.allocator, entityId];
                 DataTagBufferUtils.PushRemove_INTERNAL(this.world, in entity, this, StorageType.Default);
             }
         }

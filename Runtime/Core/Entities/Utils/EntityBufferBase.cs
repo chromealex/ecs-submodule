@@ -20,22 +20,22 @@ namespace ME.ECS {
 
                 state = 1;
 
-                if (world.currentState.structComponents.entitiesIndexer.GetCount(entity.id) == 0 &&
-                    (world.currentState.storage.flags.Get(entity.id) & (byte)EntityFlag.DestroyWithoutComponents) != 0) {
+                if (world.currentState.structComponents.entitiesIndexer.GetCount(in world.currentState.allocator, entity.id) == 0 &&
+                    (world.currentState.storage.flags.Get(in world.currentState.allocator, entity.id) & (byte)EntityFlag.DestroyWithoutComponents) != 0) {
                     entity.RemoveOneShot<IsEntityEmptyOneShot>();
                 }
 
                 if (storageType == StorageType.Default) {
-                    world.currentState.structComponents.entitiesIndexer.Set(entity.id, AllComponentTypes<T>.typeId);
+                    world.currentState.structComponents.entitiesIndexer.Set(ref world.currentState.allocator, entity.id, AllComponentTypes<T>.typeId);
                 } else if (storageType == StorageType.NoState) {
-                    world.structComponentsNoState.entitiesIndexer.Set(entity.id, OneShotComponentTypes<T>.typeId);
+                    world.noStateData.storage.entitiesIndexer.Set(ref world.noStateData.allocator, entity.id, OneShotComponentTypes<T>.typeId);
                 }
 
                 if (ComponentTypes<T>.typeId >= 0) {
 
                     world.currentState.storage.archetypes.Set<T>(in entity);
-                    world.AddFilterByStructComponent<T>(in entity);
-                    world.UpdateFilterByStructComponent<T>(in entity);
+                    world.AddFilterByStructComponent<T>(ref world.currentState.allocator, in entity);
+                    world.UpdateFilterByStructComponent<T>(ref world.currentState.allocator, in entity);
 
                 }
 
@@ -49,7 +49,7 @@ namespace ME.ECS {
                         dataIndex = OneShotComponentTypes<T>.typeId,
                     };
 
-                    if (world.structComponentsNoState.nextTickTasks.Add(task) == false) {
+                    if (world.noStateData.storage.nextTickTasks.Add(task) == false) {
 
                         task.Recycle();
 
@@ -64,12 +64,12 @@ namespace ME.ECS {
             #if !FILTERS_LAMBDA_DISABLED
             if (ComponentTypes<T>.isFilterLambda == true && ComponentTypes<T>.typeId >= 0) {
 
-                world.ValidateFilterByStructComponent<T>(in entity, makeRequest);
+                world.ValidateFilterByStructComponent<T>(ref world.currentState.allocator, in entity, makeRequest);
                 
             }
             #endif
             
-            world.currentState.storage.versions.Increment(in entity);
+            world.currentState.storage.versions.Increment(in world.currentState.allocator, in entity);
             if (AllComponentTypes<T>.isTag == false) reg.UpdateVersion(in entity);
             #if !COMPONENTS_VERSION_NO_STATE_DISABLED
             if (AllComponentTypes<T>.isVersionedNoState == true) ++reg.versionsNoState.arr[entity.id];
@@ -87,27 +87,27 @@ namespace ME.ECS {
 
                 state = 0;
                 if (storageType == StorageType.Default) {
-                    world.currentState.structComponents.entitiesIndexer.Remove(entity.id, AllComponentTypes<T>.typeId);
+                    world.currentState.structComponents.entitiesIndexer.Remove(ref world.currentState.allocator, entity.id, AllComponentTypes<T>.typeId);
                 } else if (storageType == StorageType.NoState) {
-                    world.structComponentsNoState.entitiesIndexer.Remove(entity.id, OneShotComponentTypes<T>.typeId);
+                    world.noStateData.storage.entitiesIndexer.Remove(ref world.noStateData.allocator, entity.id, OneShotComponentTypes<T>.typeId);
                 }
                 
                 if (ComponentTypes<T>.typeId >= 0) {
 
                     world.currentState.storage.archetypes.Remove<T>(in entity);
-                    world.RemoveFilterByStructComponent<T>(in entity);
-                    world.UpdateFilterByStructComponent<T>(in entity);
+                    world.RemoveFilterByStructComponent<T>(ref world.currentState.allocator, in entity);
+                    world.UpdateFilterByStructComponent<T>(ref world.currentState.allocator, in entity);
 
                 }
 
-                world.currentState.storage.versions.Increment(in entity);
+                world.currentState.storage.versions.Increment(in world.currentState.allocator, in entity);
                 reg.UpdateVersion(in entity);
                 #if !COMPONENTS_VERSION_NO_STATE_DISABLED
                 if (AllComponentTypes<T>.isVersionedNoState == true) ++reg.versionsNoState.arr[entity.id];
                 #endif
                 
-                if (world.currentState.structComponents.entitiesIndexer.GetCount(entity.id) == 0 &&
-                    (world.currentState.storage.flags.Get(entity.id) & (byte)EntityFlag.DestroyWithoutComponents) != 0) {
+                if (world.currentState.structComponents.entitiesIndexer.GetCount(in world.currentState.allocator, entity.id) == 0 &&
+                    (world.currentState.storage.flags.Get(in world.currentState.allocator, entity.id) & (byte)EntityFlag.DestroyWithoutComponents) != 0) {
                     entity.SetOneShot<IsEntityEmptyOneShot>();
                 }
 

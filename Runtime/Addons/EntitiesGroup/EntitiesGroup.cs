@@ -365,7 +365,7 @@ namespace ME.ECS {
                     if (componentIndex >= 0 && setBits == true) archetypes.Set(i, componentIndex);
                 }
             }
-            this.world.currentState.storage.Set(in group, componentIndex, ComponentTypes<TComponent>.isFilterLambda);
+            this.world.currentState.storage.Set(ref this.world.currentState.allocator, in group, componentIndex, ComponentTypes<TComponent>.isFilterLambda);
 
         }
 
@@ -392,7 +392,7 @@ namespace ME.ECS {
                     if (componentIndex >= 0 && setBits == true) archetypes.Set(i, componentIndex);
                 }
             }
-            this.world.currentState.storage.Set(in group, componentIndex, ComponentTypes<TComponent>.isFilterLambda);
+            this.world.currentState.storage.Set(ref this.world.currentState.allocator, in group, componentIndex, ComponentTypes<TComponent>.isFilterLambda);
 
         }
 
@@ -417,7 +417,7 @@ namespace ME.ECS {
                     }
                 }
 
-                this.world.currentState.storage.Remove(in group, componentIndex, ComponentTypes<TComponent>.isFilterLambda);
+                this.world.currentState.storage.Remove(ref this.world.currentState.allocator, in group, componentIndex, ComponentTypes<TComponent>.isFilterLambda);
 
             }
             
@@ -450,7 +450,7 @@ namespace ME.ECS {
                     if (componentIndex >= 0 && setBits == true) archetypes.Set(i, componentIndex);
                 }
             }
-            this.world.currentState.storage.Set(in group, componentIndex, ComponentTypes<TComponent>.isFilterLambda);
+            this.world.currentState.storage.Set(ref this.world.currentState.allocator, in group, componentIndex, ComponentTypes<TComponent>.isFilterLambda);
 
         }
 
@@ -477,7 +477,7 @@ namespace ME.ECS {
                     if (componentIndex >= 0 && setBits == true) archetypes.Set(i, componentIndex);
                 }
             }
-            this.world.currentState.storage.Set(in group, componentIndex, ComponentTypes<TComponent>.isFilterLambda);
+            this.world.currentState.storage.Set(ref this.world.currentState.allocator, in group, componentIndex, ComponentTypes<TComponent>.isFilterLambda);
 
         }
 
@@ -502,7 +502,7 @@ namespace ME.ECS {
                     }
                 }
 
-                this.world.currentState.storage.Remove(in group, componentIndex, ComponentTypes<TComponent>.isFilterLambda);
+                this.world.currentState.storage.Remove(ref this.world.currentState.allocator, in group, componentIndex, ComponentTypes<TComponent>.isFilterLambda);
 
             }
             
@@ -534,16 +534,16 @@ namespace ME.ECS {
             ref var reg = ref this.registry;
             if (group.copyMode == true) {
                 for (int i = group.fromId; i <= group.toId; ++i) {
-                    reg.components.data[in this.storage.allocator, i] = data;
+                    reg.components.data[in this.allocator, i] = data;
                 }
                 if (componentIndex >= 0 && setBits == true) archetypes.Set(in group, componentIndex);
             } else {
                 for (int i = group.fromId; i <= group.toId; ++i) {
-                    reg.components.data[in this.storage.allocator, i] = data;
+                    reg.components.data[in this.allocator, i] = data;
                     if (componentIndex >= 0 && setBits == true) archetypes.Set(i, componentIndex);
                 }
             }
-            this.world.currentState.storage.Set(in group, componentIndex, ComponentTypes<TComponent>.isFilterLambda);
+            this.world.currentState.storage.Set(ref this.world.currentState.allocator, in group, componentIndex, ComponentTypes<TComponent>.isFilterLambda);
 
         }
 
@@ -553,7 +553,7 @@ namespace ME.ECS {
         public override void Remove(in EntitiesGroup group, bool setBits = true) {
 
             //NativeArrayUtils.Clear(this.components.data.arr, group.fromId, group.Length);
-            this.registry.components.Clear(ref this.storage.allocator, group.fromId, group.Length);
+            this.registry.components.Clear(ref this.allocator, group.fromId, group.Length);
 
             if (setBits == true) {
                 
@@ -569,7 +569,7 @@ namespace ME.ECS {
                     }
                 }
 
-                this.world.currentState.storage.Remove(in group, componentIndex, ComponentTypes<TComponent>.isFilterLambda);
+                this.world.currentState.storage.Remove(ref this.world.currentState.allocator, in group, componentIndex, ComponentTypes<TComponent>.isFilterLambda);
 
             }
             
@@ -595,7 +595,7 @@ namespace ME.ECS {
             var group = new EntitiesGroup();
             if (count <= 0) return group;
             
-            this.currentState.storage.Alloc(count, ref group, allocator, copyMode);
+            this.currentState.storage.Alloc(ref this.currentState.allocator, count, ref group, allocator, copyMode);
             this.UpdateEntityOnCreate(in group);
 
             return group;
@@ -609,9 +609,9 @@ namespace ME.ECS {
 
             var maxEntity = group.slice[group.slice.Length - 1];
             ComponentsInitializerWorld.Init(in maxEntity);
-            this.currentState.storage.versions.Validate(in maxEntity);
+            this.currentState.storage.versions.Validate(ref this.currentState.allocator, in maxEntity);
             this.CreateEntityPlugins(maxEntity, true);
-            this.CreateEntityInFilters(maxEntity);
+            this.CreateEntityInFilters(ref this.currentState.allocator, maxEntity);
 
         }
 

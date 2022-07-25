@@ -22,13 +22,13 @@ namespace ME.ECS {
 
         }
 
-        public static void Init(ref ME.ECS.StructComponentsContainer structComponentsContainer) {
+        public static void Init(State state) {
     
-            structComponentsContainer.ValidateUnmanaged<ME.ECS.Transform.Nodes>();
-            structComponentsContainer.ValidateUnmanaged<ME.ECS.Transform.Container>();
+            state.structComponents.ValidateUnmanaged<ME.ECS.Transform.Nodes>(ref state.allocator);
+            state.structComponents.ValidateUnmanaged<ME.ECS.Transform.Container>(ref state.allocator);
 
-            Transform2DComponentsInitializer.Init(ref structComponentsContainer);
-            Transform3DComponentsInitializer.Init(ref structComponentsContainer);
+            Transform2DComponentsInitializer.Init(state);
+            Transform3DComponentsInitializer.Init(state);
 
         }
     

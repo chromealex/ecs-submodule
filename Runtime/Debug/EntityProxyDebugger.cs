@@ -92,8 +92,8 @@ namespace ME.ECS.Debug {
             get {
             
                 var world = this.world;
-                var components = world.GetNoStateStructComponents();
-                var registries = components.GetAllRegistries();
+                var components = world.GetNoStateData();
+                var registries = components.storage.GetAllRegistries();
                 var list = new System.Collections.Generic.List<IComponentBase>();
                 foreach (var reg in registries) {
 

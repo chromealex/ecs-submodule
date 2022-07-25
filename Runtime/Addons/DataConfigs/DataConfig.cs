@@ -97,12 +97,12 @@ namespace ME.ECS.DataConfigs {
             
         }
 
-        public static void Init(ref ME.ECS.StructComponentsContainer structComponentsContainer) {
+        public static void Init(State state) {
             
             #if !SHARED_COMPONENTS_DISABLED
-            structComponentsContainer.ValidateCopyable<SharedData>(false);
+            state.structComponents.ValidateCopyable<SharedData>(false);
             #endif
-            structComponentsContainer.Validate<ME.ECS.Collections.IntrusiveHashSetBucketGeneric<ME.ECS.Collections.IntrusiveDictionary<int, int>.Entry>>(false);
+            state.structComponents.Validate<ME.ECS.Collections.IntrusiveHashSetBucketGeneric<ME.ECS.Collections.IntrusiveDictionary<int, int>.Entry>>(false);
 
         }
 

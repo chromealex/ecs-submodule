@@ -5,6 +5,7 @@
 namespace ME.ECS {
 
     using ME.ECS.Collections;
+    using Collections.V3;
 
     public interface IStorage {
 
@@ -12,14 +13,14 @@ namespace ME.ECS {
         int DeadCount { get; }
 
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-        bool IsAlive(int id, ushort generation);
+        bool IsAlive(in MemoryAllocator allocator, int id, ushort generation);
 
-        bool ForEach(ListCopyable<Entity> results);
+        bool ForEach(in MemoryAllocator allocator, ListCopyable<Entity> results);
 
-        ref Entity Alloc();
-        bool Dealloc(in Entity entity);
+        ref Entity Alloc(ref MemoryAllocator allocator);
+        bool Dealloc(ref MemoryAllocator allocator, in Entity entity);
 
-        void ApplyDead();
+        void ApplyDead(ref MemoryAllocator allocator);
 
     }
 

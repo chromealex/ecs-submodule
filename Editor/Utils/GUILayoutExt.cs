@@ -813,13 +813,13 @@ namespace ME.ECSEditor {
 
 						    usedComponents.Remove(addType);
 						    registry.RemoveObject(entity, StorageType.Default);
-						    Worlds.currentWorld.RemoveComponentFromFilter(entity);
+						    Worlds.currentWorld.RemoveComponentFromFilter(ref Worlds.currentWorld.currentState.allocator, entity);
 
 					    } else {
 				                
 						    usedComponents.Add(addType);
 						    registry.SetObject(entity, (IComponentBase)System.Activator.CreateInstance(addType), StorageType.Default);
-						    Worlds.currentWorld.AddComponentToFilter(entity);
+						    Worlds.currentWorld.AddComponentToFilter(ref Worlds.currentWorld.currentState.allocator, entity);
 
 					    }
 

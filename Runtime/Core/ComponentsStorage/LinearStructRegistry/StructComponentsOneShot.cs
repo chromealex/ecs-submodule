@@ -72,7 +72,7 @@ namespace ME.ECS {
             E.IS_LOGIC_STEP(this);
             E.IS_ALIVE(in entity);
             
-            var reg = (StructComponents<TComponent>)this.structComponentsNoState.list.arr[OneShotComponentTypes<TComponent>.typeId];
+            var reg = (StructComponents<TComponent>)this.noStateData.storage.list.arr[OneShotComponentTypes<TComponent>.typeId];
             DataBufferUtils.PushRemove_INTERNAL(this, in entity, reg, StorageType.NoState);
             
         }
@@ -129,7 +129,7 @@ namespace ME.ECS {
 
             E.IS_ALIVE(in entity);
 
-            return this.structComponentsNoState.list.arr[OneShotComponentTypes<TComponent>.typeId].Has(in entity);
+            return this.noStateData.storage.list.arr[OneShotComponentTypes<TComponent>.typeId].Has(in entity);
 
         }
         
@@ -142,7 +142,7 @@ namespace ME.ECS {
             E.IS_ALIVE(in entity);
 
             // Inline all manually
-            var reg = (StructComponents<TComponent>)this.structComponentsNoState.list.arr[OneShotComponentTypes<TComponent>.typeId];
+            var reg = (StructComponents<TComponent>)this.noStateData.storage.list.arr[OneShotComponentTypes<TComponent>.typeId];
             return ref reg.components[entity.id].data;
 
         }
@@ -156,7 +156,7 @@ namespace ME.ECS {
             E.IS_ALIVE(in entity);
             E.IS_TAG<TComponent>(in entity);
 
-            var reg = (StructComponents<TComponent>)this.structComponentsNoState.list.arr[OneShotComponentTypes<TComponent>.typeId];
+            var reg = (StructComponents<TComponent>)this.noStateData.storage.list.arr[OneShotComponentTypes<TComponent>.typeId];
             return ref DataBufferUtils.PushGet_INTERNAL(this, in entity, reg, StorageType.NoState);
 
         }
@@ -169,7 +169,7 @@ namespace ME.ECS {
             E.IS_LOGIC_STEP(this);
             E.IS_ALIVE(in entity);
 
-            var reg = (StructComponents<TComponent>)this.structComponentsNoState.list.arr[OneShotComponentTypes<TComponent>.typeId];
+            var reg = (StructComponents<TComponent>)this.noStateData.storage.list.arr[OneShotComponentTypes<TComponent>.typeId];
             return DataBufferUtils.PushSet_INTERNAL(this, in entity, reg, in data, StorageType.NoState);
 
         }
@@ -191,7 +191,7 @@ namespace ME.ECS {
                 destroyEntity = true,
             };
 
-            if (this.structComponentsNoState.nextTickTasks.Add(task) == false) {
+            if (this.noStateData.storage.nextTickTasks.Add(task) == false) {
 
                 task.Recycle();
 

@@ -11,11 +11,11 @@ namespace ME.ECS {
             
         }
 
-        public static void Init(ref ME.ECS.StructComponentsContainer structComponentsContainer) {
+        public static void Init(State state) {
     
-            structComponentsContainer.ValidateUnmanaged<ME.ECS.Transform.Position>();
-            structComponentsContainer.ValidateUnmanaged<ME.ECS.Transform.Rotation>();
-            structComponentsContainer.ValidateUnmanaged<ME.ECS.Transform.Scale>();
+            state.structComponents.ValidateUnmanaged<ME.ECS.Transform.Position>(ref state.allocator);
+            state.structComponents.ValidateUnmanaged<ME.ECS.Transform.Rotation>(ref state.allocator);
+            state.structComponents.ValidateUnmanaged<ME.ECS.Transform.Scale>(ref state.allocator);
 
         }
         

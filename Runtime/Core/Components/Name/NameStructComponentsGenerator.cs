@@ -18,9 +18,9 @@ namespace ME.ECS {
             
         }
         
-        public static void Init(ref ME.ECS.StructComponentsContainer structComponentsContainer) {
+        public static void Init(State state) {
     
-            structComponentsContainer.Validate<ME.ECS.Name.Name>();
+            state.structComponents.Validate<ME.ECS.Name.Name>();
 
         }
     

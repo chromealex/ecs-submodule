@@ -119,11 +119,11 @@ namespace ME.ECS {
         
         public static void DoInit() {
             
-            ComponentsInitializer.Init(ref Worlds.currentWorld.GetStructComponents(), ref Worlds.currentWorld.GetNoStateStructComponents());
+            ComponentsInitializer.Init(Worlds.current.GetState(), ref Worlds.currentWorld.GetNoStateData());
             
         }
 
-        static partial void Init(ref ME.ECS.StructComponentsContainer structComponentsContainer, ref ME.ECS.StructComponentsContainer noStateStructComponentsContainer);
+        static partial void Init(State state, ref World.NoState noState);
 
     }
 

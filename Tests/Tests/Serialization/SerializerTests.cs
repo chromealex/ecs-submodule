@@ -313,10 +313,10 @@ namespace ME.ECS.Tests {
                     //components
                     {
                         ref var sc = ref world.GetStructComponents();
-                        ref var sc2 = ref world.GetNoStateStructComponents();
+                        ref var sc2 = ref world.GetNoStateData();
                         ComponentsInitializerWorld.Setup(e => e.ValidateData<TestStructComponent>());
                         CoreComponentsInitializer.InitTypeId();
-                        CoreComponentsInitializer.Init(ref sc, ref sc2);
+                        CoreComponentsInitializer.Init(world.GetState(), ref sc2);
                         sc.Validate<TestStructComponent>();
                     }
                     //settings

@@ -19,7 +19,13 @@ namespace ME.ECSEditor {
             return world.currentState.storage;
 
         }
-        
+
+        public static ME.ECS.Collections.V3.MemoryAllocator GetAllocator(World world) {
+
+            return world.currentState.allocator;
+
+        }
+
         public static IStructComponentsContainer GetStructComponentsStorage(World world) {
 
             var field = world.currentState.structComponents;//.GetType().GetField("componentsStructCache", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic);

@@ -14,7 +14,7 @@ namespace ME.ECS.Tests {
                 world.SetSeed(1u);
                 {
                     CoreComponentsInitializer.InitTypeId();
-                    CoreComponentsInitializer.Init(ref world.GetStructComponents(), ref world.GetNoStateStructComponents());
+                    CoreComponentsInitializer.Init(world.GetState(), ref world.GetNoStateData());
                     //world.SetEntitiesCapacity(1000);
                 }
             }

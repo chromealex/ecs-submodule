@@ -6,13 +6,58 @@ namespace ME.ECS.Collections.MemoryAllocator {
     public struct HashSet<T> where T : unmanaged {
         
         public struct Enumerator : System.Collections.Generic.IEnumerator<T> {
+
+            private readonly State state;
+            private ref MemoryAllocator allocator => ref this.state.allocator;
+            private readonly HashSet<T> set;
+            private int index;
+            private T current;
+
+            internal Enumerator(State state, HashSet<T> set) {
+                this.state = state;
+                this.set = set;
+                this.index = 0;
+                this.current = default(T);
+            }
+
+            public void Dispose() {
+            }
+
+            public bool MoveNext() {
+                while (this.index < this.set.lastIndex) {
+                    if (this.set.slots[in this.allocator, this.index].hashCode >= 0) {
+                        this.current = this.set.slots[in this.allocator, this.index].value;
+                        this.index++;
+                        return true;
+                    }
+
+                    this.index++;
+                }
+
+                this.index = this.set.lastIndex + 1;
+                this.current = default(T);
+                return false;
+            }
+
+            public T Current => this.current;
+
+            object System.Collections.IEnumerator.Current => this.Current;
+
+            void System.Collections.IEnumerator.Reset() {
+                this.index = 0;
+                this.current = default(T);
+            }
             
+        }
+
+        public struct EnumeratorNoState : System.Collections.Generic.IEnumerator<T> {
+
             private readonly MemoryAllocator allocator;
             private readonly HashSet<T> set;
             private int index;
             private T current;
 
-            internal Enumerator(in MemoryAllocator allocator, HashSet<T> set) {
+            internal EnumeratorNoState(in MemoryAllocator allocator, HashSet<T> set) {
                 this.allocator = allocator;
                 this.set = set;
                 this.index = 0;
@@ -73,9 +118,15 @@ namespace ME.ECS.Collections.MemoryAllocator {
 
         }
         
-        public readonly Enumerator GetEnumerator(in MemoryAllocator allocator) {
+        public readonly Enumerator GetEnumerator(State state) {
             
-            return new Enumerator(in allocator, this);
+            return new Enumerator(state, this);
+            
+        }
+
+        public readonly EnumeratorNoState GetEnumerator(in MemoryAllocator allocator) {
+            
+            return new EnumeratorNoState(in allocator, this);
             
         }
 

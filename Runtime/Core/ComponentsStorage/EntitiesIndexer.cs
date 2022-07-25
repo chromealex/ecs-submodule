@@ -1,96 +1,85 @@
 namespace ME.ECS {
     
-    using Collections;
+    using Collections.V3;
+    using Collections.MemoryAllocator;
 
     public struct EntitiesIndexer {
 
-        public struct CopyItem : IArrayElementCopy<HashSetCopyable<int>> {
-        
-            public void Copy(in HashSetCopyable<int> @from, ref HashSetCopyable<int> to) {
-            
-                ArrayUtils.Copy(from, ref to);
-            
-            }
-
-            public void Recycle(ref HashSetCopyable<int> item) {
-            
-                PoolHashSetCopyable<int>.Recycle(ref item);
-                item = null;
-            
-            }
-
-        }
-
         [ME.ECS.Serializer.SerializeField]
-        private BufferArray<HashSetCopyable<int>> data;
+        private ME.ECS.Collections.V3.MemArrayAllocator<ME.ECS.Collections.MemoryAllocator.HashSet<int>> data;
 
-        internal void Initialize(int capacity) {
+        internal void Initialize(ref MemoryAllocator allocator, int capacity) {
 
-            if (this.data.isCreated == false) this.data = PoolArray<HashSetCopyable<int>>.Spawn(capacity);
-
-        }
-
-        internal void Validate(int entityId) {
-
-            ArrayUtils.Resize(entityId, ref this.data);
+            if (this.data.isCreated == false) this.data = new ME.ECS.Collections.V3.MemArrayAllocator<ME.ECS.Collections.MemoryAllocator.HashSet<int>>(ref allocator, capacity);
 
         }
 
-        public readonly int GetCount(int entityId) {
+        internal void Validate(ref MemoryAllocator allocator, int entityId) {
 
-            var arr = this.data.arr[entityId];
-            if (arr == null) return 0;
+            this.data.Resize(ref allocator, entityId + 1);
+
+        }
+
+        public readonly int GetCount(in MemoryAllocator allocator, int entityId) {
+
+            var arr = this.data[in allocator, entityId];
+            if (arr.isCreated == false) return 0;
             
             return arr.Count;
 
         }
 
-        public readonly bool Has(int entityId, int componentId) {
+        public readonly bool Has(in MemoryAllocator allocator, int entityId, int componentId) {
 
-            var arr = this.data.arr[entityId];
-            if (arr == null) return false;
+            var arr = this.data[in allocator, entityId];
+            if (arr.isCreated == false) return false;
 
-            return arr.Contains(componentId);
+            return arr.Contains(in allocator, componentId);
 
         }
         
-        public readonly HashSetCopyable<int> Get(int entityId) {
+        public readonly HashSet<int> Get(in MemoryAllocator allocator, int entityId) {
 
-            return this.data[entityId];
-
-        }
-
-        internal void Set(int entityId, int componentId) {
-
-            ref var item = ref this.data[entityId];
-            if (item == null) item = PoolHashSetCopyable<int>.Spawn(64);
-            item.Add(componentId);
+            return this.data[in allocator, entityId];
 
         }
 
-        internal void Remove(int entityId, int componentId) {
+        internal void Set(ref MemoryAllocator allocator, int entityId, int componentId) {
+
+            ref var item = ref this.data[in allocator, entityId];
+            if (item.isCreated == false) item = new HashSet<int>(ref allocator, 64);
+            item.Add(ref allocator, componentId);
+
+        }
+
+        internal void Remove(ref MemoryAllocator allocator, int entityId, int componentId) {
             
-            ref var item = ref this.data[entityId];
-            if (item != null) item.Remove(componentId);
+            ref var item = ref this.data[in allocator, entityId];
+            if (item.isCreated == true) item.Remove(ref allocator, componentId);
             
         }
 
-        internal void RemoveAll(int entityId) {
+        internal void RemoveAll(ref MemoryAllocator allocator, int entityId) {
             
-            ref var item = ref this.data[entityId];
-            if (item != null) item.Clear();
-            
-        }
-
-        internal void CopyFrom(in EntitiesIndexer other) {
-            
-            ArrayUtils.Copy(other.data, ref this.data, new CopyItem());
+            ref var item = ref this.data[in allocator, entityId];
+            if (item.isCreated == true) item.Clear(in allocator);
             
         }
 
-        internal void Recycle() {
+        internal void Dispose(ref MemoryAllocator allocator) {
+
+            for (int i = 0; i < this.data.Length; ++i) {
+
+                var set = this.data[in allocator, i];
+                if (set.isCreated == true) {
+                    
+                    set.Dispose(ref allocator);
+                    
+                }
+
+            }
             
-            ArrayUtils.Recycle(ref this.data, new CopyItem());
+            this.data.Dispose(ref allocator);
             
         }
 

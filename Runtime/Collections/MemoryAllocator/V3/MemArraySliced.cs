@@ -30,9 +30,13 @@ namespace ME.ECS.Collections.V3 {
 
         private const int BUCKET_SIZE = 4;
 
+        [ME.ECS.Serializer.SerializeField]
         public MemArrayAllocator<T> data;
+        [ME.ECS.Serializer.SerializeField]
         public MemArrayAllocator<MemArrayAllocator<T>> tails;
+        [ME.ECS.Serializer.SerializeField]
         public int tailsLength;
+        [ME.ECS.Serializer.SerializeField]
         public bool isCreated => this.data.isCreated;
 
         public int Length {

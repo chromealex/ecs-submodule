@@ -11,11 +11,11 @@ namespace ME.ECS.DataConfigs {
             
         }
 
-        public static void Init(ref ME.ECS.StructComponentsContainer structComponentsContainer) {
+        public static void Init(State state) {
     
-            structComponentsContainer.Validate<SourceConfig>();
+            state.structComponents.Validate<SourceConfig>();
             #if !STATIC_API_DISABLED
-            structComponentsContainer.ValidateCopyable<SourceConfigs>();
+            state.structComponents.ValidateCopyable<SourceConfigs>();
             #endif
 
         }

@@ -356,7 +356,13 @@ namespace ME.ECSEditor {
             return WorldHelper.GetEntitiesStorage(this.world);
 
         }
-        
+
+        public ME.ECS.Collections.V3.MemoryAllocator GetAllocator() {
+
+            return WorldHelper.GetAllocator(this.world);
+
+        }
+
         public IStructComponentsContainer GetStructComponentsStorage() {
 
             return WorldHelper.GetStructComponentsStorage(this.world);

@@ -380,6 +380,7 @@ namespace ME.ECSEditor {
 
                     var componentsStructStorage = world.GetStructComponentsStorage();
                     var storage = (IStorage)world.GetEntitiesStorage();
+                    var allocator = world.GetAllocator();
                     
                     GUILayout.BeginVertical();
                     {
@@ -393,7 +394,7 @@ namespace ME.ECSEditor {
                             var searchList = search.Split(new [] { ' ' }, System.StringSplitOptions.RemoveEmptyEntries);
                             
                             var allEntities = PoolListCopyable<Entity>.Spawn(storage.AliveCount);
-                            if (storage.ForEach(allEntities) == true) {
+                            if (storage.ForEach(in allocator, allEntities) == true) {
 
                                 for (int i = 0; i < allEntities.Count; ++i) {
 
@@ -532,6 +533,8 @@ namespace ME.ECSEditor {
             const float padding = 8f;
 
             EditorGUIUtility.wideMode = true;
+
+            var allocator = world.GetAllocator();
             
             var name = (entityData.Has<ME.ECS.Name.Name>() == true ? entityData.Read<ME.ECS.Name.Name>().value : "Unnamed");
             GUILayoutExt.DrawHeader("Entity " + entityData.id.ToString() + " (" + entityData.generation.ToString() + ") " + name);
@@ -708,10 +711,10 @@ namespace ME.ECSEditor {
                             var filters = world.GetFilters();
                             for (int i = 0; i < filters.filters.Count; ++i) {
 
-                                var filter = filters.filters[i];
+                                var filter = filters.filters[allocator, i];
                                 if (filter.isAlive == false) continue;
                                 
-                                if (filter.Contains(entityData) == true) {
+                                if (filter.Contains(allocator, entityData) == true) {
 
                                     containsFilters.Add(filter);
                                     ++filtersCnt;
@@ -1173,23 +1176,28 @@ namespace ME.ECSEditor {
                                         
                                         GUILayout.BeginVertical();
                                         {
+                                            var allocator = world.currentState.allocator;
                                             GUILayoutExt.DrawHeader("Current");
-                                            foreach (var ent in storage.cache) {
+                                            for (int i = 0; i < storage.cache.Length; ++i) {
+                                                var ent = storage.cache[allocator, i];
                                                 GUILayoutExt.DataLabel(ent == Entity.Empty ? Entity.Empty.ToString() : ent.ToString());
                                             }
                                             
                                             GUILayoutExt.DrawHeader("Dead");
-                                            foreach (var ent in storage.dead) {
+                                            for (int i = 0; i < storage.dead.Count; ++i) {
+                                                var ent = storage.dead[allocator, i];
                                                 GUILayoutExt.DataLabel(ent.ToString());
                                             }
                                             
                                             GUILayoutExt.DrawHeader("Dead (Prepared)");
-                                            foreach (var ent in storage.deadPrepared) {
+                                            for (int i = 0; i < storage.deadPrepared.Count; ++i) {
+                                                var ent = storage.deadPrepared[allocator, i];
                                                 GUILayoutExt.DataLabel(ent.ToString());
                                             }
                                             
                                             GUILayoutExt.DrawHeader("Alive");
-                                            foreach (var ent in storage.alive) {
+                                            for (int i = 0; i < storage.alive.Count; ++i) {
+                                                var ent = storage.alive[allocator, i];
                                                 GUILayoutExt.DataLabel(ent.ToString());
                                             }
                                         }
@@ -1262,10 +1270,13 @@ namespace ME.ECSEditor {
                             
                         }
 
+                        var state = Worlds.current.currentState;
+                        var allocator = state.allocator;
+                        
                         var style = new GUIStyle(EditorStyles.miniLabel);
                         style.wordWrap = true;
                         GUILayout.Label(filter.ToEditorTypesString(), style);
-                        GUILayout.Label("Objects count: " + filter.Count.ToString(), dataStyle);
+                        GUILayout.Label("Objects count: " + filter.Count(state, ref allocator).ToString(), dataStyle);
                         
                     },
                     tableStyle,

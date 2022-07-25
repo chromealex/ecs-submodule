@@ -249,7 +249,8 @@ namespace ME.ECS {
         public bool IsAlive() {
 
             // Inline manually
-            return this.generation > 0 && Worlds.currentWorld.currentState.storage.cache.arr[this.id].generation == this.generation;
+            var state = Worlds.currentWorld.currentState;
+            return this.generation > 0 && state.storage.cache[in state.allocator, this.id].generation == this.generation;
 
         }
 
@@ -265,9 +266,10 @@ namespace ME.ECS {
 
             // Inline manually
             if (Worlds.currentWorld == null || Worlds.currentWorld.currentState == null) return false;
-            var arr = Worlds.currentWorld.currentState.storage.cache;
+            var state = Worlds.currentWorld.currentState;
+            var arr = state.storage.cache;
             if (this.id >= arr.Length) return false;
-            return arr.arr[this.id].generation == this.generation;
+            return arr[in state.allocator, this.id].generation == this.generation;
 
         }
 
@@ -421,7 +423,8 @@ namespace ME.ECS {
                 
             }
 
-            return Worlds.currentWorld.currentState.storage.versions.Get(this);
+            var state = Worlds.currentWorld.currentState;
+            return state.storage.versions.Get(in state.allocator, this);
 
         }
 

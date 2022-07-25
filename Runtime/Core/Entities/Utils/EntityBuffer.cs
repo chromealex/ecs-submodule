@@ -100,7 +100,7 @@ namespace ME.ECS {
     public static class DataBlittableBurstBufferUtils {
 
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-        public static bool NeedToPush<T>(Tick tick, ref EntityVersions entityVersions, int entityId, ref Component<T> bucket, in T data) where T : unmanaged, IComponentBase {
+        public static bool NeedToPush<T>(in ME.ECS.Collections.V3.MemoryAllocator allocator, Tick tick, ref EntityVersions entityVersions, int entityId, ref Component<T> bucket, in T data) where T : unmanaged, IComponentBase {
 
             if (bucket.state == 0 ||
                 (
@@ -115,7 +115,7 @@ namespace ME.ECS {
 
             }
 
-            entityVersions.Increment(entityId);
+            entityVersions.Increment(in allocator, entityId);
             bucket.data = data;
             bucket.version = tick;
             

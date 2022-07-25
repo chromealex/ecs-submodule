@@ -2,6 +2,8 @@ using RandomState = System.UInt32;
 
 namespace ME.ECS {
 
+    using Collections.V3;
+    
     public abstract class State : IPoolableRecycle {
 
         [ME.ECS.Serializer.SerializeField]
@@ -14,6 +16,7 @@ namespace ME.ECS {
         [ME.ECS.Serializer.SerializeField]
         public ME.ECS.FiltersArchetype.FiltersArchetypeStorage storage;
         
+        public MemoryAllocator allocator;
         #if !ENTITY_TIMERS_DISABLED
         [ME.ECS.Serializer.SerializeField]
         public Timers timers;
@@ -35,8 +38,11 @@ namespace ME.ECS {
 
         public virtual void Initialize(World world, bool freeze, bool restore) {
             
-            world.Register(ref this.storage, freeze, restore);
-            world.Register(ref this.structComponents, freeze, restore);
+            // Use 512 KB by default
+            this.allocator.Initialize(512 * 1024 * 2 * 20, -1);
+
+            world.Register(ref this.allocator, ref this.storage, freeze, restore);
+            world.Register(ref this.allocator, ref this.structComponents, freeze, restore);
             this.globalEvents.Initialize();
             #if !ENTITY_TIMERS_DISABLED
             this.timers.Initialize();
@@ -46,11 +52,13 @@ namespace ME.ECS {
 
         public virtual void CopyFrom(State other) {
             
+            this.allocator.CopyFrom(in other.allocator);
+            
             this.tick = other.tick;
             this.randomState = other.randomState;
             this.sharedEntity = other.sharedEntity;
 
-            this.storage.CopyFrom(other.storage);
+            this.storage = other.storage;
             this.structComponents.CopyFrom(other.structComponents);
             this.globalEvents.CopyFrom(in other.globalEvents);
             #if !ENTITY_TIMERS_DISABLED
@@ -70,9 +78,11 @@ namespace ME.ECS {
             #endif
             this.globalEvents.DeInitialize();
             this.globalEvents = default;
-            WorldUtilities.Release(ref this.storage);
-            WorldUtilities.Release(ref this.structComponents);
+            this.storage.Dispose(ref this.allocator);
+            this.structComponents.OnRecycle(ref this.allocator);
             
+            this.allocator.Dispose();
+
         }
 
         public virtual byte[] Serialize<T>() where T : State {

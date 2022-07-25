@@ -12,6 +12,7 @@ using Il2Cpp = Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute;
 namespace ME.ECS {
 
     using FiltersArchetype;
+    using Collections.V3;
 
     [Il2Cpp(Option.NullChecks, false)]
     [Il2Cpp(Option.ArrayBoundsChecks, false)]
@@ -33,14 +34,14 @@ namespace ME.ECS {
             
         }
 
-        public void Register(ref FiltersArchetypeStorage storageRef, bool freeze, bool restore) {
+        public void Register(ref MemoryAllocator allocator, ref FiltersArchetypeStorage storageRef, bool freeze, bool restore) {
 
             this.RegisterPluginsModuleForEntity();
 
             if (storageRef.isCreated == false) {
 
                 storageRef = new FiltersArchetypeStorage();
-                storageRef.Initialize(World.ENTITIES_CACHE_CAPACITY);
+                storageRef.Initialize(ref allocator, World.ENTITIES_CACHE_CAPACITY);
                 storageRef.SetFreeze(freeze);
 
             }
@@ -74,24 +75,24 @@ namespace ME.ECS {
 
         }
 
-        public void SetEntityCapacityInFilters(int capacity) {
+        public void SetEntityCapacityInFilters(ref MemoryAllocator allocator, int capacity) {
 
             // On change capacity
-            this.currentState.storage.SetCapacity(capacity);
+            this.currentState.storage.SetCapacity(ref allocator, capacity);
 
         }
 
-        public void CreateEntityInFilters(in Entity entity) {
+        public void CreateEntityInFilters(ref MemoryAllocator allocator, in Entity entity) {
 
             // On create new entity
-            this.currentState.storage.SetCapacity(entity.id + 1);
+            this.currentState.storage.SetCapacity(ref allocator, entity.id + 1);
 
         }
 
-        public void RemoveFromAllFilters(in Entity entity) {
+        public void RemoveFromAllFilters(ref MemoryAllocator allocator, in Entity entity) {
 
             // On destroy entity
-            this.currentState.storage.Remove(in entity);
+            this.currentState.storage.Remove(ref allocator, in entity);
 
         }
 
@@ -99,7 +100,7 @@ namespace ME.ECS {
         public void UpdateFilters(in EntitiesGroup group) {
 
             // Force to update entity group in filters
-            this.currentState.storage.UpdateFilters();
+            this.currentState.storage.UpdateFilters(this.currentState, ref this.currentState.allocator);
 
         }
         #endif
@@ -107,60 +108,60 @@ namespace ME.ECS {
         public void UpdateFilters(in Entity entity) {
 
             // Force to update entity in filters
-            this.currentState.storage.UpdateFilters();
+            this.currentState.storage.UpdateFilters(this.currentState, ref this.currentState.allocator);
 
         }
 
-        public void AddFilterByStructComponent(in Entity entity, int componentId, bool checkLambda) {
+        public void AddFilterByStructComponent(ref MemoryAllocator allocator, in Entity entity, int componentId, bool checkLambda) {
 
-            this.currentState.storage.Set(in entity, componentId, checkLambda);
-
-        }
-
-        public void RemoveFilterByStructComponent(in Entity entity, int componentId, bool checkLambda) {
-
-            this.currentState.storage.Remove(in entity, componentId, checkLambda);
+            this.currentState.storage.Set(ref allocator, in entity, componentId, checkLambda);
 
         }
 
-        public void UpdateFilterByStructComponent(in Entity entity, int componentId) { }
+        public void RemoveFilterByStructComponent(ref MemoryAllocator allocator, in Entity entity, int componentId, bool checkLambda) {
 
-        public void ValidateFilterByStructComponent(in Entity entity, int componentId, bool makeRequest = false) {
-
-            this.currentState.storage.Validate(in entity, componentId, makeRequest);
+            this.currentState.storage.Remove(ref allocator, in entity, componentId, checkLambda);
 
         }
 
-        public void ValidateFilterByStructComponent<T>(in Entity entity, bool makeRequest = false) where T : struct, IComponentBase {
+        public void UpdateFilterByStructComponent(ref MemoryAllocator allocator, in Entity entity, int componentId) { }
 
-            this.currentState.storage.Validate<T>(in entity, makeRequest);
+        public void ValidateFilterByStructComponent(ref MemoryAllocator allocator, in Entity entity, int componentId, bool makeRequest = false) {
 
-        }
-
-        public void AddFilterByStructComponent<T>(in Entity entity) where T : struct, IComponentBase {
-
-            this.currentState.storage.Set<T>(in entity);
+            this.currentState.storage.Validate(ref allocator, in entity, componentId, makeRequest);
 
         }
 
-        public void RemoveFilterByStructComponent<T>(in Entity entity) where T : struct, IComponentBase {
+        public void ValidateFilterByStructComponent<T>(ref MemoryAllocator allocator, in Entity entity, bool makeRequest = false) where T : struct, IComponentBase {
 
-            this.currentState.storage.Remove<T>(in entity);
+            this.currentState.storage.Validate<T>(ref allocator, in entity, makeRequest);
 
         }
 
-        public void UpdateFilterByStructComponent<T>(in Entity entity) where T : struct, IComponentBase { }
+        public void AddFilterByStructComponent<T>(ref MemoryAllocator allocator, in Entity entity) where T : struct, IComponentBase {
 
-        public void UpdateFilterByStructComponentVersioned<T>(in Entity entity) where T : struct, IComponentBase { }
+            this.currentState.storage.Set<T>(ref allocator, in entity);
 
-        public void RemoveComponentFromFilter(in Entity entity) {
+        }
+
+        public void RemoveFilterByStructComponent<T>(ref MemoryAllocator allocator, in Entity entity) where T : struct, IComponentBase {
+
+            this.currentState.storage.Remove<T>(ref allocator, in entity);
+
+        }
+
+        public void UpdateFilterByStructComponent<T>(ref MemoryAllocator allocator, in Entity entity) where T : struct, IComponentBase { }
+
+        public void UpdateFilterByStructComponentVersioned<T>(ref MemoryAllocator allocator, in Entity entity) where T : struct, IComponentBase { }
+
+        public void RemoveComponentFromFilter(ref MemoryAllocator allocator, in Entity entity) {
 
             // Remove all components from entity
-            this.RemoveFromAllFilters(in entity);
+            this.RemoveFromAllFilters(ref allocator, in entity);
 
         }
 
-        public void AddComponentToFilter(in Entity entity) {
+        public void AddComponentToFilter(ref MemoryAllocator allocator, in Entity entity) {
 
             // Update filters for this entity
 
@@ -168,7 +169,7 @@ namespace ME.ECS {
 
         public FilterData GetFilter(int id) {
 
-            return this.currentState.storage.GetFilter(id);
+            return this.currentState.storage.GetFilter(in this.currentState.allocator, id);
 
         }
 

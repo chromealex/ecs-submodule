@@ -497,7 +497,8 @@ namespace ME.ECSEditor {
                         resItem = resItem.Replace("#BLITTABLE#", isBlittable == true ? "Blittable" : "");
                         resItem = resItem.Replace("#DISPOSABLE#", isDisposable == true ? "Disposable" : "");
                         resItem = resItem.Replace("#ONESHOT#", isOneShot == true ? "OneShot" : "");
-                        resItem = resItem.Replace("#CONTAINER#", isOneShot == true ? "noStateStructComponentsContainer" : "structComponentsContainer");
+                        resItem = resItem.Replace("#CONTAINER#", isOneShot == true ? "noState.storage" : "state.structComponents");
+                        resItem = resItem.Replace("#ALLOCATOR_FIRST_TYPE#", isUnmanaged == true ? "ref state.allocator, " : "");
                         resItem = resItem.Replace("\r\n", "\n");
 
                         /*
@@ -525,7 +526,7 @@ namespace ME.ECSEditor {
                             resItem2 = resItem2.Replace("#BLITTABLE#", isBlittable == true ? "Blittable" : "");
                             resItem2 = resItem2.Replace("#DISPOSABLE#", isDisposable == true ? "Disposable" : "");
                             resItem2 = resItem2.Replace("#ONESHOT#", isOneShot == true ? "OneShot" : "");
-                            resItem2 = resItem2.Replace("#CONTAINER#", isOneShot == true ? "noStateStructComponentsContainer" : "structComponentsContainer");
+                            resItem2 = resItem2.Replace("#CONTAINER#", isOneShot == true ? "noState.storage" : "state.structComponents");
                             resItem2 = resItem2.Replace("\r\n", "\n");
 
                             /*

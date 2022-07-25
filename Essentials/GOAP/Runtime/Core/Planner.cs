@@ -32,14 +32,14 @@ namespace ME.ECS.Essentials.GOAP {
 
             plan.planStatus = PathStatus.Processing;
 
-            var entityStateList = world.GetState().structComponents.entitiesIndexer.Get(entity.id);
+            var entityStateList = world.GetState().structComponents.entitiesIndexer.Get(in world.GetState().allocator, entity.id);
             var entityState = new NativeHashSet<int>(entityStateList.Count, Allocator.TempJob);
-            foreach (var item in entityStateList) {
-                entityState.Add(item);
-            }
-            
             var entityStateData = new NativeHashSet<UnsafeData>(entityStateList.Count, Allocator.TempJob);
-            foreach (var idx in entityStateList) {
+            
+            var e = entityStateList.GetEnumerator(in world.GetState().allocator);
+            while (e.MoveNext() == true) {
+                var idx = e.Current;
+                entityState.Add(idx);
                 var reg = world.GetState().structComponents.GetAllRegistries()[idx];
                 if (reg is IComponentsBlittable) {
                     var obj = reg.CreateObjectUnsafe(in entity);

@@ -25,22 +25,22 @@ namespace ME.ECS {
 
         }
         
-        public static void Init(ref ME.ECS.StructComponentsContainer structComponentsContainer, ref ME.ECS.StructComponentsContainer noStateStructComponentsContainer) {
+        public static void Init(State state, ref World.NoState noState) {
             
-            noStateStructComponentsContainer.Validate<IsEntityOneShot>(true);
-            noStateStructComponentsContainer.Validate<IsEntityEmptyOneShot>(true);
-            structComponentsContainer.ValidateUnmanaged<ME.ECS.Views.ViewComponent>(false);
-            structComponentsContainer.ValidateUnmanaged<ME.ECS.Collections.IntrusiveData>(false);
-            structComponentsContainer.ValidateUnmanaged<ME.ECS.Collections.IntrusiveSortedListData>(false);
-            structComponentsContainer.ValidateUnmanaged<ME.ECS.Collections.IntrusiveListNode>(false);
-            structComponentsContainer.ValidateUnmanaged<ME.ECS.Collections.IntrusiveHashSetBucket>(false);
-            structComponentsContainer.ValidateUnmanaged<ME.ECS.Collections.IntrusiveHashSetData>(false);
+            noState.storage.ValidateOneShot<IsEntityOneShot>(true);
+            noState.storage.ValidateOneShot<IsEntityEmptyOneShot>(true);
+            state.structComponents.ValidateUnmanaged<ME.ECS.Views.ViewComponent>(ref state.allocator, false);
+            state.structComponents.ValidateUnmanaged<ME.ECS.Collections.IntrusiveData>(ref state.allocator, false);
+            state.structComponents.ValidateUnmanaged<ME.ECS.Collections.IntrusiveSortedListData>(ref state.allocator, false);
+            state.structComponents.ValidateUnmanaged<ME.ECS.Collections.IntrusiveListNode>(ref state.allocator, false);
+            state.structComponents.ValidateUnmanaged<ME.ECS.Collections.IntrusiveHashSetBucket>(ref state.allocator, false);
+            state.structComponents.ValidateUnmanaged<ME.ECS.Collections.IntrusiveHashSetData>(ref state.allocator, false);
 
-            ME.ECS.DataConfigs.DataConfig.Init(ref structComponentsContainer);
-            TransformComponentsInitializer.Init(ref structComponentsContainer);
-            NameComponentsInitializer.Init(ref structComponentsContainer);
-            CameraComponentsInitializer.Init(ref structComponentsContainer);
-            ME.ECS.DataConfigs.DataConfigComponentsInitializer.Init(ref structComponentsContainer);
+            ME.ECS.DataConfigs.DataConfig.Init(state);
+            TransformComponentsInitializer.Init(state);
+            NameComponentsInitializer.Init(state);
+            CameraComponentsInitializer.Init(state);
+            ME.ECS.DataConfigs.DataConfigComponentsInitializer.Init(state);
             
         }
 

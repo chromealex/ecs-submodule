@@ -4,8 +4,11 @@ namespace ME.ECS.Collections.V3 {
 
     public struct MemArray<T> where T : struct {
 
+        [ME.ECS.Serializer.SerializeField]
         private MemPtr ptr;
+        [ME.ECS.Serializer.SerializeField]
         public int Length;
+        [ME.ECS.Serializer.SerializeField]
         private readonly AllocatorType allocator;
         public bool isCreated => this.ptr != 0L;
         
@@ -57,6 +60,13 @@ namespace ME.ECS.Collections.V3 {
 
         }
 
+        public MemArrayAllocatorProxy(MemArrayAllocator<T> arr) {
+
+            this.arr = arr;
+            this.allocator = Worlds.current.currentState.allocator;
+
+        }
+
         public T[] items {
             get {
                 var arr = new T[this.arr.Length];
@@ -73,7 +83,9 @@ namespace ME.ECS.Collections.V3 {
     [System.Diagnostics.DebuggerTypeProxyAttribute(typeof(MemArrayAllocatorProxy<>))]
     public struct MemArrayAllocator<T> where T : struct {
 
+        [ME.ECS.Serializer.SerializeField]
         private MemPtr ptr;
+        [ME.ECS.Serializer.SerializeField]
         public int Length;
         public bool isCreated => this.ptr != 0L;
 
@@ -106,6 +118,10 @@ namespace ME.ECS.Collections.V3 {
         }
 
         public ref T this[in MemoryAllocator allocator, int index] {
+            get => ref allocator.RefArrayUnmanaged<T>(this.ptr, index); 
+        }
+
+        public ref T this[MemoryAllocator allocator, int index] {
             get => ref allocator.RefArrayUnmanaged<T>(this.ptr, index); 
         }
 
