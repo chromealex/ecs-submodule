@@ -4,20 +4,35 @@ using Unity.Collections.LowLevel.Unsafe;
 
 namespace ME.ECS.Collections.V3 {
 
-    public class MemoryAllocatorProxy {
+    public unsafe class MemoryAllocatorProxy {
 
-        private MemoryAllocator allocator;
+        private readonly MemoryAllocator allocator;
         
         public MemoryAllocatorProxy(MemoryAllocator allocator) {
 
             this.allocator = allocator;
 
         }
-        
-        
+
+        public string[] dump {
+            get {
+                var list = new System.Collections.Generic.List<string>();
+                MemoryAllocator.ZmDumpHeap(this.allocator.zone, list);
+                return list.ToArray();
+            }
+        }
+
+        public string[] checks {
+            get {
+                var list = new System.Collections.Generic.List<string>();
+                MemoryAllocator.ZmCheckHeap(this.allocator.zone, list);
+                return list.ToArray();
+            }
+        }
 
     }
 
+    [System.Diagnostics.DebuggerTypeProxyAttribute(typeof(MemoryAllocatorProxy))]
     public unsafe partial struct MemoryAllocator {
 
         private const int ZONE_ID = 0x1d4a11;
@@ -273,41 +288,41 @@ namespace ME.ECS.Collections.V3 {
             return (void*)((byte*)@base + sizeof(MemBlock));
         }
 
-        public static void ZmDumpHeap(MemZone* zone) {
-            UnityEngine.Debug.Log($"zone size: {zone->size}; location: {new IntPtr(zone)}; rover block offset: {zone->rover.value}");
+        public static void ZmDumpHeap(MemZone* zone, System.Collections.Generic.List<string> results) {
+            results.Add($"zone size: {zone->size}; location: {new IntPtr(zone)}; rover block offset: {zone->rover.value}");
 
             for (var block = zone->blocklist.next.Ptr(zone);; block = block->next.Ptr(zone)) {
 
-                UnityEngine.Debug.Log($"block offset: {(byte*)block - (byte*)@zone}; size: {block->size}; user: {new IntPtr(block->user)}");
+                results.Add($"block offset: {(byte*)block - (byte*)@zone}; size: {block->size}; user: {new IntPtr(block->user)}");
 
                 if (block->next.Ptr(zone) == &zone->blocklist) break;
 
-                MemoryAllocator.ZmCheckBlock(zone, block);
+                MemoryAllocator.ZmCheckBlock(zone, block, results);
             }
         }
 
-        public static void ZmCheckHeap(MemZone* zone) {
+        public static void ZmCheckHeap(MemZone* zone, System.Collections.Generic.List<string> results) {
             for (var block = zone->blocklist.next.Ptr(zone);; block = block->next.Ptr(zone)) {
                 if (block->next.Ptr(zone) == &zone->blocklist) {
                     // all blocks have been hit
                     break;
                 }
 
-                MemoryAllocator.ZmCheckBlock(zone, block);
+                MemoryAllocator.ZmCheckBlock(zone, block, results);
             }
         }
 
-        private static void ZmCheckBlock(MemZone* zone, MemBlock* block) {
+        private static void ZmCheckBlock(MemZone* zone, MemBlock* block, System.Collections.Generic.List<string> results) {
             if ((byte*)block + block->size != (byte*)block->next.Ptr(zone)) {
-                UnityEngine.Debug.LogError("CheckHeap: block size does not touch the next block\n");
+                results.Add("CheckHeap: block size does not touch the next block\n");
             }
 
             if (block->next.Ptr(zone)->prev.Ptr(zone) != block) {
-                UnityEngine.Debug.LogError("CheckHeap: next block doesn't have proper back link\n");
+                results.Add("CheckHeap: next block doesn't have proper back link\n");
             }
 
             if (block->user == null && block->next.Ptr(zone)->user == null) {
-                UnityEngine.Debug.LogError("CheckHeap: two consecutive free blocks\n");
+                results.Add("CheckHeap: two consecutive free blocks\n");
             }
         }
 
