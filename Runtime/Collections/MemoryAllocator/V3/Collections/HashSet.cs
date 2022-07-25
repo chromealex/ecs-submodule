@@ -301,7 +301,7 @@ namespace ME.ECS.Collections.MemoryAllocator {
 
             var newSlots = new MemArrayAllocator<Slot>(ref allocator, newSize);
             if (this.slots.isCreated == true) {
-                Helpers.Copy(ref allocator, in this.slots, 0, in newSlots, 0, this.lastIndex);
+                NativeArrayUtils.Copy(ref allocator, in this.slots, 0, ref newSlots, 0, this.lastIndex);
             }
 
             if (forceNewHashCodes == true) {

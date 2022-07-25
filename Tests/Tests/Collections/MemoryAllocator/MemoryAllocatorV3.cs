@@ -354,7 +354,6 @@ namespace ME.ECS.Tests.MemoryAllocator.V3 {
             var allocator = Base.GetAllocator(1000);
 
             var arr = new MemArrayAllocator<TestData>(ref allocator, 100);
-            var pr = new MemArrayAllocatorProxy<TestData>(ref allocator, arr);
             for (int i = 0; i < 100; ++i) {
                 arr[in allocator, i] = new TestData() { a = i };
             }

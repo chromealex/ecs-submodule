@@ -395,12 +395,12 @@ namespace ME.ECS.Collections.MemoryAllocator {
             this.Resize(ref allocator, HashHelpers.ExpandPrime(this.count), false);
         }
  
-        private void Resize(ref MemoryAllocator allocator, int newSize, bool forceNewHashCodes) {
+        private unsafe void Resize(ref MemoryAllocator allocator, int newSize, bool forceNewHashCodes) {
             var comparer = System.Collections.Generic.EqualityComparer<TKey>.Default;
             var newBuckets = new MemArrayAllocator<int>(ref allocator, newSize);
             for (int i = 0; i < newBuckets.Length; i++) newBuckets[in allocator, i] = -1;
             var newEntries = new MemArrayAllocator<Entry>(ref allocator, newSize);
-            allocator.MemCopy(newEntries.GetMemPtr(), 0, this.entries.GetMemPtr(), 0, this.count);
+            allocator.MemCopy(newEntries.GetMemPtr(), 0, this.entries.GetMemPtr(), 0, this.count * sizeof(Entry));
             if(forceNewHashCodes) {
                 for (int i = 0; i < this.count; i++) {
                     if(newEntries[in allocator, i].hashCode != -1) {

@@ -111,6 +111,10 @@ namespace ME.ECS.Collections.V3 {
                 return ptr;
             }
 
+            if (blockDataSize < 0) {
+                throw new Exception();
+            }
+
             var newPtr = this.Alloc((int)size, ClearOptions.UninitializedMemory);
 
             if (options == ClearOptions.ClearMemory) {

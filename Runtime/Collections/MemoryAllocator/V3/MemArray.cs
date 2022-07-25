@@ -48,7 +48,7 @@ namespace ME.ECS.Collections.V3 {
         
     }
 
-    public class MemArrayAllocatorProxy<T> where T : struct {
+    public unsafe class MemArrayAllocatorProxy<T> where T : struct {
 
         private MemArrayAllocator<T> arr;
         private MemoryAllocator allocator;
@@ -63,6 +63,7 @@ namespace ME.ECS.Collections.V3 {
         public MemArrayAllocatorProxy(MemArrayAllocator<T> arr) {
 
             this.arr = arr;
+            if (Worlds.current == null || Worlds.current.currentState == null) return;
             this.allocator = Worlds.current.currentState.allocator;
 
         }
@@ -71,7 +72,7 @@ namespace ME.ECS.Collections.V3 {
             get {
                 var arr = new T[this.arr.Length];
                 for (int i = 0; i < this.arr.Length; ++i) {
-                    arr[i] = this.arr[in this.allocator, i];
+                    if (this.allocator.zone != null) arr[i] = this.arr[in this.allocator, i];
                 }
 
                 return arr;

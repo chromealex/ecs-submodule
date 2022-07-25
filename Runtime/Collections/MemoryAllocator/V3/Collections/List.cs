@@ -184,7 +184,7 @@ namespace ME.ECS.Collections.MemoryAllocator {
 
         }
 
-        public void AddRange(ref MemoryAllocator allocator, List<T> collection) {
+        public unsafe void AddRange(ref MemoryAllocator allocator, List<T> collection) {
 
             var index = this.count;
             if (collection.isCreated == false)
@@ -194,13 +194,14 @@ namespace ME.ECS.Collections.MemoryAllocator {
             int count = collection.Count;
             if (count > 0) {
                 this.EnsureCapacity(ref allocator, this.count + count);
+                var size = sizeof(T);
                 if (index < this.count) {
-                    allocator.MemCopy(this.arr.GetMemPtr(), index + count, this.arr.GetMemPtr(), index, this.count - index);
+                    allocator.MemCopy(this.arr.GetMemPtr(), (index + count) * size, this.arr.GetMemPtr(), index * size, (this.count - index) * size);
                 }
 
                 if (this.arr.GetMemPtr() == collection.arr.GetMemPtr()) {
-                    allocator.MemCopy(this.arr.GetMemPtr(), index, this.arr.GetMemPtr(), 0, index);
-                    allocator.MemCopy(this.arr.GetMemPtr(), index * 2, this.arr.GetMemPtr(), index + count, this.count - index);
+                    allocator.MemCopy(this.arr.GetMemPtr(), index * size, this.arr.GetMemPtr(), 0, index * size);
+                    allocator.MemCopy(this.arr.GetMemPtr(), (index * 2) * size, this.arr.GetMemPtr(), (index + count) * size, (this.count - index) * size);
                 } else {
                     collection.CopyTo(ref allocator, this.arr, index);
                 }
@@ -210,13 +211,14 @@ namespace ME.ECS.Collections.MemoryAllocator {
             
         }
 
-        public void CopyTo(ref MemoryAllocator allocator, MemArrayAllocator<T> arr, int index) {
+        public unsafe void CopyTo(ref MemoryAllocator allocator, MemArrayAllocator<T> arr, int index) {
             
             if (arr.isCreated == false) {
                 ThrowHelper.ThrowArgumentException(ExceptionResource.Arg_RankMultiDimNotSupported);
             }
 
-            allocator.MemCopy(arr.GetMemPtr(), index, this.arr.GetMemPtr(), 0, this.count);
+            var size = sizeof(T);
+            allocator.MemCopy(arr.GetMemPtr(), index * size, this.arr.GetMemPtr(), 0, this.count * size);
             
         }
 
