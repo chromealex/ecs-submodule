@@ -143,10 +143,14 @@ namespace ME.ECS.Collections.V3 {
                 
             }
 
+            if (this.isCreated == false) this.growFactor = growFactor;
             newLength *= this.growFactor;
 
-            if (this.isCreated == false) this.growFactor = growFactor;
+            var prevLength = this.Length;
             this.ptr = allocator.ReAllocArrayUnmanaged<T>(this.ptr, newLength, options);
+            if (options == ClearOptions.ClearMemory) {
+                this.Clear(in allocator, prevLength, newLength - prevLength);
+            }
             this.Length = newLength;
             return true;
 
