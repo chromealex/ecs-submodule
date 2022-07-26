@@ -246,11 +246,6 @@ namespace ME.ECS.FiltersArchetype {
                 arch.components.CopyFrom(ref allocator, components);
                 
                 arch.componentIds.AddRange(ref allocator, componentIds);
-                storage.isArchetypesDirty = true;
-                var idx = storage.allArchetypes.Count;
-                arch.index = idx;
-                storage.dirtyArchetypes.Add(ref allocator, idx);
-                storage.allArchetypes.Add(ref allocator, arch);
                 arch.components.Add(ref allocator, componentId, new Info() {
                     index = arch.componentIds.Count,
                 });
@@ -258,7 +253,14 @@ namespace ME.ECS.FiltersArchetype {
                 if (node >= 0) {
                     arch.edgesToRemove.Add(ref allocator, componentId, node);
                 }
-
+                
+                storage.isArchetypesDirty = true;
+                var idx = storage.allArchetypes.Count;
+                arch.index = idx;
+                
+                storage.dirtyArchetypes.Add(ref allocator, idx);
+                storage.allArchetypes.Add(ref allocator, arch);
+                
                 return idx;
 
             }
@@ -284,8 +286,6 @@ namespace ME.ECS.FiltersArchetype {
                 storage.isArchetypesDirty = true;
                 var idx = storage.allArchetypes.Count;
                 arch.index = idx;
-                storage.dirtyArchetypes.Add(ref allocator, idx);
-                storage.allArchetypes.Add(ref allocator, arch);
                 var info = components[in allocator, componentId];
                 arch.componentIds.RemoveAt(ref allocator, info.index);
                 for (var i = 0; i < arch.componentIds.Count; ++i) {
@@ -299,6 +299,9 @@ namespace ME.ECS.FiltersArchetype {
                     arch.edgesToAdd.Add(ref allocator, componentId, node);
                 }
 
+                storage.dirtyArchetypes.Add(ref allocator, idx);
+                storage.allArchetypes.Add(ref allocator, arch);
+                
                 return idx;
 
             }
@@ -1005,16 +1008,16 @@ namespace ME.ECS.FiltersArchetype {
         #endif
         public int Count(State state, ref MemoryAllocator allocator, Filter filter) {
 
-            return this.Count(state, ref allocator, this.GetFilter(in allocator, filter.id));
+            return this.Count(state, ref allocator, filter.id);
 
         }
 
         #if INLINE_METHODS
         [MethodImplAttribute(MethodImplOptions.AggressiveInlining)]
         #endif
-        public int Count(State state, ref MemoryAllocator allocator, FilterData filter) {
+        public int Count(State state, ref MemoryAllocator allocator, int filterId) {
 
-            var filterStaticData = Worlds.current.GetFilterStaticData(filter.id);
+            var filterStaticData = Worlds.current.GetFilterStaticData(filterId);
             if (FiltersArchetype.FiltersArchetypeStorage.CheckStaticShared(filterStaticData.data.containsShared, filterStaticData.data.notContainsShared) == false) {
                 return 0;
             }
@@ -1022,13 +1025,14 @@ namespace ME.ECS.FiltersArchetype {
             if (this.forEachMode == 0) {
                 this.UpdateFilters(state, ref allocator);
             }
-
+            
             var onChanged = filterStaticData.data.onChanged;
             var changedTracked = onChanged.Count;
             
             var connectedFilters = filterStaticData.data.connectedFilters;
             var connectedTracked = connectedFilters.Count;
 
+            ref var filter = ref this.GetFilter(in allocator, filterId);
             var count = 0;
             for (int i = 0, cnt = filter.archetypes.Count; i < cnt; ++i) {
 

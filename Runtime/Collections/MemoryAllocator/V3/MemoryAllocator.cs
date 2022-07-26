@@ -75,38 +75,32 @@ namespace ME.ECS.Collections.V3 {
         }
 
         public MemPtr Alloc(long size) {
-            return this.Alloc(size, ClearOptions.UninitializedMemory);
-        }
-
-        public MemPtr Alloc(long size, ClearOptions options) {
+            
             var ptr = MemoryAllocator.ZmMalloc(this.zone, (int)size, null);
-
             if (ptr == null) {
                 var newSize = System.Math.Max(this.zone->size * 2, this.zone->size + MemoryAllocator.ZmGetMemBlockSize((int)size));
                 this.zone = MemoryAllocator.ZmReallocZone(this.zone, newSize);
-                return this.Alloc(size, options);
-            }
-
-            if (options == ClearOptions.ClearMemory) {
-                UnsafeUtility.MemClear(ptr, (int)size);
+                return this.Alloc(size);
             }
 
             return this.GetSafePtr(ptr);
+            
         }
 
         public bool Free(MemPtr ptr) {
             return ptr == 0 ? false : MemoryAllocator.ZmFree(this.zone, this.GetUnsafePtr(ptr));
         }
 
-        public MemPtr ReAlloc(MemPtr ptr, long size, ClearOptions options) {
+        public MemPtr ReAlloc(MemPtr ptr, long size) {
+            
             if (ptr == 0L) {
 
-                return this.Alloc(size, options);
+                return this.Alloc(size);
 
             }
 
-            var blockDataSize = ((MemBlock*)((byte*)this.GetUnsafePtr(ptr) - sizeof(MemBlock)))->size - sizeof(MemBlock);
-
+            var blockSize = ((MemBlock*)((byte*)this.GetUnsafePtr(ptr) - sizeof(MemBlock)))->size;
+            var blockDataSize = blockSize - sizeof(MemBlock);
             if (blockDataSize > size) {
                 return ptr;
             }
@@ -115,17 +109,12 @@ namespace ME.ECS.Collections.V3 {
                 throw new Exception();
             }
 
-            var newPtr = this.Alloc((int)size, ClearOptions.UninitializedMemory);
-
-            if (options == ClearOptions.ClearMemory) {
-                this.MemClear(newPtr, 0, size);
-            }
-
+            var newPtr = this.Alloc(size);
             this.MemCopy(newPtr, 0, ptr, 0, blockDataSize);
-
             this.Free(ptr);
 
             return newPtr;
+            
         }
 
         public readonly void MemCopy(MemPtr dest, long destOffset, MemPtr source, long sourceOffset, long length) {
@@ -158,9 +147,9 @@ namespace ME.ECS.Collections.V3 {
             return ref UnsafeUtility.AsRef<T>(this.GetUnsafePtr(ptr + index * size));
         }
 
-        public MemPtr ReAllocArray<T>(MemPtr ptr, int newLength, ClearOptions options) where T : unmanaged {
+        public MemPtr ReAllocArray<T>(MemPtr ptr, int newLength) where T : unmanaged {
             var size = sizeof(T);
-            return this.ReAlloc(ptr, size * newLength, options);
+            return this.ReAlloc(ptr, size * newLength);
         }
 
         public MemPtr AllocArray<T>(int length) where T : unmanaged {
@@ -173,9 +162,9 @@ namespace ME.ECS.Collections.V3 {
             return ref UnsafeUtility.AsRef<T>(this.GetUnsafePtr(ptr + index * size));
         }
 
-        public MemPtr ReAllocArrayUnmanaged<T>(MemPtr ptr, int newLength, ClearOptions options) where T : struct {
+        public MemPtr ReAllocArrayUnmanaged<T>(MemPtr ptr, int newLength) where T : struct {
             var size = UnsafeUtility.SizeOf<T>();
-            return this.ReAlloc(ptr, size * newLength, options);
+            return this.ReAlloc(ptr, size * newLength);
         }
 
         public MemPtr AllocArrayUnmanaged<T>(int length) where T : struct {

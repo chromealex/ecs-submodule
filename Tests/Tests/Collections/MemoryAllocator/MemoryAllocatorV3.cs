@@ -41,7 +41,7 @@ namespace ME.ECS.Tests.MemoryAllocator.V3 {
                     var bytes100_2 = allocator.Alloc(UnityEngine.Random.Range(1, 5) * 1500000L);
                     var bytes100_3 = allocator.Alloc(UnityEngine.Random.Range(1, 5) * 10000000L);
                     allocator.Free(bytes100_2);
-                    bytes100 = allocator.ReAlloc(bytes100, UnityEngine.Random.Range(1, 5) * 200000000L, ClearOptions.ClearMemory);
+                    bytes100 = allocator.ReAlloc(bytes100, UnityEngine.Random.Range(1, 5) * 200000000L);
                     allocator.Free(bytes100);
                     allocator.Free(bytes100_3);
 
@@ -137,7 +137,7 @@ namespace ME.ECS.Tests.MemoryAllocator.V3 {
                 for (int i = 2; i < 10; ++i) {
 
                     var len = i + 1;
-                    var bytes100 = allocator.Alloc(len * Unity.Collections.LowLevel.Unsafe.UnsafeUtility.SizeOf<MemPtr>(), ClearOptions.UninitializedMemory);
+                    var bytes100 = allocator.Alloc(len * Unity.Collections.LowLevel.Unsafe.UnsafeUtility.SizeOf<MemPtr>());
                     list.Add(bytes100);
 
                 }
@@ -199,7 +199,7 @@ namespace ME.ECS.Tests.MemoryAllocator.V3 {
                 var bytes100_2 = allocator.Alloc(150);
                 var bytes100_3 = allocator.Alloc(100);
                 allocator.Free(bytes100_2);
-                allocator.ReAlloc(bytes100, 200, ClearOptions.ClearMemory);
+                allocator.ReAlloc(bytes100, 200);
 
             }
 
@@ -310,22 +310,6 @@ namespace ME.ECS.Tests.MemoryAllocator.V3 {
                 ptr.Test(i, 1.5f * i);
                 
             }
-
-        }
-
-        [Test]
-        public void MemArrayStaticAllocator() {
-
-            var arr = new MemArray<TestData>(100, AllocatorType.Persistent);
-            for (int i = 0; i < 100; ++i) {
-                arr[i] = new TestData() { a = i };
-            }
-
-            for (int i = 0; i < 100; ++i) {
-                Assert.AreEqual(arr[i].a, i);
-            }
-
-            arr.Dispose();
 
         }
 

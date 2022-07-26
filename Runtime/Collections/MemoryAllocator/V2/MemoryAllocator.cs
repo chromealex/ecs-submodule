@@ -518,11 +518,11 @@ namespace ME.ECS.Collections.V2 {
             return this.Alloc(size + alignOf);
         }
 
-        public MemPtr ReAlloc(MemPtr ptr, size_t newSize, ClearOptions options) {
+        public MemPtr ReAlloc(MemPtr ptr, size_t newSize) {
 
             if (ptr == 0L) {
 
-                return this.Alloc(newSize, options);
+                return this.Alloc(newSize);
 
             }
             var block = this.GetBlock((ptr)ptr);
@@ -575,9 +575,6 @@ namespace ME.ECS.Collections.V2 {
             // slow re-alloc
             var newPtr = this.Alloc(newSize, ClearOptions.UninitializedMemory);
             this.MemCopy(newPtr, BLOCK_HEADER_SIZE, ptr, BLOCK_HEADER_SIZE, block.dataSize);
-            if (options == ClearOptions.ClearMemory) {
-                this.MemClear(newPtr, BLOCK_HEADER_SIZE + block.dataSize, newSize - block.dataSize);
-            }
             this.Free(ptr);
             return newPtr;
 

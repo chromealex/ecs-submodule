@@ -214,13 +214,13 @@ namespace ME.ECS.Collections.V1 {
         }
 
         [MethodImpl(256)]
-        public MemPtr ReAllocArray<T>(MemPtr ptr, int newLength, ClearOptions options = ClearOptions.ClearMemory) where T : unmanaged {
+        public MemPtr ReAllocArray<T>(MemPtr ptr, int newLength) where T : unmanaged {
 
             lock (this.sync)
             {
 
                 var size = sizeof(T);
-                return this.ReAlloc_INTERNAL(ptr, size * newLength, options);
+                return this.ReAlloc_INTERNAL(ptr, size * newLength, ClearOptions.UninitializedMemory);
 
             }
 
@@ -283,13 +283,13 @@ namespace ME.ECS.Collections.V1 {
         }
 
         [MethodImpl(256)]
-        public MemPtr ReAllocArrayUnmanaged<T>(MemPtr ptr, int newLength, ClearOptions options = ClearOptions.ClearMemory) where T : struct {
+        public MemPtr ReAllocArrayUnmanaged<T>(MemPtr ptr, int newLength) where T : struct {
 
             lock (this.sync)
             {
 
                 var size = UnsafeUtility.SizeOf<T>();
-                return this.ReAlloc_INTERNAL(ptr, size * newLength, options);
+                return this.ReAlloc_INTERNAL(ptr, size * newLength, ClearOptions.UninitializedMemory);
 
             }
 
@@ -379,12 +379,12 @@ namespace ME.ECS.Collections.V1 {
 
         }
 
-        public MemPtr ReAlloc(MemPtr ptr, long size, ClearOptions options) {
+        public MemPtr ReAlloc(MemPtr ptr, long size) {
             
             lock (this.sync)
             {
                 
-                return this.ReAlloc_INTERNAL(ptr, size, options);
+                return this.ReAlloc_INTERNAL(ptr, size, ClearOptions.UninitializedMemory);
 
             }
 

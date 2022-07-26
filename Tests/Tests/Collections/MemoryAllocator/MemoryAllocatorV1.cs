@@ -68,7 +68,7 @@ namespace ME.ECS.Tests.MemoryAllocator.V1 {
             var bytes100_2 = memBlock.Alloc(150);
             var bytes100_3 = memBlock.Alloc(100);
             memBlock.Free(bytes100_2);
-            memBlock.ReAlloc(bytes100, 200, ClearOptions.ClearMemory);
+            memBlock.ReAlloc(bytes100, 200);
             
             memBlock.Dispose();
 

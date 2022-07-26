@@ -157,7 +157,7 @@ namespace ME.ECS.Collections.MemoryAllocator {
             if (index < 0 || index >= this.count) return false;
             
             --this.count;
-            var last = this.arr[in allocator, this.arr.Length - 1];
+            var last = this.arr[in allocator, this.count];
             this.arr[in allocator, index] = last;
             
             return true;

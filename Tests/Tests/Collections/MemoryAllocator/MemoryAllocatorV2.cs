@@ -164,7 +164,7 @@ namespace ME.ECS.Tests.MemoryAllocator.V2 {
                 var bytes100_2 = memBlock.Alloc(150);
                 var bytes100_3 = memBlock.Alloc(100);
                 memBlock.Free(bytes100_2);
-                bytes100 = memBlock.ReAlloc(bytes100, 200, ClearOptions.ClearMemory);
+                bytes100 = memBlock.ReAlloc(bytes100, 200);
                 memBlock.Free(bytes100);
                 memBlock.Free(bytes100_3);
             }
@@ -192,7 +192,7 @@ namespace ME.ECS.Tests.MemoryAllocator.V2 {
                 var bytes100_2 = memBlock.Alloc(1500000L);
                 var bytes100_3 = memBlock.Alloc(10000000L);
                 memBlock.Free(bytes100_2);
-                bytes100 = memBlock.ReAlloc(bytes100, 200000000L, ClearOptions.ClearMemory);
+                bytes100 = memBlock.ReAlloc(bytes100, 200000000L);
                 memBlock.Free(bytes100);
                 memBlock.Free(bytes100_3);
             }
@@ -215,7 +215,7 @@ namespace ME.ECS.Tests.MemoryAllocator.V2 {
                 var bytes100_2 = memBlock.Alloc(UnityEngine.Random.Range(1, 5) * 1500000L);
                 var bytes100_3 = memBlock.Alloc(UnityEngine.Random.Range(1, 5) * 10000000L);
                 memBlock.Free(bytes100_2);
-                bytes100 = memBlock.ReAlloc(bytes100, UnityEngine.Random.Range(1, 5) * 200000000L, ClearOptions.ClearMemory);
+                bytes100 = memBlock.ReAlloc(bytes100, UnityEngine.Random.Range(1, 5) * 200000000L);
                 memBlock.Free(bytes100);
                 memBlock.Free(bytes100_3);
 
@@ -401,7 +401,7 @@ namespace ME.ECS.Tests.MemoryAllocator.V2 {
             var bytes100_2 = memBlock.Alloc(150);
             var bytes100_3 = memBlock.Alloc(100);
             memBlock.Free(bytes100_2);
-            memBlock.ReAlloc(bytes100, 200, ClearOptions.ClearMemory);
+            memBlock.ReAlloc(bytes100, 200);
             
             memBlock.Dispose();
 

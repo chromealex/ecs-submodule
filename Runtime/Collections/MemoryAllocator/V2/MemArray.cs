@@ -40,7 +40,7 @@ namespace ME.ECS.Collections.V2 {
             }
             
             var memoryAllocator = StaticAllocators.GetAllocator(this.allocator);
-            this.ptr = memoryAllocator.ReAllocArrayUnmanaged<T>(this.ptr, newLength, ClearOptions.ClearMemory);
+            this.ptr = memoryAllocator.ReAllocArrayUnmanaged<T>(this.ptr, newLength);
             this.Length = newLength;
             return true;
 
@@ -116,7 +116,7 @@ namespace ME.ECS.Collections.V2 {
                 
             }
 
-            this.ptr = allocator.ReAllocArrayUnmanaged<T>(this.ptr, newLength, options);
+            this.ptr = allocator.ReAllocArrayUnmanaged<T>(this.ptr, newLength);
             this.Length = newLength;
             return true;
 

@@ -2,52 +2,6 @@ namespace ME.ECS.Collections.V3 {
     
     using MemPtr = System.Int64;
 
-    public struct MemArray<T> where T : struct {
-
-        [ME.ECS.Serializer.SerializeField]
-        private MemPtr ptr;
-        [ME.ECS.Serializer.SerializeField]
-        public int Length;
-        [ME.ECS.Serializer.SerializeField]
-        private readonly AllocatorType allocator;
-        public bool isCreated => this.ptr != 0L;
-        
-        public MemArray(int length, AllocatorType allocator) {
-
-            this.allocator = allocator;
-            var memoryAllocator = StaticAllocators.GetAllocator(allocator);
-            this.ptr = memoryAllocator.AllocArrayUnmanaged<T>(length);
-            this.Length = length;
-
-        }
-
-        public void Dispose() {
-
-            var memoryAllocator = StaticAllocators.GetAllocator(this.allocator);
-            memoryAllocator.Free(this.ptr);
-            this = default;
-
-        }
-
-        public ref T this[int index] => ref StaticAllocators.GetAllocator(this.allocator).RefArrayUnmanaged<T>(this.ptr, index);
-
-        public bool Resize(int newLength) {
-
-            if (newLength <= this.Length) {
-
-                return false;
-                
-            }
-            
-            var memoryAllocator = StaticAllocators.GetAllocator(this.allocator);
-            this.ptr = memoryAllocator.ReAllocArrayUnmanaged<T>(this.ptr, newLength, ClearOptions.ClearMemory);
-            this.Length = newLength;
-            return true;
-
-        }
-        
-    }
-
     public unsafe class MemArrayAllocatorProxy<T> where T : struct {
 
         private MemArrayAllocator<T> arr;
@@ -63,7 +17,9 @@ namespace ME.ECS.Collections.V3 {
         public MemArrayAllocatorProxy(MemArrayAllocator<T> arr) {
 
             this.arr = arr;
-            if (Worlds.current == null || Worlds.current.currentState == null) return;
+            if (Worlds.current == null || Worlds.current.currentState == null) {
+                return;
+            }
             this.allocator = Worlds.current.currentState.allocator;
 
         }
@@ -147,7 +103,7 @@ namespace ME.ECS.Collections.V3 {
             newLength *= this.growFactor;
 
             var prevLength = this.Length;
-            this.ptr = allocator.ReAllocArrayUnmanaged<T>(this.ptr, newLength, options);
+            this.ptr = allocator.ReAllocArrayUnmanaged<T>(this.ptr, newLength);
             if (options == ClearOptions.ClearMemory) {
                 this.Clear(in allocator, prevLength, newLength - prevLength);
             }

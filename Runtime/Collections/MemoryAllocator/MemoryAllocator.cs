@@ -32,7 +32,7 @@ namespace ME.ECS.Collections {
         TMemPtr AllocUnmanaged<T>() where T : struct;
         TMemPtr Alloc(long size);
         bool Free(TMemPtr ptr);
-        TMemPtr ReAlloc(TMemPtr ptr, long size, ClearOptions options);
+        TMemPtr ReAlloc(TMemPtr ptr, long size);
         void MemCopy(TMemPtr dest, long destOffset, TMemPtr source, long sourceOffset, long length);
         void MemClear(TMemPtr dest, long destOffset, long length);
         void Prepare(long size);
@@ -42,10 +42,10 @@ namespace ME.ECS.Collections {
         /// Arrays
         /// 
         ref T RefArray<T>(TMemPtr ptr, int index) where T : unmanaged;
-        TMemPtr ReAllocArray<T>(TMemPtr ptr, int newLength, ClearOptions options) where T : unmanaged;
+        TMemPtr ReAllocArray<T>(TMemPtr ptr, int newLength) where T : unmanaged;
         TMemPtr AllocArray<T>(int length) where T : unmanaged;
         ref T RefArrayUnmanaged<T>(TMemPtr ptr, int index) where T : struct;
-        TMemPtr ReAllocArrayUnmanaged<T>(TMemPtr ptr, int newLength, ClearOptions options) where T : struct;
+        TMemPtr ReAllocArrayUnmanaged<T>(TMemPtr ptr, int newLength) where T : struct;
         TMemPtr AllocArrayUnmanaged<T>(int length) where T : struct;
 
     }

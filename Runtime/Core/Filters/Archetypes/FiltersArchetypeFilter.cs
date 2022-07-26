@@ -688,7 +688,7 @@ namespace ME.ECS {
         [MethodImplAttribute(MethodImplOptions.AggressiveInlining)]
         #endif
         public int Count(State state, ref MemoryAllocator allocator) {
-            return this.storage.Count(state, ref allocator, this);
+            return this.storage.Count(state, ref allocator, this.id);
         }
 
         internal string ToEditorTypesString() {

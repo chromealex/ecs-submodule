@@ -18,12 +18,14 @@ namespace ME.ECS {
 
         public static bool IsMainThread() {
 
+            if (Worlds.current == null) return true;
             return Unity.Jobs.LowLevel.Unsafe.JobsUtility.IsExecutingJob == false && Worlds.current.mainThread == System.Threading.Thread.CurrentThread;
 
         }
 
         public static bool IsWorldThread() {
 
+            if (Worlds.current == null) return true;
             return Unity.Jobs.LowLevel.Unsafe.JobsUtility.IsExecutingJob == false && Worlds.current.worldThread == System.Threading.Thread.CurrentThread;
 
         }

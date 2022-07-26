@@ -15,9 +15,9 @@ namespace ME.ECS.Collections.V2 {
             return ref this.GetBlockData<T>((ptr)ptr, index * size);
         }
 
-        public MemPtr ReAllocArray<T>(MemPtr ptr, int newLength, ClearOptions options) where T : unmanaged {
+        public MemPtr ReAllocArray<T>(MemPtr ptr, int newLength) where T : unmanaged {
             var size = (ptr)sizeof(T);
-            return this.ReAlloc(ptr, size * newLength, options);
+            return this.ReAlloc(ptr, size * newLength);
         }
 
         public MemPtr AllocArray<T>(int length) where T : unmanaged {
@@ -30,9 +30,9 @@ namespace ME.ECS.Collections.V2 {
             return ref this.GetBlockData<T>((ptr)ptr, index * size);
         }
 
-        public MemPtr ReAllocArrayUnmanaged<T>(MemPtr ptr, int newLength, ClearOptions options) where T : struct {
+        public MemPtr ReAllocArrayUnmanaged<T>(MemPtr ptr, int newLength) where T : struct {
             var size = (ptr)UnsafeUtility.SizeOf<T>();
-            return this.ReAlloc(ptr, size * newLength, options);
+            return this.ReAlloc(ptr, size * newLength);
         }
 
         public MemPtr AllocArrayUnmanaged<T>(int length) where T : struct {
