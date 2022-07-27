@@ -1066,13 +1066,13 @@ namespace ME.ECS {
 
                 for (int i = 0; i < this.currentState.globalEvents.globalEventLogicItems.Count; ++i) {
 
-                    var item = this.currentState.globalEvents.globalEventLogicItems[i];
+                    var item = this.currentState.globalEvents.globalEventLogicItems[in this.currentState.allocator, i];
                     GlobalEvent.GetEventById(item.globalEvent).Run(in item.data);
 
                 }
 
-                this.currentState.globalEvents.globalEventLogicItems.Clear();
-                this.currentState.globalEvents.globalEventLogicEvents.Clear();
+                this.currentState.globalEvents.globalEventLogicItems.Clear(in this.currentState.allocator);
+                this.currentState.globalEvents.globalEventLogicEvents.Clear(in this.currentState.allocator);
 
             }
 
@@ -1102,7 +1102,7 @@ namespace ME.ECS {
 
             } else if (globalEventType == GlobalEventType.Logic) {
 
-                this.currentState.globalEvents.Remove(globalEvent, in entity);
+                this.currentState.globalEvents.Remove(ref this.currentState.allocator, globalEvent, in entity);
                 
             }
 
@@ -1127,7 +1127,7 @@ namespace ME.ECS {
 
             } else if (globalEventType == GlobalEventType.Logic) {
 
-                this.currentState.globalEvents.Add(globalEvent, in entity);
+                this.currentState.globalEvents.Add(ref this.currentState.allocator, globalEvent, in entity);
                 
             }
 
@@ -1442,7 +1442,7 @@ namespace ME.ECS {
                 this.RemoveFromAllFilters(ref this.currentState.allocator, entity);
                 this.DestroyEntityPlugins(in entity);
                 #if !ENTITY_TIMERS_DISABLED
-                this.currentState.timers.OnEntityDestroy(in entity);
+                this.currentState.timers.OnEntityDestroy(ref this.currentState.allocator, in entity);
                 #endif
 
                 this.currentState.storage.IncrementGeneration(in this.currentState.allocator, in entity);

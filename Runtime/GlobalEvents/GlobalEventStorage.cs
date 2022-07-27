@@ -1,6 +1,8 @@
 namespace ME.ECS {
     
     using Collections;
+    using Collections.MemoryAllocator;
+    using ME.ECS.Collections.V3;
 
     public struct GlobalEventStorage {
 
@@ -11,38 +13,38 @@ namespace ME.ECS {
 
         }
 
-        public ListCopyable<GlobalEventFrameItem> globalEventLogicItems;
-        public HashSetCopyable<long> globalEventLogicEvents;
+        public List<GlobalEventFrameItem> globalEventLogicItems;
+        public HashSet<long> globalEventLogicEvents;
 
-        public void Initialize() {
+        public void Initialize(ref MemoryAllocator allocator) {
             
-            if (this.globalEventLogicItems == null) this.globalEventLogicItems = PoolListCopyable<GlobalEventFrameItem>.Spawn(10);
-            if (this.globalEventLogicEvents == null) this.globalEventLogicEvents = PoolHashSetCopyable<long>.Spawn();
+            if (this.globalEventLogicItems.isCreated == false) this.globalEventLogicItems = new List<GlobalEventFrameItem>(ref allocator, 10);
+            if (this.globalEventLogicEvents.isCreated == false) this.globalEventLogicEvents = new HashSet<long>(ref allocator, 10);
 
         }
 
-        public void DeInitialize() {
+        public void Dispose(ref MemoryAllocator allocator) {
 
-            PoolListCopyable<GlobalEventFrameItem>.Recycle(ref this.globalEventLogicItems);
-            PoolHashSetCopyable<long>.Recycle(ref this.globalEventLogicEvents);
+            this.globalEventLogicEvents.Dispose(ref allocator);
+            this.globalEventLogicItems.Dispose(ref allocator);
 
         }
 
-        public bool Remove(GlobalEvent globalEvent, in Entity entity) {
+        public bool Remove(ref MemoryAllocator allocator, GlobalEvent globalEvent, in Entity entity) {
             
             var id = globalEvent.id;
             if (id <= 0u) return false;
 
             var key = MathUtils.GetKey(globalEvent.GetHashCode(), entity.GetHashCode());
-            if (this.globalEventLogicEvents.Contains(key) == true) {
+            if (this.globalEventLogicEvents.Contains(in allocator, key) == true) {
 
                 for (int i = 0; i < this.globalEventLogicItems.Count; ++i) {
 
-                    var item = this.globalEventLogicItems[i];
+                    var item = this.globalEventLogicItems[in allocator, i];
                     if (item.globalEvent == id && item.data == entity) {
 
-                        this.globalEventLogicEvents.Remove(key);
-                        this.globalEventLogicItems.RemoveAt(i);
+                        this.globalEventLogicEvents.Remove(ref allocator, key);
+                        this.globalEventLogicItems.RemoveAt(ref allocator, i);
                         return true;
 
                     }
@@ -55,16 +57,16 @@ namespace ME.ECS {
 
         }
 
-        public bool Add(GlobalEvent globalEvent, in Entity entity) {
+        public bool Add(ref MemoryAllocator allocator, GlobalEvent globalEvent, in Entity entity) {
 
             var id = globalEvent.id;
             if (id <= 0u) return false;
             
             var key = MathUtils.GetKey(globalEvent.GetHashCode(), entity.GetHashCode());
-            if (this.globalEventLogicEvents.Contains(key) == false) {
+            if (this.globalEventLogicEvents.Contains(in allocator, key) == false) {
 
-                this.globalEventLogicEvents.Add(key);
-                this.globalEventLogicItems.Add(new GlobalEventFrameItem() {
+                this.globalEventLogicEvents.Add(ref allocator, key);
+                this.globalEventLogicItems.Add(ref allocator, new GlobalEventFrameItem() {
                     globalEvent = id,
                     data = entity,
                 });
@@ -77,13 +79,6 @@ namespace ME.ECS {
 
         }
 
-        public void CopyFrom(in GlobalEventStorage other) {
-            
-            ArrayUtils.Copy(other.globalEventLogicItems, ref this.globalEventLogicItems);
-            ArrayUtils.Copy(other.globalEventLogicEvents, ref this.globalEventLogicEvents);
-            
-        }
-        
     }
 
 }

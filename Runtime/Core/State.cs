@@ -32,7 +32,7 @@ namespace ME.ECS {
         /// <returns></returns>
         public virtual int GetHash() {
 
-            return this.tick ^ this.structComponents.GetHash() ^ this.randomState.GetHashCode() ^ this.storage.GetHashCode();
+            return this.tick ^ this.structComponents.GetHash() ^ this.randomState.GetHashCode() ^ this.storage.GetHash(ref this.allocator);
 
         }
 
@@ -43,9 +43,9 @@ namespace ME.ECS {
 
             world.Register(ref this.allocator, ref this.storage, freeze, restore);
             world.Register(ref this.allocator, ref this.structComponents, freeze, restore);
-            this.globalEvents.Initialize();
+            this.globalEvents.Initialize(ref this.allocator);
             #if !ENTITY_TIMERS_DISABLED
-            this.timers.Initialize();
+            this.timers.Initialize(ref this.allocator);
             #endif
             
         }
@@ -60,9 +60,9 @@ namespace ME.ECS {
 
             this.storage = other.storage;
             this.structComponents.CopyFrom(other.structComponents);
-            this.globalEvents.CopyFrom(in other.globalEvents);
+            this.globalEvents = other.globalEvents;
             #if !ENTITY_TIMERS_DISABLED
-            this.timers.CopyFrom(in other.timers);
+            this.timers = other.timers;
             #endif
 
         }
@@ -74,10 +74,9 @@ namespace ME.ECS {
             this.sharedEntity = default;
             
             #if !ENTITY_TIMERS_DISABLED
-            this.timers.Dispose();
+            this.timers.Dispose(ref this.allocator);
             #endif
-            this.globalEvents.DeInitialize();
-            this.globalEvents = default;
+            this.globalEvents.Dispose(ref this.allocator);
             this.storage.Dispose(ref this.allocator);
             this.structComponents.OnRecycle(ref this.allocator);
             

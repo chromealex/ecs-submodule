@@ -1303,7 +1303,7 @@ namespace ME.ECS {
             #if !ENTITY_TIMERS_DISABLED
             if (step == ComponentLifetime.NotifyAllSystemsBelow) {
                 
-                this.currentState.timers.Update(deltaTime);
+                this.currentState.timers.Update(ref this.currentState.allocator, deltaTime);
                 
             }
             #endif
@@ -1773,7 +1773,7 @@ namespace ME.ECS {
             E.IS_LOGIC_STEP(this);
             E.IS_ALIVE(in entity);
             
-            this.currentState.timers.Set(in entity, index, time);
+            this.currentState.timers.Set(ref this.currentState.allocator, in entity, index, time);
 
         }
         
@@ -1785,7 +1785,7 @@ namespace ME.ECS {
             E.IS_LOGIC_STEP(this);
             E.IS_ALIVE(in entity);
 
-            return ref this.currentState.timers.Get(in entity, index);
+            return ref this.currentState.timers.Get(ref this.currentState.allocator, in entity, index);
 
         }
         
@@ -1796,7 +1796,7 @@ namespace ME.ECS {
             
             E.IS_ALIVE(in entity);
 
-            return this.currentState.timers.Read(in entity, index);
+            return this.currentState.timers.Read(in this.currentState.allocator, in entity, index);
 
         }
         
@@ -1808,7 +1808,7 @@ namespace ME.ECS {
             E.IS_LOGIC_STEP(this);
             E.IS_ALIVE(in entity);
 
-            return this.currentState.timers.Remove(in entity, index);
+            return this.currentState.timers.Remove(ref this.currentState.allocator, in entity, index);
 
         }
         #endif
