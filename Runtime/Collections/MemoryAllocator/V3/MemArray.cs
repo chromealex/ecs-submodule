@@ -28,7 +28,7 @@ namespace ME.ECS.Collections.V3 {
             get {
                 var arr = new T[this.arr.Length];
                 for (int i = 0; i < this.arr.Length; ++i) {
-                    if (this.allocator.zone != null) arr[i] = this.arr[in this.allocator, i];
+                    if (this.allocator.zonesList != null) arr[i] = this.arr[in this.allocator, i];
                 }
 
                 return arr;

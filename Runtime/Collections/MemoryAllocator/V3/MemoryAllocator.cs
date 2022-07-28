@@ -1,4 +1,6 @@
-﻿using System;
+﻿#define MEMORY_ALLOCATOR_BOUNDS_CHECK
+
+using System;
 using Unity.Collections;
 using Unity.Collections.LowLevel.Unsafe;
 
@@ -8,7 +10,14 @@ namespace ME.ECS.Collections.V3 {
 
     public unsafe partial struct MemoryAllocator : IMemoryAllocator<MemoryAllocator, MemPtr> {
 
-        internal MemZone* zone;
+        private const long OFFSET_MASK = 0xFFFFFFFF;
+        private const long MIN_ZONE_SIZE = 512 * 1024;
+        private const int MIN_ZONES_LIST_CAPACITY = 20;
+
+        [NativeDisableUnsafePtrRestriction]
+        internal MemZone** zonesList;
+        internal int zonesListCount;
+        internal int zonesListCapacity;
         internal long maxSize;
 
         /// 
@@ -16,7 +25,8 @@ namespace ME.ECS.Collections.V3 {
         /// 
         public MemoryAllocator Initialize(long initialSize, long maxSize = -1L) {
 
-            this.zone = MemoryAllocator.ZmCreateZone((int)initialSize);
+            this.AddZone(MemoryAllocator.ZmCreateZone((int)Math.Max(initialSize, MemoryAllocator.MIN_ZONE_SIZE)));
+            
             this.maxSize = maxSize;
 
             return this;
@@ -24,31 +34,70 @@ namespace ME.ECS.Collections.V3 {
 
         public void Dispose() {
 
-            MemoryAllocator.ZmFreeZone(this.zone);
-            this.zone = null;
+            this.FreeZones();
+            
+            if (this.zonesList != null) {
+                UnsafeUtility.Free(this.zonesList, Allocator.Persistent);
+            }
 
+            this.zonesListCapacity = 0;
             this.maxSize = default;
 
         }
 
         public void CopyFrom(in MemoryAllocator other) {
 
-            if (other.zone == null && this.zone == null) {
+            if (other.zonesList == null && this.zonesList == null) {
                 
-            } else if (other.zone == null && this.zone != null) {
-                MemoryAllocator.ZmFreeZone(this.zone);
-                this.zone = null;
+            } else if (other.zonesList == null && this.zonesList != null) {
+                this.FreeZones();
             } else {
-                if (this.zone == null) {
-                    this.zone = MemoryAllocator.ZmCreateZone(other.zone->size);
-                } else if (this.zone->size != other.zone->size) {
-                    MemoryAllocator.ZmFreeZone(this.zone);
-                    this.zone = MemoryAllocator.ZmCreateZone(other.zone->size);
+                this.FreeZones();
+
+                for (int i = 0; i < other.zonesListCount; i++) {
+                    var otherZone = other.zonesList[i];
+                    var zone = MemoryAllocator.ZmCreateZone(otherZone->size);
+                    UnsafeUtility.MemCpy(zone, otherZone, otherZone->size);
+
+                    this.AddZone(zone);
                 }
-                UnsafeUtility.MemCpy(this.zone, other.zone, other.zone->size);
+
+            }
+            
+            this.maxSize = other.maxSize;
+        }
+
+        private void FreeZones() {
+            if (this.zonesList != null) {
+                for (int i = 0; i < this.zonesListCount; i++) {
+                    MemoryAllocator.ZmFreeZone(this.zonesList[i]);
+                }
             }
 
-            this.maxSize = other.maxSize;
+            this.zonesListCount = 0;
+        }
+
+        private int AddZone(MemZone* zone) {
+
+            if (this.zonesListCapacity <= this.zonesListCount) {
+                var capacity = Math.Max(MemoryAllocator.MIN_ZONES_LIST_CAPACITY, this.zonesListCapacity * 2);
+                var list = (MemZone**)UnsafeUtility.Malloc(capacity * sizeof(MemZone*), UnsafeUtility.AlignOf<byte>(), Allocator.Persistent);
+
+                if (this.zonesList != null) {
+                    for (int i = 0; i < this.zonesListCount; i++) {
+                        list[i] = this.zonesList[i];
+                    }
+                    
+                    UnsafeUtility.Free(this.zonesList, Allocator.Persistent);
+                }
+                
+                this.zonesList = list;
+                this.zonesListCapacity = capacity;
+            }
+
+            this.zonesList[this.zonesListCount++] = zone;
+
+            return this.zonesListCount - 1;
         }
 
         /// 
@@ -75,29 +124,44 @@ namespace ME.ECS.Collections.V3 {
         }
 
         public MemPtr Alloc(long size) {
-            
-            var ptr = MemoryAllocator.ZmMalloc(this.zone, (int)size, null);
-            if (ptr == null) {
-                var newSize = System.Math.Max(this.zone->size * 2, this.zone->size + MemoryAllocator.ZmGetMemBlockSize((int)size));
-                this.zone = MemoryAllocator.ZmReallocZone(this.zone, newSize);
-                return this.Alloc(size);
-            }
 
-            return this.GetSafePtr(ptr);
+            void* ptr = null;
+
+            for (int i = 0; i < this.zonesListCount; i++) {
+                ptr = MemoryAllocator.ZmMalloc(this.zonesList[i], (int)size, null);
+
+                if (ptr != null) {
+                    return this.GetSafePtr(ptr, i);
+                }
+            }
+            
+            var zone = MemoryAllocator.ZmCreateZone((int)Math.Max(size, MemoryAllocator.MIN_ZONE_SIZE));
+            var zoneIndex = this.AddZone(zone);
+            
+            ptr = MemoryAllocator.ZmMalloc(zone, (int)size, null);
+
+            return this.GetSafePtr(ptr, zoneIndex);
             
         }
 
         public bool Free(MemPtr ptr) {
-            return ptr == 0 ? false : MemoryAllocator.ZmFree(this.zone, this.GetUnsafePtr(ptr));
+
+            if (ptr == 0) return false;
+            
+            var zoneIndex = ptr >> 32;
+            
+            #if MEMORY_ALLOCATOR_BOUNDS_CHECK
+            if (zoneIndex >= this.zonesListCount || this.zonesList[zoneIndex]->size < (ptr & MemoryAllocator.OFFSET_MASK)) {
+                throw new OutOfBoundsException();
+            }
+            #endif
+            
+            return MemoryAllocator.ZmFree(this.zonesList[zoneIndex], this.GetUnsafePtr(ptr));
         }
 
         public MemPtr ReAlloc(MemPtr ptr, long size) {
             
-            if (ptr == 0L) {
-
-                return this.Alloc(size);
-
-            }
+            if (ptr == 0L) return this.Alloc(size);;
 
             var blockSize = ((MemBlock*)((byte*)this.GetUnsafePtr(ptr) - sizeof(MemBlock)))->size;
             var blockDataSize = blockSize - sizeof(MemBlock);
@@ -118,25 +182,69 @@ namespace ME.ECS.Collections.V3 {
         }
 
         public readonly void MemCopy(MemPtr dest, long destOffset, MemPtr source, long sourceOffset, long length) {
+            
+            #if MEMORY_ALLOCATOR_BOUNDS_CHECK
+            var destZoneIndex = dest >> 32;
+            var sourceZoneIndex = source >> 32;
+            var destMaxOffset = (dest & MemoryAllocator.OFFSET_MASK) + destOffset + length;
+            var sourceMaxOffset = (source & MemoryAllocator.OFFSET_MASK) + sourceOffset + length;
+            
+            if (destZoneIndex >= this.zonesListCount || sourceZoneIndex >= this.zonesListCount) {
+                throw new OutOfBoundsException();
+            }
+            
+            if (this.zonesList[destZoneIndex]->size < destMaxOffset || this.zonesList[sourceZoneIndex]->size < sourceMaxOffset) {
+                throw new OutOfBoundsException();
+            }
+            #endif
+            
             UnsafeUtility.MemCpy(this.GetUnsafePtr(dest + destOffset), this.GetUnsafePtr(source + sourceOffset), length);
         }
 
         public readonly void MemClear(MemPtr dest, long destOffset, long length) {
+            
+            #if MEMORY_ALLOCATOR_BOUNDS_CHECK
+            var zoneIndex = dest >> 32;
+            
+            if (zoneIndex >= this.zonesListCount || this.zonesList[zoneIndex]->size < ((dest & MemoryAllocator.OFFSET_MASK) + destOffset + length)) {
+                throw new OutOfBoundsException();
+            }
+            #endif
+
             UnsafeUtility.MemClear(this.GetUnsafePtr(dest + destOffset), length);
         }
 
         public void Prepare(long size) {
-            if (MemoryAllocator.ZmHasFreeBlock(this.zone, (int)size) == false) {
-                this.zone = MemoryAllocator.ZmReallocZone(this.zone, this.zone->size + MemoryAllocator.ZmGetMemBlockSize((int)size));
+
+            for (int i = 0; i < this.zonesListCount; i++) {
+                if (MemoryAllocator.ZmHasFreeBlock(this.zonesList[i], (int)size) == true) {
+                    return;
+                }
             }
+ 
+            this.AddZone(MemoryAllocator.ZmCreateZone((int)Math.Max(size, MemoryAllocator.MIN_ZONE_SIZE)));
+                
         }
 
         public readonly void* GetUnsafePtr(in MemPtr ptr) {
-            return (byte*)this.zone + ptr;
+
+            var zoneIndex = ptr >> 32;
+            var offset = (ptr & MemoryAllocator.OFFSET_MASK);
+            
+            #if MEMORY_ALLOCATOR_BOUNDS_CHECK
+            if (zoneIndex < this.zonesListCount && this.zonesList[zoneIndex]->size < offset) {
+                throw new OutOfBoundsException();
+            }
+            #endif
+
+            return (byte*)this.zonesList[zoneIndex] + offset;
         }
 
-        private readonly MemPtr GetSafePtr(void* ptr) {
-            return (MemPtr)((byte*)ptr - (byte*)this.zone);
+        private readonly MemPtr GetSafePtr(void* ptr, int zoneIndex) {
+            var index = (long)zoneIndex << 32;
+            var offset = ((byte*)ptr - (byte*)this.zonesList[zoneIndex]);
+
+            return index | offset;
         }
 
         /// 

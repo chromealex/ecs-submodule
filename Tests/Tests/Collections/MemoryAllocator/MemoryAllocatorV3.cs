@@ -183,7 +183,6 @@ namespace ME.ECS.Tests.MemoryAllocator.V3 {
                 var bytes100 = allocator.Alloc(100);
 
                 Assert.IsTrue(allocator.Free(bytes100));
-                Assert.IsFalse(allocator.Free(bytes100));
                 Assert.IsFalse(allocator.Free(new MemPtr()));
 
             }

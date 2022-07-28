@@ -14,10 +14,10 @@ namespace ME.ECS.Collections.V3 {
 
         }
 
-        public string[] dump {
+        /*public string[] dump {
             get {
                 var list = new System.Collections.Generic.List<string>();
-                MemoryAllocator.ZmDumpHeap(this.allocator.zone, list);
+                MemoryAllocator.ZmDumpHeap(this.allocator.zonesList, list);
                 return list.ToArray();
             }
         }
@@ -25,10 +25,10 @@ namespace ME.ECS.Collections.V3 {
         public string[] checks {
             get {
                 var list = new System.Collections.Generic.List<string>();
-                MemoryAllocator.ZmCheckHeap(this.allocator.zone, list);
+                MemoryAllocator.ZmCheckHeap(this.allocator.zonesList, list);
                 return list.ToArray();
             }
-        }
+        }*/
 
     }
 
@@ -169,8 +169,8 @@ namespace ME.ECS.Collections.V3 {
             var blockOffset = new MemBlockOffset(block, zone);
 
             if (block->id != MemoryAllocator.ZONE_ID) {
-                return false;
-                //throw new System.ArgumentException("Free: freed a pointer without ZONEID");
+                //return false;
+                throw new System.ArgumentException("ZmFree: freed a pointer without ZONEID");
             }
 
             if (block->user > (void**)0x100) {
