@@ -3,17 +3,23 @@
 * Tests.Tests: 
   * MemoryAllocator List tests added
   * MemoryAllocator Dictionary tests added
-  * MemoryAllocator HashSet tests added
+  * MemoryAllocator EquatableDictionary tests added
   * MemoryAllocator EquatableHashSet tests added
   * MemoryAllocator NativeHashSet tests added
+  * MemoryAllocator HashSet tests added
+  * MemoryAllocator Stack tests added
+  * MemoryAllocator Queue tests added
 * Runtime.Core: 
   * State refactoring to be ready for allocator
   * Collections refactoring
   * MemoryAllocator List collection added
   * MemoryAllocator Dictionary collection added
+  * MemoryAllocator EquatableDictionary collection added
   * MemoryAllocator EquatableHashSet collection added
   * MemoryAllocator NativeHashSet collection added
   * MemoryAllocator HashSet collection added
+  * MemoryAllocator Stack collection added
+  * MemoryAllocator Queue collection added
   * ENTITY_API_VERSION1_DEPRECATED removed
   * Legacy Filters removed
 

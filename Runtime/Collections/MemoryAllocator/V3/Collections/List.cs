@@ -64,7 +64,6 @@ namespace ME.ECS.Collections.MemoryAllocator {
         
         public void Clear(in MemoryAllocator allocator) {
 
-            this.arr.Clear(in allocator);
             this.count = 0;
 
         }
@@ -94,12 +93,11 @@ namespace ME.ECS.Collections.MemoryAllocator {
 
         }
 
-        public readonly bool Contains<U>(in MemoryAllocator allocator, U obj) where U : unmanaged, System.IEquatable<U> {
+        public readonly bool Contains<U>(in MemoryAllocator allocator, U obj) where U : unmanaged, System.IEquatable<T> {
             
             for (int i = 0; i < this.count; ++i) {
 
-                var asU = Unity.Collections.LowLevel.Unsafe.UnsafeUtility.As<T, U>(ref this.arr[in allocator, i]);
-                if (asU.Equals(obj) == true) {
+                if (obj.Equals(this.arr[in allocator, i]) == true) {
 
                     return true;
 
@@ -111,12 +109,11 @@ namespace ME.ECS.Collections.MemoryAllocator {
 
         }
 
-        public bool Remove<U>(ref MemoryAllocator allocator, U obj) where U : unmanaged, System.IEquatable<U> {
+        public bool Remove<U>(ref MemoryAllocator allocator, U obj) where U : unmanaged, System.IEquatable<T> {
 
             for (int i = 0; i < this.count; ++i) {
 
-                var asU = Unity.Collections.LowLevel.Unsafe.UnsafeUtility.As<T, U>(ref this.arr[in allocator, i]);
-                if (asU.Equals(obj) == true) {
+                if (obj.Equals(this.arr[in allocator, i]) == true) {
 
                     this.RemoveAt(ref allocator, i);
                     return true;

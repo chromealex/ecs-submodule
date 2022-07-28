@@ -3,13 +3,6 @@ namespace ME.ECS.Collections.MemoryAllocator {
     using ME.ECS.Collections.V3;
     using Unity.Collections.LowLevel.Unsafe;
 
-    public interface IEquatableAllocator<T> {
-
-        bool Equals(in MemoryAllocator allocator, T obj);
-        int GetHash(in MemoryAllocator allocator);
-
-    }
-    
     public struct NativeHashSet<T> where T : unmanaged, IEquatableAllocator<T> {
         
         public struct Enumerator : System.Collections.Generic.IEnumerator<T> {

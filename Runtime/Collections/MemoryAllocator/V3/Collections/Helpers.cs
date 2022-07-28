@@ -1,5 +1,14 @@
 namespace ME.ECS.Collections.MemoryAllocator {
 
+    using Collections.V3;
+    
+    public interface IEquatableAllocator<T> {
+
+        bool Equals(in MemoryAllocator allocator, T obj);
+        int GetHash(in MemoryAllocator allocator);
+
+    }
+
     public static class Helpers {
 
         public static int NextPot(int n) {

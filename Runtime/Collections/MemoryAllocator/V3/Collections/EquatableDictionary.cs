@@ -3,18 +3,18 @@ namespace ME.ECS.Collections.MemoryAllocator {
     using ME.ECS.Collections.V3;
     using Unity.Collections.LowLevel.Unsafe;
 
-    public struct Dictionary<TKey, TValue> where TKey : unmanaged where TValue : unmanaged {
+    public struct EquatableDictionary<TKey, TValue> where TKey : unmanaged, System.IEquatable<TKey> where TValue : unmanaged {
 
         public struct Enumerator : System.Collections.Generic.IEnumerator<System.Collections.Generic.KeyValuePair<TKey, TValue>> {
 
             private readonly State state;
             private ref MemoryAllocator allocator => ref this.state.allocator;
-            private Dictionary<TKey, TValue> dictionary;
+            private EquatableDictionary<TKey, TValue> dictionary;
             private int version;
             private int index;
             private System.Collections.Generic.KeyValuePair<TKey, TValue> current;
 
-            internal Enumerator(State state, Dictionary<TKey, TValue> dictionary) {
+            internal Enumerator(State state, EquatableDictionary<TKey, TValue> dictionary) {
                 this.state = state;
                 this.dictionary = dictionary;
                 this.version = dictionary.version;
@@ -65,12 +65,12 @@ namespace ME.ECS.Collections.MemoryAllocator {
         public struct EnumeratorNoState : System.Collections.Generic.IEnumerator<System.Collections.Generic.KeyValuePair<TKey, TValue>> {
 
             private MemoryAllocator allocator;
-            private Dictionary<TKey, TValue> dictionary;
+            private EquatableDictionary<TKey, TValue> dictionary;
             private int version;
             private int index;
             private System.Collections.Generic.KeyValuePair<TKey, TValue> current;
 
-            internal EnumeratorNoState(in MemoryAllocator allocator, Dictionary<TKey, TValue> dictionary) {
+            internal EnumeratorNoState(in MemoryAllocator allocator, EquatableDictionary<TKey, TValue> dictionary) {
                 this.allocator = allocator;
                 this.dictionary = dictionary;
                 this.version = dictionary.version;
@@ -142,7 +142,7 @@ namespace ME.ECS.Collections.MemoryAllocator {
         public bool isCreated => this.buckets.isCreated;
         public int Count => this.count - this.freeCount;
 
-        public Dictionary(ref MemoryAllocator allocator, int capacity) {
+        public EquatableDictionary(ref MemoryAllocator allocator, int capacity) {
 
             this = default;
             this.Initialize(ref allocator, capacity);
@@ -157,7 +157,7 @@ namespace ME.ECS.Collections.MemoryAllocator {
 
         }
 
-        public void CopyFrom(ref MemoryAllocator allocator, in Dictionary<TKey, TValue> other) {
+        public void CopyFrom(ref MemoryAllocator allocator, in EquatableDictionary<TKey, TValue> other) {
 
             NativeArrayUtils.Copy(ref allocator, other.buckets, ref this.buckets);
             NativeArrayUtils.Copy(ref allocator, other.entries, ref this.entries);
@@ -215,9 +215,9 @@ namespace ME.ECS.Collections.MemoryAllocator {
         /// <param name="allocator"></param>
         /// <param name="value"></param>
         /// <returns></returns>
-        public readonly bool ContainsValue(in MemoryAllocator allocator, TValue value) {
+        public readonly bool ContainsValue<U>(in MemoryAllocator allocator, U value) where U : unmanaged, System.IEquatable<TValue> {
             for (var i = 0; i < this.count; i++) {
-                if (this.entries[in allocator, i].hashCode >= 0 && AreEquals(this.entries[in allocator, i].value, value)) {
+                if (this.entries[in allocator, i].hashCode >= 0 && value.Equals(this.entries[in allocator, i].value)) {
                     return true;
                 }
             }
@@ -438,22 +438,13 @@ namespace ME.ECS.Collections.MemoryAllocator {
 
         private static int GetHash(TKey key) {
 
-            var c = System.Collections.Generic.EqualityComparer<TKey>.Default;
-            return c.GetHashCode(key) & 0x7FFFFFFF;
+            return key.GetHashCode() & 0x7FFFFFFF;
 
         }
 
         private static bool AreEquals(TKey k1, TKey k2) {
 
-            var c = System.Collections.Generic.EqualityComparer<TKey>.Default;
-            return c.Equals(k1, k2);
-
-        }
-        
-        private static bool AreEquals(TValue k1, TValue k2) {
-
-            var c = System.Collections.Generic.EqualityComparer<TValue>.Default;
-            return c.Equals(k1, k2);
+            return k1.Equals(k2);
 
         }
         #endregion
