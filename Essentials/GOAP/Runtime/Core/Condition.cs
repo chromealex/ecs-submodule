@@ -1,7 +1,8 @@
 namespace ME.ECS.Essentials.GOAP {
 
     using ME.ECS.Collections;
-    using Unity.Collections;
+    using Collections.V3;
+    using Collections.MemoryAllocator;
 
     [System.Serializable]
     public struct ConditionsData {
@@ -33,7 +34,7 @@ namespace ME.ECS.Essentials.GOAP {
 
         }
 
-        public Condition Push(Allocator allocator) {
+        public Condition Push(Unity.Collections.Allocator allocator) {
 
             var result = new Condition() {
                 hasComponents = new SpanArray<FilterDataItem>(this.with, allocator),
@@ -66,7 +67,7 @@ namespace ME.ECS.Essentials.GOAP {
         internal SpanArray<FilterDataItem> hasComponents;
         internal SpanArray<FilterDataItem> hasNoComponents;
 
-        public Condition(Condition other, Allocator allocator) {
+        public Condition(Condition other, Unity.Collections.Allocator allocator) {
             
             this.hasComponents = new SpanArray<FilterDataItem>(other.hasComponents, allocator);
             this.hasNoComponents = new SpanArray<FilterDataItem>(other.hasNoComponents, allocator);
@@ -123,14 +124,14 @@ namespace ME.ECS.Essentials.GOAP {
             
         }
 
-        internal bool HasData(NativeHashSet<UnsafeData> entityStateData) {
+        internal bool HasData(in MemoryAllocator allocator, NativeHashSet<UnsafeData> entityStateData) {
             
             for (int i = 0; i < this.hasComponents.Length; ++i) {
 
                 if (this.hasComponents[i].hasData == 1) {
 
                     var ptr = this.hasComponents[i].data;
-                    if (entityStateData.Contains(ptr) == false) {
+                    if (entityStateData.Contains(in allocator, ptr) == false) {
 
                         return false;
 
@@ -144,14 +145,14 @@ namespace ME.ECS.Essentials.GOAP {
 
         }
 
-        internal bool HasNoData(NativeHashSet<UnsafeData> entityStateData) {
+        internal bool HasNoData(in MemoryAllocator allocator, NativeHashSet<UnsafeData> entityStateData) {
             
             for (int i = 0; i < this.hasNoComponents.Length; ++i) {
 
                 if (this.hasNoComponents[i].hasData == 1) {
 
                     var ptr = this.hasNoComponents[i].data;
-                    if (entityStateData.Contains(ptr) == true) {
+                    if (entityStateData.Contains(in allocator, ptr) == true) {
 
                         return false;
 
@@ -165,20 +166,20 @@ namespace ME.ECS.Essentials.GOAP {
 
         }
 
-        internal bool Has(NativeHashSet<int> entityState) {
+        internal bool Has(in MemoryAllocator allocator, EquatableHashSet<int> entityState) {
 
             // we need to check if we have all components in hasComponents array in entityState
             for (int i = 0; i < this.hasComponents.Length; ++i) {
 
                 var component = this.hasComponents[i].typeId;
-                if (entityState.Contains(component) == false) return false;
+                if (entityState.Contains(in allocator, component) == false) return false;
 
             }
 
             for (int i = 0; i < this.hasNoComponents.Length; ++i) {
 
                 var component = this.hasNoComponents[i].typeId;
-                if (entityState.Contains(component) == true) return false;
+                if (entityState.Contains(in allocator, component) == true) return false;
 
             }
 
@@ -186,7 +187,7 @@ namespace ME.ECS.Essentials.GOAP {
 
         }
 
-        internal readonly bool HasInAction(NativeArray<Action.Data> temp, in Action.Data parentAction, int component) {
+        internal readonly bool HasInAction(Unity.Collections.NativeArray<Action.Data> temp, in Action.Data parentAction, int component) {
 
             var action = parentAction;
             if (action.effects.Has(component) == true) return true;
@@ -201,7 +202,7 @@ namespace ME.ECS.Essentials.GOAP {
 
         }
 
-        internal readonly bool Has(NativeArray<Action.Data> temp, in Action.Data parentAction, NativeHashSet<int> entityState) {
+        internal readonly bool Has(in MemoryAllocator allocator, Unity.Collections.NativeArray<Action.Data> temp, in Action.Data parentAction, EquatableHashSet<int> entityState) {
 
             // burst runtime check if we can traverse this node
             // we need to check if we have all components in hasComponents array somewhere in runtimeState or in entityState
@@ -210,7 +211,7 @@ namespace ME.ECS.Essentials.GOAP {
             for (int i = 0; i < this.hasComponents.Length; ++i) {
 
                 var component = this.hasComponents[i].typeId;
-                if (entityState.Contains(component) == false &&
+                if (entityState.Contains(in allocator, component) == false &&
                     this.HasInAction(temp, in parentAction, component) == false) {
 
                     return false;
@@ -222,7 +223,7 @@ namespace ME.ECS.Essentials.GOAP {
             for (int i = 0; i < this.hasNoComponents.Length; ++i) {
 
                 var component = this.hasNoComponents[i].typeId;
-                if (entityState.Contains(component) == true ||
+                if (entityState.Contains(in allocator, component) == true ||
                     this.HasInAction(temp, in parentAction, component) == true) {
 
                     return false;

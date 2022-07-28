@@ -1,4 +1,4 @@
-namespace ME.ECS.Tests {
+namespace ME.ECS.Tests.DataObject {
 
     public class DataObjectTests {
 

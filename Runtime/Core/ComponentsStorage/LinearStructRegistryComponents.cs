@@ -296,19 +296,7 @@ namespace ME.ECS {
 
             }
             
-            public void CopyFrom(in NextTickTask other) {
-
-                this.entity = other.entity;
-                this.storageType = other.storageType;
-                this.dataIndex = other.dataIndex;
-                this.data.CopyFrom(in other.data);
-                this.lifetime = other.lifetime;
-                this.secondsLifetime = other.secondsLifetime;
-                this.destroyEntity = other.destroyEntity;
-
-            }
-            
-            public void Recycle() {
+            public void Dispose(ref MemoryAllocator allocator) {
 
                 this.dataIndex = default;
                 this.storageType = default;
@@ -316,18 +304,10 @@ namespace ME.ECS {
                 this.lifetime = default;
                 this.secondsLifetime = default;
                 this.destroyEntity = default;
-                this.data.Dispose();
+                this.data.Dispose(ref allocator);
 
             }
             
-            public NextTickTask Clone() {
-
-                var copy = new NextTickTask();
-                copy.CopyFrom(this);
-                return copy;
-
-            }
-
             public bool Equals(NextTickTask other) {
                 return this.entity.Equals(other.entity) &&
                        this.dataIndex == other.dataIndex &&
@@ -350,7 +330,7 @@ namespace ME.ECS {
         }
 
         [ME.ECS.Serializer.SerializeField]
-        internal HashSetCopyable<NextTickTask> nextTickTasks;
+        internal ME.ECS.Collections.MemoryAllocator.HashSet<NextTickTask> nextTickTasks;
 
         [ME.ECS.Serializer.SerializeField]
         internal BufferArray<StructRegistryBase> list;
@@ -372,7 +352,7 @@ namespace ME.ECS {
 
         public void Initialize(ref MemoryAllocator allocator, bool freeze) {
 
-            this.nextTickTasks = PoolHashSetCopyable<NextTickTask>.Spawn();
+            this.nextTickTasks = new ME.ECS.Collections.MemoryAllocator.HashSet<NextTickTask>(ref allocator, 10);
             this.dirtyMap = new ME.ECS.Collections.MemoryAllocator.List<int>(ref allocator, 10);
             
             this.entitiesIndexer = new EntitiesIndexer();
@@ -1007,7 +987,20 @@ namespace ME.ECS {
         public void OnRecycle(ref MemoryAllocator allocator) {
 
             this.entitiesIndexer.Dispose(ref allocator);
-            ArrayUtils.Recycle(ref this.nextTickTasks, new CopyTask());
+            
+            if (this.nextTickTasks.isCreated == true) {
+
+                var e = this.nextTickTasks.GetEnumerator(in allocator);
+                while (e.MoveNext() == true) {
+
+                    var task = e.Current;
+                    task.Dispose(ref allocator);
+
+                }
+                e.Dispose();
+                this.nextTickTasks.Dispose(ref allocator);
+
+            }
             
             if (this.list.arr != null) {
 
@@ -1043,23 +1036,6 @@ namespace ME.ECS {
 
                 var reg = this.list.arr[i];
                 if (reg != null) reg.CopyFrom(in from, in to);
-
-            }
-
-        }
-
-        private struct CopyTask : IArrayElementCopy<NextTickTask> {
-
-            public void Copy(in NextTickTask @from, ref NextTickTask to) {
-
-                to.CopyFrom(from);
-
-            }
-
-            public void Recycle(ref NextTickTask item) {
-
-                item.Recycle();
-                item = default;
 
             }
 
@@ -1109,8 +1085,8 @@ namespace ME.ECS {
             this.unmanagedComponentsStorage = other.unmanagedComponentsStorage;
             this.entitiesIndexer = other.entitiesIndexer;
             this.dirtyMap = other.dirtyMap;
-
-            ArrayUtils.Copy(other.nextTickTasks, ref this.nextTickTasks, new CopyTask());
+            this.nextTickTasks = other.nextTickTasks;
+            
             ArrayUtils.Copy(other.list, ref this.list, new CopyRegistry());
 
         }
@@ -1308,8 +1284,8 @@ namespace ME.ECS {
             }
             #endif
         
-            this.UseLifetimeStep(step, deltaTime, ref this.currentState.structComponents);
-            this.UseLifetimeStep(step, deltaTime, ref this.noStateData.storage);
+            this.UseLifetimeStep(ref this.currentState.allocator, step, deltaTime, ref this.currentState.structComponents);
+            this.UseLifetimeStep(ref this.noStateData.allocator, step, deltaTime, ref this.noStateData.storage);
             
         }
 
@@ -1329,9 +1305,9 @@ namespace ME.ECS {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
-        private unsafe void UseLifetimeStep(ComponentLifetime step, tfloat deltaTime, ref StructComponentsContainer structComponentsContainer) {
+        private unsafe void UseLifetimeStep(ref MemoryAllocator allocator, ComponentLifetime step, tfloat deltaTime, ref StructComponentsContainer structComponentsContainer) {
 
-            var list = structComponentsContainer.nextTickTasks;
+            ref var list = ref structComponentsContainer.nextTickTasks;
             if (list.Count > 0) {
 
                 // We need to allocate temporary list to store entities
@@ -1339,8 +1315,10 @@ namespace ME.ECS {
                 var tempList = stackalloc Entity[list.Count];
                 var k = 0;
                 var cnt = 0;
-                foreach (ref var task in list) {
-                    
+                var e = list.GetEnumerator(in allocator);
+                while (e.MoveNext() == true) {
+
+                    var task = e.Current;
                     var taskStep = task.GetStep();
                     if (taskStep != step) continue;
                     
@@ -1350,8 +1328,7 @@ namespace ME.ECS {
                             
                             // Remove task on complete
                             if (task.destroyEntity == true) tempList[k++] = task.entity;
-                            task.Recycle();
-                            task = default;
+                            task.Dispose(ref allocator);
                             ++cnt;
 
                         }
@@ -1363,6 +1340,7 @@ namespace ME.ECS {
                     }
                     
                 }
+                e.Dispose();
 
                 for (int i = 0; i < k; ++i) {
                     tempList[i].Destroy();
@@ -1371,7 +1349,7 @@ namespace ME.ECS {
                 if (cnt == list.Count) {
                     
                     // All is null
-                    list.Clear();
+                    list.Clear(in allocator);
                     
                 }
 
@@ -2009,14 +1987,14 @@ namespace ME.ECS {
         #endif
         public void SetData<TComponent>(in Entity entity, in TComponent data, ComponentLifetime lifetime, tfloat secondsLifetime) where TComponent : unmanaged, IStructComponent {
 
-            this.SetData(ref this.currentState.structComponents, in entity, in data, lifetime, secondsLifetime);
+            this.SetData(ref this.currentState.allocator, ref this.currentState.structComponents, in entity, in data, lifetime, secondsLifetime);
 
         }
         
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
-        internal void SetData<TComponent>(ref StructComponentsContainer container, in Entity entity, in TComponent data, ComponentLifetime lifetime, tfloat secondsLifetime, bool addTaskOnly = false) where TComponent : unmanaged, IStructComponent {
+        internal void SetData<TComponent>(ref MemoryAllocator allocator, ref StructComponentsContainer container, in Entity entity, in TComponent data, ComponentLifetime lifetime, tfloat secondsLifetime, bool addTaskOnly = false) where TComponent : unmanaged, IStructComponent {
             
             E.IS_LOGIC_STEP(this);
             E.IS_ALIVE(in entity);
@@ -2049,14 +2027,14 @@ namespace ME.ECS {
 
             }
 
-            if (container.nextTickTasks.Add(task) == false) {
+            if (container.nextTickTasks.Add(ref allocator, task) == false) {
 
-                task.Recycle();
+                task.Dispose(ref allocator);
 
             } else {
 
-                ref var val = ref container.nextTickTasks.GetValue(task);
-                val.data = new UnsafeData().Set(data);
+                ref var val = ref container.nextTickTasks.GetValue(in allocator, task);
+                val.data = new UnsafeData().Set(ref allocator, data);
 
             }
 

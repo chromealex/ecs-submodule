@@ -274,13 +274,15 @@ namespace ME.ECS.Serializer {
             
             Int32Serializer.PackDirect(packer, data.alignOf);
             Int32Serializer.PackDirect(packer, data.typeId);
-            var buffer = packer.GetBufferToWrite(data.sizeOf);
+            Int64Serializer.PackDirect(packer, data.data);
+            /*var buffer = packer.GetBufferToWrite(data.sizeOf);
             var pos = packer.GetPositionAndMove(data.sizeOf);
             System.Runtime.InteropServices.Marshal.Copy(data.data, buffer, pos, data.sizeOf);
+            */
 
         }
 
-        [INLINE(256)] public static unsafe UnsafeData UnpackDirect(Packer packer) {
+        [INLINE(256)] public static UnsafeData UnpackDirect(Packer packer) {
             
             var data = new UnsafeData();
             data.sizeOf = Int32Serializer.UnpackDirect(packer);
@@ -288,11 +290,13 @@ namespace ME.ECS.Serializer {
             
             data.alignOf = Int32Serializer.UnpackDirect(packer);
             data.typeId = Int32Serializer.UnpackDirect(packer);
-            var buffer = packer.GetBuffer();
+            data.data = Int64Serializer.UnpackDirect(packer);
+            /*var buffer = packer.GetBuffer();
             var pos = packer.GetPositionAndMove(data.sizeOf);
             var intPtrV = Unity.Collections.LowLevel.Unsafe.UnsafeUtility.Malloc(data.sizeOf, data.alignOf, Unity.Collections.Allocator.Persistent);//System.Runtime.InteropServices.Marshal.AllocHGlobal(data.sizeOf);
             data.data = (System.IntPtr)intPtrV;
             System.Runtime.InteropServices.Marshal.Copy(buffer, pos, data.data, data.sizeOf);
+            */
             return data;
 
         }

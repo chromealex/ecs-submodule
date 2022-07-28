@@ -92,9 +92,9 @@ namespace ME.ECS {
                         dataIndex = OneShotComponentTypes<T>.typeId,
                     };
 
-                    if (world.noStateData.storage.nextTickTasks.Add(task) == false) {
+                    if (world.noStateData.storage.nextTickTasks.Add(ref world.noStateData.allocator, task) == false) {
 
-                        task.Recycle();
+                        task.Dispose(ref world.noStateData.allocator);
 
                     }
 

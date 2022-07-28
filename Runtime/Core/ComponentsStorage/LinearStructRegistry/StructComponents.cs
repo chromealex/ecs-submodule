@@ -150,7 +150,7 @@ namespace ME.ECS {
             
             E.IS_ALIVE(in entity);
 
-            return DataBufferUtils.PushSet_INTERNAL(this.world, in entity, this, buffer.Read<TComponent>(), storageType);
+            return DataBufferUtils.PushSet_INTERNAL(this.world, in entity, this, buffer.Read<TComponent>(in this.allocator), storageType);
 
         }
 

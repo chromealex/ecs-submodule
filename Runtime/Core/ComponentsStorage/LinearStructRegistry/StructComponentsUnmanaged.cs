@@ -13,7 +13,6 @@ namespace ME.ECS {
     #endif
     public partial class StructComponentsUnmanaged<TComponent> : StructComponentsBase<TComponent>, IComponentsUnmanaged where TComponent : struct, IComponentBase {
 
-        private ref ME.ECS.Collections.V3.MemoryAllocator allocator => ref this.world.currentState.allocator;
         private ref UnmanagedComponentsStorage storage => ref this.world.currentState.structComponents.unmanagedComponentsStorage;
         private ref UnmanagedComponentsStorage.Item<TComponent> registry => ref this.storage.GetRegistry<TComponent>(in this.allocator);
         
@@ -51,7 +50,7 @@ namespace ME.ECS {
             ref var storage = ref this.storage;
             ref var reg = ref storage.GetRegistry<TComponent>(in this.allocator);
             ref var data = ref reg.components[in this.allocator, entity.id].data;
-            return new UnsafeData().SetAsUnmanaged(data);
+            return new UnsafeData().SetAsUnmanaged(ref this.allocator, data);
 
         }
 
@@ -176,7 +175,7 @@ namespace ME.ECS {
             
             E.IS_ALIVE(in entity);
 
-            return DataUnmanagedBufferUtils.PushSet_INTERNAL(this.world, in entity, this, buffer.Read<TComponent>(), storageType);
+            return DataUnmanagedBufferUtils.PushSet_INTERNAL(this.world, in entity, this, buffer.Read<TComponent>(in this.allocator), storageType);
 
         }
 

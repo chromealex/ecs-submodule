@@ -7,12 +7,14 @@ using math = Unity.Mathematics.math;
 using float3 = Unity.Mathematics.float3;
 using tfloat = System.Single;
 #endif
-using System.Collections.Generic;
 using ME.ECS.Collections;
 using Unity.Collections;
 using Unity.Jobs;
 
 namespace ME.ECS.Essentials.GOAP {
+    
+    using Collections.V3;
+    using Collections.MemoryAllocator;
 
     public struct ActionTemp {
 
@@ -33,21 +35,23 @@ namespace ME.ECS.Essentials.GOAP {
             plan.planStatus = PathStatus.Processing;
 
             var entityStateList = world.GetState().structComponents.entitiesIndexer.Get(in world.GetState().allocator, entity.id);
-            var entityState = new NativeHashSet<int>(entityStateList.Count, Allocator.TempJob);
-            var entityStateData = new NativeHashSet<UnsafeData>(entityStateList.Count, Allocator.TempJob);
+            ref var allocator = ref world.GetState().allocator;
+            var entityState = new EquatableHashSet<int>(ref allocator, entityStateList.Count);
+            var entityStateData = new NativeHashSet<UnsafeData>(ref allocator, entityStateList.Count);
             
             var e = entityStateList.GetEnumerator(in world.GetState().allocator);
             while (e.MoveNext() == true) {
                 var idx = e.Current;
-                entityState.Add(idx);
+                entityState.Add(ref allocator, idx);
                 var reg = world.GetState().structComponents.GetAllRegistries()[idx];
-                if (reg is IComponentsBlittable) {
+                if (reg is IComponentsBlittable || reg is IComponentsUnmanaged) {
                     var obj = reg.CreateObjectUnsafe(in entity);
-                    entityStateData.Add(obj);
+                    entityStateData.Add(ref allocator, obj);
                 } else {
-                    entityStateData.Add(default);
+                    entityStateData.Add(ref allocator, default);
                 }
             }
+            e.Dispose();
             
             var graph = new NativeArray<Action.Data>(actions.Length, Allocator.TempJob);
             for (int i = 0; i < actions.Length; ++i) {
@@ -68,7 +72,7 @@ namespace ME.ECS.Essentials.GOAP {
 
             }
 
-            var bestPath = Planner.GetBestPath(graph, goal, entityState, entityStateData);
+            var bestPath = Planner.GetBestPath(in allocator, graph, goal, entityState, entityStateData);
             if (bestPath.pathStatus == PathStatus.Success) {
 
                 plan.actions = PoolArray<Action>.Spawn(bestPath.actions.Length);
@@ -86,21 +90,26 @@ namespace ME.ECS.Essentials.GOAP {
 
             }
 
-            entityState.Dispose();
-            foreach (var item in entityStateData) {
-                item.Dispose();
+            entityState.Dispose(ref allocator);
+            {
+                var set = entityStateData.GetEnumerator(in allocator);
+                while (set.MoveNext() == true) {
+                    set.Current.Dispose(ref allocator);
+                }
+                set.Dispose();
             }
-            entityStateData.Dispose();
+            entityStateData.Dispose(ref allocator);
             graph.Dispose();
 
             return plan;
 
         }
 
-        private static Path GetBestPath(NativeArray<Action.Data> temp, Goal goal, NativeHashSet<int> entityState, NativeHashSet<UnsafeData> entityStateData) {
+        private static Path GetBestPath(in MemoryAllocator allocator, NativeArray<Action.Data> temp, Goal goal, EquatableHashSet<int> entityState, NativeHashSet<UnsafeData> entityStateData) {
 
             var result = new NativeArray<Path>(1, Allocator.TempJob);
             new Job() {
+                allocator = allocator,
                 temp = temp,
                 goal = goal,
                 entityState = entityState,
@@ -124,9 +133,10 @@ namespace ME.ECS.Essentials.GOAP {
         [Unity.Burst.BurstCompileAttribute]
         private struct Job : Unity.Jobs.IJob {
 
+            public MemoryAllocator allocator;
             public NativeArray<Action.Data> temp;
             public Goal goal;
-            public NativeHashSet<int> entityState;
+            public EquatableHashSet<int> entityState;
             public NativeHashSet<UnsafeData> entityStateData;
             public NativeArray<Path> result;
             
@@ -138,12 +148,12 @@ namespace ME.ECS.Essentials.GOAP {
                 for (int i = 0; i < this.temp.Length; ++i) {
 
                     var action = this.temp[i];
-                    if (action.conditions.Has(this.entityState) == true &&
-                        action.conditions.HasData(this.entityStateData) == true &&
-                        action.conditions.HasNoData(this.entityStateData) == true) {
+                    if (action.conditions.Has(in this.allocator, this.entityState) == true &&
+                        action.conditions.HasData(in this.allocator, this.entityStateData) == true &&
+                        action.conditions.HasNoData(in this.allocator, this.entityStateData) == true) {
 
                         // We have found start action
-                        var result = Planner.Traverse(bestPath.cost, this.temp, this.goal, action, this.entityState);
+                        var result = Planner.Traverse(in this.allocator, bestPath.cost, this.temp, this.goal, action, this.entityState);
                         if (result.pathStatus == PathStatus.Success &&
                             result.cost < bestPath.cost) {
                             bestPath = result;
@@ -159,7 +169,7 @@ namespace ME.ECS.Essentials.GOAP {
 
         }
         
-        private static Path Traverse(tfloat prevCost, NativeArray<Action.Data> temp, Goal goal, Action.Data startAction, NativeHashSet<int> entityState) {
+        private static Path Traverse(in MemoryAllocator allocator, tfloat prevCost, NativeArray<Action.Data> temp, Goal goal, Action.Data startAction, EquatableHashSet<int> entityState) {
 
             for (int i = 0; i < temp.Length; ++i) {
 
@@ -225,7 +235,7 @@ namespace ME.ECS.Essentials.GOAP {
                     ref var n = ref temp.GetRef(nIdx);
                     var alt = n.cost + action.h;
                     if (path.cost + n.cost >= prevCost) continue;
-                    if (n.HasPreconditions(temp, in action, entityState) == false) continue;
+                    if (n.HasPreconditions(in allocator, temp, in action, entityState) == false) continue;
 
                     if (n.isClosed == false || alt < n.h) {
                         n.h = alt;

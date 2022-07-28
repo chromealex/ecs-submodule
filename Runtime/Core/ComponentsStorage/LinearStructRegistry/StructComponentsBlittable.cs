@@ -36,7 +36,7 @@ namespace ME.ECS {
 
         public override UnsafeData CreateObjectUnsafe(in Entity entity) {
             
-            return new UnsafeData().SetAsUnmanaged(this.components[entity.id].data);
+            return new UnsafeData().SetAsUnmanaged(ref this.allocator, this.components[entity.id].data);
 
         }
 
@@ -172,7 +172,7 @@ namespace ME.ECS {
             
             E.IS_ALIVE(in entity);
 
-            return DataBlittableBufferUtils.PushSet_INTERNAL(this.world, in entity, this, buffer.Read<TComponent>(), storageType);
+            return DataBlittableBufferUtils.PushSet_INTERNAL(this.world, in entity, this, buffer.Read<TComponent>(in this.allocator), storageType);
 
         }
 

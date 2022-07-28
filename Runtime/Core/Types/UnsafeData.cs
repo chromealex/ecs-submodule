@@ -1,26 +1,15 @@
 using Unity.Collections.LowLevel.Unsafe;
 
 namespace ME.ECS {
+    
+    using MemPtr = System.Int64;
 
-    public struct UnsafeDataCopy : IArrayElementCopy<UnsafeData> {
-
-        public void Copy(in UnsafeData @from, ref UnsafeData to) {
-            to.CopyFrom(in from);
-        }
-
-        public void Recycle(ref UnsafeData item) {
-            item.Dispose();
-            item = default;
-        }
-
-    }
-
-    public unsafe struct UnsafeData : System.IEquatable<UnsafeData> {
+    public unsafe struct UnsafeData : ME.ECS.Collections.MemoryAllocator.IEquatableAllocator<UnsafeData> {
 
         public static System.Reflection.MethodInfo setMethodInfo = typeof(UnsafeData)
                                                                    .GetMethod("Set", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.Public);
 
-        public System.IntPtr data;
+        public MemPtr data;
         public int sizeOf;
         public int alignOf;
         public int typeId;
@@ -28,29 +17,25 @@ namespace ME.ECS {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
-        public UnsafeData Set<T>(T data) where T : unmanaged {
+        public UnsafeData Set<T>(ref ME.ECS.Collections.V3.MemoryAllocator allocator, T data) where T : unmanaged {
 
-            return this.SetAsUnmanaged(data);
+            return this.SetAsUnmanaged(ref allocator, data);
 
         }
 
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
-        internal UnsafeData SetAsUnmanaged<T>(T data) where T : struct {
+        internal UnsafeData SetAsUnmanaged<T>(ref ME.ECS.Collections.V3.MemoryAllocator allocator, T data) where T : struct {
 
             this.typeId = AllComponentTypes<T>.typeId;
-            
-            if (this.data != System.IntPtr.Zero) {
-                
-                NativeArrayUtils.Dispose(ref this.data);
-                
-            }
 
+            if (this.data != 0) allocator.Free(this.data);
+            
             this.sizeOf = UnsafeUtility.SizeOf<T>();
             this.alignOf = UnsafeUtility.AlignOf<T>();
-            this.data = (System.IntPtr)UnsafeUtility.Malloc(this.sizeOf, this.alignOf, Unity.Collections.Allocator.Persistent);
-            Unity.Collections.LowLevel.Unsafe.UnsafeUtility.WriteArrayElement((void*)this.data, 0, data);
+            this.data = allocator.AllocUnmanaged<T>();
+            allocator.RefUnmanaged<T>(this.data) = data;
             
             return this;
 
@@ -59,69 +44,42 @@ namespace ME.ECS {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
-        public ref T Get<T>() where T : struct {
+        public ref T Get<T>(ref ME.ECS.Collections.V3.MemoryAllocator allocator) where T : struct {
 
-            return ref Unity.Collections.LowLevel.Unsafe.UnsafeUtility.ArrayElementAsRef<T>((void*)this.data, 0);
-
-        }
-
-        #if INLINE_METHODS
-        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-        #endif
-        public T Read<T>() where T : struct {
-
-            return Unity.Collections.LowLevel.Unsafe.UnsafeUtility.ReadArrayElement<T>((void*)this.data, 0);
-
-        }
-
-        #if INLINE_METHODS
-        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-        #endif
-        public void CopyFrom(in UnsafeData other) {
-
-            if (this.typeId != other.typeId ||
-                other.data == System.IntPtr.Zero) {
-                
-                this.Dispose();
-                
-            }
-
-            if (other.data == System.IntPtr.Zero) return;
-
-            this.typeId = other.typeId;
-            this.sizeOf = other.sizeOf;
-            this.alignOf = other.alignOf;
-            NativeArrayUtils.Copy(other.data, ref this.data, this.sizeOf, this.alignOf);
+            return ref allocator.RefUnmanaged<T>(this.data);
             
         }
 
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
-        public void Dispose() {
-            
-            if (this.data != System.IntPtr.Zero) {
+        public T Read<T>(in ME.ECS.Collections.V3.MemoryAllocator allocator) where T : struct {
 
-                this.typeId = default;
-                this.sizeOf = default;
-                this.alignOf = default;
-                NativeArrayUtils.Dispose(ref this.data);
-                
-            }
+            return allocator.RefUnmanaged<T>(this.data);
             
         }
 
-        public bool Equals(UnsafeData other) {
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
+        public void Dispose(ref ME.ECS.Collections.V3.MemoryAllocator allocator) {
+
+            if (this.data != 0) allocator.Free(this.data);
+            this = default;
+            
+        }
+
+        public bool Equals(in ME.ECS.Collections.V3.MemoryAllocator allocator, UnsafeData other) {
             return this.sizeOf == other.sizeOf &&
                    this.alignOf == other.alignOf &&
                    this.typeId == other.typeId &&
-                   this.EqualsData(this.data, other.data);
+                   this.EqualsData(in allocator, this.data, other.data);
         }
 
-        private bool EqualsData(System.IntPtr ptr1, System.IntPtr ptr2) {
+        private bool EqualsData(in ME.ECS.Collections.V3.MemoryAllocator allocator, MemPtr ptr1, MemPtr ptr2) {
 
             for (int i = 0; i < this.sizeOf; ++i) {
-                if (System.Runtime.InteropServices.Marshal.ReadByte(ptr1 + i) != System.Runtime.InteropServices.Marshal.ReadByte(ptr2 + i)) {
+                if (allocator.GetUnsafePtr(ptr1 + i) != allocator.GetUnsafePtr(ptr2 + i)) {
                     return false;
                 }
             }
@@ -129,11 +87,7 @@ namespace ME.ECS {
 
         }
 
-        public override bool Equals(object obj) {
-            return obj is UnsafeData other && this.Equals(other);
-        }
-
-        public override int GetHashCode() {
+        public int GetHash(in ME.ECS.Collections.V3.MemoryAllocator allocator) {
             unchecked {
                 var hashCode = this.data.GetHashCode();
                 hashCode = (hashCode * 397) ^ this.sizeOf;

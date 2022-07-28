@@ -1,5 +1,5 @@
 ﻿
-namespace ME.ECS.Tests {
+namespace ME.ECS.Tests.Intrusive {
 
     public class IntrusiveHashSetGenericTests {
 

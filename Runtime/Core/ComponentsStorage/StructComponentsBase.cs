@@ -130,6 +130,8 @@ namespace ME.ECS {
     #endif
     public abstract partial class StructComponentsBase<TComponent> : StructRegistryBase where TComponent : struct, IComponentBase {
 
+        protected ref ME.ECS.Collections.V3.MemoryAllocator allocator => ref this.world.currentState.allocator;
+        
         #if !COMPONENTS_VERSION_NO_STATE_DISABLED
         // We don't need to serialize this field
         internal BufferArray<uint> versionsNoState;
@@ -307,7 +309,7 @@ namespace ME.ECS {
         }
         #endif
 
-        public override void CopyFrom(in Entity from, in Entity to) {
+        public override unsafe void CopyFrom(in Entity from, in Entity to) {
 
             if (typeof(TComponent) == typeof(ME.ECS.Views.ViewComponent)) {
 
@@ -322,20 +324,26 @@ namespace ME.ECS {
 
             }
 
-            var taskList = PoolListCopyable<StructComponentsContainer.NextTickTask>.Spawn(2);
-            foreach (var task in this.world.currentState.structComponents.nextTickTasks) {
-                if (task.entity == from) {
-                    var item = task;
-                    item.entity = to;
-                    taskList.Add(item);
+            {
+                var tempList = stackalloc StructComponentsContainer.NextTickTask[this.world.currentState.structComponents.nextTickTasks.Count];
+                var e = this.world.currentState.structComponents.nextTickTasks.GetEnumerator(in this.world.currentState.allocator);
+                var k = 0;
+                while (e.MoveNext() == true) {
+                    var task = e.Current;
+                    if (task.entity == from) {
+                        var item = task;
+                        item.entity = to;
+                        tempList[k++] = item;
+                    }
+                }
+
+                e.Dispose();
+
+                for (int i = 0; i < k; ++i) {
+                    this.world.currentState.structComponents.nextTickTasks.Add(ref this.world.currentState.allocator, tempList[i]);
                 }
             }
 
-            foreach (var task in taskList) {
-                this.world.currentState.structComponents.nextTickTasks.Add(task);
-            }
-            PoolListCopyable<StructComponentsContainer.NextTickTask>.Recycle(ref taskList);
-            
             #if !SHARED_COMPONENTS_DISABLED
             if (AllComponentTypes<TComponent>.isShared == true) SharedGroupsAPI<TComponent>.CopyFrom(ref this.sharedStorage, in from, in to);
             #endif

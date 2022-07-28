@@ -135,12 +135,14 @@ namespace ME.ECS.Tests {
         [NUnit.Framework.TestAttribute]
         public void UnsafeData() {
             Pools.current = new PoolImplementation(true);
+            var allocator = new ME.ECS.Collections.V3.MemoryAllocator();
+            allocator.Initialize(10);
             var source = new TestUnmanagedData() {
                 a = 123,
                 b = 234.567f,
                 c = 125,
             };
-            var test = new UnsafeData().Set(source);
+            var test = new UnsafeData().Set(ref allocator, source);
 
             byte[] bytes;
             {
@@ -156,13 +158,15 @@ namespace ME.ECS.Tests {
                 ser.Add(new UnsafeDataSerializer());
 
                 var dest = Serializer.Unpack<UnsafeData>(bytes, ser);
-                var comp = dest.Read<TestUnmanagedData>();
+                var comp = dest.Read<TestUnmanagedData>(in allocator);
 
                 NUnit.Framework.Assert.AreEqual(source.a, comp.a);
                 NUnit.Framework.Assert.AreEqual(source.b, comp.b);
                 NUnit.Framework.Assert.AreEqual(source.c, comp.c);
 
             }
+            
+            allocator.Dispose();
 
         }
 

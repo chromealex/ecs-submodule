@@ -12,6 +12,8 @@ namespace ME.ECS.Essentials.GOAP {
 
     using Collections;
     using Unity.Collections;
+    using Collections.V3;
+    using Collections.MemoryAllocator;
     
     public struct Action {
 
@@ -30,8 +32,8 @@ namespace ME.ECS.Essentials.GOAP {
             public Condition conditions;
             public Effect effects;
 
-            internal readonly bool HasPreconditions(NativeArray<Action.Data> temp, in Action.Data parentAction, NativeHashSet<int> entityState) {
-                return this.conditions.Has(temp, in parentAction, entityState);
+            internal readonly bool HasPreconditions(in MemoryAllocator allocator, NativeArray<Action.Data> temp, in Action.Data parentAction, EquatableHashSet<int> entityState) {
+                return this.conditions.Has(in allocator, temp, in parentAction, entityState);
             }
 
             internal readonly SpanArray<int> GetNeighbours() {

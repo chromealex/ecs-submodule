@@ -191,9 +191,9 @@ namespace ME.ECS {
                 destroyEntity = true,
             };
 
-            if (this.noStateData.storage.nextTickTasks.Add(task) == false) {
+            if (this.noStateData.storage.nextTickTasks.Add(ref this.noStateData.allocator, task) == false) {
 
-                task.Recycle();
+                task.Dispose(ref this.noStateData.allocator);
 
             }
 
