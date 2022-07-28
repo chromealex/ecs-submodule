@@ -25,12 +25,11 @@ namespace ME.ECS.Collections.MemoryAllocator {
             this.version++;
         }
 
-        public bool Contains(in MemoryAllocator allocator, T item) {
+        public bool Contains<U>(in MemoryAllocator allocator, U item) where U : System.IEquatable<T> {
 
             var count = this.size;
-            var c = System.Collections.Generic.EqualityComparer<T>.Default;
             while (count-- > 0) {
-                if (c.Equals(this.array[in allocator, count], item)) {
+                if (item.Equals(this.array[in allocator, count])) {
                     return true;
                 }
             }

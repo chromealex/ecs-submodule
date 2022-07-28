@@ -84,13 +84,12 @@ namespace ME.ECS.Collections.MemoryAllocator {
             return this.array[in allocator, this.head];
         }
 
-        public bool Contains(in MemoryAllocator allocator, T item) {
+        public bool Contains<U>(in MemoryAllocator allocator, U item) where U : System.IEquatable<T> {
             var index = this.head;
             var count = this.size;
 
-            var c = System.Collections.Generic.EqualityComparer<T>.Default;
             while (count-- > 0) {
-                if (c.Equals(this.array[in allocator, index], item)) {
+                if (item.Equals(this.array[in allocator, index])) {
                     return true;
                 }
 
