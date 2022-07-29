@@ -2,9 +2,21 @@ namespace ME.ECS.Collections.MemoryAllocator {
 
     using ME.ECS.Collections.V3;
     using Unity.Collections.LowLevel.Unsafe;
+    using MemPtr = System.Int64;
 
     public struct Dictionary<TKey, TValue> where TKey : unmanaged where TValue : unmanaged {
 
+        private struct InternalData {
+
+            public MemArrayAllocator<int> buckets;
+            public MemArrayAllocator<Entry> entries;
+            public int count;
+            public int version;
+            public int freeList;
+            public int freeCount;
+
+        }
+        
         public struct Enumerator : System.Collections.Generic.IEnumerator<System.Collections.Generic.KeyValuePair<TKey, TValue>> {
 
             private readonly State state;
@@ -17,22 +29,22 @@ namespace ME.ECS.Collections.MemoryAllocator {
             internal Enumerator(State state, Dictionary<TKey, TValue> dictionary) {
                 this.state = state;
                 this.dictionary = dictionary;
-                this.version = dictionary.version;
+                this.version = dictionary.version(in state.allocator);
                 this.index = 0;
                 this.current = new System.Collections.Generic.KeyValuePair<TKey, TValue>();
             }
 
             public bool MoveNext() {
-                if (this.version != this.dictionary.version) {
+                if (this.version != this.dictionary.version(in this.allocator)) {
                     ThrowHelper.ThrowInvalidOperationException(ExceptionResource.InvalidOperation_EnumFailedVersion);
                 }
 
                 // Use unsigned comparison since we set index to dictionary.count+1 when the enumeration ends.
                 // dictionary.count+1 could be negative if dictionary.count is Int32.MaxValue
-                while ((uint)this.index < (uint)this.dictionary.count) {
-                    if (this.dictionary.entries[in this.allocator, this.index].hashCode >= 0) {
-                        this.current = new System.Collections.Generic.KeyValuePair<TKey, TValue>(this.dictionary.entries[in this.allocator, this.index].key,
-                                                                                                 this.dictionary.entries[in this.allocator, this.index].value);
+                while ((uint)this.index < (uint)this.dictionary.count(in this.allocator)) {
+                    if (this.dictionary.entries(in this.allocator)[in this.allocator, this.index].hashCode >= 0) {
+                        this.current = new System.Collections.Generic.KeyValuePair<TKey, TValue>(this.dictionary.entries(in this.allocator)[in this.allocator, this.index].key,
+                                                                                                 this.dictionary.entries(in this.allocator)[in this.allocator, this.index].value);
                         this.index++;
                         return true;
                     }
@@ -40,7 +52,7 @@ namespace ME.ECS.Collections.MemoryAllocator {
                     this.index++;
                 }
 
-                this.index = this.dictionary.count + 1;
+                this.index = this.dictionary.count(in this.allocator) + 1;
                 this.current = new System.Collections.Generic.KeyValuePair<TKey, TValue>();
                 return false;
             }
@@ -52,7 +64,7 @@ namespace ME.ECS.Collections.MemoryAllocator {
             object System.Collections.IEnumerator.Current => this.current;
 
             void System.Collections.IEnumerator.Reset() {
-                if (this.version != this.dictionary.version) {
+                if (this.version != this.dictionary.version(in this.allocator)) {
                     ThrowHelper.ThrowInvalidOperationException(ExceptionResource.InvalidOperation_EnumFailedVersion);
                 }
 
@@ -73,22 +85,22 @@ namespace ME.ECS.Collections.MemoryAllocator {
             internal EnumeratorNoState(in MemoryAllocator allocator, Dictionary<TKey, TValue> dictionary) {
                 this.allocator = allocator;
                 this.dictionary = dictionary;
-                this.version = dictionary.version;
+                this.version = dictionary.version(in this.allocator);
                 this.index = 0;
                 this.current = new System.Collections.Generic.KeyValuePair<TKey, TValue>();
             }
 
             public bool MoveNext() {
-                if (this.version != this.dictionary.version) {
+                if (this.version != this.dictionary.version(in this.allocator)) {
                     ThrowHelper.ThrowInvalidOperationException(ExceptionResource.InvalidOperation_EnumFailedVersion);
                 }
 
                 // Use unsigned comparison since we set index to dictionary.count+1 when the enumeration ends.
                 // dictionary.count+1 could be negative if dictionary.count is Int32.MaxValue
-                while ((uint)this.index < (uint)this.dictionary.count) {
-                    if (this.dictionary.entries[in this.allocator, this.index].hashCode >= 0) {
-                        this.current = new System.Collections.Generic.KeyValuePair<TKey, TValue>(this.dictionary.entries[in this.allocator, this.index].key,
-                                                                                                 this.dictionary.entries[in this.allocator, this.index].value);
+                while ((uint)this.index < (uint)this.dictionary.count(in this.allocator)) {
+                    if (this.dictionary.entries(in this.allocator)[in this.allocator, this.index].hashCode >= 0) {
+                        this.current = new System.Collections.Generic.KeyValuePair<TKey, TValue>(this.dictionary.entries(in this.allocator)[in this.allocator, this.index].key,
+                                                                                                 this.dictionary.entries(in this.allocator)[in this.allocator, this.index].value);
                         this.index++;
                         return true;
                     }
@@ -96,7 +108,7 @@ namespace ME.ECS.Collections.MemoryAllocator {
                     this.index++;
                 }
 
-                this.index = this.dictionary.count + 1;
+                this.index = this.dictionary.count(in this.allocator) + 1;
                 this.current = new System.Collections.Generic.KeyValuePair<TKey, TValue>();
                 return false;
             }
@@ -108,7 +120,7 @@ namespace ME.ECS.Collections.MemoryAllocator {
             object System.Collections.IEnumerator.Current => this.current;
 
             void System.Collections.IEnumerator.Reset() {
-                if (this.version != this.dictionary.version) {
+                if (this.version != this.dictionary.version(in this.allocator)) {
                     ThrowHelper.ThrowInvalidOperationException(ExceptionResource.InvalidOperation_EnumFailedVersion);
                 }
 
@@ -128,43 +140,41 @@ namespace ME.ECS.Collections.MemoryAllocator {
         }
 
         [ME.ECS.Serializer.SerializeField]
-        private MemArrayAllocator<int> buckets;
-        [ME.ECS.Serializer.SerializeField]
-        private MemArrayAllocator<Entry> entries;
-        private int count;
-        [ME.ECS.Serializer.SerializeField]
-        private int version;
-        [ME.ECS.Serializer.SerializeField]
-        private int freeList;
-        [ME.ECS.Serializer.SerializeField]
-        private int freeCount;
+        private readonly MemPtr ptr;
 
-        public bool isCreated => this.buckets.isCreated;
-        public int Count => this.count - this.freeCount;
+        private readonly ref MemArrayAllocator<int> buckets(in MemoryAllocator allocator) => ref allocator.Ref<InternalData>(this.ptr).buckets;
+        private readonly ref MemArrayAllocator<Entry> entries(in MemoryAllocator allocator) => ref allocator.Ref<InternalData>(this.ptr).entries;
+        private readonly ref int count(in MemoryAllocator allocator) => ref allocator.Ref<InternalData>(this.ptr).count;
+        private readonly ref int version(in MemoryAllocator allocator) => ref allocator.Ref<InternalData>(this.ptr).version;
+        private readonly ref int freeList(in MemoryAllocator allocator) => ref allocator.Ref<InternalData>(this.ptr).freeList;
+        private readonly ref int freeCount(in MemoryAllocator allocator) => ref allocator.Ref<InternalData>(this.ptr).freeCount;
+
+        public bool isCreated => this.ptr != 0;
+        public readonly int Count(in MemoryAllocator allocator) => this.count(in allocator) - this.freeCount(in allocator);
 
         public Dictionary(ref MemoryAllocator allocator, int capacity) {
 
-            this = default;
+            this.ptr = allocator.AllocData<InternalData>(default);
             this.Initialize(ref allocator, capacity);
 
         }
 
         public void Dispose(ref MemoryAllocator allocator) {
 
-            this.buckets.Dispose(ref allocator);
-            this.entries.Dispose(ref allocator);
+            this.buckets(in allocator).Dispose(ref allocator);
+            this.entries(in allocator).Dispose(ref allocator);
             this = default;
 
         }
 
         public void CopyFrom(ref MemoryAllocator allocator, in Dictionary<TKey, TValue> other) {
 
-            NativeArrayUtils.Copy(ref allocator, other.buckets, ref this.buckets);
-            NativeArrayUtils.Copy(ref allocator, other.entries, ref this.entries);
-            this.count = other.count;
-            this.version = other.version;
-            this.freeCount = other.freeCount;
-            this.freeList = other.freeList;
+            NativeArrayUtils.Copy(ref allocator, other.buckets(in allocator), ref this.buckets(in allocator));
+            NativeArrayUtils.Copy(ref allocator, other.entries(in allocator), ref this.entries(in allocator));
+            this.count(in allocator) = other.count(in allocator);
+            this.version(in allocator) = other.version(in allocator);
+            this.freeCount(in allocator) = other.freeCount(in allocator);
+            this.freeList(in allocator) = other.freeList(in allocator);
 
         }
 
@@ -186,16 +196,16 @@ namespace ME.ECS.Collections.MemoryAllocator {
         /// </summary>
         /// <param name="allocator"></param>
         public void Clear(in MemoryAllocator allocator) {
-            if (this.count > 0) {
-                for (var i = 0; i < this.buckets.Length; i++) {
-                    this.buckets[in allocator, i] = -1;
+            if (this.count(in allocator) > 0) {
+                for (var i = 0; i < this.buckets(in allocator).Length; i++) {
+                    this.buckets(in allocator)[in allocator, i] = -1;
                 }
 
-                this.entries.Clear(in allocator, 0, this.count);
-                this.freeList = -1;
-                this.count = 0;
-                this.freeCount = 0;
-                this.version++;
+                this.entries(in allocator).Clear(in allocator, 0, this.count(in allocator));
+                this.freeList(in allocator) = -1;
+                this.count(in allocator) = 0;
+                this.freeCount(in allocator) = 0;
+                this.version(in allocator)++;
             }
         }
 
@@ -216,8 +226,8 @@ namespace ME.ECS.Collections.MemoryAllocator {
         /// <param name="value"></param>
         /// <returns></returns>
         public readonly bool ContainsValue(in MemoryAllocator allocator, TValue value) {
-            for (var i = 0; i < this.count; i++) {
-                if (this.entries[in allocator, i].hashCode >= 0 && AreEquals(this.entries[in allocator, i].value, value)) {
+            for (var i = 0; i < this.count(in allocator); i++) {
+                if (this.entries(in allocator)[in allocator, i].hashCode >= 0 && AreEquals(this.entries(in allocator)[in allocator, i].value, value)) {
                     return true;
                 }
             }
@@ -229,7 +239,7 @@ namespace ME.ECS.Collections.MemoryAllocator {
             get {
                 var i = this.FindEntry(in allocator, key);
                 if (i >= 0) {
-                    return ref this.entries[in allocator, i].value;
+                    return ref this.entries(in allocator)[in allocator, i].value;
                 }
 
                 throw new System.Collections.Generic.KeyNotFoundException();
@@ -238,25 +248,25 @@ namespace ME.ECS.Collections.MemoryAllocator {
 
         public bool Remove(ref MemoryAllocator allocator, TKey key) {
             
-            if (this.buckets.isCreated == true) {
+            if (this.buckets(in allocator).isCreated == true) {
                 var hashCode = GetHash(key);
-                var bucket = hashCode % this.buckets.Length;
+                var bucket = hashCode % this.buckets(in allocator).Length;
                 var last = -1;
-                for (var i = this.buckets[in allocator, bucket]; i >= 0; last = i, i = this.entries[in allocator, i].next) {
-                    if (this.entries[in allocator, i].hashCode == hashCode && AreEquals(this.entries[in allocator, i].key, key)) {
+                for (var i = this.buckets(in allocator)[in allocator, bucket]; i >= 0; last = i, i = this.entries(in allocator)[in allocator, i].next) {
+                    if (this.entries(in allocator)[in allocator, i].hashCode == hashCode && AreEquals(this.entries(in allocator)[in allocator, i].key, key)) {
                         if (last < 0) {
-                            this.buckets[in allocator, bucket] = this.entries[in allocator, i].next;
+                            this.buckets(in allocator)[in allocator, bucket] = this.entries(in allocator)[in allocator, i].next;
                         } else {
-                            this.entries[in allocator, last].next = this.entries[in allocator, i].next;
+                            this.entries(in allocator)[in allocator, last].next = this.entries(in allocator)[in allocator, i].next;
                         }
 
-                        this.entries[in allocator, i].hashCode = -1;
-                        this.entries[in allocator, i].next = this.freeList;
-                        this.entries[in allocator, i].key = default(TKey);
-                        this.entries[in allocator, i].value = default(TValue);
-                        this.freeList = i;
-                        this.freeCount++;
-                        this.version++;
+                        this.entries(in allocator)[in allocator, i].hashCode = -1;
+                        this.entries(in allocator)[in allocator, i].next = this.freeList(in allocator);
+                        this.entries(in allocator)[in allocator, i].key = default(TKey);
+                        this.entries(in allocator)[in allocator, i].value = default(TValue);
+                        this.freeList(in allocator) = i;
+                        this.freeCount(in allocator)++;
+                        this.version(in allocator)++;
                         return true;
                     }
                 }
@@ -272,7 +282,7 @@ namespace ME.ECS.Collections.MemoryAllocator {
         public readonly bool TryGetValue(in MemoryAllocator allocator, TKey key, out TValue value) {
             var i = this.FindEntry(in allocator, key);
             if (i >= 0) {
-                value = this.entries[in allocator, i].value;
+                value = this.entries(in allocator)[in allocator, i].value;
                 return true;
             }
 
@@ -285,7 +295,7 @@ namespace ME.ECS.Collections.MemoryAllocator {
             var i = this.FindEntry(in allocator, key);
             if (i >= 0) {
                 exists = true;
-                return ref this.entries[in allocator, i].value;
+                return ref this.entries(in allocator)[in allocator, i].value;
             }
 
             exists = false;
@@ -297,7 +307,7 @@ namespace ME.ECS.Collections.MemoryAllocator {
 
             var i = this.FindEntry(in allocator, key);
             if (i >= 0) {
-                return ref this.entries[in allocator, i].value;
+                return ref this.entries(in allocator)[in allocator, i].value;
             }
 
             return ref this.Insert(ref allocator, key, default, true);
@@ -308,7 +318,7 @@ namespace ME.ECS.Collections.MemoryAllocator {
 
             var i = this.FindEntry(in allocator, key);
             if (i >= 0) {
-                var v = this.entries[in allocator, i].value;
+                var v = this.entries(in allocator)[in allocator, i].value;
                 this.Remove(ref allocator, key);
                 return v;
             }
@@ -319,10 +329,10 @@ namespace ME.ECS.Collections.MemoryAllocator {
 
         #region Helper
         private readonly int FindEntry(in MemoryAllocator allocator, TKey key) {
-            if (this.buckets.isCreated == true) {
+            if (this.buckets(in allocator).isCreated == true) {
                 var hashCode = GetHash(key);
-                for (var i = this.buckets[in allocator, hashCode % this.buckets.Length]; i >= 0; i = this.entries[in allocator, i].next) {
-                    if (this.entries[in allocator, i].hashCode == hashCode && AreEquals(this.entries[in allocator, i].key, key)) {
+                for (var i = this.buckets(in allocator)[in allocator, hashCode % this.buckets(in allocator).Length]; i >= 0; i = this.entries(in allocator)[in allocator, i].next) {
+                    if (this.entries(in allocator)[in allocator, i].hashCode == hashCode && AreEquals(this.entries(in allocator)[in allocator, i].key, key)) {
                         return i;
                     }
                 }
@@ -333,48 +343,48 @@ namespace ME.ECS.Collections.MemoryAllocator {
 
         private ref TValue Insert(ref MemoryAllocator allocator, TKey key, TValue value, bool add) {
 
-            if (this.buckets.isCreated == false) {
+            if (this.buckets(in allocator).isCreated == false) {
                 this.Initialize(ref allocator, 0);
             }
 
             var hashCode = GetHash(key);
-            int targetBucket = hashCode % this.buckets.Length;
+            int targetBucket = hashCode % this.buckets(in allocator).Length;
 
-            for (int i = this.buckets[in allocator, targetBucket]; i >= 0; i = this.entries[in allocator, i].next) {
-                if (this.entries[in allocator, i].hashCode == hashCode && AreEquals(key, this.entries[in allocator, i].key)) {
+            for (int i = this.buckets(in allocator)[in allocator, targetBucket]; i >= 0; i = this.entries(in allocator)[in allocator, i].next) {
+                if (this.entries(in allocator)[in allocator, i].hashCode == hashCode && AreEquals(key, this.entries(in allocator)[in allocator, i].key)) {
                     if (add) {
                         ThrowHelper.ThrowArgumentException(ExceptionResource.Argument_AddingDuplicate);
                     }
 
-                    this.entries[in allocator, i].value = value;
-                    this.version++;
-                    return ref this.entries[in allocator, i].value;
+                    this.entries(in allocator)[in allocator, i].value = value;
+                    this.version(in allocator)++;
+                    return ref this.entries(in allocator)[in allocator, i].value;
                 } 
 
             }
             
             int index;
-            if (this.freeCount > 0) {
-                index = this.freeList;
-                this.freeList = this.entries[in allocator, index].next;
-                this.freeCount--;
+            if (this.freeCount(in allocator) > 0) {
+                index = this.freeList(in allocator);
+                this.freeList(in allocator) = this.entries(in allocator)[in allocator, index].next;
+                this.freeCount(in allocator)--;
             } else {
-                if (this.count == this.entries.Length) {
+                if (this.count(in allocator) == this.entries(in allocator).Length) {
                     this.Resize(ref allocator);
-                    targetBucket = hashCode % this.buckets.Length;
+                    targetBucket = hashCode % this.buckets(in allocator).Length;
                 }
-                index = this.count;
-                this.count++;
+                index = this.count(in allocator);
+                this.count(in allocator)++;
             }
 
-            this.entries[in allocator, index].hashCode = hashCode;
-            this.entries[in allocator, index].next = this.buckets[in allocator, targetBucket];
-            this.entries[in allocator, index].key = key;
-            this.entries[in allocator, index].value = value;
-            this.buckets[in allocator, targetBucket] = index;
-            this.version++;
+            this.entries(in allocator)[in allocator, index].hashCode = hashCode;
+            this.entries(in allocator)[in allocator, index].next = this.buckets(in allocator)[in allocator, targetBucket];
+            this.entries(in allocator)[in allocator, index].key = key;
+            this.entries(in allocator)[in allocator, index].value = value;
+            this.buckets(in allocator)[in allocator, targetBucket] = index;
+            this.version(in allocator)++;
 
-            return ref this.entries[in allocator, index].value;
+            return ref this.entries(in allocator)[in allocator, index].value;
 
         }
 
@@ -386,17 +396,17 @@ namespace ME.ECS.Collections.MemoryAllocator {
         /// <param name="capacity"></param>
         private void Initialize(ref MemoryAllocator allocator, int capacity) {
             var size = HashHelpers.GetPrime(capacity);
-            this.buckets = new MemArrayAllocator<int>(ref allocator, size);
-            for (var i = 0; i < this.buckets.Length; i++) {
-                this.buckets[in allocator, i] = -1;
+            this.buckets(in allocator) = new MemArrayAllocator<int>(ref allocator, size);
+            for (var i = 0; i < this.buckets(in allocator).Length; i++) {
+                this.buckets(in allocator)[in allocator, i] = -1;
             }
 
-            this.entries = new MemArrayAllocator<Entry>(ref allocator, size);
-            this.freeList = -1;
+            this.entries(in allocator) = new MemArrayAllocator<Entry>(ref allocator, size);
+            this.freeList(in allocator) = -1;
         }
 
         private void Resize(ref MemoryAllocator allocator) {
-            this.Resize(ref allocator, HashHelpers.ExpandPrime(this.count), false);
+            this.Resize(ref allocator, HashHelpers.ExpandPrime(this.count(in allocator)), false);
         }
 
         private unsafe void Resize(ref MemoryAllocator allocator, int newSize, bool forceNewHashCodes) {
@@ -407,16 +417,16 @@ namespace ME.ECS.Collections.MemoryAllocator {
             }
 
             var newEntries = new MemArrayAllocator<Entry>(ref allocator, newSize);
-            allocator.MemCopy(newEntries.GetMemPtr(), 0, this.entries.GetMemPtr(), 0, this.count * sizeof(Entry));
+            allocator.MemCopy(newEntries.GetMemPtr(), 0, this.entries(in allocator).GetMemPtr(), 0, this.count(in allocator) * sizeof(Entry));
             if (forceNewHashCodes) {
-                for (var i = 0; i < this.count; i++) {
+                for (var i = 0; i < this.count(in allocator); i++) {
                     if (newEntries[in allocator, i].hashCode != -1) {
                         newEntries[in allocator, i].hashCode = GetHash(newEntries[in allocator, i].key);
                     }
                 }
             }
 
-            for (var i = 0; i < this.count; i++) {
+            for (var i = 0; i < this.count(in allocator); i++) {
                 if (newEntries[in allocator, i].hashCode >= 0) {
                     var bucket = newEntries[in allocator, i].hashCode % newSize;
                     newEntries[in allocator, i].next = newBuckets[in allocator, bucket];
@@ -424,16 +434,16 @@ namespace ME.ECS.Collections.MemoryAllocator {
                 }
             }
 
-            if (this.buckets.isCreated == true) {
-                this.buckets.Dispose(ref allocator);
+            if (this.buckets(in allocator).isCreated == true) {
+                this.buckets(in allocator).Dispose(ref allocator);
             }
 
-            if (this.entries.isCreated == true) {
-                this.entries.Dispose(ref allocator);
+            if (this.entries(in allocator).isCreated == true) {
+                this.entries(in allocator).Dispose(ref allocator);
             }
 
-            this.buckets = newBuckets;
-            this.entries = newEntries;
+            this.buckets(in allocator) = newBuckets;
+            this.entries(in allocator) = newEntries;
         }
 
         private static int GetHash(TKey key) {

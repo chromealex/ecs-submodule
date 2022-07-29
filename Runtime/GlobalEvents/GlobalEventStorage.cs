@@ -38,7 +38,7 @@ namespace ME.ECS {
             var key = MathUtils.GetKey(globalEvent.GetHashCode(), entity.GetHashCode());
             if (this.globalEventLogicEvents.Contains(in allocator, key) == true) {
 
-                for (int i = 0; i < this.globalEventLogicItems.Count; ++i) {
+                for (int i = 0; i < this.globalEventLogicItems.Count(in allocator); ++i) {
 
                     var item = this.globalEventLogicItems[in allocator, i];
                     if (item.globalEvent == id && item.data == entity) {

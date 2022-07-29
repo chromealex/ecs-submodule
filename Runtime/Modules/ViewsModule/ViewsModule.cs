@@ -1201,9 +1201,10 @@ namespace ME.ECS.Views {
             }
             
             var allEntities = this.world.GetAliveEntities();
+            ref var allocator = ref this.world.currentState.allocator;
             if (allEntities.isCreated == true) {
                 
-                for (int j = 0; j < allEntities.Count; ++j) {
+                for (int j = 0; j < allEntities.Count(in allocator); ++j) {
 
                     ref var entityId = ref allEntities[in this.world.currentState.allocator, j];
 

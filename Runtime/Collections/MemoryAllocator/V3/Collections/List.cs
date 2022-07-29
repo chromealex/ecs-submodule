@@ -1,16 +1,56 @@
 namespace ME.ECS.Collections.MemoryAllocator {
 
     using ME.ECS.Collections.V3;
-    
+    using MemPtr = System.Int64;
+
     public struct List<T> where T : unmanaged {
 
+        private struct InternalData {
+
+            public MemArrayAllocator<T> arr;
+            public int count;
+
+        }
+        
         public struct Enumerator : System.Collections.Generic.IEnumerator<T> {
+            
+            private readonly State state;
+            private readonly List<T> list;
+            private int index;
+
+            internal Enumerator(State state, List<T> list) {
+                this.state = state;
+                this.list = list;
+                this.index = -1;
+            }
+
+            public void Dispose() {
+            }
+
+            public bool MoveNext() {
+                ++this.index;
+                return this.index < this.list.GetCount(in this.state.allocator);
+            }
+
+            public ref T Current => ref this.list[in this.state.allocator, this.index];
+
+            T System.Collections.Generic.IEnumerator<T>.Current => this.Current;
+
+            object System.Collections.IEnumerator.Current => this.Current;
+
+            void System.Collections.IEnumerator.Reset() {
+                this.index = -1;
+            }
+            
+        }
+
+        public struct EnumeratorNoState : System.Collections.Generic.IEnumerator<T> {
             
             private readonly MemoryAllocator allocator;
             private readonly List<T> list;
             private int index;
 
-            internal Enumerator(in MemoryAllocator allocator, List<T> list) {
+            internal EnumeratorNoState(in MemoryAllocator allocator, List<T> list) {
                 this.allocator = allocator;
                 this.list = list;
                 this.index = -1;
@@ -21,7 +61,7 @@ namespace ME.ECS.Collections.MemoryAllocator {
 
             public bool MoveNext() {
                 ++this.index;
-                return this.index < this.list.count;
+                return this.index < this.list.GetCount(in this.allocator);
             }
 
             public T Current => this.list[in this.allocator, this.index];
@@ -33,71 +73,82 @@ namespace ME.ECS.Collections.MemoryAllocator {
             }
             
         }
-        
-        [ME.ECS.Serializer.SerializeField]
-        private MemArrayAllocator<T> arr;
-        [ME.ECS.Serializer.SerializeField]
-        private int count;
 
-        public bool isCreated => this.arr.isCreated;
-        public int Count => this.count;
+        [ME.ECS.Serializer.SerializeField]
+        private readonly MemPtr ptr;
+        
+        private readonly ref MemArrayAllocator<T> GetArray(in MemoryAllocator allocator) => ref allocator.Ref<InternalData>(this.ptr).arr;
+        private readonly ref int GetCount(in MemoryAllocator allocator) => ref allocator.Ref<InternalData>(this.ptr).count;
+
+        public bool isCreated => this.ptr != 0;
+
+        public readonly int Count(in MemoryAllocator allocator) {
+            if (this.ptr == 0) throw new System.NullReferenceException();
+            return this.GetCount(in allocator);
+        }
 
         public List(ref MemoryAllocator allocator, int capacity) {
 
-            this = default;
+            this.ptr = allocator.AllocData<InternalData>(default);
             this.EnsureCapacity(ref allocator, capacity);
 
         }
 
         public void Dispose(ref MemoryAllocator allocator) {
-            
-            this.arr.Dispose(ref allocator);
-            this.count = default;
 
+            if (this.ptr != 0) allocator.Free(this.ptr);
+            this = default;
+            
         }
 
-        public readonly Enumerator GetEnumerator(in MemoryAllocator allocator) {
+        public readonly Enumerator GetEnumerator(State state) {
             
-            return new Enumerator(in allocator, this);
+            return new Enumerator(state, this);
+            
+        }
+
+        public readonly EnumeratorNoState GetEnumerator(in MemoryAllocator allocator) {
+            
+            return new EnumeratorNoState(in allocator, this);
             
         }
         
         public void Clear(in MemoryAllocator allocator) {
 
-            this.count = 0;
+            this.GetCount(in allocator) = 0;
 
         }
         
         public ref T this[in MemoryAllocator allocator, int index] {
             get {
-                if (index < 0 || index >= this.count) {
-                    throw new System.IndexOutOfRangeException();
+                if (index < 0 || index >= this.GetCount(in allocator)) {
+                    throw new System.IndexOutOfRangeException($"index {index} out of range 0..{this.GetCount(in allocator)}");
                 }
-                return ref this.arr[in allocator, index];
+                return ref this.GetArray(in allocator)[in allocator, index];
             }
         }
 
         public bool EnsureCapacity(ref MemoryAllocator allocator, int capacity) {
 
             capacity = Helpers.NextPot(capacity);
-            return this.arr.Resize(ref allocator, capacity, ClearOptions.UninitializedMemory);
+            return this.GetArray(in allocator).Resize(ref allocator, capacity, ClearOptions.UninitializedMemory);
             
         }
         
         public void Add(ref MemoryAllocator allocator, T obj) {
 
-            ++this.count;
-            this.EnsureCapacity(ref allocator, this.count);
+            ++this.GetCount(in allocator);
+            this.EnsureCapacity(ref allocator, this.GetCount(in allocator));
 
-            this.arr[in allocator, this.count - 1] = obj;
+            this.GetArray(in allocator)[in allocator, this.GetCount(in allocator) - 1] = obj;
 
         }
 
         public readonly bool Contains<U>(in MemoryAllocator allocator, U obj) where U : unmanaged, System.IEquatable<T> {
             
-            for (int i = 0; i < this.count; ++i) {
+            for (int i = 0, cnt = this.GetCount(in allocator); i < cnt; ++i) {
 
-                if (obj.Equals(this.arr[in allocator, i]) == true) {
+                if (obj.Equals(this.GetArray(in allocator)[in allocator, i]) == true) {
 
                     return true;
 
@@ -111,9 +162,9 @@ namespace ME.ECS.Collections.MemoryAllocator {
 
         public bool Remove<U>(ref MemoryAllocator allocator, U obj) where U : unmanaged, System.IEquatable<T> {
 
-            for (int i = 0; i < this.count; ++i) {
+            for (int i = 0, cnt = this.GetCount(in allocator); i < cnt; ++i) {
 
-                if (obj.Equals(this.arr[in allocator, i]) == true) {
+                if (obj.Equals(this.GetArray(in allocator)[in allocator, i]) == true) {
 
                     this.RemoveAt(ref allocator, i);
                     return true;
@@ -128,22 +179,22 @@ namespace ME.ECS.Collections.MemoryAllocator {
 
         public unsafe bool RemoveAt(ref MemoryAllocator allocator, int index) {
             
-            if (index < 0 || index >= this.count) return false;
+            if (index < 0 || index >= this.GetCount(in allocator)) return false;
 
-            if (index == this.count - 1) {
+            if (index == this.GetCount(in allocator) - 1) {
 
-                --this.count;
-                this.arr[in allocator, this.count] = default;
+                --this.GetCount(in allocator);
+                this.GetArray(in allocator)[in allocator, this.GetCount(in allocator)] = default;
                 return true;
 
             }
             
-            var ptr = this.arr.GetMemPtr();
+            var ptr = this.GetArray(in allocator).GetMemPtr();
             var size = sizeof(T);
-            allocator.MemCopy(ptr, size * index, ptr, size * (index + 1), (this.count - index - 1) * size);
+            allocator.MemCopy(ptr, size * index, ptr, size * (index + 1), (this.GetCount(in allocator) - index - 1) * size);
             
-            --this.count;
-            this.arr[in allocator, this.count] = default;
+            --this.GetCount(in allocator);
+            this.GetArray(in allocator)[in allocator, this.GetCount(in allocator)] = default;
             
             return true;
 
@@ -151,11 +202,11 @@ namespace ME.ECS.Collections.MemoryAllocator {
 
         public bool RemoveAtFast(ref MemoryAllocator allocator, int index) {
             
-            if (index < 0 || index >= this.count) return false;
+            if (index < 0 || index >= this.GetCount(in allocator)) return false;
             
-            --this.count;
-            var last = this.arr[in allocator, this.count];
-            this.arr[in allocator, index] = last;
+            --this.GetCount(in allocator);
+            var last = this.GetArray(in allocator)[in allocator, this.GetCount(in allocator)];
+            this.GetArray(in allocator)[in allocator, index] = last;
             
             return true;
 
@@ -169,41 +220,41 @@ namespace ME.ECS.Collections.MemoryAllocator {
                 
             }
             
-            if (newLength <= this.Count) {
+            if (newLength <= this.GetCount(in allocator)) {
 
                 return false;
                 
             }
 
-            this.arr.Resize(ref allocator, newLength, options);
-            this.count = newLength;
+            this.GetArray(in allocator).Resize(ref allocator, newLength, options);
+            this.GetCount(in allocator) = newLength;
             return true;
 
         }
 
         public unsafe void AddRange(ref MemoryAllocator allocator, List<T> collection) {
 
-            var index = this.count;
+            var index = this.GetCount(in allocator);
             if (collection.isCreated == false)
                 ThrowHelper.ThrowArgumentNullException(ExceptionArgument.collection);
-            if ((uint) index > (uint) this.count)
+            if ((uint) index > (uint) this.GetCount(in allocator))
                 throw new System.IndexOutOfRangeException();
-            int count = collection.Count;
+            int count = collection.GetCount(in allocator);
             if (count > 0) {
-                this.EnsureCapacity(ref allocator, this.count + count);
+                this.EnsureCapacity(ref allocator, this.GetCount(in allocator) + count);
                 var size = sizeof(T);
-                if (index < this.count) {
-                    allocator.MemCopy(this.arr.GetMemPtr(), (index + count) * size, this.arr.GetMemPtr(), index * size, (this.count - index) * size);
+                if (index < this.GetCount(in allocator)) {
+                    allocator.MemCopy(this.GetArray(in allocator).GetMemPtr(), (index + count) * size, this.GetArray(in allocator).GetMemPtr(), index * size, (this.GetCount(in allocator) - index) * size);
                 }
 
-                if (this.arr.GetMemPtr() == collection.arr.GetMemPtr()) {
-                    allocator.MemCopy(this.arr.GetMemPtr(), index * size, this.arr.GetMemPtr(), 0, index * size);
-                    allocator.MemCopy(this.arr.GetMemPtr(), (index * 2) * size, this.arr.GetMemPtr(), (index + count) * size, (this.count - index) * size);
+                if (this.GetArray(in allocator).GetMemPtr() == collection.GetArray(in allocator).GetMemPtr()) {
+                    allocator.MemCopy(this.GetArray(in allocator).GetMemPtr(), index * size, this.GetArray(in allocator).GetMemPtr(), 0, index * size);
+                    allocator.MemCopy(this.GetArray(in allocator).GetMemPtr(), (index * 2) * size, this.GetArray(in allocator).GetMemPtr(), (index + count) * size, (this.GetCount(in allocator) - index) * size);
                 } else {
-                    collection.CopyTo(ref allocator, this.arr, index);
+                    collection.CopyTo(ref allocator, this.GetArray(in allocator), index);
                 }
 
-                this.count += count;
+                this.GetCount(in allocator) += count;
             }
             
         }
@@ -215,7 +266,7 @@ namespace ME.ECS.Collections.MemoryAllocator {
             }
 
             var size = sizeof(T);
-            allocator.MemCopy(arr.GetMemPtr(), index * size, this.arr.GetMemPtr(), 0, this.count * size);
+            allocator.MemCopy(arr.GetMemPtr(), index * size, this.GetArray(in allocator).GetMemPtr(), 0, this.GetCount(in allocator) * size);
             
         }
 

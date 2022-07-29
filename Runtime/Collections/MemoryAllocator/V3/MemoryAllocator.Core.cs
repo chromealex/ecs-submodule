@@ -6,6 +6,12 @@ namespace ME.ECS.Collections.V3 {
 
     public unsafe class MemoryAllocatorProxy {
 
+        public struct Dump {
+
+            public string[] blocks;
+
+        }
+        
         private readonly MemoryAllocator allocator;
         
         public MemoryAllocatorProxy(MemoryAllocator allocator) {
@@ -14,21 +20,39 @@ namespace ME.ECS.Collections.V3 {
 
         }
 
-        /*public string[] dump {
+        public Dump[] dump {
             get {
-                var list = new System.Collections.Generic.List<string>();
-                MemoryAllocator.ZmDumpHeap(this.allocator.zonesList, list);
+                var list = new System.Collections.Generic.List<Dump>();
+                for (int i = 0; i < this.allocator.zonesListCount; ++i) {
+                    var zone = this.allocator.zonesList[i];
+                    var blocks = new System.Collections.Generic.List<string>();
+                    MemoryAllocator.ZmDumpHeap(zone, blocks);
+                    var item = new Dump() {
+                        blocks = blocks.ToArray(),
+                    };
+                    list.Add(item);
+                }
+                
                 return list.ToArray();
             }
         }
 
-        public string[] checks {
+        public Dump[] checks {
             get {
-                var list = new System.Collections.Generic.List<string>();
-                MemoryAllocator.ZmCheckHeap(this.allocator.zonesList, list);
+                var list = new System.Collections.Generic.List<Dump>();
+                for (int i = 0; i < this.allocator.zonesListCount; ++i) {
+                    var zone = this.allocator.zonesList[i];
+                    var blocks = new System.Collections.Generic.List<string>();
+                    MemoryAllocator.ZmCheckHeap(zone, blocks);
+                    var item = new Dump() {
+                        blocks = blocks.ToArray(),
+                    };
+                    list.Add(item);
+                }
+                
                 return list.ToArray();
             }
-        }*/
+        }
 
     }
 

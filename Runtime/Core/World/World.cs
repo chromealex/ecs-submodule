@@ -1064,7 +1064,7 @@ namespace ME.ECS {
 
             } else if (globalEventType == GlobalEventType.Logic) {
 
-                for (int i = 0; i < this.currentState.globalEvents.globalEventLogicItems.Count; ++i) {
+                for (int i = 0; i < this.currentState.globalEvents.globalEventLogicItems.Count(in this.currentState.allocator); ++i) {
 
                     var item = this.currentState.globalEvents.globalEventLogicItems[in this.currentState.allocator, i];
                     GlobalEvent.GetEventById(item.globalEvent).Run(in item.data);
@@ -1219,7 +1219,7 @@ namespace ME.ECS {
                 this.noStateData.storage.SetEntityCapacity(ref this.noStateData.allocator, state.storage.nextEntityId);
                 ComponentsInitializerWorld.Init(state.storage.cache[in state.allocator, state.storage.nextEntityId - 1]);
             } else {
-                this.noStateData.storage.SetEntityCapacity(ref this.noStateData.allocator, state.storage.AliveCount + state.storage.DeadCount);
+                this.noStateData.storage.SetEntityCapacity(ref this.noStateData.allocator, state.storage.AliveCount + state.storage.DeadCount(in this.currentState.allocator));
             }
 
             this.noStateData.storage.Merge(in this.noStateData.allocator);
@@ -1366,7 +1366,7 @@ namespace ME.ECS {
             E.IS_LOGIC_STEP(this);
             E.IS_WORLD_THREAD();
             
-            var isNew = (validate == true && this.currentState.storage.WillNew());
+            var isNew = (validate == true && this.currentState.storage.WillNew(in this.currentState.allocator));
             ref var entity = ref this.currentState.storage.Alloc(ref this.currentState.allocator);
             if (validate == true) this.UpdateEntityOnCreate(in entity, isNew);
             

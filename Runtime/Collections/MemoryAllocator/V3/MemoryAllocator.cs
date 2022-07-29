@@ -111,6 +111,12 @@ namespace ME.ECS.Collections.V3 {
             return ref UnsafeUtility.AsRef<T>(this.GetUnsafePtr(ptr));
         }
 
+        public MemPtr AllocData<T>(T data) where T : unmanaged {
+            var ptr = this.Alloc<T>();
+            this.Ref<T>(ptr) = data;
+            return ptr;
+        }
+
         public MemPtr Alloc<T>() where T : unmanaged {
             var size = sizeof(T);
             var alignOf = UnsafeUtility.AlignOf<T>();

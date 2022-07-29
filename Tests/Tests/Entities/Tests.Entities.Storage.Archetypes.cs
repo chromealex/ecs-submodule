@@ -20,7 +20,7 @@ namespace ME.ECS.Tests {
             NUnit.Framework.Assert.AreEqual(entity.generation, 1);
 
             NUnit.Framework.Assert.AreEqual(st.AliveCount, 1);
-            NUnit.Framework.Assert.AreEqual(st.DeadCount, 0);
+            NUnit.Framework.Assert.AreEqual(st.DeadCount(allocator), 0);
             
         }
 
@@ -41,7 +41,7 @@ namespace ME.ECS.Tests {
             NUnit.Framework.Assert.IsTrue(st.IsAlive(in allocator, entity.id, entity.generation) == false);
 
             NUnit.Framework.Assert.AreEqual(st.AliveCount, 0);
-            NUnit.Framework.Assert.AreEqual(st.DeadCount, 1);
+            NUnit.Framework.Assert.AreEqual(st.DeadCount(allocator), 1);
 
             {
                 var entity2 = st.Alloc(ref allocator);
@@ -49,7 +49,7 @@ namespace ME.ECS.Tests {
                 NUnit.Framework.Assert.AreEqual(entity2.generation, 2);
 
                 NUnit.Framework.Assert.AreEqual(st.AliveCount, 1);
-                NUnit.Framework.Assert.AreEqual(st.DeadCount, 0);
+                NUnit.Framework.Assert.AreEqual(st.DeadCount(allocator), 0);
             }
             
             st.Dispose(ref allocator);

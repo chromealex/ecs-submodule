@@ -325,7 +325,7 @@ namespace ME.ECS {
             }
 
             {
-                var tempList = stackalloc StructComponentsContainer.NextTickTask[this.world.currentState.structComponents.nextTickTasks.Count];
+                var tempList = stackalloc StructComponentsContainer.NextTickTask[this.world.currentState.structComponents.nextTickTasks.Count(in this.world.currentState.allocator)];
                 var e = this.world.currentState.structComponents.nextTickTasks.GetEnumerator(in this.world.currentState.allocator);
                 var k = 0;
                 while (e.MoveNext() == true) {

@@ -10,7 +10,7 @@ namespace ME.ECS {
     public interface IStorage {
 
         int AliveCount { get; }
-        int DeadCount { get; }
+        int DeadCount(in MemoryAllocator allocator);
 
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         bool IsAlive(in MemoryAllocator allocator, int id, ushort generation);

@@ -25,7 +25,7 @@ namespace ME.ECS {
             var arr = this.data[in allocator, entityId];
             if (arr.isCreated == false) return 0;
             
-            return arr.Count;
+            return arr.Count(in allocator);
 
         }
 

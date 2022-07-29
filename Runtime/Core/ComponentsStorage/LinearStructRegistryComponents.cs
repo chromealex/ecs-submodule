@@ -369,7 +369,7 @@ namespace ME.ECS {
 
             if (this.dirtyMap.isCreated == false) return;
 
-            for (int i = 0, count = this.dirtyMap.Count; i < count; ++i) {
+            for (int i = 0, count = this.dirtyMap.Count(in allocator); i < count; ++i) {
 
                 var idx = this.dirtyMap[in allocator, i];
                 if (idx < 0 || idx >= this.list.Count) {
@@ -1306,11 +1306,11 @@ namespace ME.ECS {
         private unsafe void UseLifetimeStep(ref MemoryAllocator allocator, ComponentLifetime step, tfloat deltaTime, ref StructComponentsContainer structComponentsContainer) {
 
             ref var list = ref structComponentsContainer.nextTickTasks;
-            if (list.Count > 0) {
+            if (list.Count(in allocator) > 0) {
 
                 // We need to allocate temporary list to store entities
                 // because on entity.Destroy we clean up all data including tasks list
-                var tempList = stackalloc Entity[list.Count];
+                var tempList = stackalloc Entity[list.Count(in allocator)];
                 var k = 0;
                 var cnt = 0;
                 var e = list.GetEnumerator(in allocator);
@@ -1345,7 +1345,7 @@ namespace ME.ECS {
                     tempList[i].Destroy();
                 }
                 
-                if (cnt == list.Count) {
+                if (cnt == list.Count(in allocator)) {
                     
                     // All is null
                     list.Clear(in allocator);
