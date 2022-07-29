@@ -338,10 +338,10 @@ namespace ME.ECS.Collections.MemoryAllocator {
             }
 
             var hashCode = GetHash(key);
-            var targetBucket = hashCode % this.buckets.Length;
+            int targetBucket = hashCode % this.buckets.Length;
 
-            for (var i = this.buckets[in allocator, targetBucket]; i >= 0; i = this.entries[in allocator, i].next) {
-                if (this.entries[in allocator, i].hashCode == hashCode && AreEquals(this.entries[in allocator, i].key, key)) {
+            for (int i = this.buckets[in allocator, targetBucket]; i >= 0; i = this.entries[in allocator, i].next) {
+                if (this.entries[in allocator, i].hashCode == hashCode && AreEquals(key, this.entries[in allocator, i].key)) {
                     if (add) {
                         ThrowHelper.ThrowArgumentException(ExceptionResource.Argument_AddingDuplicate);
                     }
@@ -349,9 +349,10 @@ namespace ME.ECS.Collections.MemoryAllocator {
                     this.entries[in allocator, i].value = value;
                     this.version++;
                     return ref this.entries[in allocator, i].value;
-                }
-            }
+                } 
 
+            }
+            
             int index;
             if (this.freeCount > 0) {
                 index = this.freeList;
@@ -362,7 +363,6 @@ namespace ME.ECS.Collections.MemoryAllocator {
                     this.Resize(ref allocator);
                     targetBucket = hashCode % this.buckets.Length;
                 }
-
                 index = this.count;
                 this.count++;
             }
@@ -400,7 +400,7 @@ namespace ME.ECS.Collections.MemoryAllocator {
         }
 
         private unsafe void Resize(ref MemoryAllocator allocator, int newSize, bool forceNewHashCodes) {
-            
+
             var newBuckets = new MemArrayAllocator<int>(ref allocator, newSize);
             for (var i = 0; i < newBuckets.Length; i++) {
                 newBuckets[in allocator, i] = -1;

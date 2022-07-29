@@ -65,6 +65,46 @@ namespace ME.ECS.Tests.MemoryAllocator.V3.Collections {
         }
 
         [Test]
+        public void AddRange() {
+
+            var allocator = Base.GetAllocator(10);
+
+            var source = new List<int>(ref allocator, 10);
+            var target = new List<int>(ref allocator, 10);
+            for (int i = 0; i < 100; ++i) {
+
+                source.Add(ref allocator, i);
+                
+            }
+            
+            target.AddRange(ref allocator, source);
+            Assert.IsTrue(source.Count == 100);
+            Assert.IsTrue(target.Count == 100);
+            for (int i = 0; i < 100; ++i) {
+
+                Assert.IsTrue(source[in allocator, i] == target[in allocator, i]);
+                
+            }
+            
+            target.AddRange(ref allocator, source);
+            for (int i = 0; i < 100; ++i) {
+
+                Assert.IsTrue(target[in allocator, i] == i);
+                
+            }
+            for (int i = 0; i < 100; ++i) {
+
+                Assert.IsTrue(target[in allocator, i + 100] == i);
+                
+            }
+            
+            Assert.IsTrue(target.Count == 200);
+
+            allocator.Dispose();
+
+        }
+
+        [Test]
         public void RemoveAt() {
 
             var allocator = Base.GetAllocator(10);
