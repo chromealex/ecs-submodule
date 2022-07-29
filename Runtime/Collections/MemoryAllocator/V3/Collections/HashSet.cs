@@ -84,7 +84,8 @@ namespace ME.ECS.Collections.MemoryAllocator {
             }
 
             public T Current => this.current;
-
+            public int Index => this.index - 1;
+            
             object System.Collections.IEnumerator.Current => this.Current;
 
             void System.Collections.IEnumerator.Reset() {
@@ -136,6 +137,10 @@ namespace ME.ECS.Collections.MemoryAllocator {
             this.slots.Dispose(ref allocator);
             this = default;
 
+        }
+
+        public ref T GetByIndex(in MemoryAllocator allocator, int index) {
+            return ref this.slots[in allocator, index].value;
         }
 
         /// <summary>

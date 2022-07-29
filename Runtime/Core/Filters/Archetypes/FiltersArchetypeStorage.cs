@@ -286,6 +286,7 @@ namespace ME.ECS.FiltersArchetype {
                 storage.isArchetypesDirty = true;
                 var idx = storage.allArchetypes.Count;
                 arch.index = idx;
+                
                 var info = components[in allocator, componentId];
                 arch.componentIds.RemoveAt(ref allocator, info.index);
                 for (var i = 0; i < arch.componentIds.Count; ++i) {
@@ -729,7 +730,7 @@ namespace ME.ECS.FiltersArchetype {
             arch = default;
             for (var i = 0; i < this.allArchetypes.Count; ++i) {
 
-                var ar = this.allArchetypes[in allocator, i];
+                ref var ar = ref this.allArchetypes[in allocator, i];
                 if (ar.componentIds.Count == componentIds.Count &&
                     ar.Has(in allocator, componentId) == true &&
                     ar.HasAll(in allocator, componentIds) == true) {
@@ -754,7 +755,7 @@ namespace ME.ECS.FiltersArchetype {
             arch = default;
             for (var i = 0; i < this.allArchetypes.Count; ++i) {
 
-                var ar = this.allArchetypes[in allocator, i];
+                ref var ar = ref this.allArchetypes[in allocator, i];
                 if (ar.componentIds.Count == componentIds.Count - 1 &&
                     ar.Has(in allocator, componentId) == false &&
                     ar.HasAllExcept(in allocator, componentIds, componentId) == true) {

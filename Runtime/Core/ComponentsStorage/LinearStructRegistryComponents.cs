@@ -473,7 +473,7 @@ namespace ME.ECS {
 
             E.IS_ALIVE(in entity);
 
-            var list = this.entitiesIndexer.Get(in allocator, entity.id);
+            ref var list = ref this.entitiesIndexer.Get(in allocator, entity.id);
             if (list.isCreated == true) {
 
                 if (state == null) {
@@ -490,7 +490,6 @@ namespace ME.ECS {
                         }
 
                     }
-
                     e.Dispose();
 
                 } else {
@@ -507,7 +506,6 @@ namespace ME.ECS {
                         }
 
                     }
-
                     e.Dispose();
 
                 }
@@ -1318,7 +1316,8 @@ namespace ME.ECS {
                 var e = list.GetEnumerator(in allocator);
                 while (e.MoveNext() == true) {
 
-                    var task = e.Current;
+                    var idx = e.Index;
+                    ref var task = ref list.GetByIndex(in allocator, idx);
                     var taskStep = task.GetStep();
                     if (taskStep != step) continue;
                     

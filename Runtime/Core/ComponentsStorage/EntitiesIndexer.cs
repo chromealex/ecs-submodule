@@ -38,9 +38,9 @@ namespace ME.ECS {
 
         }
         
-        public readonly HashSet<int> Get(in MemoryAllocator allocator, int entityId) {
+        public readonly ref HashSet<int> Get(in MemoryAllocator allocator, int entityId) {
 
-            return this.data[in allocator, entityId];
+            return ref this.data[in allocator, entityId];
 
         }
 
@@ -70,7 +70,7 @@ namespace ME.ECS {
 
             for (int i = 0; i < this.data.Length; ++i) {
 
-                var set = this.data[in allocator, i];
+                ref var set = ref this.data[in allocator, i];
                 if (set.isCreated == true) {
                     
                     set.Dispose(ref allocator);
