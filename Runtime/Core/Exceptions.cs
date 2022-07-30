@@ -2,6 +2,12 @@ namespace ME.ECS {
 
     public static class E {
 
+        public static void FILE_NOT_FOUND(string message) {
+            
+            throw new System.IO.FileNotFoundException(message);
+            
+        }
+
         [System.Diagnostics.Conditional("WORLD_STATE_CHECK")]
         public static void IS_NOT_LOGIC_STEP(World world) {
             

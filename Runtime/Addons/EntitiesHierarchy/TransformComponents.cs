@@ -14,7 +14,7 @@
     [ComponentOrder(5)]
     public struct Nodes : IComponent, IVersioned {
 
-        public ME.ECS.Collections.IntrusiveList items;
+        public ME.ECS.Collections.MemoryAllocator.List<Entity> items;
         
     }
 

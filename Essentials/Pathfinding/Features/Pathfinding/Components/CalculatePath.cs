@@ -32,7 +32,8 @@ namespace ME.ECS.Pathfinding.Features.Pathfinding.Components {
     }
 
     public struct IsPathBuilt : IComponent {}
-
+    
+    #if COMPONENTS_COPYABLE
     public struct PathfindingInstance : IStructCopyable<PathfindingInstance> {
 
         public ME.ECS.Pathfinding.Pathfinding pathfinding;
@@ -73,5 +74,12 @@ namespace ME.ECS.Pathfinding.Features.Pathfinding.Components {
         }
 
     }
+    #else
+    public struct PathfindingInstance : IComponent, IComponentRuntime {
+
+        public ME.ECS.Pathfinding.Pathfinding pathfinding;
+
+    }
+    #endif
 
 }

@@ -1,5 +1,6 @@
 namespace ME.ECS {
 
+    #if COMPONENTS_COPYABLE
     using Collections;
     
     #if ECS_COMPILE_IL2CPP_OPTIONS
@@ -122,5 +123,6 @@ namespace ME.ECS {
         }
 
     }
+    #endif
 
 }

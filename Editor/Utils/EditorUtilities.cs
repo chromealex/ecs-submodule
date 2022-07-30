@@ -160,7 +160,13 @@ namespace ME.ECSEditor {
             return (T)property.GetValue();
             
         }
-        
+
+        public static T GetSerializedValue<T>(this UnityEditor.SerializedProperty property, string fieldName) {
+
+            return (T)property.GetValue(fieldName);
+            
+        }
+
         public static void SetSerializedValue<T>(this UnityEditor.SerializedProperty property, T value) {
 
             property.SetValue(value);
@@ -194,7 +200,21 @@ namespace ME.ECSEditor {
                 value = GetPathComponentValue(value, token, out _);
             return value;
         }
-        
+
+        public static object GetValue(this UnityEditor.SerializedProperty property, string fieldName)
+        {
+            string propertyPath = property.propertyPath;
+            object value = property.serializedObject.targetObject;
+            int i = 0;
+            object container = null;
+            while (NextPathComponent(propertyPath, ref i, out var token)) {
+                container = value;
+                value = GetPathComponentValue(value, token, out _);
+            }
+            var field = container.GetType().GetField(fieldName);
+            return field.GetValue(container);
+        }
+
         /// (Extension) Set the value of the serialized property.
         public static void SetValue(this UnityEditor.SerializedProperty property, object value)
         {

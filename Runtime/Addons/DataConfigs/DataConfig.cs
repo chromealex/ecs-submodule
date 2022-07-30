@@ -1,9 +1,57 @@
-﻿using System.Collections.Generic;
-using System.Linq;
+﻿using System.Linq;
 using UnityEngine;
 
 namespace ME.ECS {
 
+    public class ConfigIdReadFromAttribute : PropertyAttribute {
+
+        public string fieldName;
+        
+        public ConfigIdReadFromAttribute(string fieldName) {
+
+            this.fieldName = fieldName;
+
+        }
+
+    }
+    
+    [System.Serializable]
+    public struct ConfigId<T> where T : ME.ECS.DataConfigs.DataConfig {
+
+        [SerializeField]
+        [ME.ECS.Serializer.SerializeField]
+        internal int id;
+
+        public ConfigId(T config) {
+            
+            var module = Worlds.current.GetFeature<ME.ECS.DataConfigs.DataConfigIndexerFeature>();
+            this = module.RegisterConfig(config);
+
+        }
+
+        public ConfigId(int id) {
+
+            this.id = id;
+
+        }
+
+        public T GetData() {
+
+            var module = Worlds.current.GetFeature<ME.ECS.DataConfigs.DataConfigIndexerFeature>();
+            return module.GetData(this);
+
+        }
+        
+        public static implicit operator ConfigId<T>(T config) {
+            return new ConfigId<T>(config);
+        }
+
+        public static implicit operator T(ConfigId<T> config) {
+            return config.GetData();
+        }
+
+    }
+    
     /// <summary>
     /// Used in data configs
     /// If component has this interface - it would be ignored in DataConfig::Apply method
@@ -38,35 +86,9 @@ namespace ME.ECS.DataConfigs {
     public partial class DataConfig : ScriptableObject {
 
         #if !SHARED_COMPONENTS_DISABLED
-        public struct SharedData : IStructCopyable<SharedData> {
+        public struct SharedData : IComponent {
 
-            public Dictionary<int, uint> archetypeToId;
-
-            public void CopyFrom(in SharedData other) {
-
-                if (other.archetypeToId == null && this.archetypeToId != null) {
-                    
-                    PoolDictionary<int, uint>.Recycle(ref this.archetypeToId);
-                    return;
-
-                }
-                if (other.archetypeToId == null && this.archetypeToId == null) return;
-                if (this.archetypeToId == null) this.archetypeToId = PoolDictionary<int, uint>.Spawn(other.archetypeToId.Count);
-                
-                this.archetypeToId.Clear();
-                foreach (var kv in other.archetypeToId) {
-                    
-                    this.archetypeToId.Add(kv.Key, kv.Value);
-                    
-                }
-                
-            }
-
-            public void OnRecycle() {
-                
-                if (this.archetypeToId != null) PoolDictionary<int, uint>.Recycle(ref this.archetypeToId);
-                
-            }
+            public ME.ECS.Collections.MemoryAllocator.Dictionary<int, uint> archetypeToId;
 
         }
         #endif
@@ -85,7 +107,7 @@ namespace ME.ECS.DataConfigs {
         private int[] removeStructComponentsDataTypeIds = new int[0];
         [System.NonSerialized]
         private bool isPrewarmed;
-        private Dictionary<int, int> typeIndexToArrayIndex = new Dictionary<int, int>();
+        private System.Collections.Generic.Dictionary<int, int> typeIndexToArrayIndex = new System.Collections.Generic.Dictionary<int, int>();
 
         #region Initialization
         public static void InitTypeId() {
@@ -100,7 +122,7 @@ namespace ME.ECS.DataConfigs {
         public static void Init(State state) {
             
             #if !SHARED_COMPONENTS_DISABLED
-            state.structComponents.ValidateCopyable<SharedData>(false);
+            state.structComponents.ValidateUnmanaged<SharedData>(ref state.allocator, false);
             #endif
             state.structComponents.Validate<ME.ECS.Collections.IntrusiveHashSetBucketGeneric<ME.ECS.Collections.IntrusiveDictionary<int, int>.Entry>>(false);
 
@@ -109,7 +131,7 @@ namespace ME.ECS.DataConfigs {
         public static void Init(in Entity entity) {
             
             #if !SHARED_COMPONENTS_DISABLED
-            entity.ValidateDataCopyable<SharedData>(false);
+            entity.ValidateDataUnmanaged<SharedData>(false);
             #endif
             entity.ValidateData<ME.ECS.Collections.IntrusiveHashSetBucketGeneric<ME.ECS.Collections.IntrusiveDictionary<int, int>.Entry>>(false);
 
@@ -125,8 +147,9 @@ namespace ME.ECS.DataConfigs {
                 // We already has SourceConfig onto this entity,
                 // so need to add config's list
                 ref var configs = ref entity.Get<SourceConfigs>();
-                if (configs.configs == null) configs.configs = PoolListCopyable<DataConfig>.Spawn(2);
-                configs.configs.Add(config);
+                ref var allocator = ref Worlds.current.currentState.allocator;
+                if (configs.configs.isCreated == false) configs.configs = new ME.ECS.Collections.MemoryAllocator.List<ConfigId<DataConfig>>(ref allocator, 1);
+                configs.configs.Add(ref allocator, config);
 
             } else
             #endif
@@ -184,10 +207,11 @@ namespace ME.ECS.DataConfigs {
                     if (overrideIfExist == true || world.HasSharedDataBit(in entity, dataIndex, this.sharedGroupId) == false) {
 
                         ref var sharedData = ref entity.Get<SharedData>();
-                        if (sharedData.archetypeToId == null) sharedData.archetypeToId = PoolDictionary<int, uint>.Spawn(10);
+                        ref var allocator = ref world.currentState.allocator;
+                        if (sharedData.archetypeToId.isCreated == false) sharedData.archetypeToId = new ME.ECS.Collections.MemoryAllocator.Dictionary<int, uint>(ref allocator, 10);
 
                         world.SetSharedData(in entity, in this.structComponents[i], dataIndex, this.sharedGroupId);
-                        sharedData.archetypeToId.Add(dataIndex, this.sharedGroupId);
+                        sharedData.archetypeToId.Add(ref allocator, dataIndex, this.sharedGroupId);
 
                     }
 
@@ -741,7 +765,7 @@ namespace ME.ECS.DataConfigs {
             
             {
 
-                var listIdx = new Dictionary<System.Type, int>();
+                var listIdx = new System.Collections.Generic.Dictionary<System.Type, int>();
                 for (int i = 0; i < configs.Length; ++i) {
 
                     var config = configs[i];
@@ -763,7 +787,7 @@ namespace ME.ECS.DataConfigs {
 
                 }
 
-                var list = new List<System.Type>();
+                var list = new System.Collections.Generic.List<System.Type>();
                 foreach (var kv in listIdx) {
 
                     if (kv.Value == configs.Length) {

@@ -42,18 +42,7 @@ namespace ME.ECSEditor.Tools {
 
             }
 
-            public struct TestDisposableComponent : ME.ECS.IComponentDisposable {
-
-                public int data;
-
-                public void OnDispose() {
-
-                    this.data = default;
-
-                }
-
-            }
-
+            #if COMPONENTS_COPYABLE
             public struct TestCopyableComponent : ME.ECS.IStructCopyable<TestCopyableComponent> {
 
                 public int data;
@@ -71,6 +60,7 @@ namespace ME.ECSEditor.Tools {
                 }
 
             }
+            #endif
 
             public int priority => 0;
             
@@ -85,35 +75,23 @@ namespace ME.ECSEditor.Tools {
                 #if !SHARED_COMPONENTS_DISABLED
                 ME.ECS.AllComponentTypes<TestComponent>.isShared = true;
                 #endif
+                #if COMPONENTS_COPYABLE
                 ME.ECS.AllComponentTypes<TestCopyableComponent>.isCopyable = true;
-                ME.ECS.AllComponentTypes<TestDisposableComponent>.isDisposable = true;
+                #endif
                 
                 var arr = new [] {
                     CreateDefault(),
+                    #if COMPONENTS_COPYABLE
                     CreateCopyable(),
-                    CreateDisposable(),
+                    #endif
                 };
                 return new ME.ECS.Collections.BufferArray<ME.ECS.StructRegistryBase>(arr, arr.Length);
                 
             }
 
-            private ME.ECS.StructRegistryBase CreateDisposable() {
-                
-                var components = new Component<TestDisposableComponent>[3] {
-                    new Component<TestDisposableComponent>() { data = new TestDisposableComponent() { data = 1 }, state = 1 },
-                    new Component<TestDisposableComponent>() { data = new TestDisposableComponent() { data = 2 }, state = 1 },
-                    new Component<TestDisposableComponent>() { data = new TestDisposableComponent() { data = 3 }, state = 1 }, 
-                };
-                var baseComponentsReg = new ME.ECS.StructComponentsDisposable<TestDisposableComponent>() {
-                    components = new ME.ECS.Collections.BufferArraySliced<Component<TestDisposableComponent>>(new ME.ECS.Collections.BufferArray<Component<TestDisposableComponent>>(components, components.Length)),
-                };
-
-                return baseComponentsReg;
-
-            }
-
+            #if COMPONENTS_COPYABLE
             private ME.ECS.StructRegistryBase CreateCopyable() {
-                
+            
                 var components = new Component<TestCopyableComponent>[3] {
                     new Component<TestCopyableComponent>() { data = new TestCopyableComponent() { data = 1 }, state = 1 },
                     new Component<TestCopyableComponent>() { data = new TestCopyableComponent() { data = 2 }, state = 1 },
@@ -126,6 +104,7 @@ namespace ME.ECSEditor.Tools {
                 return baseComponentsReg;
 
             }
+            #endif
 
             private ME.ECS.StructRegistryBase CreateDefault() {
                 

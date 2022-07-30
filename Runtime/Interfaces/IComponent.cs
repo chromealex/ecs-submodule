@@ -18,6 +18,7 @@ namespace ME.ECS {
     public interface IVersionedNoState : IComponentBase { }
     #endif
 
+    [System.Obsolete("Use IComponent")]
     public interface IComponentDisposable : IComponentBase {
 
         void OnDispose();
@@ -26,6 +27,7 @@ namespace ME.ECS {
 
     public interface ICopyableBase { }
 
+    #if COMPONENTS_COPYABLE
     public interface IStructCopyable<T> : IComponent, ICopyableBase where T : IStructCopyable<T> {
 
         void CopyFrom(in T other);
@@ -36,5 +38,6 @@ namespace ME.ECS {
     public interface ICopyable<T> : IStructCopyable<T> where T : IStructCopyable<T> {
 
     }
+    #endif
 
 }

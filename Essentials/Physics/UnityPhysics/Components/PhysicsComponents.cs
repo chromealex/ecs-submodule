@@ -29,7 +29,7 @@ namespace ME.ECS.Essentials.Physics.Components {
 
     }
 
-    public struct PhysicsCollider : IStructCopyable<PhysicsCollider> {
+    public struct PhysicsCollider : IComponent, IComponentRuntime {//IStructCopyable<PhysicsCollider> {
         
         public BlobAssetReference<ME.ECS.Essentials.Physics.Collider> value;  // null is allowed
 
@@ -37,6 +37,7 @@ namespace ME.ECS.Essentials.Physics.Components {
         public unsafe ME.ECS.Essentials.Physics.Collider* ColliderPtr => (ME.ECS.Essentials.Physics.Collider*)this.value.GetUnsafePtr();
         public ME.ECS.Essentials.Physics.MassProperties MassProperties => this.value.IsCreated ? this.value.Value.MassProperties : ME.ECS.Essentials.Physics.MassProperties.UnitSphere;
 
+        /*
         public void CopyFrom(in PhysicsCollider other) {
 
             if (this.value.IsCreated == true && other.value.IsCreated == true) {
@@ -68,7 +69,7 @@ namespace ME.ECS.Essentials.Physics.Components {
             }
             this.value = default;
 
-        }
+        }*/
 
     }
     

@@ -67,11 +67,12 @@ namespace ME.ECS {
         #endif
         public static bool isSimple = false;
         public static bool isBlittable = false;
+        #if COMPONENTS_COPYABLE
         public static bool isCopyable = false;
+        #endif
         #if !SHARED_COMPONENTS_DISABLED
         public static bool isShared = false;
         #endif
-        public static bool isDisposable = false;
         public static bool isOneShot = false;
         public static bool isInHash = true;
 

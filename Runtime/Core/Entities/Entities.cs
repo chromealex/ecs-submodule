@@ -102,16 +102,6 @@ namespace ME.ECS {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
-        public static Entity ValidateDataCopyable<TComponent>(this in Entity entity, bool isTag = false) where TComponent : struct, IStructCopyable<TComponent> {
-
-            Worlds.currentWorld.ValidateDataCopyable<TComponent>(in entity, isTag);
-            return entity;
-
-        }
-
-        #if INLINE_METHODS
-        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-        #endif
         public static Entity ValidateDataUnmanaged<TComponent>(this in Entity entity, bool isTag = false) where TComponent : struct, IComponentBase {
 
             Worlds.currentWorld.ValidateDataUnmanaged<TComponent>(in entity, isTag);
@@ -128,7 +118,8 @@ namespace ME.ECS {
             return entity;
 
         }
-
+        
+        #if COMPONENTS_COPYABLE
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
@@ -138,16 +129,17 @@ namespace ME.ECS {
             return entity;
 
         }
-
+        
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
-        public static Entity ValidateDataDisposable<TComponent>(this in Entity entity, bool isTag = false) where TComponent : struct, IComponentDisposable {
+        public static Entity ValidateDataCopyable<TComponent>(this in Entity entity, bool isTag = false) where TComponent : struct, IStructCopyable<TComponent> {
 
-            Worlds.currentWorld.ValidateDataDisposable<TComponent>(in entity, isTag);
+            Worlds.currentWorld.ValidateDataCopyable<TComponent>(in entity, isTag);
             return entity;
 
         }
+        #endif
 
     }
     

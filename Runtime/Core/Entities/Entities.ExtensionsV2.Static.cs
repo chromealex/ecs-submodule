@@ -39,18 +39,21 @@ namespace ME.ECS {
             // check if this component in SourceConfig
             if (entity.TryRead<ME.ECS.DataConfigs.SourceConfig>(out var sourceConfig) == true) {
 
-                if (sourceConfig.config.TryRead(out component) == true) return true;
+                if (sourceConfig.config.GetData().TryRead(out component) == true) return true;
 
             }
             
             // check if this component in SourceConfigs
             if (entity.TryRead<ME.ECS.DataConfigs.SourceConfigs>(out var sourceConfigs) == true) {
 
-                foreach (var config in sourceConfigs.configs) {
-                    
-                    if (config.TryRead(out component) == true) return true;
+                var e = sourceConfigs.configs.GetEnumerator(Worlds.current.currentState);
+                while (e.MoveNext() == true) {
+
+                    var config = e.Current;
+                    if (config.GetData().TryRead(out component) == true) return true;
                     
                 }
+                e.Dispose();
                 
             }
 
@@ -72,18 +75,21 @@ namespace ME.ECS {
             // check if this component in SourceConfig
             if (entity.TryRead<ME.ECS.DataConfigs.SourceConfig>(out var sourceConfig) == true) {
 
-                if (sourceConfig.config.Has<TComponent>() == true) return true;
+                if (sourceConfig.config.GetData().Has<TComponent>() == true) return true;
 
             }
             
             // check if this component in SourceConfigs
             if (entity.TryRead<ME.ECS.DataConfigs.SourceConfigs>(out var sourceConfigs) == true) {
 
-                foreach (var config in sourceConfigs.configs) {
-                    
-                    if (config.Has<TComponent>() == true) return true;
+                var e = sourceConfigs.configs.GetEnumerator(Worlds.current.currentState);
+                while (e.MoveNext() == true) {
+
+                    var config = e.Current;
+                    if (config.GetData().Has<TComponent>() == true) return true;
                     
                 }
+                e.Dispose();
                 
             }
 
@@ -128,7 +134,7 @@ namespace ME.ECS {
             // check if this component in SourceConfig
             if (source.TryRead<ME.ECS.DataConfigs.SourceConfig>(out var sourceConfig) == true) {
 
-                if (sourceConfig.config.Has<TComponent>() == true) {
+                if (sourceConfig.config.GetData().Has<TComponent>() == true) {
 
                     ME.ECS.DataConfigs.DataConfig.AddSource(in entity, sourceConfig.config);
                     return;
@@ -140,16 +146,19 @@ namespace ME.ECS {
             // check if this component in SourceConfigs
             if (source.TryRead<ME.ECS.DataConfigs.SourceConfigs>(out var sourceConfigs) == true) {
 
-                foreach (var config in sourceConfigs.configs) {
-                    
-                    if (config.Has<TComponent>() == true) {
+                var e = sourceConfigs.configs.GetEnumerator(Worlds.current.currentState);
+                while (e.MoveNext() == true) {
+
+                    var config = e.Current;
+                    if (config.GetData().Has<TComponent>() == true) {
 
                         ME.ECS.DataConfigs.DataConfig.AddSource(in entity, config);
                         return;
                     
                     }
-                    
+
                 }
+                e.Dispose();
                 
             }
             

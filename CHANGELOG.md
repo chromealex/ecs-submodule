@@ -9,7 +9,10 @@
   * MemoryAllocator HashSet tests added
   * MemoryAllocator Stack tests added
   * MemoryAllocator Queue tests added
-* Runtime.Core: 
+* Runtime.Core:
+  * ConfigId<> added to store DataConfig assets in components 
+  * ViewId<> added to store view assets in components
+  * IComponentDisposable deprecated
   * State refactoring to be ready for allocator
   * Collections refactoring
   * MemoryAllocator List collection added

@@ -303,6 +303,7 @@ namespace ME.ECS {
 
         }
 
+        #if COMPONENTS_COPYABLE
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
@@ -311,6 +312,7 @@ namespace ME.ECS {
             return AllComponentTypes<TComponent>.isCopyable;
 
         }
+        #endif
 
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
@@ -381,6 +383,7 @@ namespace ME.ECS {
         }
         #endif
 
+        #if COMPONENTS_COPYABLE
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
@@ -389,20 +392,12 @@ namespace ME.ECS {
             AllComponentTypes<TComponent>.isCopyable = true;
 
         }
+        #endif
         
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
-        public static void SetComponentAsDisposable<TComponent>() {
-
-            AllComponentTypes<TComponent>.isDisposable = true;
-
-        }
-
-        #if INLINE_METHODS
-        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-        #endif
-        public static void InitComponentTypeId<TComponent>(bool isTag = false, bool isSimple = false, bool isBlittable = false, bool isCopyable = false, bool isDisposable = false, bool isVersioned = false, bool isVersionedNoState = false, bool isShared = false, bool isOneShot = false) {
+        public static void InitComponentTypeId<TComponent>(bool isTag = false, bool isSimple = false, bool isBlittable = false, bool isCopyable = false, bool isVersioned = false, bool isVersionedNoState = false, bool isShared = false, bool isOneShot = false) {
 
             if (isTag == true) WorldUtilities.SetComponentAsTag<TComponent>();
             if (isSimple == true) WorldUtilities.SetComponentAsSimple<TComponent>();
@@ -411,11 +406,12 @@ namespace ME.ECS {
             #if !COMPONENTS_VERSION_NO_STATE_DISABLED
             if (isVersionedNoState == true) WorldUtilities.SetComponentAsVersionedNoState<TComponent>();
             #endif
+            #if COMPONENTS_COPYABLE
             if (isCopyable == true) WorldUtilities.SetComponentAsCopyable<TComponent>();
+            #endif
             #if !SHARED_COMPONENTS_DISABLED
             if (isShared == true) WorldUtilities.SetComponentAsShared<TComponent>();
             #endif
-            if (isDisposable == true) WorldUtilities.SetComponentAsDisposable<TComponent>();
             if (isOneShot == true) WorldUtilities.SetComponentAsOneShot<TComponent>();
 
             WorldUtilities.GetAllComponentTypeId<TComponent>();

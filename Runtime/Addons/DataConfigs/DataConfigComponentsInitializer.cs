@@ -1,5 +1,11 @@
 namespace ME.ECS.DataConfigs {
 
+    public static class DataConfigConstants {
+
+        public const string FILE_NAME = "ME.ECS.DataConfigIndexer";
+
+    }
+
     public static class DataConfigComponentsInitializer {
 
         public static void InitTypeId() {
@@ -11,11 +17,31 @@ namespace ME.ECS.DataConfigs {
             
         }
 
+        public static DataConfigIndexerFeature GetFeature() {
+
+            try {
+
+                return UnityEngine.Resources.Load<DataConfigIndexerFeature>(DataConfigConstants.FILE_NAME);
+
+            } catch (System.Exception) {
+
+                return null;
+
+            }
+
+        }
+
         public static void Init(State state) {
     
             state.structComponents.Validate<SourceConfig>();
             #if !STATIC_API_DISABLED
-            state.structComponents.ValidateCopyable<SourceConfigs>();
+            var feature = DataConfigComponentsInitializer.GetFeature();
+            if (feature == null) {
+
+                E.FILE_NOT_FOUND($"Feature `DataConfigIndexerFeature` not found. Create it at path `Resources/{DataConfigConstants.FILE_NAME}`. You can turn off this feature by enabling STATIC_API_DISABLED define.");
+
+            }
+            Worlds.current.AddFeature(feature, true);
             #endif
 
         }
@@ -23,9 +49,6 @@ namespace ME.ECS.DataConfigs {
         public static void Init(in Entity entity) {
 
             entity.ValidateData<SourceConfig>();
-            #if !STATIC_API_DISABLED
-            entity.ValidateDataCopyable<SourceConfigs>();
-            #endif
             
         }
 

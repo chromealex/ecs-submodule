@@ -246,6 +246,16 @@ namespace ME.ECS.Collections.MemoryAllocator {
 
         }
 
+        public void AddRange(ref MemoryAllocator allocator, ListCopyable<T> list) {
+
+            foreach (var item in list) {
+                
+                this.Add(ref allocator, item);
+                
+            }
+            
+        }
+
         public unsafe void AddRange(ref MemoryAllocator allocator, List<T> collection) {
 
             var index = this.GetCount(in allocator);

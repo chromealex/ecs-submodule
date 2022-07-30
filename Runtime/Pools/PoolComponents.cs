@@ -36,22 +36,17 @@ namespace ME.ECS {
             return Pools.current.PoolSpawn(new Data(), (data) => new StructComponentsUnmanaged<T>(), null);
 			
         }
-
-		public static StructComponentsCopyable<T> SpawnCopyable<T>() where T : struct, IComponentBase, IStructCopyable<T> {
-
-			return Pools.current.PoolSpawn(new Data(), (data) => new StructComponentsCopyable<T>(), null);
-			
-		}
-
-		public static StructComponentsDisposable<T> SpawnDisposable<T>() where T : struct, IComponentBase, IComponentDisposable {
-
-			return Pools.current.PoolSpawn(new Data(), (data) => new StructComponentsDisposable<T>(), null);
-			
-		}
-
+        
 		public static StructComponentsBlittable<T> SpawnBlittable<T>() where T : struct, IComponentBase {
 
 			return Pools.current.PoolSpawn(new Data(), (data) => new StructComponentsBlittable<T>(), null);
+			
+		}
+
+        #if COMPONENTS_COPYABLE
+		public static StructComponentsCopyable<T> SpawnCopyable<T>() where T : struct, IComponentBase, IStructCopyable<T> {
+
+			return Pools.current.PoolSpawn(new Data(), (data) => new StructComponentsCopyable<T>(), null);
 			
 		}
 
@@ -60,6 +55,7 @@ namespace ME.ECS {
 			return Pools.current.PoolSpawn(new Data(), (data) => new StructComponentsBlittableCopyable<T>(), null);
 			
 		}
+        #endif
 
 		public static void Recycle<T>(T dic) where T : StructRegistryBase {
 

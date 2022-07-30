@@ -5,7 +5,7 @@ namespace ME.ECS.DataConfigs {
     [ComponentHelp("Stores last applied config")]
     public struct SourceConfig : IComponent, IComponentRuntime {
 
-        public DataConfig config;
+        public ConfigId<DataConfig> config;
 
     }
 
@@ -13,22 +13,10 @@ namespace ME.ECS.DataConfigs {
     [ComponentGroup("Data Config", GroupColor.Default, -100)]
     [ComponentOrder(1)]
     [ComponentHelp("Stores all applied configs except first applied (see SourceConfig component)")]
-    public struct SourceConfigs : ICopyable<SourceConfigs>, IComponentRuntime {
+    public struct SourceConfigs : IComponent, IComponentRuntime {
 
-        public ME.ECS.Collections.ListCopyable<DataConfig> configs;
-
-        public void CopyFrom(in SourceConfigs other) {
-            
-            ArrayUtils.Copy(other.configs, ref this.configs);
-            
-        }
-
-        public void OnRecycle() {
-            
-            PoolListCopyable<DataConfig>.Recycle(ref this.configs);
-            
-        }
-
+        public ME.ECS.Collections.MemoryAllocator.List<ConfigId<DataConfig>> configs;
+        
     }
     #endif
 

@@ -85,7 +85,7 @@ namespace ME.ECS.Pathfinding.Features {
             }
 
             entity.Set(new ME.ECS.Pathfinding.Features.PathfindingFlowField.Components.PathFlowField() {
-                flowField = BufferArray<byte>.From(path.flowField),
+                flowField = new ME.ECS.Collections.V3.MemArrayAllocator<byte>(ref Worlds.current.GetState().allocator, path.flowField),
                 from = from,
                 to = to,
                 cacheEnabled = cacheEnabled,
@@ -96,13 +96,15 @@ namespace ME.ECS.Pathfinding.Features {
 
         public void SetPathNavMesh(in Entity entity, ME.ECS.Pathfinding.Path path, Constraint constraint, float3 from, float3 to) {
 
-            /*if (entity.Has<ME.ECS.Pathfinding.Features.PathfindingNavMesh.Components.PathNavMesh>() == true) {
+            ref var allocator = ref Worlds.current.GetState().allocator;
+            if (entity.Has<ME.ECS.Pathfinding.Features.PathfindingNavMesh.Components.PathNavMesh>() == true) {
                 ref var oldPath = ref entity.Get<ME.ECS.Pathfinding.Features.PathfindingNavMesh.Components.PathNavMesh>();
-                oldPath.path.Dispose();
+                oldPath.path.Dispose(ref allocator);
                 oldPath.path = default;
-            }*/
-            var list = PoolListCopyable<float3>.Spawn(path.navMeshPoints.Count);
-            list.AddRange(path.navMeshPoints);
+            }
+            
+            var list = new ME.ECS.Collections.MemoryAllocator.List<float3>(ref allocator, path.navMeshPoints.Count);
+            list.AddRange(ref allocator, path.navMeshPoints);
             entity.Set(new ME.ECS.Pathfinding.Features.PathfindingNavMesh.Components.PathNavMesh() {
                 result = path.result,
                 path = list,
@@ -122,10 +124,12 @@ namespace ME.ECS.Pathfinding.Features {
             //entity.Remove<ME.ECS.Pathfinding.Features.Pathfinding.Components.Path>();
 
             var vPath = PoolListCopyable<float3>.Spawn(nodes.Count);
+            var vNodes = PoolListCopyable<int>.Spawn(nodes.Count);
             for (var i = 0; i < nodes.Count; ++i) {
 
                 var node = nodes[i];
                 vPath.Add(node.worldPosition);
+                vNodes.Add(node.index);
 
             }
 
@@ -160,14 +164,25 @@ namespace ME.ECS.Pathfinding.Features {
                 vPath = newPath;
             }
 
+            ref var allocator = ref Worlds.current.GetState().allocator;
+            if (entity.Has<ME.ECS.Pathfinding.Features.PathfindingAstar.Components.Path>() == true) {
+
+                ref var path = ref entity.Get<ME.ECS.Pathfinding.Features.PathfindingAstar.Components.Path>();
+                if (path.nodes.isCreated == true) path.nodes.Dispose(ref allocator);
+                if (path.path.isCreated == true) path.path.Dispose(ref allocator);
+                path = default;
+                
+            }
+            
             entity.Set(new ME.ECS.Pathfinding.Features.PathfindingAstar.Components.Path() {
                 result = result,
-                path = ME.ECS.Collections.BufferArray<float3>.From(vPath),
-                nodes = ME.ECS.Collections.BufferArray<ME.ECS.Pathfinding.Node>.From(nodes),
+                path = new ME.ECS.Collections.V3.MemArrayAllocator<float3>(ref allocator, vPath),//ME.ECS.Collections.BufferArray<float3>.From(vPath),
+                nodes = new ME.ECS.Collections.V3.MemArrayAllocator<int>(ref allocator, vNodes),//ME.ECS.Collections.BufferArray<ME.ECS.Pathfinding.Node>.From(nodes),
             });
             entity.Set(new IsPathBuilt(), ComponentLifetime.NotifyAllSystems);
-                
+            
             PoolListCopyable<float3>.Recycle(ref vPath);
+            PoolListCopyable<int>.Recycle(ref vNodes);
 
         }
 

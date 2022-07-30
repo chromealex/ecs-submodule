@@ -42,6 +42,24 @@ namespace ME.ECS.Collections.V3 {
 
         }
 
+        public MemArrayAllocator(ref MemoryAllocator allocator, BufferArray<T> arr) {
+
+            this = new MemArrayAllocator<T>(ref allocator, arr.Length, ClearOptions.UninitializedMemory);
+            for (int i = 0; i < arr.Length; ++i) {
+                this[in allocator, i] = arr[i];
+            }
+
+        }
+
+        public MemArrayAllocator(ref MemoryAllocator allocator, ListCopyable<T> arr) {
+
+            this = new MemArrayAllocator<T>(ref allocator, arr.Count, ClearOptions.UninitializedMemory);
+            for (int i = 0; i < arr.Count; ++i) {
+                this[in allocator, i] = arr[i];
+            }
+
+        }
+
         public void Dispose(ref MemoryAllocator allocator) {
 
             if (this.arrPtr(in allocator) != 0) allocator.Ref<InternalData>(this.ptr).Dispose(ref allocator);

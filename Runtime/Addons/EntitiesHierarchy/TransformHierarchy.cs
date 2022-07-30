@@ -5,6 +5,8 @@
 namespace ME.ECS {
 
     using Transform;
+    using Collections.V3;
+    using Collections.MemoryAllocator;
 
     #if ECS_COMPILE_IL2CPP_OPTIONS
     [Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.NullChecks, false)]
@@ -16,7 +18,7 @@ namespace ME.ECS {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
-        public static void OnEntityDestroy(in Entity entity) {
+        public static void OnEntityDestroy(ref MemoryAllocator allocator, in Entity entity) {
 
             if (entity.Has<Container>() == true) {
                 
@@ -28,11 +30,13 @@ namespace ME.ECS {
 
                 // TODO: Possible stack overflow while using Clear(true) because of OnEntityDestroy call
                 ref var nodes = ref entity.Get<Nodes>();
-                foreach (var child in nodes.items) {
-                    child.Remove<Container>();
+                var e = nodes.items.GetEnumerator(in allocator);
+                while (e.MoveNext() == true) {
+                    e.Current.Remove<Container>();
+                    e.Current.Destroy();
                 }
-                nodes.items.Clear(destroyData: true);
-                nodes.items.Dispose();
+                e.Dispose();
+                nodes.items.Dispose(ref allocator);
 
             }
 
@@ -41,18 +45,20 @@ namespace ME.ECS {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
-        public static void OnEntityVersionChanged(in Entity entity) {
+        public static void OnEntityVersionChanged(ref MemoryAllocator allocator, in Entity entity) {
 
             if (entity.TryRead<Nodes>(out var nodes) == true) {
 
-                var world = Worlds.currentWorld;
-                foreach (var item in nodes.items) {
-
+                var world = Worlds.current;
+                var e = nodes.items.GetEnumerator(in allocator);
+                while (e.MoveNext() == true) {
+                    var item = e.Current;
                     world.IncrementEntityVersion(in item);
                     // TODO: Possible stack overflow while using OnEntityVersionChanged call
                     world.OnEntityVersionChanged(in item);
-
                 }
+                e.Dispose();
+                nodes.items.Dispose(ref allocator);
                 
             }
 
@@ -149,7 +155,7 @@ namespace ME.ECS {
                 
                 ref var nodes = ref childContainer.entity.Get<Nodes>();
                 child.Remove<Container>();
-                nodes.items.Remove(child);
+                nodes.items.Remove(ref Worlds.current.currentState.allocator, child);
                 return;
 
             }
@@ -171,7 +177,8 @@ namespace ME.ECS {
 
             container.entity = root;
             ref var rootNodes = ref root.Get<Nodes>();
-            rootNodes.items.Add(child);
+            if (rootNodes.items.isCreated == false) rootNodes.items = new List<Entity>(ref Worlds.current.currentState.allocator, 1);
+            rootNodes.items.Add(ref Worlds.current.currentState.allocator, child);
 
         }
 
@@ -199,17 +206,17 @@ namespace ME.ECS {
         private static bool FindInHierarchy(in Entity child, in Entity root) {
 
             var childNodes = child.Read<Nodes>();
-            if (childNodes.items.Contains(root) == true) {
+            if (childNodes.items.Contains(in Worlds.current.currentState.allocator, root) == true) {
 
                 return true;
 
             }
 
-            foreach (var cc in childNodes.items) {
-
-                if (ECSTransformHierarchy.FindInHierarchy(in cc, in root) == true) return true;
-
+            var e = childNodes.items.GetEnumerator(in Worlds.current.currentState.allocator);
+            while (e.MoveNext() == true) {
+                if (ECSTransformHierarchy.FindInHierarchy(e.Current, in root) == true) return true;
             }
+            e.Dispose();
 
             return false;
 

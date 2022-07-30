@@ -785,7 +785,7 @@ namespace ME.ECS {
         }
         #endregion
 
-        #region BlittableCopyable
+        #if COMPONENTS_COPYABLE
         #if ECS_COMPILE_IL2CPP_OPTIONS
         [Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.NullChecks, false),
          Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.ArrayBoundsChecks, false),
@@ -836,9 +836,9 @@ namespace ME.ECS {
             }
 
         }
-        #endregion
+        #endif
 
-        #region Copyable
+        #if COMPONENTS_COPYABLE
         #if ECS_COMPILE_IL2CPP_OPTIONS
         [Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.NullChecks, false),
          Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.ArrayBoundsChecks, false),
@@ -889,60 +889,7 @@ namespace ME.ECS {
             }
 
         }
-        #endregion
-
-        #region Disposable
-        #if ECS_COMPILE_IL2CPP_OPTIONS
-        [Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.NullChecks, false),
-         Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.ArrayBoundsChecks, false),
-         Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.DivideByZeroChecks, false)]
         #endif
-        public void ValidateDisposable<TComponent>(bool isTag = false) where TComponent : struct, IComponentBase, IComponentDisposable {
-
-            var code = WorldUtilities.GetAllComponentTypeId<TComponent>();
-            if (isTag == true) WorldUtilities.SetComponentAsTag<TComponent>();
-            this.ValidateDisposable<TComponent>(code, isTag);
-
-        }
-
-        #if ECS_COMPILE_IL2CPP_OPTIONS
-        [Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.NullChecks, false),
-         Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.ArrayBoundsChecks, false),
-         Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.DivideByZeroChecks, false)]
-        #endif
-        public void ValidateDisposable<TComponent>(in Entity entity, bool isTag = false) where TComponent : struct, IComponentBase, IComponentDisposable {
-
-            var code = WorldUtilities.GetAllComponentTypeId<TComponent>();
-            this.ValidateDisposable<TComponent>(code, isTag);
-            this.list.arr[code].Validate(entity.id);
-
-        }
-
-        #if ECS_COMPILE_IL2CPP_OPTIONS
-        [Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.NullChecks, false),
-         Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.ArrayBoundsChecks, false),
-         Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.DivideByZeroChecks, false)]
-        #endif
-        #if INLINE_METHODS
-        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-        #endif
-        private void ValidateDisposable<TComponent>(int code, bool isTag) where TComponent : struct, IComponentBase, IComponentDisposable {
-
-            if (ArrayUtils.WillResize(code, ref this.list) == true) {
-
-                ArrayUtils.Resize(code, ref this.list, true);
-
-            }
-
-            if (this.list.arr[code] == null) {
-
-                var instance = PoolRegistries.SpawnDisposable<TComponent>();
-                this.list.arr[code] = instance;
-
-            }
-
-        }
-        #endregion
 
         #if ECS_COMPILE_IL2CPP_OPTIONS
         [Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.NullChecks, false),
@@ -1238,12 +1185,6 @@ namespace ME.ECS {
 
         }
 
-        public void ValidateDataCopyable<TComponent>(in Entity entity, bool isTag = false) where TComponent : struct, IComponentBase, IStructCopyable<TComponent> {
-
-            this.currentState.structComponents.ValidateCopyable<TComponent>(in entity, isTag);
-
-        }
-
         public void ValidateDataUnmanaged<TComponent>(in Entity entity, bool isTag = false) where TComponent : struct, IComponentBase {
 
             this.currentState.structComponents.ValidateUnmanaged<TComponent>(ref this.currentState.allocator, in entity, isTag);
@@ -1256,17 +1197,19 @@ namespace ME.ECS {
 
         }
 
+        #if COMPONENTS_COPYABLE
+        public void ValidateDataCopyable<TComponent>(in Entity entity, bool isTag = false) where TComponent : struct, IComponentBase, IStructCopyable<TComponent> {
+
+            this.currentState.structComponents.ValidateCopyable<TComponent>(in entity, isTag);
+
+        }
+
         public void ValidateDataBlittableCopyable<TComponent>(in Entity entity, bool isTag = false) where TComponent : struct, IComponentBase, IStructCopyable<TComponent> {
 
             this.currentState.structComponents.ValidateBlittableCopyable<TComponent>(in entity, isTag);
 
         }
-
-        public void ValidateDataDisposable<TComponent>(in Entity entity, bool isTag = false) where TComponent : struct, IComponentDisposable {
-
-            this.currentState.structComponents.ValidateDisposable<TComponent>(in entity, isTag);
-
-        }
+        #endif
 
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
@@ -1466,7 +1409,8 @@ namespace ME.ECS {
             if (groupId == 0 && entity.Has<ME.ECS.DataConfigs.DataConfig.SharedData>() == true) {
 
                 ref readonly var sharedData = ref entity.Read<ME.ECS.DataConfigs.DataConfig.SharedData>();
-                if (sharedData.archetypeToId.TryGetValue(AllComponentTypes<TComponent>.typeId, out var innerGroupId) == true && innerGroupId != 0) {
+                ref var allocator = ref Worlds.current.currentState.allocator;
+                if (sharedData.archetypeToId.TryGetValue(in allocator, AllComponentTypes<TComponent>.typeId, out var innerGroupId) == true && innerGroupId != 0) {
 
                     return ref this.ReadSharedData<TComponent>(in entity, innerGroupId);
 
@@ -1497,7 +1441,8 @@ namespace ME.ECS {
             if (groupId == 0 && entity.Has<ME.ECS.DataConfigs.DataConfig.SharedData>() == true) {
 
                 ref readonly var sharedData = ref entity.Read<ME.ECS.DataConfigs.DataConfig.SharedData>();
-                if (sharedData.archetypeToId.TryGetValue(AllComponentTypes<TComponent>.typeId, out var innerGroupId) == true && innerGroupId != 0) {
+                ref var allocator = ref Worlds.current.currentState.allocator;
+                if (sharedData.archetypeToId.TryGetValue(in allocator, AllComponentTypes<TComponent>.typeId, out var innerGroupId) == true && innerGroupId != 0) {
 
                     return this.HasSharedData<TComponent>(in entity, innerGroupId);
 
@@ -1523,7 +1468,8 @@ namespace ME.ECS {
             if (groupId == 0 && entity.Has<ME.ECS.DataConfigs.DataConfig.SharedData>() == true) {
 
                 ref readonly var sharedData = ref entity.Read<ME.ECS.DataConfigs.DataConfig.SharedData>();
-                if (sharedData.archetypeToId.TryGetValue(AllComponentTypes<TComponent>.typeId, out var innerGroupId) == true && innerGroupId != 0) {
+                ref var allocator = ref Worlds.current.currentState.allocator;
+                if (sharedData.archetypeToId.TryGetValue(in allocator, AllComponentTypes<TComponent>.typeId, out var innerGroupId) == true && innerGroupId != 0) {
 
                     return ref this.GetSharedData<TComponent>(in entity, innerGroupId);
 
@@ -1608,7 +1554,8 @@ namespace ME.ECS {
             if (groupId == 0 && entity.Has<ME.ECS.DataConfigs.DataConfig.SharedData>() == true) {
 
                 ref readonly var sharedData = ref entity.Read<ME.ECS.DataConfigs.DataConfig.SharedData>();
-                if (sharedData.archetypeToId.TryGetValue(AllComponentTypes<TComponent>.typeId, out var innerGroupId) == true && innerGroupId != 0) {
+                ref var allocator = ref Worlds.current.currentState.allocator;
+                if (sharedData.archetypeToId.TryGetValue(in allocator, AllComponentTypes<TComponent>.typeId, out var innerGroupId) == true && innerGroupId != 0) {
 
                     this.RemoveSharedData<TComponent>(in entity, innerGroupId);
                     return;

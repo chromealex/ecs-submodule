@@ -10,13 +10,13 @@ namespace ME.ECS {
             
             WorldUtilities.InitComponentTypeId<IsEntityOneShot>(true, isOneShot: true);
             WorldUtilities.InitComponentTypeId<IsEntityEmptyOneShot>(true, isOneShot: true);
-            WorldUtilities.InitComponentTypeId<ME.ECS.Views.ViewComponent>(false, isBlittable: true);
             WorldUtilities.InitComponentTypeId<ME.ECS.Collections.IntrusiveData>(false, isBlittable: true);
             WorldUtilities.InitComponentTypeId<ME.ECS.Collections.IntrusiveSortedListData>(false, isBlittable: true);
             WorldUtilities.InitComponentTypeId<ME.ECS.Collections.IntrusiveListNode>(false, isBlittable: true);
             WorldUtilities.InitComponentTypeId<ME.ECS.Collections.IntrusiveHashSetBucket>(false, isBlittable: true);
             WorldUtilities.InitComponentTypeId<ME.ECS.Collections.IntrusiveHashSetData>(false, isBlittable: true);
             
+            ViewComponentsInitializer.InitTypeId();
             ME.ECS.DataConfigs.DataConfig.InitTypeId();
             TransformComponentsInitializer.InitTypeId();
             NameComponentsInitializer.InitTypeId();
@@ -29,13 +29,13 @@ namespace ME.ECS {
             
             noState.storage.ValidateOneShot<IsEntityOneShot>(true);
             noState.storage.ValidateOneShot<IsEntityEmptyOneShot>(true);
-            state.structComponents.ValidateUnmanaged<ME.ECS.Views.ViewComponent>(ref state.allocator, false);
             state.structComponents.ValidateUnmanaged<ME.ECS.Collections.IntrusiveData>(ref state.allocator, false);
             state.structComponents.ValidateUnmanaged<ME.ECS.Collections.IntrusiveSortedListData>(ref state.allocator, false);
             state.structComponents.ValidateUnmanaged<ME.ECS.Collections.IntrusiveListNode>(ref state.allocator, false);
             state.structComponents.ValidateUnmanaged<ME.ECS.Collections.IntrusiveHashSetBucket>(ref state.allocator, false);
             state.structComponents.ValidateUnmanaged<ME.ECS.Collections.IntrusiveHashSetData>(ref state.allocator, false);
 
+            ViewComponentsInitializer.Init(state);
             ME.ECS.DataConfigs.DataConfig.Init(state);
             TransformComponentsInitializer.Init(state);
             NameComponentsInitializer.Init(state);
@@ -48,13 +48,13 @@ namespace ME.ECS {
             
             entity.ValidateDataOneShot<IsEntityOneShot>(true);
             entity.ValidateDataOneShot<IsEntityEmptyOneShot>(true);
-            entity.ValidateDataUnmanaged<ME.ECS.Views.ViewComponent>(false);
             entity.ValidateDataUnmanaged<ME.ECS.Collections.IntrusiveData>(false);
             entity.ValidateDataUnmanaged<ME.ECS.Collections.IntrusiveSortedListData>(false);
             entity.ValidateDataUnmanaged<ME.ECS.Collections.IntrusiveListNode>(false);
             entity.ValidateDataUnmanaged<ME.ECS.Collections.IntrusiveHashSetBucket>(false);
             entity.ValidateDataUnmanaged<ME.ECS.Collections.IntrusiveHashSetData>(false);
 
+            ViewComponentsInitializer.Init(in entity);
             ME.ECS.DataConfigs.DataConfig.Init(in entity);
             TransformComponentsInitializer.Init(in entity);
             NameComponentsInitializer.Init(in entity);

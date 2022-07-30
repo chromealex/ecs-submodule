@@ -1297,11 +1297,13 @@ namespace ME.ECS {
                 if (copyHierarchy == true) {
 
                     var nodes = from.Read<ME.ECS.Transform.Nodes>();
-                    foreach (var child in nodes.items) {
+                    var e = nodes.items.GetEnumerator(in Worlds.current.currentState.allocator);
+                    while (e.MoveNext() == true) {
                         var newChild = new Entity(EntityFlag.None);
-                        newChild.CopyFrom(child);
+                        newChild.CopyFrom(e.Current);
                         newChild.SetParent(to);
                     }
+                    e.Dispose();
 
                 }
             }
@@ -1426,7 +1428,7 @@ namespace ME.ECS {
         #endif
         public void OnEntityVersionChanged(in Entity entity) {
             
-            ECSTransformHierarchy.OnEntityVersionChanged(in entity);
+            ECSTransformHierarchy.OnEntityVersionChanged(ref this.currentState.allocator, in entity);
             
         }
 
@@ -1436,7 +1438,7 @@ namespace ME.ECS {
 
             if (this.currentState.storage.Dealloc(ref this.currentState.allocator, in entity) == true) {
 
-                if (cleanUpHierarchy == true) ECSTransformHierarchy.OnEntityDestroy(in entity);
+                if (cleanUpHierarchy == true) ECSTransformHierarchy.OnEntityDestroy(ref this.currentState.allocator, in entity);
                 this.RemoveFromAllFilters(ref this.currentState.allocator, entity);
                 this.DestroyEntityPlugins(in entity);
                 #if !ENTITY_TIMERS_DISABLED
