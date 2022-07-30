@@ -21,7 +21,7 @@ namespace ME.ECS.Serializer {
             Int64Serializer.PackDirect(packer, allocator.maxSize);
             Int32Serializer.PackDirect(packer, allocator.zonesListCount);
 
-            for (int i = 0; i < allocator.zonesListCount; i++) {
+            for (int i = 0; i < allocator.zonesListCount; ++i) {
                 var zone = allocator.zonesList[i];
 
                 Int32Serializer.PackDirect(packer, zone->size);
@@ -44,7 +44,8 @@ namespace ME.ECS.Serializer {
             allocator.zonesListCapacity = allocator.zonesListCount;
             allocator.zonesList = (MemoryAllocator.MemZone**)UnsafeUtility.Malloc(allocator.zonesListCount * sizeof(MemoryAllocator.MemZone*), UnsafeUtility.AlignOf<byte>(), Allocator.Persistent);
 
-            for (int i = 0; i < allocator.zonesListCount; i++) {
+            for (int i = 0; i < allocator.zonesListCount; ++i) {
+                
                 var length = Int32Serializer.UnpackDirect(packer);
                 if (length == 0) continue;
 
@@ -55,9 +56,8 @@ namespace ME.ECS.Serializer {
                 var pos = packer.GetPositionAndMove(readSize);
                 var buffer = packer.GetBuffer();
                 Marshal.Copy(buffer, pos, (System.IntPtr)zone, readSize);
+                
             }
-
-            
 
             return allocator;
 
