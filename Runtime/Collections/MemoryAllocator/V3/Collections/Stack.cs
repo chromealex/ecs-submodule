@@ -3,6 +3,7 @@ namespace ME.ECS.Collections.MemoryAllocator {
     using ME.ECS.Collections.V3;
     using MemPtr = System.Int64;
 
+    [System.Diagnostics.DebuggerTypeProxyAttribute(typeof(StackProxy<>))]
     public struct Stack<T> where T : unmanaged {
 
         private struct InternalData {
@@ -11,6 +12,12 @@ namespace ME.ECS.Collections.MemoryAllocator {
             public int size; // Number of items in the stack.
             public int version; // Used to keep enumerator in sync w/ collection.
             public readonly bool isCreated;
+
+            public void Dispose(ref MemoryAllocator allocator) {
+                
+                this.array.Dispose(ref allocator);
+                
+            }
 
         }
         
@@ -31,6 +38,14 @@ namespace ME.ECS.Collections.MemoryAllocator {
             this.array(in allocator) = new MemArrayAllocator<T>(ref allocator, capacity);
             this.size(in allocator) = 0;
             this.version(in allocator) = 0;
+        }
+
+        public void Dispose(ref MemoryAllocator allocator) {
+            
+            allocator.Ref<InternalData>(this.ptr).Dispose(ref allocator);
+            allocator.Free(this.ptr);
+            this = default;
+            
         }
 
         public void Clear(in MemoryAllocator allocator) {
@@ -79,19 +94,12 @@ namespace ME.ECS.Collections.MemoryAllocator {
         }
 
         public void Push(ref MemoryAllocator allocator, T item) {
-            if (this.size(in allocator) == this.array(in allocator).Length) {
-                this.array(in allocator).Resize(ref allocator, this.array(in allocator).Length == 0 ? Stack<T>.DEFAULT_CAPACITY : 2 * this.array(in allocator).Length);
+            if (this.size(in allocator) == this.array(in allocator).Length(in allocator)) {
+                this.array(in allocator).Resize(ref allocator, this.array(in allocator).Length(in allocator) == 0 ? Stack<T>.DEFAULT_CAPACITY : 2 * this.array(in allocator).Length(in allocator));
             }
 
             this.array(in allocator)[in allocator, this.size(in allocator)++] = item;
             this.version(in allocator)++;
-        }
-
-        public void Dispose(ref MemoryAllocator allocator) {
-            
-            this.array(in allocator).Dispose(ref allocator);
-            this = default;
-            
         }
 
         public struct Enumerator : System.Collections.Generic.IEnumerator<T> {

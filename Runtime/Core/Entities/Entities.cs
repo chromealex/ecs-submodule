@@ -268,7 +268,7 @@ namespace ME.ECS {
             if (Worlds.currentWorld == null || Worlds.currentWorld.currentState == null) return false;
             var state = Worlds.currentWorld.currentState;
             var arr = state.storage.cache;
-            if (this.id >= arr.Length) return false;
+            if (this.id >= arr.Length(in state.allocator)) return false;
             return arr[in state.allocator, this.id].generation == this.generation;
 
         }

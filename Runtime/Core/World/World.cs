@@ -1281,13 +1281,11 @@ namespace ME.ECS {
             {
                 // Clear entity
                 this.currentState.structComponents.RemoveAll(this.currentState, ref this.currentState.allocator, in to);
-                this.currentState.storage.archetypes.Clear(in to);
             }
 
             {
                 // Copy data
                 this.currentState.structComponents.CopyFrom(in from, in to);
-                this.currentState.storage.archetypes.CopyFrom(in from, in to);
                 this.UpdateFilters(in to);
                 
                 // Copy hierarchy data

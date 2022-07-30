@@ -19,7 +19,7 @@ namespace ME.ECS.Collections {
     //[Serializable]
     public class DictionaryCopyable<TKey, TValue> : IDictionary<TKey, TValue>, IDictionary, IReadOnlyDictionary<TKey, TValue> {
 
-        private struct Entry {
+        internal struct Entry {
 
             public int hashCode; // Lower 31 bits of hash code, -1 if unused
             public int next; // Index of next entry, -1 if last
@@ -29,9 +29,9 @@ namespace ME.ECS.Collections {
         }
         
         [ME.ECS.Serializer.SerializeField]
-        private int[] _buckets;
+        internal int[] _buckets;
         [ME.ECS.Serializer.SerializeField]
-        private Entry[] _entries;
+        internal Entry[] _entries;
         [ME.ECS.Serializer.SerializeField]
         private int _count;
         [ME.ECS.Serializer.SerializeField]

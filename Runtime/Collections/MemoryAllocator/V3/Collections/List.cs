@@ -3,12 +3,20 @@ namespace ME.ECS.Collections.MemoryAllocator {
     using ME.ECS.Collections.V3;
     using MemPtr = System.Int64;
 
+    [System.Diagnostics.DebuggerTypeProxyAttribute(typeof(ListProxy<>))]
     public struct List<T> where T : unmanaged {
 
         private struct InternalData {
 
             public MemArrayAllocator<T> arr;
             public int count;
+
+            public void Dispose(ref MemoryAllocator allocator) {
+                
+                this.arr.Dispose(ref allocator);
+                this = default;
+
+            }
 
         }
         
@@ -82,6 +90,10 @@ namespace ME.ECS.Collections.MemoryAllocator {
 
         public bool isCreated => this.ptr != 0;
 
+        public readonly int Capacity(in MemoryAllocator allocator) {
+            return this.GetArray(in allocator).Length(in allocator);
+        }
+        
         public readonly int Count(in MemoryAllocator allocator) {
             if (this.ptr == 0) throw new System.NullReferenceException();
             return this.GetCount(in allocator);
@@ -96,7 +108,8 @@ namespace ME.ECS.Collections.MemoryAllocator {
 
         public void Dispose(ref MemoryAllocator allocator) {
 
-            if (this.ptr != 0) allocator.Free(this.ptr);
+            allocator.Ref<InternalData>(this.ptr).Dispose(ref allocator);
+            allocator.Free(this.ptr);
             this = default;
             
         }
@@ -189,7 +202,7 @@ namespace ME.ECS.Collections.MemoryAllocator {
 
             }
             
-            var ptr = this.GetArray(in allocator).GetMemPtr();
+            var ptr = this.GetArray(in allocator).GetMemPtr(in allocator);
             var size = sizeof(T);
             allocator.MemCopy(ptr, size * index, ptr, size * (index + 1), (this.GetCount(in allocator) - index - 1) * size);
             
@@ -217,7 +230,8 @@ namespace ME.ECS.Collections.MemoryAllocator {
             if (this.isCreated == false) {
                 
                 this = new List<T>(ref allocator, newLength);
-                
+                return true;
+
             }
             
             if (newLength <= this.GetCount(in allocator)) {
@@ -244,12 +258,12 @@ namespace ME.ECS.Collections.MemoryAllocator {
                 this.EnsureCapacity(ref allocator, this.GetCount(in allocator) + count);
                 var size = sizeof(T);
                 if (index < this.GetCount(in allocator)) {
-                    allocator.MemCopy(this.GetArray(in allocator).GetMemPtr(), (index + count) * size, this.GetArray(in allocator).GetMemPtr(), index * size, (this.GetCount(in allocator) - index) * size);
+                    allocator.MemCopy(this.GetArray(in allocator).GetMemPtr(in allocator), (index + count) * size, this.GetArray(in allocator).GetMemPtr(in allocator), index * size, (this.GetCount(in allocator) - index) * size);
                 }
 
-                if (this.GetArray(in allocator).GetMemPtr() == collection.GetArray(in allocator).GetMemPtr()) {
-                    allocator.MemCopy(this.GetArray(in allocator).GetMemPtr(), index * size, this.GetArray(in allocator).GetMemPtr(), 0, index * size);
-                    allocator.MemCopy(this.GetArray(in allocator).GetMemPtr(), (index * 2) * size, this.GetArray(in allocator).GetMemPtr(), (index + count) * size, (this.GetCount(in allocator) - index) * size);
+                if (this.GetArray(in allocator).GetMemPtr(in allocator) == collection.GetArray(in allocator).GetMemPtr(in allocator)) {
+                    allocator.MemCopy(this.GetArray(in allocator).GetMemPtr(in allocator), index * size, this.GetArray(in allocator).GetMemPtr(in allocator), 0, index * size);
+                    allocator.MemCopy(this.GetArray(in allocator).GetMemPtr(in allocator), (index * 2) * size, this.GetArray(in allocator).GetMemPtr(in allocator), (index + count) * size, (this.GetCount(in allocator) - index) * size);
                 } else {
                     collection.CopyTo(ref allocator, this.GetArray(in allocator), index);
                 }
@@ -266,7 +280,7 @@ namespace ME.ECS.Collections.MemoryAllocator {
             }
 
             var size = sizeof(T);
-            allocator.MemCopy(arr.GetMemPtr(), index * size, this.GetArray(in allocator).GetMemPtr(), 0, this.GetCount(in allocator) * size);
+            allocator.MemCopy(arr.GetMemPtr(in allocator), index * size, this.GetArray(in allocator).GetMemPtr(in allocator), 0, this.GetCount(in allocator) * size);
             
         }
 

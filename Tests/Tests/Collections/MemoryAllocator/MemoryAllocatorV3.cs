@@ -282,7 +282,7 @@ namespace ME.ECS.Tests.MemoryAllocator.V3 {
                 var arr = new MemArrayAllocator<MemPtr>();
                 arr.Resize(ref allocator, typeId + 1);
                 ref var ptr = ref arr[in allocator, typeId];
-                if (ptr != 0L) {
+                if (ptr == 0L) {
                     ptr = arr[in allocator, typeId] = allocator.Alloc<TestData>();
                 }
 
@@ -423,7 +423,7 @@ namespace ME.ECS.Tests.MemoryAllocator.V3 {
             var buffer = this.PrepareSlicedArray(ref allocator);
             Assert.AreEqual(6, buffer[in allocator, 5]);
             Assert.AreEqual(12, buffer[in allocator, 11]);
-            Assert.AreEqual(13, buffer.Length);
+            Assert.AreEqual(13, buffer.Length(in allocator));
 
             buffer.Dispose(ref allocator);
             allocator.Dispose();
@@ -435,11 +435,11 @@ namespace ME.ECS.Tests.MemoryAllocator.V3 {
 
             var allocator = Base.GetAllocator(1);
             var buffer = this.PrepareSlicedArray(ref allocator);
-            var len = buffer.Length;
+            var len = buffer.Length(in allocator);
             var merged = buffer.Merge(ref allocator);
             Assert.AreEqual(6, merged[in allocator, 5]);
             Assert.AreEqual(12, merged[in allocator, 11]);
-            Assert.AreEqual(len, merged.Length);
+            Assert.AreEqual(len, merged.Length(in allocator));
             
             merged = merged.Resize(ref allocator,20, out _);
             

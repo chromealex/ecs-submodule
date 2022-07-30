@@ -353,16 +353,13 @@ namespace ME.ECS {
                 version = 1,
             };
             var componentIndex = ComponentTypes<TComponent>.typeId;
-            ref var archetypes = ref this.world.currentState.storage.archetypes;
             if (group.copyMode == true) {
                 for (int i = group.fromId; i <= group.toId; ++i) {
                     this.components.data[i] = data;
                 }
-                if (componentIndex >= 0 && setBits == true) archetypes.Set(in group, componentIndex);
             } else {
                 for (int i = group.fromId; i <= group.toId; ++i) {
                     this.components.data[i] = data;
-                    if (componentIndex >= 0 && setBits == true) archetypes.Set(i, componentIndex);
                 }
             }
             this.world.currentState.storage.Set(ref this.world.currentState.allocator, in group, componentIndex, ComponentTypes<TComponent>.isFilterLambda);
@@ -380,16 +377,13 @@ namespace ME.ECS {
                 version = 1,
             };
             var componentIndex = ComponentTypes<TComponent>.typeId;
-            ref var archetypes = ref this.world.currentState.storage.archetypes;
             if (group.copyMode == true) {
                 for (int i = group.fromId; i <= group.toId; ++i) {
                     this.components.data[i] = data;
                 }
-                if (componentIndex >= 0 && setBits == true) archetypes.Set(in group, componentIndex);
             } else {
                 for (int i = group.fromId; i <= group.toId; ++i) {
                     this.components.data[i] = data;
-                    if (componentIndex >= 0 && setBits == true) archetypes.Set(i, componentIndex);
                 }
             }
             this.world.currentState.storage.Set(ref this.world.currentState.allocator, in group, componentIndex, ComponentTypes<TComponent>.isFilterLambda);
@@ -406,17 +400,6 @@ namespace ME.ECS {
             if (setBits == true) {
                 
                 var componentIndex = ComponentTypes<TComponent>.typeId;
-                if (componentIndex >= 0) {
-                    ref var archetypes = ref this.world.currentState.storage.archetypes;
-                    if (group.copyMode == true) {
-                        archetypes.Remove(in group, componentIndex);
-                    } else {
-                        for (int i = group.fromId; i <= group.toId; ++i) {
-                            archetypes.Remove(i, componentIndex);
-                        }
-                    }
-                }
-
                 this.world.currentState.storage.Remove(ref this.world.currentState.allocator, in group, componentIndex, ComponentTypes<TComponent>.isFilterLambda);
 
             }
@@ -438,16 +421,13 @@ namespace ME.ECS {
                 version = 1,
             };
             var componentIndex = ComponentTypes<TComponent>.typeId;
-            ref var archetypes = ref this.world.currentState.storage.archetypes;
             if (group.copyMode == true) {
                 for (int i = group.fromId; i <= group.toId; ++i) {
                     this.components.data[i] = data;
                 }
-                if (componentIndex >= 0 && setBits == true) archetypes.Set(in group, componentIndex);
             } else {
                 for (int i = group.fromId; i <= group.toId; ++i) {
                     this.components.data[i] = data;
-                    if (componentIndex >= 0 && setBits == true) archetypes.Set(i, componentIndex);
                 }
             }
             this.world.currentState.storage.Set(ref this.world.currentState.allocator, in group, componentIndex, ComponentTypes<TComponent>.isFilterLambda);
@@ -465,16 +445,13 @@ namespace ME.ECS {
                 version = 1,
             };
             var componentIndex = ComponentTypes<TComponent>.typeId;
-            ref var archetypes = ref this.world.currentState.storage.archetypes;
             if (group.copyMode == true) {
                 for (int i = group.fromId; i <= group.toId; ++i) {
                     this.components.data[i] = data;
                 }
-                if (componentIndex >= 0 && setBits == true) archetypes.Set(in group, componentIndex);
             } else {
                 for (int i = group.fromId; i <= group.toId; ++i) {
                     this.components.data[i] = data;
-                    if (componentIndex >= 0 && setBits == true) archetypes.Set(i, componentIndex);
                 }
             }
             this.world.currentState.storage.Set(ref this.world.currentState.allocator, in group, componentIndex, ComponentTypes<TComponent>.isFilterLambda);
@@ -491,17 +468,6 @@ namespace ME.ECS {
             if (setBits == true) {
                 
                 var componentIndex = ComponentTypes<TComponent>.typeId;
-                if (componentIndex >= 0) {
-                    ref var archetypes = ref this.world.currentState.storage.archetypes;
-                    if (group.copyMode == true) {
-                        archetypes.Remove(in group, componentIndex);
-                    } else {
-                        for (int i = group.fromId; i <= group.toId; ++i) {
-                            archetypes.Remove(i, componentIndex);
-                        }
-                    }
-                }
-
                 this.world.currentState.storage.Remove(ref this.world.currentState.allocator, in group, componentIndex, ComponentTypes<TComponent>.isFilterLambda);
 
             }
@@ -530,17 +496,14 @@ namespace ME.ECS {
                 version = 1,
             };
             var componentIndex = ComponentTypes<TComponent>.typeId;
-            ref var archetypes = ref this.world.currentState.storage.archetypes;
             ref var reg = ref this.registry;
             if (group.copyMode == true) {
                 for (int i = group.fromId; i <= group.toId; ++i) {
-                    reg.components.data[in this.allocator, i] = data;
+                    reg.components.data(in this.allocator)[in this.allocator, i] = data;
                 }
-                if (componentIndex >= 0 && setBits == true) archetypes.Set(in group, componentIndex);
             } else {
                 for (int i = group.fromId; i <= group.toId; ++i) {
-                    reg.components.data[in this.allocator, i] = data;
-                    if (componentIndex >= 0 && setBits == true) archetypes.Set(i, componentIndex);
+                    reg.components.data(in this.allocator)[in this.allocator, i] = data;
                 }
             }
             this.world.currentState.storage.Set(ref this.world.currentState.allocator, in group, componentIndex, ComponentTypes<TComponent>.isFilterLambda);
@@ -558,17 +521,6 @@ namespace ME.ECS {
             if (setBits == true) {
                 
                 var componentIndex = ComponentTypes<TComponent>.typeId;
-                if (componentIndex >= 0) {
-                    ref var archetypes = ref this.world.currentState.storage.archetypes;
-                    if (group.copyMode == true) {
-                        archetypes.Remove(in group, componentIndex);
-                    } else {
-                        for (int i = group.fromId; i <= group.toId; ++i) {
-                            archetypes.Remove(i, componentIndex);
-                        }
-                    }
-                }
-
                 this.world.currentState.storage.Remove(ref this.world.currentState.allocator, in group, componentIndex, ComponentTypes<TComponent>.isFilterLambda);
 
             }

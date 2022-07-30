@@ -19,6 +19,8 @@ namespace ME.ECS.Collections.V3 {
         internal int zonesListCount;
         internal int zonesListCapacity;
         internal long maxSize;
+        
+        public bool isValid => this.zonesList != null;
 
         /// 
         /// Constructors

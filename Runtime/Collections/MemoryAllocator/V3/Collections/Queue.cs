@@ -3,6 +3,7 @@ namespace ME.ECS.Collections.MemoryAllocator {
     using Collections.V3;
     using MemPtr = System.Int64;
 
+    [System.Diagnostics.DebuggerTypeProxyAttribute(typeof(QueueProxy<>))]
     public struct Queue<T> where T : unmanaged {
 
         private struct InternalData {
@@ -12,6 +13,13 @@ namespace ME.ECS.Collections.MemoryAllocator {
             public int tail; // Last valid element in the queue
             public int size; // Number of elements.
             public int version;
+
+            public void Dispose(ref MemoryAllocator allocator) {
+                
+                this.array.Dispose(ref allocator);
+                this = default;
+
+            }
 
         }
         
@@ -41,9 +49,10 @@ namespace ME.ECS.Collections.MemoryAllocator {
 
         public void Dispose(ref MemoryAllocator allocator) {
             
-            this.array(in allocator).Dispose(ref allocator);
+            allocator.Ref<InternalData>(this.ptr).Dispose(ref allocator);
+            allocator.Free(this.ptr);
             this = default;
-
+            
         }
 
         public void Clear(in MemoryAllocator allocator) {
@@ -54,17 +63,17 @@ namespace ME.ECS.Collections.MemoryAllocator {
         }
 
         public void Enqueue(ref MemoryAllocator allocator, T item) {
-            if (this.size(in allocator) == this.array(in allocator).Length) {
-                var newCapacity = (int)((long)this.array(in allocator).Length * (long)Queue<T>.GROW_FACTOR / 100);
-                if (newCapacity < this.array(in allocator).Length + Queue<T>.MINIMUM_GROW) {
-                    newCapacity = this.array(in allocator).Length + Queue<T>.MINIMUM_GROW;
+            if (this.size(in allocator) == this.array(in allocator).Length(in allocator)) {
+                var newCapacity = (int)((long)this.array(in allocator).Length(in allocator) * (long)Queue<T>.GROW_FACTOR / 100);
+                if (newCapacity < this.array(in allocator).Length(in allocator) + Queue<T>.MINIMUM_GROW) {
+                    newCapacity = this.array(in allocator).Length(in allocator) + Queue<T>.MINIMUM_GROW;
                 }
 
                 this.SetCapacity(ref allocator, newCapacity);
             }
 
             this.array(in allocator)[in allocator, this.tail(in allocator)] = item;
-            this.tail(in allocator) = (this.tail(in allocator) + 1) % this.array(in allocator).Length;
+            this.tail(in allocator) = (this.tail(in allocator) + 1) % this.array(in allocator).Length(in allocator);
             this.size(in allocator)++;
             this.version(in allocator)++;
         }
@@ -84,7 +93,7 @@ namespace ME.ECS.Collections.MemoryAllocator {
 
             var removed = this.array(in allocator)[in allocator, this.head(in allocator)];
             this.array(in allocator)[in allocator, this.head(in allocator)] = default(T);
-            this.head(in allocator) = (this.head(in allocator) + 1) % this.array(in allocator).Length;
+            this.head(in allocator) = (this.head(in allocator) + 1) % this.array(in allocator).Length(in allocator);
             this.size(in allocator)--;
             this.version(in allocator)++;
             return removed;
@@ -107,14 +116,14 @@ namespace ME.ECS.Collections.MemoryAllocator {
                     return true;
                 }
 
-                index = (index + 1) % this.array(in allocator).Length;
+                index = (index + 1) % this.array(in allocator).Length(in allocator);
             }
 
             return false;
         }
 
         private T GetElement(in MemoryAllocator allocator, int i) {
-            return this.array(in allocator)[in allocator, (this.head(in allocator) + i) % this.array(in allocator).Length];
+            return this.array(in allocator)[in allocator, (this.head(in allocator) + i) % this.array(in allocator).Length(in allocator)];
         }
 
         private void SetCapacity(ref MemoryAllocator allocator, int capacity) {

@@ -29,7 +29,6 @@ namespace ME.ECS {
                 
                 if (ComponentTypes<T>.typeId >= 0) {
 
-                    world.currentState.storage.archetypes.Remove<T>(in entity);
                     world.RemoveFilterByStructComponent<T>(ref world.currentState.allocator, in entity);
                     world.UpdateFilterByStructComponent<T>(ref world.currentState.allocator, in entity);
 
@@ -76,7 +75,6 @@ namespace ME.ECS {
 
                 if (ComponentTypes<T>.typeId >= 0) {
 
-                    world.currentState.storage.archetypes.Set<T>(in entity);
                     world.AddFilterByStructComponent<T>(ref world.currentState.allocator, in entity);
                     world.UpdateFilterByStructComponent<T>(ref world.currentState.allocator, in entity);
 

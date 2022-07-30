@@ -229,7 +229,7 @@ namespace ME.ECS.FiltersArchetype {
             #if INLINE_METHODS
             [MethodImplAttribute(MethodImplOptions.AggressiveInlining)]
             #endif
-            internal static int CreateAdd(ref MemoryAllocator allocator, ref FiltersArchetypeStorage storage, int node, in List<int> componentIds, in Dictionary<int, Info> components, int componentId) {
+            private static int CreateAdd(ref MemoryAllocator allocator, ref FiltersArchetypeStorage storage, int node, in List<int> componentIds, in Dictionary<int, Info> components, int componentId) {
 
                 if (storage.TryGetArchetypeAdd(ref allocator, componentIds, componentId, out var ar) == true) {
                     return ar;
@@ -252,11 +252,11 @@ namespace ME.ECS.FiltersArchetype {
                 if (node >= 0) {
                     arch.edgesToRemove.Add(ref allocator, componentId, node);
                 }
-                
+
                 storage.isArchetypesDirty = true;
                 var idx = storage.allArchetypes.Count(in allocator);
                 arch.index = idx;
-                
+
                 storage.dirtyArchetypes.Add(ref allocator, idx);
                 storage.allArchetypes.Add(ref allocator, arch);
                 
@@ -293,6 +293,7 @@ namespace ME.ECS.FiltersArchetype {
                     arch.components.Add(ref allocator, cId, new Info() {
                         index = i,
                     });
+                    
                 }
 
                 if (node >= 0) {
@@ -365,68 +366,6 @@ namespace ME.ECS.FiltersArchetype {
 
         }
 
-        public struct NullArchetypes {
-
-            #if INLINE_METHODS
-            [MethodImplAttribute(MethodImplOptions.AggressiveInlining)]
-            #endif
-            public void Set<T>(in Entity entity) { }
-            #if INLINE_METHODS
-            [MethodImplAttribute(MethodImplOptions.AggressiveInlining)]
-            #endif
-            public void Remove<T>(in Entity entity) { }
-
-            #if INLINE_METHODS
-            [MethodImplAttribute(MethodImplOptions.AggressiveInlining)]
-            #endif
-            public void Set(in Entity entity, int componentId) { }
-            #if INLINE_METHODS
-            [MethodImplAttribute(MethodImplOptions.AggressiveInlining)]
-            #endif
-            public void Remove(in Entity entity, int componentId) { }
-
-            #if !ENTITIES_GROUP_DISABLED
-            #if INLINE_METHODS
-            [MethodImplAttribute(MethodImplOptions.AggressiveInlining)]
-            #endif
-            public void Set(in EntitiesGroup group, int componentId) { }
-            #if INLINE_METHODS
-            [MethodImplAttribute(MethodImplOptions.AggressiveInlining)]
-            #endif
-            public void Remove(in EntitiesGroup group, int componentId) { }
-            #endif
-
-            #if INLINE_METHODS
-            [MethodImplAttribute(MethodImplOptions.AggressiveInlining)]
-            #endif
-            public void Set(int entityId, int componentId) { }
-            #if INLINE_METHODS
-            [MethodImplAttribute(MethodImplOptions.AggressiveInlining)]
-            #endif
-            public void Remove(int entityId, int componentId) { }
-
-            #if INLINE_METHODS
-            [MethodImplAttribute(MethodImplOptions.AggressiveInlining)]
-            #endif
-            public void Clear(in Entity entity) { }
-
-            #if INLINE_METHODS
-            [MethodImplAttribute(MethodImplOptions.AggressiveInlining)]
-            #endif
-            public void Validate(int capacity) { }
-
-            #if INLINE_METHODS
-            [MethodImplAttribute(MethodImplOptions.AggressiveInlining)]
-            #endif
-            public void Validate(in Entity entity) { }
-
-            #if INLINE_METHODS
-            [MethodImplAttribute(MethodImplOptions.AggressiveInlining)]
-            #endif
-            public void CopyFrom(in Entity @from, in Entity to) { }
-
-        }
-
         private struct Request {
 
             public Entity entity;
@@ -454,8 +393,6 @@ namespace ME.ECS.FiltersArchetype {
         internal List<int> entitiesArrIndex;
         [ME.ECS.Serializer.SerializeField]
         internal HashSet<int> dirtyArchetypes;
-
-        internal NullArchetypes archetypes; // Used for backward compability
 
         #region Entities Storage
         public int AliveCount => this.aliveCount;
@@ -1130,9 +1067,10 @@ namespace ME.ECS.FiltersArchetype {
 
                         var archId = e.Current;
                         if (item.archetypes.Contains(in allocator, archId) == true) continue;
-                        
+
                         var filterStaticData = world.GetFilterStaticData(item.id);
                         ref var arch = ref this.allArchetypes[in allocator, archId];
+                        
                         if (arch.HasAll(in allocator, filterStaticData.data.contains) == true &&
                             arch.HasNotAll(in allocator, filterStaticData.data.notContains) == true &&
                             arch.HasAnyPair(in allocator, filterStaticData.data.anyPair2) == true &&

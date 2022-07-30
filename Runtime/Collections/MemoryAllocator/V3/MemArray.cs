@@ -2,57 +2,39 @@ namespace ME.ECS.Collections.V3 {
     
     using MemPtr = System.Int64;
 
-    public unsafe class MemArrayAllocatorProxy<T> where T : struct {
-
-        private MemArrayAllocator<T> arr;
-        private MemoryAllocator allocator;
-        
-        public MemArrayAllocatorProxy(ref MemoryAllocator allocator, MemArrayAllocator<T> arr) {
-
-            this.arr = arr;
-            this.allocator = allocator;
-
-        }
-
-        public MemArrayAllocatorProxy(MemArrayAllocator<T> arr) {
-
-            this.arr = arr;
-            if (Worlds.current == null || Worlds.current.currentState == null) {
-                return;
-            }
-            this.allocator = Worlds.current.currentState.allocator;
-
-        }
-
-        public T[] items {
-            get {
-                var arr = new T[this.arr.Length];
-                for (int i = 0; i < this.arr.Length; ++i) {
-                    if (this.allocator.zonesList != null) arr[i] = this.arr[in this.allocator, i];
-                }
-
-                return arr;
-            }
-        }
-
-    }
-
     [System.Diagnostics.DebuggerTypeProxyAttribute(typeof(MemArrayAllocatorProxy<>))]
     public struct MemArrayAllocator<T> where T : struct {
 
+        private struct InternalData {
+
+            public int length;
+            public int growFactor;
+            public MemPtr arr;
+
+            public void Dispose(ref MemoryAllocator allocator) {
+
+                allocator.Free(this.arr);
+
+            }
+            
+        }
+        
         [ME.ECS.Serializer.SerializeField]
-        private MemPtr ptr;
-        [ME.ECS.Serializer.SerializeField]
-        public int Length;
-        [ME.ECS.Serializer.SerializeField]
-        private int growFactor;
-        public bool isCreated => this.ptr != 0L;
+        private readonly MemPtr ptr;
+
+        private readonly ref MemPtr arrPtr(in MemoryAllocator allocator) => ref allocator.Ref<InternalData>(this.ptr).arr;
+        private readonly ref int size(in MemoryAllocator allocator) => ref allocator.Ref<InternalData>(this.ptr).length;
+        private readonly ref int growFactor(in MemoryAllocator allocator) => ref allocator.Ref<InternalData>(this.ptr).growFactor;
+        
+        public readonly int Length(in MemoryAllocator allocator) => this.size(in allocator);
+        public readonly bool isCreated => this.ptr != 0L;
 
         public MemArrayAllocator(ref MemoryAllocator allocator, int length, ClearOptions clearOptions = ClearOptions.ClearMemory, int growFactor = 1) {
-            
-            this.ptr = length > 0 ? allocator.AllocArrayUnmanaged<T>(length) : 0;
-            this.growFactor = growFactor;
-            this.Length = length;
+
+            this.ptr = allocator.AllocData<InternalData>(default);
+            this.arrPtr(in allocator) = length > 0 ? allocator.AllocArrayUnmanaged<T>(length) : 0;
+            this.growFactor(in allocator) = growFactor;
+            this.size(in allocator) = length;
 
             if (clearOptions == ClearOptions.ClearMemory) {
                 this.Clear(in allocator);
@@ -62,66 +44,75 @@ namespace ME.ECS.Collections.V3 {
 
         public void Dispose(ref MemoryAllocator allocator) {
 
+            if (this.arrPtr(in allocator) != 0) allocator.Ref<InternalData>(this.ptr).Dispose(ref allocator);
             allocator.Free(this.ptr);
             this = default;
 
         }
 
-        public readonly MemPtr GetMemPtr() {
-            return this.ptr;
+        public readonly MemPtr GetMemPtr(in MemoryAllocator allocator) {
+            
+            return this.arrPtr(in allocator);
+            
         }
 
         public unsafe void* GetUnsafePtr(ref MemoryAllocator allocator) {
 
-            return allocator.GetUnsafePtr(this.ptr);
+            return allocator.GetUnsafePtr(this.arrPtr(in allocator));
 
         }
 
         public ref T this[in MemoryAllocator allocator, int index] {
             get {
-                E.RANGE(index, 0, this.Length);
-                return ref allocator.RefArrayUnmanaged<T>(this.ptr, index);
+                E.RANGE(index, 0, this.Length(in allocator));
+                return ref allocator.RefArrayUnmanaged<T>(this.arrPtr(in allocator), index);
             }
         }
 
         public ref T this[MemoryAllocator allocator, int index] {
             get {
-                E.RANGE(index, 0, this.Length);
-                return ref allocator.RefArrayUnmanaged<T>(this.ptr, index);
+                E.RANGE(index, 0, this.Length(in allocator));
+                return ref allocator.RefArrayUnmanaged<T>(this.arrPtr(in allocator), index);
             }
         }
 
         public bool Resize(ref MemoryAllocator allocator, int newLength, ClearOptions options = ClearOptions.ClearMemory, int growFactor = 1) {
 
-            if (newLength <= this.Length) {
+            if (this.isCreated == false) {
+
+                this = new MemArrayAllocator<T>(ref allocator, newLength, options, growFactor);
+                return true;
+
+            }
+            
+            if (newLength <= this.Length(in allocator)) {
 
                 return false;
                 
             }
 
-            if (this.isCreated == false) this.growFactor = growFactor;
-            newLength *= this.growFactor;
+            newLength *= this.growFactor(in allocator);
 
-            var prevLength = this.Length;
-            this.ptr = allocator.ReAllocArrayUnmanaged<T>(this.ptr, newLength);
+            var prevLength = this.Length(in allocator);
+            this.arrPtr(in allocator) = allocator.ReAllocArrayUnmanaged<T>(this.arrPtr(in allocator), newLength);
             if (options == ClearOptions.ClearMemory) {
                 this.Clear(in allocator, prevLength, newLength - prevLength);
             }
-            this.Length = newLength;
+            this.size(in allocator) = newLength;
             return true;
 
         }
 
         public void Clear(in MemoryAllocator allocator) {
 
-            this.Clear(in allocator, 0, this.Length);
+            this.Clear(in allocator, 0, this.Length(in allocator));
 
         }
 
         public void Clear(in MemoryAllocator allocator, int index, int length) {
 
             var size = Unity.Collections.LowLevel.Unsafe.UnsafeUtility.SizeOf<T>();
-            allocator.MemClear(this.ptr, index * size, length * size);
+            allocator.MemClear(this.arrPtr(in allocator), index * size, length * size);
             
         }
 

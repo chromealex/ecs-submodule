@@ -4,6 +4,7 @@ namespace ME.ECS.Collections.MemoryAllocator {
     using Unity.Collections.LowLevel.Unsafe;
     using MemPtr = System.Int64;
     
+    [System.Diagnostics.DebuggerTypeProxyAttribute(typeof(HashSetProxy<>))]
     public struct HashSet<T> where T : unmanaged {
 
         private struct InternalData {
@@ -15,6 +16,14 @@ namespace ME.ECS.Collections.MemoryAllocator {
             public int freeList;
             public int version;
             
+            public void Dispose(ref MemoryAllocator allocator) {
+                
+                this.buckets.Dispose(ref allocator);
+                this.slots.Dispose(ref allocator);
+                this = default;
+
+            }
+
         }
         
         public struct Enumerator : System.Collections.Generic.IEnumerator<T> {
@@ -107,7 +116,7 @@ namespace ME.ECS.Collections.MemoryAllocator {
             
         }
 
-        private struct Slot {
+        public struct Slot {
             internal int hashCode;      // Lower 31 bits of hash code, -1 if unused
             internal int next;          // Index of next entry, -1 if last
             internal T value;
@@ -117,12 +126,12 @@ namespace ME.ECS.Collections.MemoryAllocator {
         [ME.ECS.Serializer.SerializeField]
         private readonly MemPtr ptr;
 
-        private readonly ref MemArrayAllocator<int> buckets(in MemoryAllocator allocator) => ref allocator.Ref<InternalData>(this.ptr).buckets;
-        private readonly ref MemArrayAllocator<Slot> slots(in MemoryAllocator allocator) => ref allocator.Ref<InternalData>(this.ptr).slots;
-        private readonly ref int count(in MemoryAllocator allocator) => ref allocator.Ref<InternalData>(this.ptr).count;
-        private readonly ref int lastIndex(in MemoryAllocator allocator) => ref allocator.Ref<InternalData>(this.ptr).lastIndex;
-        private readonly ref int freeList(in MemoryAllocator allocator) => ref allocator.Ref<InternalData>(this.ptr).freeList;
-        private readonly ref int version(in MemoryAllocator allocator) => ref allocator.Ref<InternalData>(this.ptr).version;
+        internal readonly ref MemArrayAllocator<int> buckets(in MemoryAllocator allocator) => ref allocator.Ref<InternalData>(this.ptr).buckets;
+        internal readonly ref MemArrayAllocator<Slot> slots(in MemoryAllocator allocator) => ref allocator.Ref<InternalData>(this.ptr).slots;
+        internal readonly ref int count(in MemoryAllocator allocator) => ref allocator.Ref<InternalData>(this.ptr).count;
+        internal readonly ref int lastIndex(in MemoryAllocator allocator) => ref allocator.Ref<InternalData>(this.ptr).lastIndex;
+        internal readonly ref int freeList(in MemoryAllocator allocator) => ref allocator.Ref<InternalData>(this.ptr).freeList;
+        internal readonly ref int version(in MemoryAllocator allocator) => ref allocator.Ref<InternalData>(this.ptr).version;
         
         public bool isCreated => this.ptr != 0;
         public int Count(in MemoryAllocator allocator) => this.count(in allocator);
@@ -134,6 +143,14 @@ namespace ME.ECS.Collections.MemoryAllocator {
 
         }
         
+        public void Dispose(ref MemoryAllocator allocator) {
+            
+            allocator.Ref<InternalData>(this.ptr).Dispose(ref allocator);
+            allocator.Free(this.ptr);
+            this = default;
+            
+        }
+
         public readonly Enumerator GetEnumerator(State state) {
             
             return new Enumerator(state, this);
@@ -144,14 +161,6 @@ namespace ME.ECS.Collections.MemoryAllocator {
             
             return new EnumeratorNoState(in allocator, this);
             
-        }
-
-        public void Dispose(ref MemoryAllocator allocator) {
-            
-            this.buckets(in allocator).Dispose(ref allocator);
-            this.slots(in allocator).Dispose(ref allocator);
-            this = default;
-
         }
 
         public ref T GetByIndex(in MemoryAllocator allocator, int index) {
@@ -168,7 +177,7 @@ namespace ME.ECS.Collections.MemoryAllocator {
                 // clear the elements so that the gc can reclaim the references.
                 // clear only up to m_lastIndex for m_slots
                 this.slots(in allocator).Clear(in allocator, 0, this.lastIndex(in allocator));
-                this.buckets(in allocator).Clear(in allocator, 0, this.buckets(in allocator).Length);
+                this.buckets(in allocator).Clear(in allocator, 0, this.buckets(in allocator).Length(in allocator));
                 this.lastIndex(in allocator) = 0;
                 this.count(in allocator) = 0;
                 this.freeList(in allocator) = -1;
@@ -187,7 +196,7 @@ namespace ME.ECS.Collections.MemoryAllocator {
                 var c = System.Collections.Generic.EqualityComparer<T>.Default;
                 int hashCode = this.InternalGetHashCode(item);
                 // see note at "HashSet" level describing why "- 1" appears in for loop
-                for (int i = this.buckets(in allocator)[in allocator, hashCode % this.buckets(in allocator).Length] - 1; i >= 0; i = this.slots(in allocator)[in allocator, i].next) {
+                for (int i = this.buckets(in allocator)[in allocator, hashCode % this.buckets(in allocator).Length(in allocator)] - 1; i >= 0; i = this.slots(in allocator)[in allocator, i].next) {
                     if (this.slots(in allocator)[in allocator, i].hashCode == hashCode &&
                         c.Equals(this.slots(in allocator)[in allocator, i].value, item) == true) {
                         return true;
@@ -208,7 +217,7 @@ namespace ME.ECS.Collections.MemoryAllocator {
             if (this.buckets(in allocator).isCreated == true) {
                 var c = System.Collections.Generic.EqualityComparer<T>.Default;
                 int hashCode = this.InternalGetHashCode(item);
-                int bucket = hashCode % this.buckets(in allocator).Length;
+                int bucket = hashCode % this.buckets(in allocator).Length(in allocator);
                 int last = -1;
                 for (int i = this.buckets(in allocator)[in allocator, bucket] - 1; i >= 0; last = i, i = this.slots(in allocator)[in allocator, i].next) {
                     if (this.slots(in allocator)[in allocator, i].hashCode == hashCode &&
@@ -368,9 +377,9 @@ namespace ME.ECS.Collections.MemoryAllocator {
             }
 
             int hashCode = this.InternalGetHashCode(value);
-            int bucket = hashCode % this.buckets(in allocator).Length;
+            int bucket = hashCode % this.buckets(in allocator).Length(in allocator);
             var c = System.Collections.Generic.EqualityComparer<T>.Default;
-            for (int i = this.buckets(in allocator)[in allocator, hashCode % this.buckets(in allocator).Length] - 1; i >= 0; i = this.slots(in allocator)[in allocator, i].next) {
+            for (int i = this.buckets(in allocator)[in allocator, hashCode % this.buckets(in allocator).Length(in allocator)] - 1; i >= 0; i = this.slots(in allocator)[in allocator, i].next) {
                 if (this.slots(in allocator)[in allocator, i].hashCode == hashCode &&
                     c.Equals(this.slots(in allocator)[in allocator, i].value, value) == true) {
                     return false;
@@ -383,10 +392,10 @@ namespace ME.ECS.Collections.MemoryAllocator {
                 this.freeList(in allocator) = this.slots(in allocator)[in allocator, index].next;
             }
             else {
-                if (this.lastIndex(in allocator) == this.slots(in allocator).Length) {
+                if (this.lastIndex(in allocator) == this.slots(in allocator).Length(in allocator)) {
                     this.IncreaseCapacity(ref allocator);
                     // this will change during resize
-                    bucket = hashCode % this.buckets(in allocator).Length;
+                    bucket = hashCode % this.buckets(in allocator).Length(in allocator);
                 }
                 index = this.lastIndex(in allocator);
                 this.lastIndex(in allocator)++;
@@ -404,7 +413,7 @@ namespace ME.ECS.Collections.MemoryAllocator {
         // Add value at known index with known hash code. Used only
         // when constructing from another HashSet.
         private void AddValue(ref MemoryAllocator allocator, int index, int hashCode, T value) {
-            int bucket = hashCode % this.buckets(in allocator).Length;
+            int bucket = hashCode % this.buckets(in allocator).Length(in allocator);
             this.slots(in allocator)[in allocator, index].hashCode = hashCode;
             this.slots(in allocator)[in allocator, index].value = value;
             this.slots(in allocator)[in allocator, index].next = this.buckets(in allocator)[in allocator, bucket] - 1;
@@ -421,7 +430,7 @@ namespace ME.ECS.Collections.MemoryAllocator {
         private readonly int InternalIndexOf(in MemoryAllocator allocator, T item) {
             int hashCode = this.InternalGetHashCode(item);
             var c = System.Collections.Generic.EqualityComparer<T>.Default;
-            for (int i = this.buckets(in allocator)[in allocator, hashCode % this.buckets(in allocator).Length] - 1; i >= 0; i = this.slots(in allocator)[in allocator, i].next) {
+            for (int i = this.buckets(in allocator)[in allocator, hashCode % this.buckets(in allocator).Length(in allocator)] - 1; i >= 0; i = this.slots(in allocator)[in allocator, i].next) {
                 if ((this.slots(in allocator)[in allocator, i].hashCode) == hashCode &&
                     c.Equals(this.slots(in allocator)[in allocator, i].value, item) == true) {
                     return i;

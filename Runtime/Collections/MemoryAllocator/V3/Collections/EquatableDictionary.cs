@@ -15,6 +15,14 @@ namespace ME.ECS.Collections.MemoryAllocator {
             public int freeList;
             public int freeCount;
 
+            public void Dispose(ref MemoryAllocator allocator) {
+                
+                this.buckets.Dispose(ref allocator);
+                this.entries.Dispose(ref allocator);
+                this = default;
+
+            }
+
         }
         
         public struct Enumerator : System.Collections.Generic.IEnumerator<System.Collections.Generic.KeyValuePair<TKey, TValue>> {
@@ -160,17 +168,17 @@ namespace ME.ECS.Collections.MemoryAllocator {
         }
 
         public void Dispose(ref MemoryAllocator allocator) {
-
-            this.buckets(in allocator).Dispose(ref allocator);
-            this.entries(in allocator).Dispose(ref allocator);
+            
+            allocator.Ref<InternalData>(this.ptr).Dispose(ref allocator);
+            allocator.Free(this.ptr);
             this = default;
-
+            
         }
 
         public void CopyFrom(ref MemoryAllocator allocator, in EquatableDictionary<TKey, TValue> other) {
 
-            NativeArrayUtils.Copy(ref allocator, other.buckets(in allocator), ref this.buckets(in allocator));
-            NativeArrayUtils.Copy(ref allocator, other.entries(in allocator), ref this.entries(in allocator));
+            NativeArrayUtils.CopyExact(ref allocator, other.buckets(in allocator), ref this.buckets(in allocator));
+            NativeArrayUtils.CopyExact(ref allocator, other.entries(in allocator), ref this.entries(in allocator));
             this.count(in allocator) = other.count(in allocator);
             this.version(in allocator) = other.version(in allocator);
             this.freeCount(in allocator) = other.freeCount(in allocator);
@@ -197,7 +205,7 @@ namespace ME.ECS.Collections.MemoryAllocator {
         /// <param name="allocator"></param>
         public void Clear(in MemoryAllocator allocator) {
             if (this.count(in allocator) > 0) {
-                for (var i = 0; i < this.buckets(in allocator).Length; i++) {
+                for (var i = 0; i < this.buckets(in allocator).Length(in allocator); i++) {
                     this.buckets(in allocator)[in allocator, i] = -1;
                 }
 
@@ -250,7 +258,7 @@ namespace ME.ECS.Collections.MemoryAllocator {
             
             if (this.buckets(in allocator).isCreated == true) {
                 var hashCode = GetHash(key);
-                var bucket = hashCode % this.buckets(in allocator).Length;
+                var bucket = hashCode % this.buckets(in allocator).Length(in allocator);
                 var last = -1;
                 for (var i = this.buckets(in allocator)[in allocator, bucket]; i >= 0; last = i, i = this.entries(in allocator)[in allocator, i].next) {
                     if (this.entries(in allocator)[in allocator, i].hashCode == hashCode && AreEquals(this.entries(in allocator)[in allocator, i].key, key)) {
@@ -331,7 +339,7 @@ namespace ME.ECS.Collections.MemoryAllocator {
         private readonly int FindEntry(in MemoryAllocator allocator, TKey key) {
             if (this.buckets(in allocator).isCreated == true) {
                 var hashCode = GetHash(key);
-                for (var i = this.buckets(in allocator)[in allocator, hashCode % this.buckets(in allocator).Length]; i >= 0; i = this.entries(in allocator)[in allocator, i].next) {
+                for (var i = this.buckets(in allocator)[in allocator, hashCode % this.buckets(in allocator).Length(in allocator)]; i >= 0; i = this.entries(in allocator)[in allocator, i].next) {
                     if (this.entries(in allocator)[in allocator, i].hashCode == hashCode && AreEquals(this.entries(in allocator)[in allocator, i].key, key)) {
                         return i;
                     }
@@ -348,7 +356,7 @@ namespace ME.ECS.Collections.MemoryAllocator {
             }
 
             var hashCode = GetHash(key);
-            int targetBucket = hashCode % this.buckets(in allocator).Length;
+            int targetBucket = hashCode % this.buckets(in allocator).Length(in allocator);
 
             for (int i = this.buckets(in allocator)[in allocator, targetBucket]; i >= 0; i = this.entries(in allocator)[in allocator, i].next) {
                 if (this.entries(in allocator)[in allocator, i].hashCode == hashCode && AreEquals(key, this.entries(in allocator)[in allocator, i].key)) {
@@ -369,9 +377,9 @@ namespace ME.ECS.Collections.MemoryAllocator {
                 this.freeList(in allocator) = this.entries(in allocator)[in allocator, index].next;
                 this.freeCount(in allocator)--;
             } else {
-                if (this.count(in allocator) == this.entries(in allocator).Length) {
+                if (this.count(in allocator) == this.entries(in allocator).Length(in allocator)) {
                     this.Resize(ref allocator);
-                    targetBucket = hashCode % this.buckets(in allocator).Length;
+                    targetBucket = hashCode % this.buckets(in allocator).Length(in allocator);
                 }
                 index = this.count(in allocator);
                 this.count(in allocator)++;
@@ -397,7 +405,7 @@ namespace ME.ECS.Collections.MemoryAllocator {
         private void Initialize(ref MemoryAllocator allocator, int capacity) {
             var size = HashHelpers.GetPrime(capacity);
             this.buckets(in allocator) = new MemArrayAllocator<int>(ref allocator, size);
-            for (var i = 0; i < this.buckets(in allocator).Length; i++) {
+            for (var i = 0; i < this.buckets(in allocator).Length(in allocator); i++) {
                 this.buckets(in allocator)[in allocator, i] = -1;
             }
 
@@ -412,12 +420,12 @@ namespace ME.ECS.Collections.MemoryAllocator {
         private unsafe void Resize(ref MemoryAllocator allocator, int newSize, bool forceNewHashCodes) {
 
             var newBuckets = new MemArrayAllocator<int>(ref allocator, newSize);
-            for (var i = 0; i < newBuckets.Length; i++) {
+            for (var i = 0; i < newBuckets.Length(in allocator); i++) {
                 newBuckets[in allocator, i] = -1;
             }
 
             var newEntries = new MemArrayAllocator<Entry>(ref allocator, newSize);
-            allocator.MemCopy(newEntries.GetMemPtr(), 0, this.entries(in allocator).GetMemPtr(), 0, this.count(in allocator) * sizeof(Entry));
+            allocator.MemCopy(newEntries.GetMemPtr(in allocator), 0, this.entries(in allocator).GetMemPtr(in allocator), 0, this.count(in allocator) * sizeof(Entry));
             if (forceNewHashCodes) {
                 for (var i = 0; i < this.count(in allocator); i++) {
                     if (newEntries[in allocator, i].hashCode != -1) {

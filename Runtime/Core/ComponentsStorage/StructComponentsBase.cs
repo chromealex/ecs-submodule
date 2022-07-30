@@ -265,7 +265,7 @@ namespace ME.ECS {
             SharedGroupsAPI<TComponent>.Set(ref this.sharedStorage, entity.id, groupId, (TComponent)data);
             
             var componentIndex = ComponentTypes<TComponent>.typeId;
-            if (componentIndex >= 0) this.world.currentState.storage.archetypes.Set<TComponent>(in entity);
+            if (componentIndex >= 0) { }
 
             return true;
             
@@ -349,11 +349,11 @@ namespace ME.ECS {
             #endif
             if (this.CopyFromState(in from, in to) > 0) {
 
-                if (ComponentTypes<TComponent>.typeId >= 0) this.world.currentState.storage.archetypes.Set<TComponent>(in to);
+                if (ComponentTypes<TComponent>.typeId >= 0) { }
 
             } else {
 
-                if (ComponentTypes<TComponent>.typeId >= 0) this.world.currentState.storage.archetypes.Remove<TComponent>(in to);
+                if (ComponentTypes<TComponent>.typeId >= 0) { }
 
             }
 

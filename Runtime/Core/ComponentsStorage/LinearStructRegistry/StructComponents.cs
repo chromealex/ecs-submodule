@@ -208,11 +208,7 @@ namespace ME.ECS {
                 this.RemoveData(in entity, ref bucket);
                 bucket.state = 0;
 
-                if (clearAll == false) {
-
-                    this.world.currentState.storage.archetypes.Remove<TComponent>(in entity);
-
-                }
+                if (clearAll == false) { }
 
                 return true;
 

@@ -1173,7 +1173,6 @@ namespace ME.ECS {
 
             this.noStateData.storage.RemoveAll(null, ref this.noStateData.allocator, in entity);
             this.currentState.structComponents.RemoveAll(this.currentState, ref this.currentState.allocator, in entity);
-            this.currentState.storage.archetypes.Clear(in entity);
 
         }
 
@@ -1550,7 +1549,6 @@ namespace ME.ECS {
                 this.currentState.structComponents.entitiesIndexer.Set(ref this.currentState.allocator, entity.id, AllComponentTypes<TComponent>.typeId);
                 if (ComponentTypes<TComponent>.typeId >= 0) {
 
-                    this.currentState.storage.archetypes.Set<TComponent>(in entity);
                     this.AddFilterByStructComponent<TComponent>(ref this.currentState.allocator, in entity);
                     this.UpdateFilterByStructComponent<TComponent>(ref this.currentState.allocator, in entity);
 
@@ -1636,7 +1634,6 @@ namespace ME.ECS {
                 
                 if (ComponentTypes<TComponent>.typeId >= 0) {
 
-                    this.currentState.storage.archetypes.Remove<TComponent>(in entity);
                     this.RemoveFilterByStructComponent<TComponent>(ref this.currentState.allocator, in entity);
                     this.UpdateFilterByStructComponent<TComponent>(ref this.currentState.allocator, in entity);
 
@@ -1677,7 +1674,6 @@ namespace ME.ECS {
                 this.currentState.structComponents.entitiesIndexer.Set(ref this.currentState.allocator, entity.id, AllComponentTypes<TComponent>.typeId);
                 if (ComponentTypes<TComponent>.typeId >= 0) {
 
-                    this.currentState.storage.archetypes.Set<TComponent>(in entity);
                     this.AddFilterByStructComponent<TComponent>(ref this.currentState.allocator, in entity);
                     this.UpdateFilterByStructComponent<TComponent>(ref this.currentState.allocator,  entity);
 

@@ -123,11 +123,7 @@ namespace ME.ECS {
 
                 bucket = 0;
 
-                if (clearAll == false) {
-
-                    this.world.currentState.storage.archetypes.Remove<TComponent>(in entity);
-
-                }
+                if (clearAll == false) { }
 
                 return true;
 
