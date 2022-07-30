@@ -12,7 +12,7 @@ namespace ME.ECS.DataConfigs {
             
             WorldUtilities.InitComponentTypeId<SourceConfig>();
             #if !STATIC_API_DISABLED
-            WorldUtilities.InitComponentTypeId<SourceConfigs>(isCopyable: true);
+            WorldUtilities.InitComponentTypeId<SourceConfigs>();
             #endif
             
         }
@@ -35,6 +35,7 @@ namespace ME.ECS.DataConfigs {
     
             state.structComponents.Validate<SourceConfig>();
             #if !STATIC_API_DISABLED
+            state.structComponents.Validate<SourceConfigs>();
             var feature = DataConfigComponentsInitializer.GetFeature();
             if (feature == null) {
 
@@ -49,6 +50,9 @@ namespace ME.ECS.DataConfigs {
         public static void Init(in Entity entity) {
 
             entity.ValidateData<SourceConfig>();
+            #if !STATIC_API_DISABLED
+            entity.ValidateData<SourceConfigs>();
+            #endif
             
         }
 
