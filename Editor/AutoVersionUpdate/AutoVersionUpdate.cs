@@ -2,12 +2,22 @@ using System.Linq;
 using UnityEditor;
 using UnityEngine;
 using System.Text.RegularExpressions;
+using UnityEngine.UIElements;
 
 namespace ME.ECSEditor {
 
     [InitializeOnLoad]
     public static class AutoVersionUpdateCompilation {
 
+        static System.Type m_toolbarType = typeof(Editor).Assembly.GetType("UnityEditor.Toolbar");
+        static System.Type m_guiViewType = typeof(Editor).Assembly.GetType("UnityEditor.GUIView");
+        static System.Type m_iWindowBackendType = typeof(Editor).Assembly.GetType("UnityEditor.IWindowBackend");
+        static System.Reflection.PropertyInfo m_windowBackend = m_guiViewType.GetProperty("windowBackend",
+                                                                                          System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+        static System.Reflection.PropertyInfo m_viewVisualTree = m_iWindowBackendType.GetProperty("visualTree",
+                                                                                                  System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+        static ScriptableObject m_currentToolbar;
+        
         internal static UnityEditor.Compilation.Assembly[] assemblies;
         internal static string currentVersion;
 
@@ -26,6 +36,51 @@ namespace ME.ECSEditor {
             var www = UnityEngine.Networking.UnityWebRequest.Get(url);
             www.SendWebRequest();
             AutoVersionUpdateCompilation.request = www;
+            
+            EditorApplication.update -= OnUpdate;
+            EditorApplication.update += OnUpdate;
+            
+        }
+
+        private static void OnUpdate() {
+            
+            AutoVersionUpdateCompilation.AddButton();
+            
+        }
+
+        private static void AddButton() {
+            
+            var username = UnityEditor.CloudProjectSettings.userName;
+            if (AutoVersionUpdate.IsUserEditor(username, out var commitName) == false) return;
+            
+            if (m_currentToolbar == null)
+            {
+                // Find toolbar
+                var toolbars = Resources.FindObjectsOfTypeAll(m_toolbarType);
+                m_currentToolbar = toolbars.Length > 0 ? (ScriptableObject) toolbars[0] : null;
+                if (m_currentToolbar != null) {
+                    var root = m_currentToolbar.GetType().GetField("m_Root", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+                    var rawRoot = root.GetValue(m_currentToolbar);
+                    var mRoot = rawRoot as VisualElement;
+                    var element = mRoot.Q("ToolbarZoneRightAlign");
+                    {
+                        var uss = EditorUtilities.Load<StyleSheet>("Editor/AutoVersionUpdate/styles.uss");
+                        element.styleSheets.Add(uss);
+                        var dropdown = new DropdownField();
+                        dropdown.value = "ME.ECS Collab";
+                        dropdown.AddToClassList("autoupdate-button");
+                        dropdown.RemoveFromClassList("unity-button");
+                        dropdown.RemoveFromClassList("unity-base-field");
+                        dropdown.Q(className:"unity-base-field__input").RemoveFromClassList("unity-base-field__input");
+                        dropdown.RegisterCallback<ClickEvent>(evt => {
+
+                            ChangeLogEditorWindow.CreateAfterCompilation(dropdown.worldBound);
+
+                        });
+                        element.Add(dropdown);
+                    }
+                }
+            }
 
         }
 
@@ -93,7 +148,7 @@ namespace ME.ECSEditor {
     
     public class AutoVersionUpdate : AssetPostprocessor {
 
-        private static bool IsUserEditor(string username, out string commitName) {
+        internal static bool IsUserEditor(string username, out string commitName) {
             
             // Check if its me ;)
             //var dir = System.IO.Directory.Exists("/Users/aleksandrfeer/Projects");
@@ -124,7 +179,7 @@ namespace ME.ECSEditor {
             return false;
 
         }
-        
+
         private static void OnPostprocessAllAssets(string[] importedAssets, string[] deletedAssets, string[] movedAssets, string[] movedFromAssetPaths) {
 
             if (SessionState.GetBool("AutoVersionUpdate.initialized", false) == false) return;

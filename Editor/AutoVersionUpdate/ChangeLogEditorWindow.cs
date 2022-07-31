@@ -29,7 +29,7 @@ namespace ME.ECSEditor {
         [UnityEditor.Callbacks.DidReloadScripts]
         private static void OnScriptsReloaded() {
             
-            CreateAfterCompilation();
+            //CreateAfterCompilation();
 
         }
 
@@ -40,18 +40,33 @@ namespace ME.ECSEditor {
             SessionState.SetString("temp.result", result);
             SessionState.SetString("temp.commitName", commitName);
             SessionState.SetString("temp.version", version);
-            SessionState.SetInt("temp.file.length", changedFilenames.Length);
-            for (int i = 0; i < changedFilenames.Length; ++i) {
-                SessionState.SetString("temp.file." + i, changedFilenames[i]);
+            var addFiles = new List<string>();
+            var len = SessionState.GetInt("temp.file.length", 0);
+            foreach (var changed in changedFilenames) {
+                var found = false;
+                for (int i = 0; i < len; ++i) {
+                    var file = SessionState.GetString("temp.file." + i, string.Empty);
+                    if (file == changed) {
+                        found = true;
+                        break;
+                    }
+                }
+                if (found == false) {
+                    addFiles.Add(changed);
+                }
+            }
+
+            SessionState.SetInt("temp.file.length", len + addFiles.Count);
+            for (int i = len; i < len + addFiles.Count; ++i) {
+                SessionState.SetString("temp.file." + i, addFiles[i]);
             }
 
         }
         
-        public static void CreateAfterCompilation() {
+        public static void CreateAfterCompilation(Rect rect) {
 
             var len = SessionState.GetInt("temp.file.length", 0);
             if (len == 0) return;
-            SessionState.EraseInt("temp.file.length");
             var realPath = SessionState.GetString("temp.realPath", string.Empty);
             var source = SessionState.GetString("temp.source", string.Empty);
             var result = SessionState.GetString("temp.result", string.Empty);
@@ -80,9 +95,10 @@ namespace ME.ECSEditor {
                 win.majorMinorVersion = majorMinor;
                 win.changeLogFile = System.IO.File.ReadAllText(filePath);
                 win.changeLogFilePath = filePath;
-                win.ShowPopup();
+                win.ShowAsDropDown(rect, win.position.size);
                 win.Repaint();
                 win.Focus();
+                if (i == 0) break;
 
             }
 
@@ -160,6 +176,7 @@ namespace ME.ECSEditor {
 
         private void Commit(bool addDate = false) {
 
+            SessionState.EraseInt("temp.file.length");
             if (string.IsNullOrEmpty(this.message) == false &&
                 this.message != this.changedFilename) {
 
