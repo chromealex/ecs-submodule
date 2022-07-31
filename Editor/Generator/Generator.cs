@@ -390,8 +390,11 @@ namespace ME.ECSEditor {
 
                         isBlittable = false;
                         isCopyable = false;
-                        isOneShot = false;
-                        isTag = true;
+                        if (isOneShot == true) {
+                            isTag = false;
+                        } else {
+                            isTag = true;
+                        }
 
                     }
 
@@ -454,8 +457,11 @@ namespace ME.ECSEditor {
 
                         isBlittable = false;
                         isCopyable = false;
-                        isOneShot = false;
-                        isTag = true;
+                        if (isOneShot == true) {
+                            isTag = false;
+                        } else {
+                            isTag = true;
+                        }
 
                     }
                     
