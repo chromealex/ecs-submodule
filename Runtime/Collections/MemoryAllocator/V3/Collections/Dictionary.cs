@@ -5,7 +5,7 @@ namespace ME.ECS.Collections.MemoryAllocator {
     using MemPtr = System.Int64;
 
     [System.Diagnostics.DebuggerTypeProxyAttribute(typeof(DictionaryProxy<,>))]
-    public struct Dictionary<TKey, TValue>: System.Collections.Generic.IEnumerable<System.Collections.Generic.KeyValuePair<TKey, TValue>> where TKey : unmanaged where TValue : unmanaged {
+    public struct Dictionary<TKey, TValue> where TKey : unmanaged where TValue : unmanaged {
 
         private struct InternalData {
 
@@ -208,15 +208,9 @@ namespace ME.ECS.Collections.MemoryAllocator {
 
         }
         
-        public readonly System.Collections.Generic.IEnumerator<System.Collections.Generic.KeyValuePair<TKey, TValue>> GetEnumerator() {
-
-            return GetEnumerator(Worlds.current.GetState());
-
-        }
-
-        readonly System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() {
+        public readonly Enumerator GetEnumerator() {
             
-            return GetEnumerator();
+            return GetEnumerator(Worlds.current.GetState());
             
         }
 
