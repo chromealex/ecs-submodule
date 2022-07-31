@@ -5,7 +5,7 @@ namespace ME.ECS.Collections.MemoryAllocator {
     using MemPtr = System.Int64;
     
     [System.Diagnostics.DebuggerTypeProxyAttribute(typeof(HashSetProxy<>))]
-    public struct HashSet<T> where T : unmanaged {
+    public struct HashSet<T>: System.Collections.Generic.IEnumerable<T> where T : unmanaged {
 
         private struct InternalData {
 
@@ -154,6 +154,18 @@ namespace ME.ECS.Collections.MemoryAllocator {
         public readonly Enumerator GetEnumerator(State state) {
             
             return new Enumerator(state, this);
+            
+        }
+        
+        public readonly System.Collections.Generic.IEnumerator<T> GetEnumerator() {
+            
+            return GetEnumerator(Worlds.current.GetState());
+            
+        }
+
+        readonly System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() {
+            
+            return GetEnumerator();
             
         }
 

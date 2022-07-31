@@ -3,7 +3,7 @@ namespace ME.ECS.Collections.V3 {
     using MemPtr = System.Int64;
 
     [System.Diagnostics.DebuggerTypeProxyAttribute(typeof(MemArrayAllocatorProxy<>))]
-    public struct MemArrayAllocator<T> where T : struct {
+    public struct MemArrayAllocator<T>: System.Collections.Generic.IEnumerable<T> where T : struct {
 
         public struct Enumerator : System.Collections.Generic.IEnumerator<T> {
             
@@ -148,6 +148,18 @@ namespace ME.ECS.Collections.V3 {
         public readonly Enumerator GetEnumerator(State state) {
             
             return new Enumerator(state, this);
+            
+        }
+        
+        public readonly System.Collections.Generic.IEnumerator<T> GetEnumerator() {
+            
+            return GetEnumerator(Worlds.current.GetState());
+            
+        }
+
+        readonly System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() {
+            
+            return GetEnumerator();
             
         }
 
