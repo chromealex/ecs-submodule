@@ -208,6 +208,13 @@ namespace ME.ECSEditor {
                 return false;
                 #endif
             }, true, InitializerBase.ConfigurationType.DebugAndRelease, InitializerBase.CodeSize.Light, InitializerBase.RuntimeSpeed.Light),
+            new InitializerBase.DefineInfo(true, "COMPONENTS_COPYABLE", "Enable custom Copyable components. Use this if you need to custom copy/recycle components.", () => {
+                #if COMPONENTS_COPYABLE
+                return true;
+                #else
+                return false;
+                #endif
+            }, true, InitializerBase.ConfigurationType.DebugAndRelease, InitializerBase.CodeSize.Normal, InitializerBase.RuntimeSpeed.Normal),
         };
         
         private bool settingsFoldOut {
