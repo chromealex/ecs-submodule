@@ -4,7 +4,7 @@ namespace ME.ECS.Collections.MemoryAllocator {
     using Unity.Collections.LowLevel.Unsafe;
     using MemPtr = System.Int64;
     
-    public struct NativeHashSet<T> where T : unmanaged, IEquatableAllocator<T> {
+    public struct NativeHashSet<T>: System.Collections.Generic.IEnumerable<T> where T : unmanaged, IEquatableAllocator<T> {
 
         private struct InternalData {
 
@@ -155,13 +155,25 @@ namespace ME.ECS.Collections.MemoryAllocator {
             return new Enumerator(state, this);
             
         }
+        
+        public readonly System.Collections.Generic.IEnumerator<T> GetEnumerator() {
+
+            return GetEnumerator(Worlds.current.GetState());
+
+        }
+
+        readonly System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() {
+            
+            return GetEnumerator();
+            
+        }
 
         public readonly EnumeratorNoState GetEnumerator(in MemoryAllocator allocator) {
             
             return new EnumeratorNoState(in allocator, this);
             
         }
-
+        
         public ref T GetByIndex(in MemoryAllocator allocator, int index) {
             return ref this.slots(in allocator)[in allocator, index].value;
         }

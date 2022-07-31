@@ -4,7 +4,7 @@ namespace ME.ECS.Collections.MemoryAllocator {
     using MemPtr = System.Int64;
 
     [System.Diagnostics.DebuggerTypeProxyAttribute(typeof(ListProxy<>))]
-    public struct List<T> where T : unmanaged {
+    public struct List<T>: System.Collections.Generic.IEnumerable<T> where T : unmanaged {
 
         private struct InternalData {
 
@@ -129,6 +129,18 @@ namespace ME.ECS.Collections.MemoryAllocator {
         public readonly Enumerator GetEnumerator(State state) {
             
             return new Enumerator(state, this);
+            
+        }
+        
+        public readonly System.Collections.Generic.IEnumerator<T> GetEnumerator() {
+            
+            return GetEnumerator(Worlds.current.GetState());
+            
+        }
+
+        readonly System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() {
+            
+            return GetEnumerator();
             
         }
 
@@ -305,7 +317,7 @@ namespace ME.ECS.Collections.MemoryAllocator {
             allocator.MemCopy(arr.GetMemPtr(in allocator), index * size, this.GetArray(in allocator).GetMemPtr(in allocator), 0, this.GetCount(in allocator) * size);
             
         }
-
+        
     }
 
 }
