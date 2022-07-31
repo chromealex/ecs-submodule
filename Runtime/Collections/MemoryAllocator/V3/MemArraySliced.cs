@@ -61,9 +61,9 @@ namespace ME.ECS.Collections.V3 {
 
         }
 
-        public unsafe void* GetUnsafePtr(ref MemoryAllocator allocator) {
+        public unsafe void* GetUnsafePtr(in MemoryAllocator allocator) {
 
-            return this.data(in allocator).GetUnsafePtr(ref allocator);
+            return this.data(in allocator).GetUnsafePtr(in allocator);
 
         }
 

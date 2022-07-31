@@ -106,6 +106,18 @@ namespace ME.ECS.Collections.MemoryAllocator {
 
         }
 
+        public readonly MemPtr GetMemPtr(in MemoryAllocator allocator) {
+            
+            return this.GetArray(in allocator).GetMemPtr(in allocator);
+            
+        }
+
+        public readonly unsafe void* GetUnsafePtr(in MemoryAllocator allocator) {
+
+            return this.GetArray(in allocator).GetUnsafePtr(in allocator);
+
+        }
+
         public void Dispose(ref MemoryAllocator allocator) {
 
             allocator.Ref<InternalData>(this.ptr).Dispose(ref allocator);

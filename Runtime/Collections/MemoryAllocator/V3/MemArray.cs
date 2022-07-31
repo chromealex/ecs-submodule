@@ -45,18 +45,21 @@ namespace ME.ECS.Collections.V3 {
         public MemArrayAllocator(ref MemoryAllocator allocator, BufferArray<T> arr) {
 
             this = new MemArrayAllocator<T>(ref allocator, arr.Length, ClearOptions.UninitializedMemory);
-            for (int i = 0; i < arr.Length; ++i) {
-                this[in allocator, i] = arr[i];
-            }
-
+            NativeArrayUtils.Copy(in allocator, (T[])arr.arr, 0, ref this, 0, arr.Length);
+            
         }
 
         public MemArrayAllocator(ref MemoryAllocator allocator, ListCopyable<T> arr) {
 
             this = new MemArrayAllocator<T>(ref allocator, arr.Count, ClearOptions.UninitializedMemory);
-            for (int i = 0; i < arr.Count; ++i) {
-                this[in allocator, i] = arr[i];
-            }
+            NativeArrayUtils.Copy(in allocator, arr.innerArray, 0, ref this, 0, arr.Count);
+
+        }
+
+        public MemArrayAllocator(ref MemoryAllocator allocator, T[] arr) {
+
+            this = new MemArrayAllocator<T>(ref allocator, arr.Length, ClearOptions.UninitializedMemory);
+            NativeArrayUtils.Copy(in allocator, arr, 0, ref this, 0, arr.Length);
 
         }
 
@@ -74,7 +77,7 @@ namespace ME.ECS.Collections.V3 {
             
         }
 
-        public unsafe void* GetUnsafePtr(ref MemoryAllocator allocator) {
+        public readonly unsafe void* GetUnsafePtr(in MemoryAllocator allocator) {
 
             return allocator.GetUnsafePtr(this.arrPtr(in allocator));
 

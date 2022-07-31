@@ -123,7 +123,7 @@ public unsafe struct FilterBag<T0> : IFilterBag  where T0:unmanaged,IComponentBa
             ref var memAllocator = ref world.currentState.allocator;
             ref var regT0 = ref memAllocator.Ref<UnmanagedComponentsStorage.Item<T0>>(allRegs.items[in memAllocator, AllComponentTypes<T0>.typeId]);
 regT0.Merge(ref memAllocator);
-this.regs[0] = new Ptr() { value = regT0.components.GetUnsafePtr(ref memAllocator) };
+this.regs[0] = new Ptr() { value = regT0.components.GetUnsafePtr(in memAllocator) };
 
         }
         Unity.Collections.NativeLeakDetection.Mode = mode;
@@ -240,10 +240,10 @@ public unsafe struct FilterBag<T0,T1> : IFilterBag  where T0:unmanaged,IComponen
             ref var memAllocator = ref world.currentState.allocator;
             ref var regT0 = ref memAllocator.Ref<UnmanagedComponentsStorage.Item<T0>>(allRegs.items[in memAllocator, AllComponentTypes<T0>.typeId]);
 regT0.Merge(ref memAllocator);
-this.regs[0] = new Ptr() { value = regT0.components.GetUnsafePtr(ref memAllocator) };
+this.regs[0] = new Ptr() { value = regT0.components.GetUnsafePtr(in memAllocator) };
 ref var regT1 = ref memAllocator.Ref<UnmanagedComponentsStorage.Item<T1>>(allRegs.items[in memAllocator, AllComponentTypes<T1>.typeId]);
 regT1.Merge(ref memAllocator);
-this.regs[1] = new Ptr() { value = regT1.components.GetUnsafePtr(ref memAllocator) };
+this.regs[1] = new Ptr() { value = regT1.components.GetUnsafePtr(in memAllocator) };
 
         }
         Unity.Collections.NativeLeakDetection.Mode = mode;
@@ -384,13 +384,13 @@ public unsafe struct FilterBag<T0,T1,T2> : IFilterBag  where T0:unmanaged,ICompo
             ref var memAllocator = ref world.currentState.allocator;
             ref var regT0 = ref memAllocator.Ref<UnmanagedComponentsStorage.Item<T0>>(allRegs.items[in memAllocator, AllComponentTypes<T0>.typeId]);
 regT0.Merge(ref memAllocator);
-this.regs[0] = new Ptr() { value = regT0.components.GetUnsafePtr(ref memAllocator) };
+this.regs[0] = new Ptr() { value = regT0.components.GetUnsafePtr(in memAllocator) };
 ref var regT1 = ref memAllocator.Ref<UnmanagedComponentsStorage.Item<T1>>(allRegs.items[in memAllocator, AllComponentTypes<T1>.typeId]);
 regT1.Merge(ref memAllocator);
-this.regs[1] = new Ptr() { value = regT1.components.GetUnsafePtr(ref memAllocator) };
+this.regs[1] = new Ptr() { value = regT1.components.GetUnsafePtr(in memAllocator) };
 ref var regT2 = ref memAllocator.Ref<UnmanagedComponentsStorage.Item<T2>>(allRegs.items[in memAllocator, AllComponentTypes<T2>.typeId]);
 regT2.Merge(ref memAllocator);
-this.regs[2] = new Ptr() { value = regT2.components.GetUnsafePtr(ref memAllocator) };
+this.regs[2] = new Ptr() { value = regT2.components.GetUnsafePtr(in memAllocator) };
 
         }
         Unity.Collections.NativeLeakDetection.Mode = mode;
@@ -555,16 +555,16 @@ public unsafe struct FilterBag<T0,T1,T2,T3> : IFilterBag  where T0:unmanaged,ICo
             ref var memAllocator = ref world.currentState.allocator;
             ref var regT0 = ref memAllocator.Ref<UnmanagedComponentsStorage.Item<T0>>(allRegs.items[in memAllocator, AllComponentTypes<T0>.typeId]);
 regT0.Merge(ref memAllocator);
-this.regs[0] = new Ptr() { value = regT0.components.GetUnsafePtr(ref memAllocator) };
+this.regs[0] = new Ptr() { value = regT0.components.GetUnsafePtr(in memAllocator) };
 ref var regT1 = ref memAllocator.Ref<UnmanagedComponentsStorage.Item<T1>>(allRegs.items[in memAllocator, AllComponentTypes<T1>.typeId]);
 regT1.Merge(ref memAllocator);
-this.regs[1] = new Ptr() { value = regT1.components.GetUnsafePtr(ref memAllocator) };
+this.regs[1] = new Ptr() { value = regT1.components.GetUnsafePtr(in memAllocator) };
 ref var regT2 = ref memAllocator.Ref<UnmanagedComponentsStorage.Item<T2>>(allRegs.items[in memAllocator, AllComponentTypes<T2>.typeId]);
 regT2.Merge(ref memAllocator);
-this.regs[2] = new Ptr() { value = regT2.components.GetUnsafePtr(ref memAllocator) };
+this.regs[2] = new Ptr() { value = regT2.components.GetUnsafePtr(in memAllocator) };
 ref var regT3 = ref memAllocator.Ref<UnmanagedComponentsStorage.Item<T3>>(allRegs.items[in memAllocator, AllComponentTypes<T3>.typeId]);
 regT3.Merge(ref memAllocator);
-this.regs[3] = new Ptr() { value = regT3.components.GetUnsafePtr(ref memAllocator) };
+this.regs[3] = new Ptr() { value = regT3.components.GetUnsafePtr(in memAllocator) };
 
         }
         Unity.Collections.NativeLeakDetection.Mode = mode;
@@ -753,19 +753,19 @@ public unsafe struct FilterBag<T0,T1,T2,T3,T4> : IFilterBag  where T0:unmanaged,
             ref var memAllocator = ref world.currentState.allocator;
             ref var regT0 = ref memAllocator.Ref<UnmanagedComponentsStorage.Item<T0>>(allRegs.items[in memAllocator, AllComponentTypes<T0>.typeId]);
 regT0.Merge(ref memAllocator);
-this.regs[0] = new Ptr() { value = regT0.components.GetUnsafePtr(ref memAllocator) };
+this.regs[0] = new Ptr() { value = regT0.components.GetUnsafePtr(in memAllocator) };
 ref var regT1 = ref memAllocator.Ref<UnmanagedComponentsStorage.Item<T1>>(allRegs.items[in memAllocator, AllComponentTypes<T1>.typeId]);
 regT1.Merge(ref memAllocator);
-this.regs[1] = new Ptr() { value = regT1.components.GetUnsafePtr(ref memAllocator) };
+this.regs[1] = new Ptr() { value = regT1.components.GetUnsafePtr(in memAllocator) };
 ref var regT2 = ref memAllocator.Ref<UnmanagedComponentsStorage.Item<T2>>(allRegs.items[in memAllocator, AllComponentTypes<T2>.typeId]);
 regT2.Merge(ref memAllocator);
-this.regs[2] = new Ptr() { value = regT2.components.GetUnsafePtr(ref memAllocator) };
+this.regs[2] = new Ptr() { value = regT2.components.GetUnsafePtr(in memAllocator) };
 ref var regT3 = ref memAllocator.Ref<UnmanagedComponentsStorage.Item<T3>>(allRegs.items[in memAllocator, AllComponentTypes<T3>.typeId]);
 regT3.Merge(ref memAllocator);
-this.regs[3] = new Ptr() { value = regT3.components.GetUnsafePtr(ref memAllocator) };
+this.regs[3] = new Ptr() { value = regT3.components.GetUnsafePtr(in memAllocator) };
 ref var regT4 = ref memAllocator.Ref<UnmanagedComponentsStorage.Item<T4>>(allRegs.items[in memAllocator, AllComponentTypes<T4>.typeId]);
 regT4.Merge(ref memAllocator);
-this.regs[4] = new Ptr() { value = regT4.components.GetUnsafePtr(ref memAllocator) };
+this.regs[4] = new Ptr() { value = regT4.components.GetUnsafePtr(in memAllocator) };
 
         }
         Unity.Collections.NativeLeakDetection.Mode = mode;
@@ -978,22 +978,22 @@ public unsafe struct FilterBag<T0,T1,T2,T3,T4,T5> : IFilterBag  where T0:unmanag
             ref var memAllocator = ref world.currentState.allocator;
             ref var regT0 = ref memAllocator.Ref<UnmanagedComponentsStorage.Item<T0>>(allRegs.items[in memAllocator, AllComponentTypes<T0>.typeId]);
 regT0.Merge(ref memAllocator);
-this.regs[0] = new Ptr() { value = regT0.components.GetUnsafePtr(ref memAllocator) };
+this.regs[0] = new Ptr() { value = regT0.components.GetUnsafePtr(in memAllocator) };
 ref var regT1 = ref memAllocator.Ref<UnmanagedComponentsStorage.Item<T1>>(allRegs.items[in memAllocator, AllComponentTypes<T1>.typeId]);
 regT1.Merge(ref memAllocator);
-this.regs[1] = new Ptr() { value = regT1.components.GetUnsafePtr(ref memAllocator) };
+this.regs[1] = new Ptr() { value = regT1.components.GetUnsafePtr(in memAllocator) };
 ref var regT2 = ref memAllocator.Ref<UnmanagedComponentsStorage.Item<T2>>(allRegs.items[in memAllocator, AllComponentTypes<T2>.typeId]);
 regT2.Merge(ref memAllocator);
-this.regs[2] = new Ptr() { value = regT2.components.GetUnsafePtr(ref memAllocator) };
+this.regs[2] = new Ptr() { value = regT2.components.GetUnsafePtr(in memAllocator) };
 ref var regT3 = ref memAllocator.Ref<UnmanagedComponentsStorage.Item<T3>>(allRegs.items[in memAllocator, AllComponentTypes<T3>.typeId]);
 regT3.Merge(ref memAllocator);
-this.regs[3] = new Ptr() { value = regT3.components.GetUnsafePtr(ref memAllocator) };
+this.regs[3] = new Ptr() { value = regT3.components.GetUnsafePtr(in memAllocator) };
 ref var regT4 = ref memAllocator.Ref<UnmanagedComponentsStorage.Item<T4>>(allRegs.items[in memAllocator, AllComponentTypes<T4>.typeId]);
 regT4.Merge(ref memAllocator);
-this.regs[4] = new Ptr() { value = regT4.components.GetUnsafePtr(ref memAllocator) };
+this.regs[4] = new Ptr() { value = regT4.components.GetUnsafePtr(in memAllocator) };
 ref var regT5 = ref memAllocator.Ref<UnmanagedComponentsStorage.Item<T5>>(allRegs.items[in memAllocator, AllComponentTypes<T5>.typeId]);
 regT5.Merge(ref memAllocator);
-this.regs[5] = new Ptr() { value = regT5.components.GetUnsafePtr(ref memAllocator) };
+this.regs[5] = new Ptr() { value = regT5.components.GetUnsafePtr(in memAllocator) };
 
         }
         Unity.Collections.NativeLeakDetection.Mode = mode;
@@ -1230,25 +1230,25 @@ public unsafe struct FilterBag<T0,T1,T2,T3,T4,T5,T6> : IFilterBag  where T0:unma
             ref var memAllocator = ref world.currentState.allocator;
             ref var regT0 = ref memAllocator.Ref<UnmanagedComponentsStorage.Item<T0>>(allRegs.items[in memAllocator, AllComponentTypes<T0>.typeId]);
 regT0.Merge(ref memAllocator);
-this.regs[0] = new Ptr() { value = regT0.components.GetUnsafePtr(ref memAllocator) };
+this.regs[0] = new Ptr() { value = regT0.components.GetUnsafePtr(in memAllocator) };
 ref var regT1 = ref memAllocator.Ref<UnmanagedComponentsStorage.Item<T1>>(allRegs.items[in memAllocator, AllComponentTypes<T1>.typeId]);
 regT1.Merge(ref memAllocator);
-this.regs[1] = new Ptr() { value = regT1.components.GetUnsafePtr(ref memAllocator) };
+this.regs[1] = new Ptr() { value = regT1.components.GetUnsafePtr(in memAllocator) };
 ref var regT2 = ref memAllocator.Ref<UnmanagedComponentsStorage.Item<T2>>(allRegs.items[in memAllocator, AllComponentTypes<T2>.typeId]);
 regT2.Merge(ref memAllocator);
-this.regs[2] = new Ptr() { value = regT2.components.GetUnsafePtr(ref memAllocator) };
+this.regs[2] = new Ptr() { value = regT2.components.GetUnsafePtr(in memAllocator) };
 ref var regT3 = ref memAllocator.Ref<UnmanagedComponentsStorage.Item<T3>>(allRegs.items[in memAllocator, AllComponentTypes<T3>.typeId]);
 regT3.Merge(ref memAllocator);
-this.regs[3] = new Ptr() { value = regT3.components.GetUnsafePtr(ref memAllocator) };
+this.regs[3] = new Ptr() { value = regT3.components.GetUnsafePtr(in memAllocator) };
 ref var regT4 = ref memAllocator.Ref<UnmanagedComponentsStorage.Item<T4>>(allRegs.items[in memAllocator, AllComponentTypes<T4>.typeId]);
 regT4.Merge(ref memAllocator);
-this.regs[4] = new Ptr() { value = regT4.components.GetUnsafePtr(ref memAllocator) };
+this.regs[4] = new Ptr() { value = regT4.components.GetUnsafePtr(in memAllocator) };
 ref var regT5 = ref memAllocator.Ref<UnmanagedComponentsStorage.Item<T5>>(allRegs.items[in memAllocator, AllComponentTypes<T5>.typeId]);
 regT5.Merge(ref memAllocator);
-this.regs[5] = new Ptr() { value = regT5.components.GetUnsafePtr(ref memAllocator) };
+this.regs[5] = new Ptr() { value = regT5.components.GetUnsafePtr(in memAllocator) };
 ref var regT6 = ref memAllocator.Ref<UnmanagedComponentsStorage.Item<T6>>(allRegs.items[in memAllocator, AllComponentTypes<T6>.typeId]);
 regT6.Merge(ref memAllocator);
-this.regs[6] = new Ptr() { value = regT6.components.GetUnsafePtr(ref memAllocator) };
+this.regs[6] = new Ptr() { value = regT6.components.GetUnsafePtr(in memAllocator) };
 
         }
         Unity.Collections.NativeLeakDetection.Mode = mode;
@@ -1509,28 +1509,28 @@ public unsafe struct FilterBag<T0,T1,T2,T3,T4,T5,T6,T7> : IFilterBag  where T0:u
             ref var memAllocator = ref world.currentState.allocator;
             ref var regT0 = ref memAllocator.Ref<UnmanagedComponentsStorage.Item<T0>>(allRegs.items[in memAllocator, AllComponentTypes<T0>.typeId]);
 regT0.Merge(ref memAllocator);
-this.regs[0] = new Ptr() { value = regT0.components.GetUnsafePtr(ref memAllocator) };
+this.regs[0] = new Ptr() { value = regT0.components.GetUnsafePtr(in memAllocator) };
 ref var regT1 = ref memAllocator.Ref<UnmanagedComponentsStorage.Item<T1>>(allRegs.items[in memAllocator, AllComponentTypes<T1>.typeId]);
 regT1.Merge(ref memAllocator);
-this.regs[1] = new Ptr() { value = regT1.components.GetUnsafePtr(ref memAllocator) };
+this.regs[1] = new Ptr() { value = regT1.components.GetUnsafePtr(in memAllocator) };
 ref var regT2 = ref memAllocator.Ref<UnmanagedComponentsStorage.Item<T2>>(allRegs.items[in memAllocator, AllComponentTypes<T2>.typeId]);
 regT2.Merge(ref memAllocator);
-this.regs[2] = new Ptr() { value = regT2.components.GetUnsafePtr(ref memAllocator) };
+this.regs[2] = new Ptr() { value = regT2.components.GetUnsafePtr(in memAllocator) };
 ref var regT3 = ref memAllocator.Ref<UnmanagedComponentsStorage.Item<T3>>(allRegs.items[in memAllocator, AllComponentTypes<T3>.typeId]);
 regT3.Merge(ref memAllocator);
-this.regs[3] = new Ptr() { value = regT3.components.GetUnsafePtr(ref memAllocator) };
+this.regs[3] = new Ptr() { value = regT3.components.GetUnsafePtr(in memAllocator) };
 ref var regT4 = ref memAllocator.Ref<UnmanagedComponentsStorage.Item<T4>>(allRegs.items[in memAllocator, AllComponentTypes<T4>.typeId]);
 regT4.Merge(ref memAllocator);
-this.regs[4] = new Ptr() { value = regT4.components.GetUnsafePtr(ref memAllocator) };
+this.regs[4] = new Ptr() { value = regT4.components.GetUnsafePtr(in memAllocator) };
 ref var regT5 = ref memAllocator.Ref<UnmanagedComponentsStorage.Item<T5>>(allRegs.items[in memAllocator, AllComponentTypes<T5>.typeId]);
 regT5.Merge(ref memAllocator);
-this.regs[5] = new Ptr() { value = regT5.components.GetUnsafePtr(ref memAllocator) };
+this.regs[5] = new Ptr() { value = regT5.components.GetUnsafePtr(in memAllocator) };
 ref var regT6 = ref memAllocator.Ref<UnmanagedComponentsStorage.Item<T6>>(allRegs.items[in memAllocator, AllComponentTypes<T6>.typeId]);
 regT6.Merge(ref memAllocator);
-this.regs[6] = new Ptr() { value = regT6.components.GetUnsafePtr(ref memAllocator) };
+this.regs[6] = new Ptr() { value = regT6.components.GetUnsafePtr(in memAllocator) };
 ref var regT7 = ref memAllocator.Ref<UnmanagedComponentsStorage.Item<T7>>(allRegs.items[in memAllocator, AllComponentTypes<T7>.typeId]);
 regT7.Merge(ref memAllocator);
-this.regs[7] = new Ptr() { value = regT7.components.GetUnsafePtr(ref memAllocator) };
+this.regs[7] = new Ptr() { value = regT7.components.GetUnsafePtr(in memAllocator) };
 
         }
         Unity.Collections.NativeLeakDetection.Mode = mode;
@@ -1815,31 +1815,31 @@ public unsafe struct FilterBag<T0,T1,T2,T3,T4,T5,T6,T7,T8> : IFilterBag  where T
             ref var memAllocator = ref world.currentState.allocator;
             ref var regT0 = ref memAllocator.Ref<UnmanagedComponentsStorage.Item<T0>>(allRegs.items[in memAllocator, AllComponentTypes<T0>.typeId]);
 regT0.Merge(ref memAllocator);
-this.regs[0] = new Ptr() { value = regT0.components.GetUnsafePtr(ref memAllocator) };
+this.regs[0] = new Ptr() { value = regT0.components.GetUnsafePtr(in memAllocator) };
 ref var regT1 = ref memAllocator.Ref<UnmanagedComponentsStorage.Item<T1>>(allRegs.items[in memAllocator, AllComponentTypes<T1>.typeId]);
 regT1.Merge(ref memAllocator);
-this.regs[1] = new Ptr() { value = regT1.components.GetUnsafePtr(ref memAllocator) };
+this.regs[1] = new Ptr() { value = regT1.components.GetUnsafePtr(in memAllocator) };
 ref var regT2 = ref memAllocator.Ref<UnmanagedComponentsStorage.Item<T2>>(allRegs.items[in memAllocator, AllComponentTypes<T2>.typeId]);
 regT2.Merge(ref memAllocator);
-this.regs[2] = new Ptr() { value = regT2.components.GetUnsafePtr(ref memAllocator) };
+this.regs[2] = new Ptr() { value = regT2.components.GetUnsafePtr(in memAllocator) };
 ref var regT3 = ref memAllocator.Ref<UnmanagedComponentsStorage.Item<T3>>(allRegs.items[in memAllocator, AllComponentTypes<T3>.typeId]);
 regT3.Merge(ref memAllocator);
-this.regs[3] = new Ptr() { value = regT3.components.GetUnsafePtr(ref memAllocator) };
+this.regs[3] = new Ptr() { value = regT3.components.GetUnsafePtr(in memAllocator) };
 ref var regT4 = ref memAllocator.Ref<UnmanagedComponentsStorage.Item<T4>>(allRegs.items[in memAllocator, AllComponentTypes<T4>.typeId]);
 regT4.Merge(ref memAllocator);
-this.regs[4] = new Ptr() { value = regT4.components.GetUnsafePtr(ref memAllocator) };
+this.regs[4] = new Ptr() { value = regT4.components.GetUnsafePtr(in memAllocator) };
 ref var regT5 = ref memAllocator.Ref<UnmanagedComponentsStorage.Item<T5>>(allRegs.items[in memAllocator, AllComponentTypes<T5>.typeId]);
 regT5.Merge(ref memAllocator);
-this.regs[5] = new Ptr() { value = regT5.components.GetUnsafePtr(ref memAllocator) };
+this.regs[5] = new Ptr() { value = regT5.components.GetUnsafePtr(in memAllocator) };
 ref var regT6 = ref memAllocator.Ref<UnmanagedComponentsStorage.Item<T6>>(allRegs.items[in memAllocator, AllComponentTypes<T6>.typeId]);
 regT6.Merge(ref memAllocator);
-this.regs[6] = new Ptr() { value = regT6.components.GetUnsafePtr(ref memAllocator) };
+this.regs[6] = new Ptr() { value = regT6.components.GetUnsafePtr(in memAllocator) };
 ref var regT7 = ref memAllocator.Ref<UnmanagedComponentsStorage.Item<T7>>(allRegs.items[in memAllocator, AllComponentTypes<T7>.typeId]);
 regT7.Merge(ref memAllocator);
-this.regs[7] = new Ptr() { value = regT7.components.GetUnsafePtr(ref memAllocator) };
+this.regs[7] = new Ptr() { value = regT7.components.GetUnsafePtr(in memAllocator) };
 ref var regT8 = ref memAllocator.Ref<UnmanagedComponentsStorage.Item<T8>>(allRegs.items[in memAllocator, AllComponentTypes<T8>.typeId]);
 regT8.Merge(ref memAllocator);
-this.regs[8] = new Ptr() { value = regT8.components.GetUnsafePtr(ref memAllocator) };
+this.regs[8] = new Ptr() { value = regT8.components.GetUnsafePtr(in memAllocator) };
 
         }
         Unity.Collections.NativeLeakDetection.Mode = mode;

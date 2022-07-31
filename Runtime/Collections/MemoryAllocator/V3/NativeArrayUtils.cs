@@ -1,6 +1,23 @@
 namespace ME.ECS.Collections.V3 {
 
     public unsafe class NativeArrayUtils {
+
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
+        public static void Copy<T>(in MemoryAllocator allocator,
+                                   in T[] src,
+                                   int srcIndex,
+                                   ref MemArrayAllocator<T> dst,
+                                   int dstIndex,
+                                   int length) where T : struct {
+        
+            var gcHandle = System.Runtime.InteropServices.GCHandle.Alloc(src, System.Runtime.InteropServices.GCHandleType.Pinned);
+            var num = gcHandle.AddrOfPinnedObject();
+            Unity.Collections.LowLevel.Unsafe.UnsafeUtility.MemCpy((void*)((System.IntPtr)dst.GetMemPtr(in allocator) + dstIndex * Unity.Collections.LowLevel.Unsafe.UnsafeUtility.SizeOf<T>()), (void*)((System.IntPtr)(void*)num + srcIndex * Unity.Collections.LowLevel.Unsafe.UnsafeUtility.SizeOf<T>()), (long)(length * Unity.Collections.LowLevel.Unsafe.UnsafeUtility.SizeOf<T>()));
+            gcHandle.Free();
+            
+        }
         
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
