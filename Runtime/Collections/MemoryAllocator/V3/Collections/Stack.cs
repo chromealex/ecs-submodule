@@ -4,7 +4,7 @@ namespace ME.ECS.Collections.MemoryAllocator {
     using MemPtr = System.Int64;
 
     [System.Diagnostics.DebuggerTypeProxyAttribute(typeof(StackProxy<>))]
-    public struct Stack<T>: System.Collections.Generic.IEnumerable<T> where T : unmanaged {
+    public struct Stack<T> where T : unmanaged {
 
         private struct InternalData {
 
@@ -70,15 +70,9 @@ namespace ME.ECS.Collections.MemoryAllocator {
             return new Enumerator(this, state);
         }
         
-        public readonly System.Collections.Generic.IEnumerator<T> GetEnumerator() {
+        public readonly Enumerator GetEnumerator() {
             
             return GetEnumerator(Worlds.current.GetState());
-            
-        }
-
-        System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() {
-            
-            return GetEnumerator();
             
         }
 

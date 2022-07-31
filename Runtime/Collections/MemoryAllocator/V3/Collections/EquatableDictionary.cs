@@ -4,7 +4,7 @@ namespace ME.ECS.Collections.MemoryAllocator {
     using Unity.Collections.LowLevel.Unsafe;
     using MemPtr = System.Int64;
 
-    public struct EquatableDictionary<TKey, TValue>: System.Collections.Generic.IEnumerable<System.Collections.Generic.KeyValuePair<TKey, TValue>> where TKey : unmanaged, System.IEquatable<TKey> where TValue : unmanaged {
+    public struct EquatableDictionary<TKey, TValue> where TKey : unmanaged, System.IEquatable<TKey> where TValue : unmanaged {
 
         private struct InternalData {
 
@@ -192,15 +192,10 @@ namespace ME.ECS.Collections.MemoryAllocator {
 
         }
         
-        public readonly System.Collections.Generic.IEnumerator<System.Collections.Generic.KeyValuePair<TKey, TValue>> GetEnumerator() {
-
+        public readonly Enumerator GetEnumerator() {
+            
             return GetEnumerator(Worlds.current.GetState());
-
-        }
-
-        readonly System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator()
-        {
-            return GetEnumerator();
+            
         }
 
         public readonly EnumeratorNoState GetEnumerator(in MemoryAllocator allocator) {

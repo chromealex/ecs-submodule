@@ -4,7 +4,7 @@ namespace ME.ECS.Collections.MemoryAllocator {
     using MemPtr = System.Int64;
 
     [System.Diagnostics.DebuggerTypeProxyAttribute(typeof(ListProxy<>))]
-    public struct List<T>: System.Collections.Generic.IEnumerable<T> where T : unmanaged {
+    public struct List<T> where T : unmanaged {
 
         private struct InternalData {
 
@@ -132,15 +132,9 @@ namespace ME.ECS.Collections.MemoryAllocator {
             
         }
         
-        public readonly System.Collections.Generic.IEnumerator<T> GetEnumerator() {
+        public readonly Enumerator GetEnumerator() {
             
             return GetEnumerator(Worlds.current.GetState());
-            
-        }
-
-        readonly System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() {
-            
-            return GetEnumerator();
             
         }
 
