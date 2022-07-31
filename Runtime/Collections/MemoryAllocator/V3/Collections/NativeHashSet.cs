@@ -155,13 +155,6 @@ namespace ME.ECS.Collections.MemoryAllocator {
             return new Enumerator(state, this);
             
         }
-
-        public readonly EnumeratorNoState GetEnumerator(in MemoryAllocator allocator) {
-            
-            return new EnumeratorNoState(in allocator, this);
-            
-        }
-        
         
         public readonly System.Collections.Generic.IEnumerator<T> GetEnumerator() {
 
@@ -169,11 +162,18 @@ namespace ME.ECS.Collections.MemoryAllocator {
 
         }
 
-        readonly System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator()
-        {
+        readonly System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() {
+            
             return GetEnumerator();
+            
         }
 
+        public readonly EnumeratorNoState GetEnumerator(in MemoryAllocator allocator) {
+            
+            return new EnumeratorNoState(in allocator, this);
+            
+        }
+        
         public ref T GetByIndex(in MemoryAllocator allocator, int index) {
             return ref this.slots(in allocator)[in allocator, index].value;
         }

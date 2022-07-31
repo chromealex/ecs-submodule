@@ -214,9 +214,10 @@ namespace ME.ECS.Collections.MemoryAllocator {
 
         }
 
-        readonly System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator()
-        {
+        readonly System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() {
+            
             return GetEnumerator();
+            
         }
 
         public readonly EnumeratorNoState GetEnumerator(in MemoryAllocator allocator) {
@@ -579,6 +580,7 @@ namespace ME.ECS.Collections.MemoryAllocator {
             this.Resize(ref allocator, prime);
             return prime;
         }
+        
     }
 
 }

@@ -317,6 +317,7 @@ namespace ME.ECS.Collections.MemoryAllocator {
             allocator.MemCopy(arr.GetMemPtr(in allocator), index * size, this.GetArray(in allocator).GetMemPtr(in allocator), 0, this.GetCount(in allocator) * size);
             
         }
+        
     }
 
 }
