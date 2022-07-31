@@ -51,6 +51,7 @@ namespace ME.ECSEditor {
                 var pattern = @"""version"":\s*""(?<major>[0-9]+).(?<minor>[0-9]+).(?<build>[0-9]+)""";
                 var result = Regex.Replace(source, pattern, AutoVersionUpdateCompilation.UpBuild);
                 ChangeLogEditorWindow.Create(files, commitName, currentVersion, realPath, source, result);
+                AutoVersionUpdateCompilation.Callback(currentVersion, currentVersion, realPath, source, result);
                 
             }
 
