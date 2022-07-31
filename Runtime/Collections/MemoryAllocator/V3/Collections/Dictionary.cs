@@ -207,6 +207,12 @@ namespace ME.ECS.Collections.MemoryAllocator {
             return new Enumerator(state, this);
 
         }
+        
+        public readonly Enumerator GetEnumerator() {
+            
+            return GetEnumerator(Worlds.current.GetState());
+            
+        }
 
         public readonly EnumeratorNoState GetEnumerator(in MemoryAllocator allocator) {
 
@@ -568,7 +574,7 @@ namespace ME.ECS.Collections.MemoryAllocator {
             this.Resize(ref allocator, prime);
             return prime;
         }
-
+        
     }
 
 }

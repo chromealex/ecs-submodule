@@ -155,13 +155,20 @@ namespace ME.ECS.Collections.MemoryAllocator {
             return new Enumerator(state, this);
             
         }
-
+        
+        
+        public readonly Enumerator GetEnumerator() {
+            
+            return GetEnumerator(Worlds.current.GetState());
+            
+        }
+        
         public readonly EnumeratorNoState GetEnumerator(in MemoryAllocator allocator) {
             
             return new EnumeratorNoState(in allocator, this);
             
         }
-
+        
         public ref T GetByIndex(in MemoryAllocator allocator, int index) {
             return ref this.slots(in allocator)[in allocator, index].value;
         }

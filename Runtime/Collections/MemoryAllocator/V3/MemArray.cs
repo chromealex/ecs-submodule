@@ -150,6 +150,12 @@ namespace ME.ECS.Collections.V3 {
             return new Enumerator(state, this);
             
         }
+        
+        public readonly Enumerator GetEnumerator() {
+            
+            return GetEnumerator(Worlds.current.GetState());
+            
+        }
 
         public readonly EnumeratorNoState GetEnumerator(in MemoryAllocator allocator) {
             

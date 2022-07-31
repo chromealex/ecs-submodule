@@ -27,7 +27,7 @@ namespace ME.ECS {
         #endif
         public void Initialize(ref MemoryAllocator allocator) {
 
-            this.values = new Dictionary<ulong, sfloat>(ref allocator, 10);
+            this.values = new Dictionary<ulong, tfloat>(ref allocator, 10);
             this.indexes = new HashSet<uint>(ref allocator, 10);
             
         }

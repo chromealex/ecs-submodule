@@ -155,6 +155,12 @@ namespace ME.ECS.Collections.MemoryAllocator {
             return new Enumerator(state, this);
             
         }
+        
+        public readonly Enumerator GetEnumerator() {
+            
+            return GetEnumerator(Worlds.current.GetState());
+            
+        }
 
         public readonly EnumeratorNoState GetEnumerator(in MemoryAllocator allocator) {
             
