@@ -29,8 +29,8 @@ namespace ME.ECS.Collections.MemoryAllocator {
 
             private readonly State state;
             private ref MemoryAllocator allocator => ref this.state.allocator;
-            private EquatableDictionary<TKey, TValue> dictionary;
-            private int version;
+            private readonly EquatableDictionary<TKey, TValue> dictionary;
+            private readonly int version;
             private int index;
             private System.Collections.Generic.KeyValuePair<TKey, TValue> current;
 
@@ -84,9 +84,9 @@ namespace ME.ECS.Collections.MemoryAllocator {
 
         public struct EnumeratorNoState : System.Collections.Generic.IEnumerator<System.Collections.Generic.KeyValuePair<TKey, TValue>> {
 
-            private MemoryAllocator allocator;
-            private EquatableDictionary<TKey, TValue> dictionary;
-            private int version;
+            private readonly MemoryAllocator allocator;
+            private readonly EquatableDictionary<TKey, TValue> dictionary;
+            private readonly int version;
             private int index;
             private System.Collections.Generic.KeyValuePair<TKey, TValue> current;
 

@@ -135,7 +135,7 @@ namespace ME.ECS.Collections.MemoryAllocator {
 
         public struct Enumerator : System.Collections.Generic.IEnumerator<T> {
 
-            private State state;
+            private readonly State state;
             private Queue<T> q;
             private int index; // -1 = not started, -2 = ended/disposed
             private readonly int version;

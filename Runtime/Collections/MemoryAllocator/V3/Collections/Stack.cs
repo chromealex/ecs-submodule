@@ -104,47 +104,47 @@ namespace ME.ECS.Collections.MemoryAllocator {
 
         public struct Enumerator : System.Collections.Generic.IEnumerator<T> {
 
-            private Stack<T> _stack;
-            private State state;
-            private int _index;
-            private int _version;
+            private readonly Stack<T> stack;
+            private readonly State state;
+            private int index;
+            private readonly int version;
             private T currentElement;
 
             internal Enumerator(Stack<T> stack, State state) {
-                this._stack = stack;
+                this.stack = stack;
                 this.state = state;
-                this._version = this._stack.version(in state.allocator);
-                this._index = -2;
+                this.version = this.stack.version(in state.allocator);
+                this.index = -2;
                 this.currentElement = default(T);
             }
 
             public void Dispose() {
-                this._index = -1;
+                this.index = -1;
             }
 
             public bool MoveNext() {
                 bool retval;
-                if (this._version != this._stack.version(in this.state.allocator)) {
+                if (this.version != this.stack.version(in this.state.allocator)) {
                     ThrowHelper.ThrowInvalidOperationException(ExceptionResource.InvalidOperation_EnumFailedVersion);
                 }
 
-                if (this._index == -2) { // First call to enumerator.
-                    this._index = this._stack.size(in this.state.allocator) - 1;
-                    retval = this._index >= 0;
+                if (this.index == -2) { // First call to enumerator.
+                    this.index = this.stack.size(in this.state.allocator) - 1;
+                    retval = this.index >= 0;
                     if (retval) {
-                        this.currentElement = this._stack.array(in this.state.allocator)[in this.state.allocator, this._index];
+                        this.currentElement = this.stack.array(in this.state.allocator)[in this.state.allocator, this.index];
                     }
 
                     return retval;
                 }
 
-                if (this._index == -1) { // End of enumeration.
+                if (this.index == -1) { // End of enumeration.
                     return false;
                 }
 
-                retval = --this._index >= 0;
+                retval = --this.index >= 0;
                 if (retval) {
-                    this.currentElement = this._stack.array(in this.state.allocator)[in this.state.allocator, this._index];
+                    this.currentElement = this.stack.array(in this.state.allocator)[in this.state.allocator, this.index];
                 } else {
                     this.currentElement = default(T);
                 }
@@ -154,11 +154,11 @@ namespace ME.ECS.Collections.MemoryAllocator {
 
             public T Current {
                 get {
-                    if (this._index == -2) {
+                    if (this.index == -2) {
                         ThrowHelper.ThrowInvalidOperationException(ExceptionResource.InvalidOperation_EnumNotStarted);
                     }
 
-                    if (this._index == -1) {
+                    if (this.index == -1) {
                         ThrowHelper.ThrowInvalidOperationException(ExceptionResource.InvalidOperation_EnumEnded);
                     }
 
@@ -168,11 +168,11 @@ namespace ME.ECS.Collections.MemoryAllocator {
 
             object System.Collections.IEnumerator.Current {
                 get {
-                    if (this._index == -2) {
+                    if (this.index == -2) {
                         ThrowHelper.ThrowInvalidOperationException(ExceptionResource.InvalidOperation_EnumNotStarted);
                     }
 
-                    if (this._index == -1) {
+                    if (this.index == -1) {
                         ThrowHelper.ThrowInvalidOperationException(ExceptionResource.InvalidOperation_EnumEnded);
                     }
 
@@ -181,11 +181,11 @@ namespace ME.ECS.Collections.MemoryAllocator {
             }
 
             void System.Collections.IEnumerator.Reset() {
-                if (this._version != this._stack.version(in this.state.allocator)) {
+                if (this.version != this.stack.version(in this.state.allocator)) {
                     ThrowHelper.ThrowInvalidOperationException(ExceptionResource.InvalidOperation_EnumFailedVersion);
                 }
 
-                this._index = -2;
+                this.index = -2;
                 this.currentElement = default;
             }
 
@@ -193,47 +193,47 @@ namespace ME.ECS.Collections.MemoryAllocator {
 
         public struct EnumeratorNoState : System.Collections.Generic.IEnumerator<T> {
 
-            private Stack<T> _stack;
-            private MemoryAllocator allocator;
-            private int _index;
-            private int _version;
+            private readonly Stack<T> stack;
+            private readonly MemoryAllocator allocator;
+            private int index;
+            private readonly int version;
             private T currentElement;
 
             internal EnumeratorNoState(Stack<T> stack, in MemoryAllocator allocator) {
-                this._stack = stack;
+                this.stack = stack;
                 this.allocator = allocator;
-                this._version = this._stack.version(in this.allocator);
-                this._index = -2;
+                this.version = this.stack.version(in this.allocator);
+                this.index = -2;
                 this.currentElement = default(T);
             }
 
             public void Dispose() {
-                this._index = -1;
+                this.index = -1;
             }
 
             public bool MoveNext() {
                 bool retval;
-                if (this._version != this._stack.version(in this.allocator)) {
+                if (this.version != this.stack.version(in this.allocator)) {
                     ThrowHelper.ThrowInvalidOperationException(ExceptionResource.InvalidOperation_EnumFailedVersion);
                 }
 
-                if (this._index == -2) { // First call to enumerator.
-                    this._index = this._stack.size(in this.allocator) - 1;
-                    retval = this._index >= 0;
+                if (this.index == -2) { // First call to enumerator.
+                    this.index = this.stack.size(in this.allocator) - 1;
+                    retval = this.index >= 0;
                     if (retval) {
-                        this.currentElement = this._stack.array(in this.allocator)[in this.allocator, this._index];
+                        this.currentElement = this.stack.array(in this.allocator)[in this.allocator, this.index];
                     }
 
                     return retval;
                 }
 
-                if (this._index == -1) { // End of enumeration.
+                if (this.index == -1) { // End of enumeration.
                     return false;
                 }
 
-                retval = --this._index >= 0;
+                retval = --this.index >= 0;
                 if (retval) {
-                    this.currentElement = this._stack.array(in this.allocator)[in this.allocator, this._index];
+                    this.currentElement = this.stack.array(in this.allocator)[in this.allocator, this.index];
                 } else {
                     this.currentElement = default(T);
                 }
@@ -243,11 +243,11 @@ namespace ME.ECS.Collections.MemoryAllocator {
 
             public T Current {
                 get {
-                    if (this._index == -2) {
+                    if (this.index == -2) {
                         ThrowHelper.ThrowInvalidOperationException(ExceptionResource.InvalidOperation_EnumNotStarted);
                     }
 
-                    if (this._index == -1) {
+                    if (this.index == -1) {
                         ThrowHelper.ThrowInvalidOperationException(ExceptionResource.InvalidOperation_EnumEnded);
                     }
 
@@ -257,11 +257,11 @@ namespace ME.ECS.Collections.MemoryAllocator {
 
             object System.Collections.IEnumerator.Current {
                 get {
-                    if (this._index == -2) {
+                    if (this.index == -2) {
                         ThrowHelper.ThrowInvalidOperationException(ExceptionResource.InvalidOperation_EnumNotStarted);
                     }
 
-                    if (this._index == -1) {
+                    if (this.index == -1) {
                         ThrowHelper.ThrowInvalidOperationException(ExceptionResource.InvalidOperation_EnumEnded);
                     }
 
@@ -270,11 +270,11 @@ namespace ME.ECS.Collections.MemoryAllocator {
             }
 
             void System.Collections.IEnumerator.Reset() {
-                if (this._version != this._stack.version(in this.allocator)) {
+                if (this.version != this.stack.version(in this.allocator)) {
                     ThrowHelper.ThrowInvalidOperationException(ExceptionResource.InvalidOperation_EnumFailedVersion);
                 }
 
-                this._index = -2;
+                this.index = -2;
                 this.currentElement = default;
             }
 

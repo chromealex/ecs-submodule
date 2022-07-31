@@ -5,6 +5,68 @@ namespace ME.ECS.Collections.V3 {
     [System.Diagnostics.DebuggerTypeProxyAttribute(typeof(MemArrayAllocatorProxy<>))]
     public struct MemArrayAllocator<T> where T : struct {
 
+        public struct Enumerator : System.Collections.Generic.IEnumerator<T> {
+            
+            private readonly State state;
+            private readonly MemArrayAllocator<T> list;
+            private int index;
+
+            internal Enumerator(State state, MemArrayAllocator<T> list) {
+                this.state = state;
+                this.list = list;
+                this.index = -1;
+            }
+
+            public void Dispose() {
+            }
+
+            public bool MoveNext() {
+                ++this.index;
+                return this.index < this.list.Length(in this.state.allocator);
+            }
+
+            public ref T Current => ref this.list[in this.state.allocator, this.index];
+
+            T System.Collections.Generic.IEnumerator<T>.Current => this.Current;
+
+            object System.Collections.IEnumerator.Current => this.Current;
+
+            void System.Collections.IEnumerator.Reset() {
+                this.index = -1;
+            }
+            
+        }
+
+        public struct EnumeratorNoState : System.Collections.Generic.IEnumerator<T> {
+            
+            private readonly MemoryAllocator allocator;
+            private readonly MemArrayAllocator<T> list;
+            private int index;
+
+            internal EnumeratorNoState(in MemoryAllocator allocator, MemArrayAllocator<T> list) {
+                this.allocator = allocator;
+                this.list = list;
+                this.index = -1;
+            }
+
+            public void Dispose() {
+            }
+
+            public bool MoveNext() {
+                ++this.index;
+                return this.index < this.list.Length(in this.allocator);
+            }
+
+            public T Current => this.list[in this.allocator, this.index];
+
+            object System.Collections.IEnumerator.Current => this.Current;
+
+            void System.Collections.IEnumerator.Reset() {
+                this.index = -1;
+            }
+            
+        }
+
         private struct InternalData {
 
             public int length;
@@ -81,6 +143,18 @@ namespace ME.ECS.Collections.V3 {
 
             return allocator.GetUnsafePtr(this.arrPtr(in allocator));
 
+        }
+
+        public readonly Enumerator GetEnumerator(State state) {
+            
+            return new Enumerator(state, this);
+            
+        }
+
+        public readonly EnumeratorNoState GetEnumerator(in MemoryAllocator allocator) {
+            
+            return new EnumeratorNoState(in allocator, this);
+            
         }
 
         public ref T this[in MemoryAllocator allocator, int index] {
