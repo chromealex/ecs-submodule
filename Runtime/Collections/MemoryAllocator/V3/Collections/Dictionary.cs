@@ -467,13 +467,6 @@ namespace ME.ECS.Collections.MemoryAllocator {
 
                             local.hashCode = -1;
                             local.next = this.freeList(in allocator);
-                            if (System.Runtime.CompilerServices.RuntimeHelpers.IsReferenceOrContainsReferences<TKey>()) {
-                                local.key = default(TKey);
-                            }
-
-                            if (System.Runtime.CompilerServices.RuntimeHelpers.IsReferenceOrContainsReferences<TValue>()) {
-                                local.value = default(TValue);
-                            }
 
                             this.freeList(in allocator) = index3;
                             ++this.freeCount(in allocator);
@@ -514,13 +507,6 @@ namespace ME.ECS.Collections.MemoryAllocator {
                             value = local.value;
                             local.hashCode = -1;
                             local.next = this.freeList(in allocator);
-                            if (System.Runtime.CompilerServices.RuntimeHelpers.IsReferenceOrContainsReferences<TKey>()) {
-                                local.key = default(TKey);
-                            }
-
-                            if (System.Runtime.CompilerServices.RuntimeHelpers.IsReferenceOrContainsReferences<TValue>()) {
-                                local.value = default(TValue);
-                            }
 
                             this.freeList(in allocator) = index3;
                             ++this.freeCount(in allocator);
