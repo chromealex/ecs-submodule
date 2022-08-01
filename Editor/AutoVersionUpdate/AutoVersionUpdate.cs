@@ -50,6 +50,7 @@ namespace ME.ECSEditor {
 
         private static void AddButton() {
             
+            #if UNITY_2021_OR_NEWER
             var username = UnityEditor.CloudProjectSettings.userName;
             if (AutoVersionUpdate.IsUserEditor(username, out var commitName) == false) return;
             
@@ -66,7 +67,6 @@ namespace ME.ECSEditor {
                     {
                         var uss = EditorUtilities.Load<StyleSheet>("Editor/AutoVersionUpdate/styles.uss");
                         element.styleSheets.Add(uss);
-                        #if UNITY_2021_OR_NEWER
                         var dropdown = new DropdownField();
                         dropdown.value = "ME.ECS Collab";
                         dropdown.AddToClassList("autoupdate-button");
@@ -79,10 +79,10 @@ namespace ME.ECSEditor {
 
                         });
                         element.Add(dropdown);
-                        #endif
                     }
                 }
             }
+            #endif
 
         }
 
