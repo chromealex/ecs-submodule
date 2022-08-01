@@ -8,7 +8,7 @@ namespace ME.ECS.Collections.V3 {
         private const int BUCKET_SIZE = 4;
 
         [ME.ECS.Serializer.SerializeField]
-        private MemArrayAllocator<T> data;
+        public MemArrayAllocator<T> data;
         [ME.ECS.Serializer.SerializeField]
         private MemArrayAllocator<MemArrayAllocator<T>> tails;
         [ME.ECS.Serializer.SerializeField]

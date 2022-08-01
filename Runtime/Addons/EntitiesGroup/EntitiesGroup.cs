@@ -499,11 +499,11 @@ namespace ME.ECS {
             ref var reg = ref this.registry;
             if (group.copyMode == true) {
                 for (int i = group.fromId; i <= group.toId; ++i) {
-                    reg.components.data(in this.allocator)[in this.allocator, i] = data;
+                    reg.components.data[in this.allocator, i] = data;
                 }
             } else {
                 for (int i = group.fromId; i <= group.toId; ++i) {
-                    reg.components.data(in this.allocator)[in this.allocator, i] = data;
+                    reg.components.data[in this.allocator, i] = data;
                 }
             }
             this.world.currentState.storage.Set(ref this.world.currentState.allocator, in group, componentIndex, ComponentTypes<TComponent>.isFilterLambda);
