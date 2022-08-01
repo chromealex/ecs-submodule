@@ -24,18 +24,23 @@ namespace ME.ECS {
         public struct Enumerator : System.Collections.Generic.IEnumerator<Entity> {
 
             public State state;
-            public ref MemoryAllocator allocator => ref this.state.allocator;
+            private ref MemoryAllocator allocator => ref this.state.allocator;
+            
             public bool isCreated;
-            public FilterStaticData filterStaticData;
-            public FilterData filterData;
             public int index;
             public int maxIndex;
             public int archIndex;
             public List<int> arr;
-            private Entity current;
-            public List<FiltersArchetype.FiltersArchetypeStorage.Archetype> allArchetypes;
             public List<int> archetypes;
+            public int archetypesCount;
             public bool enableGroupByEntityId;
+
+            public ListCopyable<int> onChanged;
+            public ListCopyable<ConnectInfo> connectedFilters;
+            public WithinType withinType;
+            public Tick withinTicks;
+            
+            private Entity current;
 
             #if INLINE_METHODS
             [MethodImplAttribute(MethodImplOptions.AggressiveInlining)]
@@ -44,31 +49,29 @@ namespace ME.ECS {
                 
                 if (this.isCreated == false) return false;
 
-                var onChanged = this.filterStaticData.data.onChanged;
+                var onChanged = this.onChanged;
                 var changedTracked = onChanged.Count;
                 
-                var connectedFilters = this.filterStaticData.data.connectedFilters;
+                var connectedFilters = this.connectedFilters;
                 var connectedTracked = connectedFilters.Count;
 
-                var currentState = Worlds.current.currentState;
-                
+                ref var allocator = ref this.allocator;
+
                 while (true) {
                     
-                    if (this.archIndex >= this.archetypes.Count(in this.allocator)) {
+                    if (this.archIndex >= this.archetypesCount) {
                         return false;
                     }
 
                     if (this.maxIndex >= 0 && this.index >= this.maxIndex) return false;
 
-                    ref var allocator = ref this.allocator;
-                    
                     ++this.index;
-                    ref var arch = ref this.allArchetypes[in allocator, this.archetypes[in allocator, this.archIndex]];
+                    ref var arch = ref this.state.storage.allArchetypes[in allocator, this.archetypes[in allocator, this.archIndex]];
                     if (this.index >= arch.entitiesArr.Count(in allocator)) {
 
                         ++this.archIndex;
-                        if (this.archIndex < this.archetypes.Count(in allocator)) {
-                            this.arr = this.allArchetypes[in allocator, this.archetypes[in allocator, this.archIndex]].entitiesArr;
+                        if (this.archIndex < this.archetypesCount) {
+                            this.arr = this.state.storage.allArchetypes[in allocator, this.archetypes[in allocator, this.archIndex]].entitiesArr;
                         }
 
                         this.index = -1;
@@ -77,14 +80,14 @@ namespace ME.ECS {
                     }
 
                     var entityId = this.arr[in allocator, this.index];
-                    if (this.filterStaticData.data.withinType == WithinType.GroupByEntityId && this.enableGroupByEntityId == true) {
+                    if (this.withinType == WithinType.GroupByEntityId && this.enableGroupByEntityId == true) {
 
-                        if (entityId % this.filterStaticData.data.withinTicks != currentState.tick % this.filterStaticData.data.withinTicks) continue;
+                        if (entityId % this.withinTicks != this.state.tick % this.withinTicks) continue;
 
                     }
 
-                    if (currentState.storage.IsDeadPrepared(in allocator, entityId) == true) continue;
-                    this.current = this.filterData.storage.GetEntityById(in allocator, entityId);
+                    if (this.state.storage.IsDeadPrepared(in allocator, entityId) == true) continue;
+                    this.current = this.state.storage.cache[in allocator, entityId];
 
                     if (connectedTracked > 0) {
                         // Check if all custom filters contains connected entity
@@ -107,7 +110,7 @@ namespace ME.ECS {
                         var hasChanged = false;
                         for (int i = 0, cnt = changedTracked; i < cnt; ++i) {
                             var typeId = onChanged[i];
-                            var reg = currentState.structComponents.list.arr[typeId];
+                            var reg = this.state.structComponents.list.arr[typeId];
                             if (reg.HasChanged(entityId) == true) {
                                 hasChanged = true;
                                 break;
@@ -176,12 +179,12 @@ namespace ME.ECS {
             filters.UpdateFilters(world.currentState, ref world.currentState.allocator);
             ++filters.forEachMode;
 
-            var filterStaticData = world.GetFilterStaticData(this.id);
+            ref var filterStaticData = ref world.GetFilterStaticData(this.id);
             if (FiltersArchetype.FiltersArchetypeStorage.CheckStaticShared(filterStaticData.data.containsShared, filterStaticData.data.notContainsShared) == false) {
                 return new Enumerator();
             }
 
-            var filterData = filters.GetFilter(in world.currentState.allocator, this.id);
+            ref var filterData = ref filters.GetFilter(in world.currentState.allocator, this.id);
             var range = this.GetRange(world, in filterStaticData, out bool enableGroupByEntityId);
             return new Enumerator() {
                 state = world.currentState,
@@ -189,12 +192,14 @@ namespace ME.ECS {
                 index = range.GetFrom(),
                 maxIndex = range.GetTo(),
                 archIndex = 0,
-                filterData = filterData,
-                filterStaticData = filterStaticData,
                 arr = filterData.archetypes.Count(in world.currentState.allocator) > 0 ? filterData.storage.allArchetypes[in world.currentState.allocator, filterData.archetypesList[in world.currentState.allocator, 0]].entitiesArr : default,
                 archetypes = filterData.archetypesList,
-                allArchetypes = filterData.storage.allArchetypes,
+                archetypesCount = filterData.archetypesList.Count(in world.currentState.allocator),
                 enableGroupByEntityId = enableGroupByEntityId,
+                onChanged = filterStaticData.data.onChanged,
+                connectedFilters = filterStaticData.data.connectedFilters,
+                withinType = filterStaticData.data.withinType,
+                withinTicks = filterStaticData.data.withinTicks,
             };
 
         }

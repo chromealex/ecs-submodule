@@ -183,10 +183,10 @@ namespace ME.ECS {
 
         }
 
-        internal FilterStaticData GetFilterStaticData(int id) {
+        internal ref FilterStaticData GetFilterStaticData(int id) {
             
             ArrayUtils.Resize(id, ref this.filtersStaticData, true);
-            return this.filtersStaticData.arr[id];
+            return ref this.filtersStaticData.arr[id];
 
         }
 

@@ -42,7 +42,7 @@ namespace ME.ECS {
         public int GetHash(in MemoryAllocator allocator) {
 
             var hash = 0;
-            for (int i = 0; i < this.values.Length(in allocator); ++i) {
+            for (int i = 0; i < this.values.Length; ++i) {
                 hash ^= (int)(this.values[in allocator, i] + 100000);
             }
 
@@ -90,7 +90,7 @@ namespace ME.ECS {
         public ref ushort Get(in MemoryAllocator allocator, in Entity entity) {
 
             var id = entity.id;
-            if (id >= this.values.Length(in allocator)) return ref EntityVersions.defaultValue;
+            if (id >= this.values.Length) return ref EntityVersions.defaultValue;
             return ref this.values[in allocator, id];
 
         }
@@ -178,7 +178,7 @@ namespace ME.ECS {
         public int GetHash(in MemoryAllocator allocator) {
 
             var hash = 0;
-            for (int i = 0; i < this.values.Length(in allocator); ++i) {
+            for (int i = 0; i < this.values.Length; ++i) {
                 hash ^= (this.values[in allocator, i] + 100000);
             }
 
@@ -225,7 +225,7 @@ namespace ME.ECS {
         public ref byte Get(in MemoryAllocator allocator, in Entity entity) {
 
             var id = entity.id;
-            if (id >= this.values.Length(in allocator)) return ref EntityFlags.defaultValue;
+            if (id >= this.values.Length) return ref EntityFlags.defaultValue;
             return ref this.values[in allocator, id];
 
         }

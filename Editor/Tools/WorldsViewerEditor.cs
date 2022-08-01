@@ -1178,7 +1178,7 @@ namespace ME.ECSEditor {
                                         {
                                             var allocator = world.currentState.allocator;
                                             GUILayoutExt.DrawHeader("Current");
-                                            for (int i = 0; i < storage.cache.Length(in allocator); ++i) {
+                                            for (int i = 0; i < storage.cache.Length; ++i) {
                                                 var ent = storage.cache[allocator, i];
                                                 GUILayoutExt.DataLabel(ent == Entity.Empty ? Entity.Empty.ToString() : ent.ToString());
                                             }

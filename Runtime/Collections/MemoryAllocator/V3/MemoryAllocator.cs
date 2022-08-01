@@ -3,6 +3,7 @@
 using System;
 using Unity.Collections;
 using Unity.Collections.LowLevel.Unsafe;
+using INLINE = System.Runtime.CompilerServices.MethodImplAttribute;
 
 namespace ME.ECS.Collections.V3 {
 
@@ -104,33 +105,39 @@ namespace ME.ECS.Collections.V3 {
 
         /// 
         /// Base
-        /// 
+        ///
+        [INLINE(256)]
         public readonly ref T Ref<T>(MemPtr ptr) where T : unmanaged {
-            return ref this.RefUnmanaged<T>(ptr);
+            return ref UnsafeUtility.AsRef<T>(this.GetUnsafePtr(ptr));
         }
 
+        [INLINE(256)]
         public readonly ref T RefUnmanaged<T>(MemPtr ptr) where T : struct {
             return ref UnsafeUtility.AsRef<T>(this.GetUnsafePtr(ptr));
         }
 
+        [INLINE(256)]
         public MemPtr AllocData<T>(T data) where T : unmanaged {
             var ptr = this.Alloc<T>();
             this.Ref<T>(ptr) = data;
             return ptr;
         }
 
+        [INLINE(256)]
         public MemPtr Alloc<T>() where T : unmanaged {
             var size = sizeof(T);
             var alignOf = UnsafeUtility.AlignOf<T>();
             return this.Alloc(size + alignOf);
         }
 
+        [INLINE(256)]
         public MemPtr AllocUnmanaged<T>() where T : struct {
             var size = UnsafeUtility.SizeOf<T>();
             var alignOf = UnsafeUtility.AlignOf<T>();
             return this.Alloc(size + alignOf);
         }
 
+        [INLINE(256)]
         public MemPtr Alloc(long size) {
 
             void* ptr = null;
@@ -152,6 +159,7 @@ namespace ME.ECS.Collections.V3 {
             
         }
 
+        [INLINE(256)]
         public bool Free(MemPtr ptr) {
 
             if (ptr == 0) return false;
@@ -167,6 +175,7 @@ namespace ME.ECS.Collections.V3 {
             return MemoryAllocator.ZmFree(this.zonesList[zoneIndex], this.GetUnsafePtr(ptr));
         }
 
+        [INLINE(256)]
         public MemPtr ReAlloc(MemPtr ptr, long size) {
             
             if (ptr == 0L) return this.Alloc(size);;
@@ -189,6 +198,7 @@ namespace ME.ECS.Collections.V3 {
             
         }
 
+        [INLINE(256)]
         public readonly void MemCopy(MemPtr dest, long destOffset, MemPtr source, long sourceOffset, long length) {
             
             #if MEMORY_ALLOCATOR_BOUNDS_CHECK
@@ -209,6 +219,7 @@ namespace ME.ECS.Collections.V3 {
             UnsafeUtility.MemCpy(this.GetUnsafePtr(dest + destOffset), this.GetUnsafePtr(source + sourceOffset), length);
         }
 
+        [INLINE(256)]
         public readonly void MemClear(MemPtr dest, long destOffset, long length) {
             
             #if MEMORY_ALLOCATOR_BOUNDS_CHECK
@@ -222,6 +233,7 @@ namespace ME.ECS.Collections.V3 {
             UnsafeUtility.MemClear(this.GetUnsafePtr(dest + destOffset), length);
         }
 
+        [INLINE(256)]
         public void Prepare(long size) {
 
             for (int i = 0; i < this.zonesListCount; i++) {
@@ -234,6 +246,7 @@ namespace ME.ECS.Collections.V3 {
                 
         }
 
+        [INLINE(256)]
         public readonly void* GetUnsafePtr(in MemPtr ptr) {
 
             var zoneIndex = ptr >> 32;
@@ -248,6 +261,7 @@ namespace ME.ECS.Collections.V3 {
             return (byte*)this.zonesList[zoneIndex] + offset;
         }
 
+        [INLINE(256)]
         private readonly MemPtr GetSafePtr(void* ptr, int zoneIndex) {
             var index = (long)zoneIndex << 32;
             var offset = ((byte*)ptr - (byte*)this.zonesList[zoneIndex]);
@@ -258,26 +272,31 @@ namespace ME.ECS.Collections.V3 {
         /// 
         /// Arrays
         /// 
+        [INLINE(256)]
         public readonly ref T RefArray<T>(MemPtr ptr, int index) where T : unmanaged {
             var size = sizeof(T);
             return ref UnsafeUtility.AsRef<T>(this.GetUnsafePtr(ptr + index * size));
         }
 
+        [INLINE(256)]
         public MemPtr ReAllocArray<T>(MemPtr ptr, int newLength) where T : unmanaged {
             var size = sizeof(T);
             return this.ReAlloc(ptr, size * newLength);
         }
 
+        [INLINE(256)]
         public MemPtr AllocArray<T>(int length) where T : unmanaged {
             var size = sizeof(T);
             return this.Alloc(size * length);
         }
 
+        [INLINE(256)]
         public readonly ref T RefArrayUnmanaged<T>(MemPtr ptr, int index) where T : struct {
             var size = UnsafeUtility.SizeOf<T>();
             return ref UnsafeUtility.AsRef<T>(this.GetUnsafePtr(ptr + index * size));
         }
 
+        [INLINE(256)]
         public MemPtr ReAllocArrayUnmanaged<T>(MemPtr ptr, int newLength) where T : struct {
             var size = UnsafeUtility.SizeOf<T>();
             return this.ReAlloc(ptr, size * newLength);

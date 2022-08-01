@@ -30,8 +30,8 @@ namespace ME.ECS.Collections.V3 {
 
         public T[] items {
             get {
-                var arr = new T[this.arr.Length(StaticAllocatorProxy.allocator)];
-                for (int i = 0; i < this.arr.Length(StaticAllocatorProxy.allocator); ++i) {
+                var arr = new T[this.arr.Length];
+                for (int i = 0; i < this.arr.Length; ++i) {
                     arr[i] = this.arr[in StaticAllocatorProxy.allocator, i];
                 }
 

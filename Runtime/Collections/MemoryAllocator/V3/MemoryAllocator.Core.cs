@@ -1,6 +1,7 @@
 using System;
 using Unity.Collections;
 using Unity.Collections.LowLevel.Unsafe;
+using INLINE = System.Runtime.CompilerServices.MethodImplAttribute;
 
 namespace ME.ECS.Collections.V3 {
 
@@ -114,6 +115,7 @@ namespace ME.ECS.Collections.V3 {
 
         }
 
+        [INLINE(256)]
         public static void ZmClearZone(MemZone* zone) {
             var block = (MemBlock*)((byte*)zone + sizeof(MemZone));
             var blockOffset = new MemBlockOffset(block, zone);
@@ -132,6 +134,7 @@ namespace ME.ECS.Collections.V3 {
             block->size = zone->size - sizeof(MemZone);
         }
 
+        [INLINE(256)]
         public static MemZone* ZmCreateZone(int size) {
             size = MemoryAllocator.ZmGetMemBlockSize(size) + sizeof(MemZone);
 
@@ -145,6 +148,7 @@ namespace ME.ECS.Collections.V3 {
             return zone;
         }
 
+        [INLINE(256)]
         public static MemZone* ZmReallocZone(MemZone* zone, int newSize) {
             if (zone->size >= newSize) return zone;
 
@@ -184,10 +188,12 @@ namespace ME.ECS.Collections.V3 {
             return newZone;
         }
 
+        [INLINE(256)]
         public static void ZmFreeZone(MemZone* zone) {
             UnsafeUtility.Free(zone, Allocator.Persistent);
         }
 
+        [INLINE(256)]
         public static bool ZmFree(MemZone* zone, void* ptr) {
             var block = (MemBlock*)((byte*)ptr - sizeof(MemBlock));
             var blockOffset = new MemBlockOffset(block, zone);
@@ -238,10 +244,12 @@ namespace ME.ECS.Collections.V3 {
             return true;
         }
 
+        [INLINE(256)]
         private static int ZmGetMemBlockSize(int size) {
             return ((size + 3) & ~3) + sizeof(MemBlock);
         }
 
+        [INLINE(256)]
         public static void* ZmMalloc(MemZone* zone, int size, void* user) {
             size = MemoryAllocator.ZmGetMemBlockSize(size);
 
@@ -312,6 +320,7 @@ namespace ME.ECS.Collections.V3 {
             return (void*)((byte*)@base + sizeof(MemBlock));
         }
 
+        [INLINE(256)]
         public static void ZmDumpHeap(MemZone* zone, System.Collections.Generic.List<string> results) {
             results.Add($"zone size: {zone->size}; location: {new IntPtr(zone)}; rover block offset: {zone->rover.value}");
 
@@ -325,6 +334,7 @@ namespace ME.ECS.Collections.V3 {
             }
         }
 
+        [INLINE(256)]
         public static void ZmCheckHeap(MemZone* zone, System.Collections.Generic.List<string> results) {
             for (var block = zone->blocklist.next.Ptr(zone);; block = block->next.Ptr(zone)) {
                 if (block->next.Ptr(zone) == &zone->blocklist) {
@@ -336,6 +346,7 @@ namespace ME.ECS.Collections.V3 {
             }
         }
 
+        [INLINE(256)]
         private static void ZmCheckBlock(MemZone* zone, MemBlock* block, System.Collections.Generic.List<string> results) {
             if ((byte*)block + block->size != (byte*)block->next.Ptr(zone)) {
                 results.Add("CheckHeap: block size does not touch the next block\n");
@@ -350,6 +361,7 @@ namespace ME.ECS.Collections.V3 {
             }
         }
 
+        [INLINE(256)]
         public static int ZmFreeMemory(MemZone* zone) {
             var free = 0;
 
@@ -360,6 +372,7 @@ namespace ME.ECS.Collections.V3 {
             return free;
         }
 
+        [INLINE(256)]
         public static bool ZmHasFreeBlock(MemZone* zone, int size) {
             size = MemoryAllocator.ZmGetMemBlockSize(size);
 

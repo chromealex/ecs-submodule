@@ -68,7 +68,7 @@ namespace ME.ECS {
 
         internal void Dispose(ref MemoryAllocator allocator) {
 
-            for (int i = 0; i < this.data.Length(in allocator); ++i) {
+            for (int i = 0; i < this.data.Length; ++i) {
 
                 ref var set = ref this.data[in allocator, i];
                 if (set.isCreated == true) {

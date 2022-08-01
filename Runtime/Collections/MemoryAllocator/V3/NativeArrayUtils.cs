@@ -14,7 +14,7 @@ namespace ME.ECS.Collections.V3 {
         
             var gcHandle = System.Runtime.InteropServices.GCHandle.Alloc(src, System.Runtime.InteropServices.GCHandleType.Pinned);
             var num = gcHandle.AddrOfPinnedObject();
-            Unity.Collections.LowLevel.Unsafe.UnsafeUtility.MemCpy((void*)((System.IntPtr)dst.GetMemPtr(in allocator) + dstIndex * Unity.Collections.LowLevel.Unsafe.UnsafeUtility.SizeOf<T>()), (void*)((System.IntPtr)(void*)num + srcIndex * Unity.Collections.LowLevel.Unsafe.UnsafeUtility.SizeOf<T>()), (long)(length * Unity.Collections.LowLevel.Unsafe.UnsafeUtility.SizeOf<T>()));
+            Unity.Collections.LowLevel.Unsafe.UnsafeUtility.MemCpy((void*)((System.IntPtr)dst.arrPtr + dstIndex * Unity.Collections.LowLevel.Unsafe.UnsafeUtility.SizeOf<T>()), (void*)((System.IntPtr)(void*)num + srcIndex * Unity.Collections.LowLevel.Unsafe.UnsafeUtility.SizeOf<T>()), (long)(length * Unity.Collections.LowLevel.Unsafe.UnsafeUtility.SizeOf<T>()));
             gcHandle.Free();
             
         }
@@ -26,7 +26,7 @@ namespace ME.ECS.Collections.V3 {
                                    in MemArrayAllocator<T> fromArr,
                                    ref MemArrayAllocator<T> arr) where T : unmanaged {
             
-            NativeArrayUtils.Copy(ref allocator, fromArr, 0, ref arr, 0, fromArr.Length(in allocator));
+            NativeArrayUtils.Copy(ref allocator, fromArr, 0, ref arr, 0, fromArr.Length);
             
         }
 
@@ -37,7 +37,7 @@ namespace ME.ECS.Collections.V3 {
                                    in MemArrayAllocator<T> fromArr,
                                    ref MemArrayAllocator<T> arr) where T : unmanaged {
             
-            NativeArrayUtils.Copy(ref allocator, fromArr, 0, ref arr, 0, fromArr.Length(in allocator), true);
+            NativeArrayUtils.Copy(ref allocator, fromArr, 0, ref arr, 0, fromArr.Length, true);
             
         }
 
@@ -62,18 +62,33 @@ namespace ME.ECS.Collections.V3 {
                     return;
             }
 
-            if (arr.isCreated == false || (copyExact == false ? arr.Length(in allocator) < fromArr.Length(in allocator) : arr.Length(in allocator) != fromArr.Length(in allocator))) {
+            if (arr.isCreated == false || (copyExact == false ? arr.Length < fromArr.Length : arr.Length != fromArr.Length)) {
 
                 if (arr.isCreated == true) arr.Dispose(ref allocator);
-                arr = new MemArrayAllocator<T>(ref allocator, fromArr.Length(in allocator));
+                arr = new MemArrayAllocator<T>(ref allocator, fromArr.Length);
                 
             }
 
             var size = sizeof(T);
-            allocator.MemCopy(arr.GetMemPtr(in allocator), destIndex * size, fromArr.GetMemPtr(in allocator), sourceIndex * size, length * size);
+            allocator.MemCopy(arr.arrPtr, destIndex * size, fromArr.arrPtr, sourceIndex * size, length * size);
 
         }
-        
+
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
+        public static void CopyNoChecks<T>(ref MemoryAllocator allocator,
+                                   in MemArrayAllocator<T> fromArr,
+                                   int sourceIndex,
+                                   ref MemArrayAllocator<T> arr,
+                                   int destIndex,
+                                   int length) where T : unmanaged {
+
+            var size = sizeof(T);
+            allocator.MemCopy(arr.arrPtr, destIndex * size, fromArr.arrPtr, sourceIndex * size, length * size);
+
+        }
+
     }
 
 }

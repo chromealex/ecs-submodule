@@ -58,7 +58,7 @@ namespace ME.ECSEditor {
 
             SessionState.SetInt("temp.file.length", len + addFiles.Count);
             for (int i = len; i < len + addFiles.Count; ++i) {
-                SessionState.SetString("temp.file." + i, addFiles[i]);
+                SessionState.SetString("temp.file." + i, addFiles[i - len]);
             }
 
         }

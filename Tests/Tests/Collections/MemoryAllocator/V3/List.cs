@@ -20,6 +20,57 @@ namespace ME.ECS.Tests.MemoryAllocator.V3.Collections {
         }
 
         [Test]
+        public void Performance() {
+
+            var allocator = Base.GetAllocator(10);
+
+            var count = 1_000_000;
+            var genericList = new System.Collections.Generic.List<int>(count);
+            var list = new List<int>(ref allocator, count);
+            for (int i = 0; i < count; ++i) {
+                list.Add(ref allocator, i);
+                genericList.Add(i);
+            }
+
+            {
+                var ms = System.Diagnostics.Stopwatch.StartNew();
+                var sum = 0;
+                for (int i = 0; i < count; ++i) {
+                    sum += genericList[i];
+                }
+
+                ms.Stop();
+                Debug.Log("Generic List: " + ms.ElapsedMilliseconds + "ms");
+            }
+            {
+                var ms = System.Diagnostics.Stopwatch.StartNew();
+                var sum = 0;
+                for (int i = 0; i < count; ++i) {
+                    sum += list[in allocator, i];
+                }
+
+                ms.Stop();
+                Debug.Log("Allocator List: " + ms.ElapsedMilliseconds + "ms");
+            }
+            {
+                var ms = System.Diagnostics.Stopwatch.StartNew();
+                var sum = 0;
+                ref var internalData = ref list.GetInternalData(in allocator);
+                for (int i = 0; i < count; ++i) {
+                    sum += list[in internalData, in allocator, i];
+                }
+
+                ms.Stop();
+                Debug.Log("Allocator List Direct: " + ms.ElapsedMilliseconds + "ms");
+            }
+
+            list.Dispose(ref allocator);
+
+            allocator.Dispose();
+
+        }
+
+        [Test]
         public void ForEach() {
 
             var allocator = Base.GetAllocator(10);

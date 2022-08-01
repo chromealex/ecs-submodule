@@ -158,7 +158,7 @@ namespace ME.ECS.Collections.MemoryAllocator {
         
         public readonly Enumerator GetEnumerator() {
             
-            return GetEnumerator(Worlds.current.GetState());
+            return this.GetEnumerator(Worlds.current.GetState());
             
         }
 
@@ -182,7 +182,7 @@ namespace ME.ECS.Collections.MemoryAllocator {
                 // clear the elements so that the gc can reclaim the references.
                 // clear only up to m_lastIndex for m_slots
                 this.slots(in allocator).Clear(in allocator, 0, this.lastIndex(in allocator));
-                this.buckets(in allocator).Clear(in allocator, 0, this.buckets(in allocator).Length(in allocator));
+                this.buckets(in allocator).Clear(in allocator, 0, this.buckets(in allocator).Length);
                 this.lastIndex(in allocator) = 0;
                 this.count(in allocator) = 0;
                 this.freeList(in allocator) = -1;
@@ -200,7 +200,7 @@ namespace ME.ECS.Collections.MemoryAllocator {
             if (this.buckets(in allocator).isCreated == true) {
                 int hashCode = EquatableHashSet<T>.InternalGetHashCode(in allocator, item);
                 // see note at "HashSet" level describing why "- 1" appears in for loop
-                for (int i = this.buckets(in allocator)[in allocator, hashCode % this.buckets(in allocator).Length(in allocator)] - 1; i >= 0; i = this.slots(in allocator)[in allocator, i].next) {
+                for (int i = this.buckets(in allocator)[in allocator, hashCode % this.buckets(in allocator).Length] - 1; i >= 0; i = this.slots(in allocator)[in allocator, i].next) {
                     if (this.slots(in allocator)[in allocator, i].hashCode == hashCode &&
                         AreEquals(in allocator, this.slots(in allocator)[in allocator, i].value, item) == true) {
                         return true;
@@ -220,7 +220,7 @@ namespace ME.ECS.Collections.MemoryAllocator {
         public bool Remove(ref MemoryAllocator allocator, T item) {
             if (this.buckets(in allocator).isCreated == true) {
                 int hashCode = EquatableHashSet<T>.InternalGetHashCode(in allocator, item);
-                int bucket = hashCode % this.buckets(in allocator).Length(in allocator);
+                int bucket = hashCode % this.buckets(in allocator).Length;
                 int last = -1;
                 for (int i = this.buckets(in allocator)[in allocator, bucket] - 1; i >= 0; last = i, i = this.slots(in allocator)[in allocator, i].next) {
                     if (this.slots(in allocator)[in allocator, i].hashCode == hashCode &&
@@ -344,7 +344,7 @@ namespace ME.ECS.Collections.MemoryAllocator {
 
             var newSlots = new MemArrayAllocator<Slot>(ref allocator, newSize);
             if (this.slots(in allocator).isCreated == true) {
-                NativeArrayUtils.Copy(ref allocator, in this.slots(in allocator), 0, ref newSlots, 0, this.lastIndex(in allocator));
+                NativeArrayUtils.CopyNoChecks(ref allocator, in this.slots(in allocator), 0, ref newSlots, 0, this.lastIndex(in allocator));
             }
 
             if (forceNewHashCodes == true) {
@@ -380,8 +380,8 @@ namespace ME.ECS.Collections.MemoryAllocator {
             }
 
             int hashCode = EquatableHashSet<T>.InternalGetHashCode(in allocator, value);
-            int bucket = hashCode % this.buckets(in allocator).Length(in allocator);
-            for (int i = this.buckets(in allocator)[in allocator, hashCode % this.buckets(in allocator).Length(in allocator)] - 1; i >= 0; i = this.slots(in allocator)[in allocator, i].next) {
+            int bucket = hashCode % this.buckets(in allocator).Length;
+            for (int i = this.buckets(in allocator)[in allocator, hashCode % this.buckets(in allocator).Length] - 1; i >= 0; i = this.slots(in allocator)[in allocator, i].next) {
                 if (this.slots(in allocator)[in allocator, i].hashCode == hashCode &&
                     AreEquals(in allocator, this.slots(in allocator)[in allocator, i].value, value) == true) {
                     return false;
@@ -394,10 +394,10 @@ namespace ME.ECS.Collections.MemoryAllocator {
                 this.freeList(in allocator) = this.slots(in allocator)[in allocator, index].next;
             }
             else {
-                if (this.lastIndex(in allocator) == this.slots(in allocator).Length(in allocator)) {
+                if (this.lastIndex(in allocator) == this.slots(in allocator).Length) {
                     this.IncreaseCapacity(ref allocator);
                     // this will change during resize
-                    bucket = hashCode % this.buckets(in allocator).Length(in allocator);
+                    bucket = hashCode % this.buckets(in allocator).Length;
                 }
                 index = this.lastIndex(in allocator);
                 this.lastIndex(in allocator)++;
@@ -415,7 +415,7 @@ namespace ME.ECS.Collections.MemoryAllocator {
         // Add value at known index with known hash code. Used only
         // when constructing from another HashSet.
         private void AddValue(ref MemoryAllocator allocator, int index, int hashCode, T value) {
-            int bucket = hashCode % this.buckets(in allocator).Length(in allocator);
+            int bucket = hashCode % this.buckets(in allocator).Length;
             this.slots(in allocator)[in allocator, index].hashCode = hashCode;
             this.slots(in allocator)[in allocator, index].value = value;
             this.slots(in allocator)[in allocator, index].next = this.buckets(in allocator)[in allocator, bucket] - 1;
@@ -431,7 +431,7 @@ namespace ME.ECS.Collections.MemoryAllocator {
         /// <returns></returns>
         private readonly int InternalIndexOf(in MemoryAllocator allocator, T item) {
             int hashCode = EquatableHashSet<T>.InternalGetHashCode(in allocator, item);
-            for (int i = this.buckets(in allocator)[in allocator, hashCode % this.buckets(in allocator).Length(in allocator)] - 1; i >= 0; i = this.slots(in allocator)[in allocator, i].next) {
+            for (int i = this.buckets(in allocator)[in allocator, hashCode % this.buckets(in allocator).Length] - 1; i >= 0; i = this.slots(in allocator)[in allocator, i].next) {
                 if ((this.slots(in allocator)[in allocator, i].hashCode) == hashCode &&
                     AreEquals(in allocator, this.slots(in allocator)[in allocator, i].value, item) == true) {
                     return i;

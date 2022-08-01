@@ -63,17 +63,17 @@ namespace ME.ECS.Collections.MemoryAllocator {
         }
 
         public void Enqueue(ref MemoryAllocator allocator, T item) {
-            if (this.size(in allocator) == this.array(in allocator).Length(in allocator)) {
-                var newCapacity = (int)((long)this.array(in allocator).Length(in allocator) * (long)Queue<T>.GROW_FACTOR / 100);
-                if (newCapacity < this.array(in allocator).Length(in allocator) + Queue<T>.MINIMUM_GROW) {
-                    newCapacity = this.array(in allocator).Length(in allocator) + Queue<T>.MINIMUM_GROW;
+            if (this.size(in allocator) == this.array(in allocator).Length) {
+                var newCapacity = (int)((long)this.array(in allocator).Length * (long)Queue<T>.GROW_FACTOR / 100);
+                if (newCapacity < this.array(in allocator).Length + Queue<T>.MINIMUM_GROW) {
+                    newCapacity = this.array(in allocator).Length + Queue<T>.MINIMUM_GROW;
                 }
 
                 this.SetCapacity(ref allocator, newCapacity);
             }
 
             this.array(in allocator)[in allocator, this.tail(in allocator)] = item;
-            this.tail(in allocator) = (this.tail(in allocator) + 1) % this.array(in allocator).Length(in allocator);
+            this.tail(in allocator) = (this.tail(in allocator) + 1) % this.array(in allocator).Length;
             this.size(in allocator)++;
             this.version(in allocator)++;
         }
@@ -84,7 +84,7 @@ namespace ME.ECS.Collections.MemoryAllocator {
         
         public readonly Enumerator GetEnumerator() {
             
-            return GetEnumerator(Worlds.current.GetState());
+            return this.GetEnumerator(Worlds.current.GetState());
             
         }
 
@@ -99,7 +99,7 @@ namespace ME.ECS.Collections.MemoryAllocator {
 
             var removed = this.array(in allocator)[in allocator, this.head(in allocator)];
             this.array(in allocator)[in allocator, this.head(in allocator)] = default(T);
-            this.head(in allocator) = (this.head(in allocator) + 1) % this.array(in allocator).Length(in allocator);
+            this.head(in allocator) = (this.head(in allocator) + 1) % this.array(in allocator).Length;
             this.size(in allocator)--;
             this.version(in allocator)++;
             return removed;
@@ -122,14 +122,14 @@ namespace ME.ECS.Collections.MemoryAllocator {
                     return true;
                 }
 
-                index = (index + 1) % this.array(in allocator).Length(in allocator);
+                index = (index + 1) % this.array(in allocator).Length;
             }
 
             return false;
         }
 
         private T GetElement(in MemoryAllocator allocator, int i) {
-            return this.array(in allocator)[in allocator, (this.head(in allocator) + i) % this.array(in allocator).Length(in allocator)];
+            return this.array(in allocator)[in allocator, (this.head(in allocator) + i) % this.array(in allocator).Length];
         }
 
         private void SetCapacity(ref MemoryAllocator allocator, int capacity) {

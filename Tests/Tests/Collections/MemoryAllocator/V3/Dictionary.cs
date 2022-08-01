@@ -93,8 +93,8 @@ namespace ME.ECS.Tests.MemoryAllocator.V3.Collections {
 
         private void CheckEquals(in ME.ECS.Collections.V3.MemoryAllocator allocator, ME.ECS.Collections.DictionaryCopyable<int, int> source, Dictionary<int, int> list) {
             
-            Assert.IsTrue(source._buckets.Length == list.buckets(in allocator).Length(in allocator));
-            Assert.IsTrue(source._entries.Length == list.entries(in allocator).Length(in allocator));
+            Assert.IsTrue(source._buckets.Length == list.buckets(in allocator).Length);
+            Assert.IsTrue(source._entries.Length == list.entries(in allocator).Length);
 
             for (int i = 0; i < source._buckets.Length; ++i) {
                 

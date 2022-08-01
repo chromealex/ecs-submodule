@@ -270,6 +270,78 @@ namespace ME.ECS.Tests.MemoryAllocator.V3 {
     public class Arrays {
         
         [Test]
+        public unsafe void Performance() {
+
+            var allocator = Base.GetAllocator(10);
+
+            var count = 1_000_000;
+            var nativeArray = new Unity.Collections.NativeArray<int>(count, Unity.Collections.Allocator.Persistent);
+            var genericList = new int[count];
+            var list = new MemArrayAllocator<int>(ref allocator, count);
+            for (int i = 0; i < count; ++i) {
+                list[in allocator, i] = i;
+                genericList[i] = i;
+                nativeArray[i] = i;
+            }
+
+            {
+                var ms = System.Diagnostics.Stopwatch.StartNew();
+                var sum = 0;
+                for (int i = 0; i < count; ++i) {
+                    sum += genericList[i];
+                }
+
+                ms.Stop();
+                UnityEngine.Debug.Log("C# Array: " + ms.ElapsedMilliseconds + "ms");
+            }
+            {
+                var ms = System.Diagnostics.Stopwatch.StartNew();
+                var sum = 0;
+                for (int i = 0; i < count; ++i) {
+                    sum += list[in allocator, i];
+                }
+
+                ms.Stop();
+                UnityEngine.Debug.Log("Allocator Array: " + ms.ElapsedMilliseconds + "ms");
+            }
+            {
+                var ms = System.Diagnostics.Stopwatch.StartNew();
+                var sum = 0;
+                for (int i = 0; i < count; ++i) {
+                    sum += nativeArray[i];
+                }
+
+                ms.Stop();
+                UnityEngine.Debug.Log("Native Array: " + ms.ElapsedMilliseconds + "ms");
+            }
+            {
+                var ms = System.Diagnostics.Stopwatch.StartNew();
+                var sum = 0L;
+                for (int i = 0; i < count; ++i) {
+                    sum += list.arrPtr;
+                }
+
+                ms.Stop();
+                UnityEngine.Debug.Log("GetMemPtr: " + ms.ElapsedMilliseconds + "ms");
+            }
+            {
+                var ms = System.Diagnostics.Stopwatch.StartNew();
+                for (int i = 0; i < count; ++i) {
+                    allocator.GetUnsafePtr(list.arrPtr);
+                }
+
+                ms.Stop();
+                UnityEngine.Debug.Log("GetUnsafePtr: " + ms.ElapsedMilliseconds + "ms");
+            }
+
+            list.Dispose(ref allocator);
+
+            nativeArray.Dispose();
+            allocator.Dispose();
+
+        }
+
+        [Test]
         public void LargeAlloc() {
 
             var allocator = Base.GetAllocator(1000);
@@ -423,7 +495,7 @@ namespace ME.ECS.Tests.MemoryAllocator.V3 {
             var buffer = this.PrepareSlicedArray(ref allocator);
             Assert.AreEqual(6, buffer[in allocator, 5]);
             Assert.AreEqual(12, buffer[in allocator, 11]);
-            Assert.AreEqual(13, buffer.Length(in allocator));
+            Assert.AreEqual(13, buffer.Length);
 
             buffer.Dispose(ref allocator);
             allocator.Dispose();
@@ -435,11 +507,11 @@ namespace ME.ECS.Tests.MemoryAllocator.V3 {
 
             var allocator = Base.GetAllocator(1);
             var buffer = this.PrepareSlicedArray(ref allocator);
-            var len = buffer.Length(in allocator);
+            var len = buffer.Length;
             var merged = buffer.Merge(ref allocator);
             Assert.AreEqual(6, merged[in allocator, 5]);
             Assert.AreEqual(12, merged[in allocator, 11]);
-            Assert.AreEqual(len, merged.Length(in allocator));
+            Assert.AreEqual(len, merged.Length);
             
             merged = merged.Resize(ref allocator,20, out _);
             

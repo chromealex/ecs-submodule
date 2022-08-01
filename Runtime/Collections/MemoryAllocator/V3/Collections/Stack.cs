@@ -72,7 +72,7 @@ namespace ME.ECS.Collections.MemoryAllocator {
         
         public readonly Enumerator GetEnumerator() {
             
-            return GetEnumerator(Worlds.current.GetState());
+            return this.GetEnumerator(Worlds.current.GetState());
             
         }
 
@@ -100,8 +100,8 @@ namespace ME.ECS.Collections.MemoryAllocator {
         }
 
         public void Push(ref MemoryAllocator allocator, T item) {
-            if (this.size(in allocator) == this.array(in allocator).Length(in allocator)) {
-                this.array(in allocator).Resize(ref allocator, this.array(in allocator).Length(in allocator) == 0 ? Stack<T>.DEFAULT_CAPACITY : 2 * this.array(in allocator).Length(in allocator));
+            if (this.size(in allocator) == this.array(in allocator).Length) {
+                this.array(in allocator).Resize(ref allocator, this.array(in allocator).Length == 0 ? Stack<T>.DEFAULT_CAPACITY : 2 * this.array(in allocator).Length);
             }
 
             this.array(in allocator)[in allocator, this.size(in allocator)++] = item;
