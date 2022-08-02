@@ -11,7 +11,6 @@ namespace ME.ECS.Collections.MemoryAllocator {
             public MemArrayAllocator<T> array; // Storage for stack elements
             public int size; // Number of items in the stack.
             public int version; // Used to keep enumerator in sync w/ collection.
-            public readonly bool isCreated;
 
             public void Dispose(ref MemoryAllocator allocator) {
                 

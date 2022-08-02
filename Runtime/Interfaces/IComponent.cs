@@ -18,10 +18,9 @@ namespace ME.ECS {
     public interface IVersionedNoState : IComponentBase { }
     #endif
 
-    [System.Obsolete("Use IComponent")]
     public interface IComponentDisposable : IComponentBase {
 
-        void OnDispose();
+        void OnDispose(ref ME.ECS.Collections.V3.MemoryAllocator allocator);
 
     }
 

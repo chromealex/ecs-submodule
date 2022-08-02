@@ -12,10 +12,14 @@
 
     [ComponentGroup(typeof(TransformComponentConstants.GroupInfo))]
     [ComponentOrder(5)]
-    public struct Nodes : IComponent, IVersioned {
+    public struct Nodes : IComponent, IVersioned, IComponentDisposable {
 
         public ME.ECS.Collections.MemoryAllocator.List<Entity> items;
-        
+
+        public void OnDispose(ref ME.ECS.Collections.V3.MemoryAllocator allocator) {
+            if (this.items.isCreated == true) this.items.Dispose(ref allocator);
+        }
+
     }
 
 }

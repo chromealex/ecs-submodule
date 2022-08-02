@@ -118,6 +118,21 @@ namespace ME.ECS.Collections.V3 {
         }
 
         [INLINE(256)]
+        public void DisposeWithData<U>(ref MemoryAllocator allocator) where U : struct, IComponentDisposable {
+
+            for (int i = 0; i < this.Length; ++i) {
+                this.As<U>(in allocator, i).OnDispose(ref allocator);
+            }
+            this.Dispose(ref allocator);
+
+        }
+
+        public ref U As<U>(in MemoryAllocator allocator, int index) where U : struct {
+            E.RANGE(index, 0, this.Length);
+            return ref allocator.RefArrayUnmanaged<U>(this.arrPtr, index);
+        }
+        
+        [INLINE(256)]
         public void Dispose(ref MemoryAllocator allocator) {
 
             if (this.arrPtr != 0) {

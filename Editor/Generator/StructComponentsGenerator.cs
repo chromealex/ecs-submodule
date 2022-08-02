@@ -14,11 +14,11 @@ namespace ME.ECSEditor {
         private const string DIRECTORY_CONTAINS = "/Components/";
         private static readonly System.Type SEARCH_TYPE = typeof(ME.ECS.IComponentBase);
         private const string CONTENT_ITEM = @"
-            #CONTAINER#.Validate#BLITTABLE##COPYABLE##ONESHOT##TAG##UNMANAGED#<#TYPENAME#>(#ALLOCATOR_FIRST_TYPE##ISTAG#);";
+            #CONTAINER#.Validate#BLITTABLE##COPYABLE##ONESHOT##TAG##UNMANAGED##DISPOSABLE#<#TYPENAME#>(#ALLOCATOR_FIRST_TYPE##ISTAG#);";
         private const string CONTENT_ITEM2 = @"
-            entity.ValidateData#BLITTABLE##COPYABLE##ONESHOT##TAG##UNMANAGED#<#TYPENAME#>(#ISTAG#);";
+            entity.ValidateData#BLITTABLE##COPYABLE##ONESHOT##TAG##UNMANAGED##DISPOSABLE#<#TYPENAME#>(#ISTAG#);";
         private const string CONTENT_ITEM3 = @"
-            WorldUtilities.InitComponentTypeId<#TYPENAME#>(#ISTAG#, #ISSIMPLE#, #ISBLITTABLE#, #ISCOPYABLE#, #ISVERSIONED#, #ISVERSIONED_NOSTATE#, #ISSHARED#, #ISONESHOT#);";
+            WorldUtilities.InitComponentTypeId<#TYPENAME#>(#ISTAG#, #ISSIMPLE#, #ISBLITTABLE#, #ISDISPOSABLE#, #ISCOPYABLE#, #ISVERSIONED#, #ISVERSIONED_NOSTATE#, #ISSHARED#, #ISONESHOT#);";
         private const bool AUTO_COMPILE_DEFAULT = true;
 
         static StructComponentsGenerator() {

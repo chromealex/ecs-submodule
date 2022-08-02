@@ -39,13 +39,12 @@ namespace ME.ECS.Collections.MemoryAllocator {
         [ME.ECS.Serializer.SerializeField]
         private Stack<int> freeIndexes;
 
-        public bool isCreated;
+        public bool isCreated => this.sparse.isCreated;
         public int Length => this.sparse.Length;
         
         public SparseSet(ref MemoryAllocator allocator, int length) {
 
-            this.isCreated = true;
-            this.dense = new MemArraySlicedAllocator<T>(ref allocator, length);
+            this.dense = default;
             this.sparse = default;
             this.freeIndexes = default;
             this.Validate(ref allocator, length);

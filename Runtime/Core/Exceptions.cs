@@ -78,6 +78,18 @@ namespace ME.ECS {
         public static void IS_CREATED<T>(T collection) where T : ME.ECS.Collections.MemoryAllocator.IIsCreated {
 
             if (collection.isCreated == false) {
+
+                IS_CREATED_BURST_DISCARD(collection);
+                throw new CollectionNotCreated("Collection not created");
+                
+            }
+
+        }
+
+        [Unity.Burst.BurstDiscardAttribute]
+        private static void IS_CREATED_BURST_DISCARD<T>(T collection) where T : ME.ECS.Collections.MemoryAllocator.IIsCreated {
+
+            if (collection.isCreated == false) {
                 
                 throw new CollectionNotCreated($"{collection.GetType()} not created");
                 

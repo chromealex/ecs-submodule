@@ -47,7 +47,7 @@ namespace ME.ECS {
         internal void Set(ref MemoryAllocator allocator, int entityId, int componentId) {
 
             ref var item = ref this.data[in allocator, entityId];
-            if (item.isCreated == false) item = new HashSet<int>(ref allocator, 64);
+            if (item.isCreated == false) item = new HashSet<int>(ref allocator, 1);
             item.Add(ref allocator, componentId);
 
         }

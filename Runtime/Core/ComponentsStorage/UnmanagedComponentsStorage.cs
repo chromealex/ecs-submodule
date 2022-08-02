@@ -12,8 +12,7 @@ namespace ME.ECS {
         public struct Item<T> where T : struct, IComponentBase {
 
             public Collections.MemoryAllocator.SparseSet<Component<T>> components;
-            public long maxVersion;
-
+            
             public void Merge(ref MemoryAllocator allocator) {
 
                 this.components.Merge(ref allocator);
@@ -35,14 +34,68 @@ namespace ME.ECS {
 
             public void Replace(ref Component<T> bucket, in T data) {
 
+                this.DisposeData(ref bucket);
                 bucket.data = data;
 
             }
 
-            public void RemoveData(in Entity entity, ref Component<T> bucket) {
+            public void RemoveData(ref Component<T> bucket) {
 
+                this.DisposeData(ref bucket);
                 bucket.data = default;
 
+            }
+
+            private void DisposeData(ref Component<T> bucket) {
+                
+                
+                
+            }
+
+        }
+
+        [System.Runtime.InteropServices.StructLayoutAttribute(System.Runtime.InteropServices.LayoutKind.Sequential)]
+        public struct ItemDisposable<T> where T : struct, IComponentDisposable {
+
+            public Collections.MemoryAllocator.SparseSet<Component<T>> components;
+            
+            public void Merge(ref MemoryAllocator allocator) {
+
+                this.components.Merge(ref allocator);
+
+            }
+
+            public bool Validate(ref MemoryAllocator allocator, int entityId) {
+
+                var resized = false;
+                if (this.components.isCreated == false) {
+                    this.components = new ME.ECS.Collections.MemoryAllocator.SparseSet<Component<T>>(ref allocator, entityId + 1);
+                    resized = true;
+                } else {
+                    this.components.Validate(ref allocator, entityId + 1);
+                }
+                return resized;
+
+            }
+
+            public void Replace(ref MemoryAllocator allocator, ref Component<T> bucket, in T data) {
+
+                this.DisposeData(ref allocator, ref bucket);
+                bucket.data = data;
+
+            }
+
+            public void RemoveData(ref MemoryAllocator allocator, ref Component<T> bucket) {
+
+                this.DisposeData(ref allocator, ref bucket);
+                bucket.data = default;
+
+            }
+
+            private void DisposeData(ref MemoryAllocator allocator, ref Component<T> bucket) {
+                
+                bucket.data.OnDispose(ref allocator);
+                
             }
 
         }
@@ -53,20 +106,15 @@ namespace ME.ECS {
 
         }
 
-        public void Dispose() {
+        public void Dispose(ref MemoryAllocator allocator) {
             
+            // We don't need to dispose everything here recursively because Dispose called on state de-initialization
+            // and allocator disposed with all state
+            //if (this.items.isCreated == true) this.items.Dispose(ref allocator);
             this.items = default;
 
         }
 
-        /*
-        public byte CopyFromState<T>(in Entity from, in Entity to) where T : struct, IComponentBase {
-
-            ref var reg = ref this.GetRegistry<T>();
-            return reg.CopyFromState(ref this.allocator, from.id, to.id);
-
-        }*/
-        
         public ref Item<T> GetRegistry<T>(in MemoryAllocator allocator) where T : struct, IComponentBase {
 
             var typeId = AllComponentTypes<T>.typeId;
@@ -77,7 +125,6 @@ namespace ME.ECS {
 
         public void ValidateTypeId<T>(ref MemoryAllocator allocator, int typeId) where T : struct, IComponentBase {
 
-            //UnityEngine.Debug.Log("ValidateTypeId: " + typeId + " :: length: " + this.items.Length);
             this.items.Resize(ref allocator, AllComponentTypesCounter.counter + 1);
 
         }
@@ -85,17 +132,42 @@ namespace ME.ECS {
         public void Validate<T>(ref MemoryAllocator allocator, int entityId) where T : struct, IComponentBase {
 
             var typeId = AllComponentTypes<T>.typeId;
-            //UnityEngine.Debug.Log("Validate: " + typeId + " :: length: " + this.items.Length);
             this.items.Resize(ref allocator, typeId + 1);
             var ptr = this.items[in allocator, typeId];
             if (ptr == 0L) {
                 ptr = this.items[in allocator, typeId] = allocator.Alloc<Item<T>>();
-                //var data = new MemArrayAllocatorProxy<MemPtr>(ref this.allocator, this.items);
             }
-            //UnityEngine.Debug.Log("Allocator.Ref<>: " + ptr);
             var item = allocator.Ref<Item<T>>(ptr);
             item.Validate(ref allocator, entityId);
             allocator.Ref<Item<T>>(ptr) = item;
+
+        }
+
+        public ref ItemDisposable<T> GetRegistryDisposable<T>(in MemoryAllocator allocator) where T : struct, IComponentDisposable {
+
+            var typeId = AllComponentTypes<T>.typeId;
+            var ptr = this.items[in allocator, typeId];
+            return ref allocator.Ref<ItemDisposable<T>>(ptr);
+
+        }
+
+        public void ValidateTypeIdDisposable<T>(ref MemoryAllocator allocator, int typeId) where T : struct, IComponentDisposable {
+
+            this.items.Resize(ref allocator, AllComponentTypesCounter.counter + 1);
+
+        }
+
+        public void ValidateDisposable<T>(ref MemoryAllocator allocator, int entityId) where T : struct, IComponentDisposable {
+
+            var typeId = AllComponentTypes<T>.typeId;
+            this.items.Resize(ref allocator, typeId + 1);
+            var ptr = this.items[in allocator, typeId];
+            if (ptr == 0L) {
+                ptr = this.items[in allocator, typeId] = allocator.Alloc<ItemDisposable<T>>();
+            }
+            var item = allocator.Ref<ItemDisposable<T>>(ptr);
+            item.Validate(ref allocator, entityId);
+            allocator.Ref<ItemDisposable<T>>(ptr) = item;
 
         }
 

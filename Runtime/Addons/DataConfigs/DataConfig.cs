@@ -86,9 +86,13 @@ namespace ME.ECS.DataConfigs {
     public partial class DataConfig : ScriptableObject {
 
         #if !SHARED_COMPONENTS_DISABLED
-        public struct SharedData : IComponent {
+        public struct SharedData : IComponent, IComponentDisposable {
 
             public ME.ECS.Collections.MemoryAllocator.Dictionary<int, uint> archetypeToId;
+
+            public void OnDispose(ref ME.ECS.Collections.V3.MemoryAllocator allocator) {
+                if (this.archetypeToId.isCreated == true) this.archetypeToId.Dispose(ref allocator);
+            }
 
         }
         #endif

@@ -36,7 +36,13 @@ namespace ME.ECS {
             return Pools.current.PoolSpawn(new Data(), (data) => new StructComponentsUnmanaged<T>(), null);
 			
         }
-        
+
+        public static StructComponentsUnmanagedDisposable<T> SpawnUnmanagedDisposable<T>() where T : struct, IComponentDisposable {
+
+            return Pools.current.PoolSpawn(new Data(), (data) => new StructComponentsUnmanagedDisposable<T>(), null);
+			
+        }
+
 		public static StructComponentsBlittable<T> SpawnBlittable<T>() where T : struct, IComponentBase {
 
 			return Pools.current.PoolSpawn(new Data(), (data) => new StructComponentsBlittable<T>(), null);

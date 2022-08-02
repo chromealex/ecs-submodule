@@ -731,6 +731,62 @@ namespace ME.ECS {
         }
         #endregion
         
+        #region UnmanagedDisposable
+        #if ECS_COMPILE_IL2CPP_OPTIONS
+        [Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.NullChecks, false),
+         Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.ArrayBoundsChecks, false),
+         Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.DivideByZeroChecks, false)]
+        #endif
+        public void ValidateUnmanagedDisposable<TComponent>(ref MemoryAllocator allocator, bool isTag = false) where TComponent : struct, IComponentDisposable {
+
+            var code = WorldUtilities.GetAllComponentTypeId<TComponent>();
+            if (isTag == true) WorldUtilities.SetComponentAsTag<TComponent>();
+            this.ValidateUnmanagedDisposable<TComponent>(ref allocator, code, isTag);
+
+        }
+
+        #if ECS_COMPILE_IL2CPP_OPTIONS
+        [Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.NullChecks, false),
+         Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.ArrayBoundsChecks, false),
+         Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.DivideByZeroChecks, false)]
+        #endif
+        public void ValidateUnmanagedDisposable<TComponent>(ref MemoryAllocator allocator, in Entity entity, bool isTag = false) where TComponent : struct, IComponentDisposable {
+
+            var code = WorldUtilities.GetAllComponentTypeId<TComponent>();
+            this.ValidateUnmanagedDisposable<TComponent>(ref allocator, code, isTag);
+            var reg = (StructComponentsUnmanagedDisposable<TComponent>)this.list.arr[code];
+            reg.Validate(entity.id);
+
+        }
+
+        #if ECS_COMPILE_IL2CPP_OPTIONS
+        [Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.NullChecks, false),
+         Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.ArrayBoundsChecks, false),
+         Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.DivideByZeroChecks, false)]
+        #endif
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
+        private void ValidateUnmanagedDisposable<TComponent>(ref MemoryAllocator allocator, int code, bool isTag) where TComponent : struct, IComponentDisposable {
+
+            this.unmanagedComponentsStorage.ValidateTypeIdDisposable<TComponent>(ref allocator, code);
+
+            if (ArrayUtils.WillResize(code, ref this.list) == true) {
+
+                ArrayUtils.Resize(code, ref this.list, true);
+
+            }
+
+            if (this.list.arr[code] == null) {
+
+                var instance = PoolRegistries.SpawnUnmanagedDisposable<TComponent>();
+                this.list.arr[code] = instance;
+
+            }
+
+        }
+        #endregion
+        
         #region Tags
         #if ECS_COMPILE_IL2CPP_OPTIONS
         [Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.NullChecks, false),
@@ -966,7 +1022,7 @@ namespace ME.ECS {
 
             if (this.dirtyMap.isCreated == true) this.dirtyMap.Dispose(ref allocator);
             
-            this.unmanagedComponentsStorage.Dispose();
+            this.unmanagedComponentsStorage.Dispose(ref allocator);
 
             this.isCreated = default;
 
@@ -1188,6 +1244,12 @@ namespace ME.ECS {
         public void ValidateDataUnmanaged<TComponent>(in Entity entity, bool isTag = false) where TComponent : struct, IComponentBase {
 
             this.currentState.structComponents.ValidateUnmanaged<TComponent>(ref this.currentState.allocator, in entity, isTag);
+
+        }
+
+        public void ValidateDataUnmanagedDisposable<TComponent>(in Entity entity, bool isTag = false) where TComponent : struct, IComponentDisposable {
+
+            this.currentState.structComponents.ValidateUnmanagedDisposable<TComponent>(ref this.currentState.allocator, in entity, isTag);
 
         }
 

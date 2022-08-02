@@ -1,4 +1,4 @@
-﻿//#define MEMORY_ALLOCATOR_BOUNDS_CHECK
+﻿#define MEMORY_ALLOCATOR_BOUNDS_CHECK
 
 using System;
 using Unity.Collections;

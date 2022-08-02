@@ -67,6 +67,7 @@ namespace ME.ECS {
         #endif
         public static bool isSimple = false;
         public static bool isBlittable = false;
+        public static bool isDisposable = false;
         #if COMPONENTS_COPYABLE
         public static bool isCopyable = false;
         #endif

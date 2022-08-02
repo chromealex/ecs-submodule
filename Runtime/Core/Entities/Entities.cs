@@ -112,6 +112,16 @@ namespace ME.ECS {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
+        public static Entity ValidateDataUnmanagedDisposable<TComponent>(this in Entity entity, bool isTag = false) where TComponent : struct, IComponentDisposable {
+
+            Worlds.currentWorld.ValidateDataUnmanagedDisposable<TComponent>(in entity, isTag);
+            return entity;
+
+        }
+
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
         public static Entity ValidateDataBlittable<TComponent>(this in Entity entity, bool isTag = false) where TComponent : struct, IComponentBase {
 
             Worlds.currentWorld.ValidateDataBlittable<TComponent>(in entity, isTag);

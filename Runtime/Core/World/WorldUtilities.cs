@@ -344,6 +344,15 @@ namespace ME.ECS {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
+        public static void SetComponentAsDisposable<TComponent>() {
+
+            AllComponentTypes<TComponent>.isDisposable = true;
+
+        }
+
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
         public static void SetComponentAsVersioned<TComponent>() {
 
             AllComponentTypes<TComponent>.isVersioned = true;
@@ -397,11 +406,12 @@ namespace ME.ECS {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
-        public static void InitComponentTypeId<TComponent>(bool isTag = false, bool isSimple = false, bool isBlittable = false, bool isCopyable = false, bool isVersioned = false, bool isVersionedNoState = false, bool isShared = false, bool isOneShot = false) {
+        public static void InitComponentTypeId<TComponent>(bool isTag = false, bool isSimple = false, bool isBlittable = false, bool isDisposable = false, bool isCopyable = false, bool isVersioned = false, bool isVersionedNoState = false, bool isShared = false, bool isOneShot = false) {
 
             if (isTag == true) WorldUtilities.SetComponentAsTag<TComponent>();
             if (isSimple == true) WorldUtilities.SetComponentAsSimple<TComponent>();
             if (isBlittable == true) WorldUtilities.SetComponentAsBlittable<TComponent>();
+            if (isDisposable == true) WorldUtilities.SetComponentAsDisposable<TComponent>();
             if (isVersioned == true) WorldUtilities.SetComponentAsVersioned<TComponent>();
             #if !COMPONENTS_VERSION_NO_STATE_DISABLED
             if (isVersionedNoState == true) WorldUtilities.SetComponentAsVersionedNoState<TComponent>();
