@@ -1,6 +1,12 @@
 namespace ME.ECS.Collections.MemoryAllocator {
 
     using Collections.V3;
+
+    public interface IIsCreated {
+
+        bool isCreated { get; }
+
+    }
     
     public interface IEquatableAllocator<T> {
 

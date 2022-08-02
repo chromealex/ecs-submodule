@@ -74,8 +74,26 @@ namespace ME.ECS {
             
         }
 
+        [System.Diagnostics.Conditional("WORLD_EXCEPTIONS")]
+        public static void IS_CREATED<T>(T collection) where T : ME.ECS.Collections.MemoryAllocator.IIsCreated {
+
+            if (collection.isCreated == false) {
+                
+                throw new CollectionNotCreated($"{collection.GetType()} not created");
+                
+            }
+
+        }
+
     }
     
+    public class CollectionNotCreated : System.Exception {
+
+        public CollectionNotCreated() : base("ME.ECS Exception") { }
+        public CollectionNotCreated(string message) : base(message) { }
+
+    }
+
     public class OutOfBoundsException : System.Exception {
 
         public OutOfBoundsException() : base("ME.ECS Exception") { }

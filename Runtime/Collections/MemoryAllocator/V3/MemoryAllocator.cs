@@ -23,6 +23,19 @@ namespace ME.ECS.Collections.V3 {
         
         public bool isValid => this.zonesList != null;
 
+        public int GetAllocatedSize() {
+
+            var size = 0;
+            for (int i = 0; i < this.zonesListCount; i++) {
+                var zone = this.zonesList[i];
+                size += zone->size;
+                size -= ZmFreeMemory(zone);
+            }
+
+            return size;
+
+        }
+        
         /// 
         /// Constructors
         /// 
@@ -71,7 +84,7 @@ namespace ME.ECS.Collections.V3 {
         }
 
         private void FreeZones() {
-            if (this.zonesList != null) {
+            if (this.zonesListCount > 0 && this.zonesList != null) {
                 for (int i = 0; i < this.zonesListCount; i++) {
                     MemoryAllocator.ZmFreeZone(this.zonesList[i]);
                 }

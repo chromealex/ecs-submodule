@@ -100,9 +100,6 @@ namespace ME.ECS.Tests {
             TestsHelper.Do((w) => {
                 
                 ref var str = ref w.GetStructComponents();
-                ref var str2 = ref w.GetNoStateData();
-                CoreComponentsInitializer.InitTypeId();
-                CoreComponentsInitializer.Init(w.GetState(), ref str2);
                 WorldUtilities.InitComponentTypeId<TestData>(isBlittable: true);
                 WorldUtilities.InitComponentTypeId<TestData2>(isBlittable: true);
                 str.ValidateUnmanaged<TestData>(ref w.GetState().allocator);
@@ -116,15 +113,16 @@ namespace ME.ECS.Tests {
 
                 testEntity.Set(new TestData());
 
-                w.SetEntitiesCapacity(10000);
-                for (int i = 0; i < 10000; ++i) {
+                var cap = 1000;
+                w.SetEntitiesCapacity(cap);
+                for (int i = 0; i < cap; ++i) {
                 
                     var test = new Entity("Test");
                     test.Set(new TestData());
                 
                 }
             
-                for (int i = 200; i < 500; ++i) {
+                for (int i = cap / 50; i < cap / 20; ++i) {
 
                     var ent = w.GetEntityById(i);
                     ent.Destroy();

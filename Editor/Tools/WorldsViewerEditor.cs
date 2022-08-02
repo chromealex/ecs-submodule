@@ -403,7 +403,7 @@ namespace ME.ECSEditor {
 
                                         paramsList.Clear();
                                     
-                                        var name = entity.Read<ME.ECS.Name.Name>().value;
+                                        var name = entity.Read<ME.ECS.Name.Name>().value.Value;
                                         if (name != null) paramsList.Add(name.ToLower());
                                     
                                         var registries = componentsStructStorage.GetAllRegistries();

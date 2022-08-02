@@ -1875,7 +1875,7 @@ namespace ME.ECS {
                 ref var bucket = ref reg.Get(in entity);
                 reg.Replace(ref bucket, in data);
                 DataBufferUtilsBase.PushSetCreate_INTERNAL(ref bucket.state, this, reg, in entity, StorageType.Default, makeRequest: false);
-
+                
             }
 
             /*

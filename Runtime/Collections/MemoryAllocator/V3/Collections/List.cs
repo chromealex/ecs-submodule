@@ -5,7 +5,7 @@ namespace ME.ECS.Collections.MemoryAllocator {
     using INLINE = System.Runtime.CompilerServices.MethodImplAttribute;
 
     [System.Diagnostics.DebuggerTypeProxyAttribute(typeof(ListProxy<>))]
-    public struct List<T> where T : unmanaged {
+    public struct List<T> : IIsCreated where T : unmanaged {
 
         public struct InternalData {
 
@@ -102,11 +102,13 @@ namespace ME.ECS.Collections.MemoryAllocator {
 
         [INLINE(256)]
         public readonly int Capacity(in MemoryAllocator allocator) {
+            E.IS_CREATED(this);
             return this.GetArray(in allocator).Length;
         }
         
         [INLINE(256)]
         public readonly int Count(in MemoryAllocator allocator) {
+            E.IS_CREATED(this);
             return this.GetCount(in allocator);
         }
 
@@ -121,6 +123,7 @@ namespace ME.ECS.Collections.MemoryAllocator {
         [INLINE(256)]
         public readonly MemPtr GetMemPtr(in MemoryAllocator allocator) {
             
+            E.IS_CREATED(this);
             return this.GetArray(in allocator).arrPtr;
             
         }
@@ -128,6 +131,7 @@ namespace ME.ECS.Collections.MemoryAllocator {
         [INLINE(256)]
         public readonly unsafe void* GetUnsafePtr(in MemoryAllocator allocator) {
 
+            E.IS_CREATED(this);
             return this.GetArray(in allocator).GetUnsafePtr(in allocator);
 
         }
@@ -135,6 +139,7 @@ namespace ME.ECS.Collections.MemoryAllocator {
         [INLINE(256)]
         public void Dispose(ref MemoryAllocator allocator) {
 
+            E.IS_CREATED(this);
             allocator.Ref<InternalData>(this.ptr).Dispose(ref allocator);
             allocator.Free(this.ptr);
             this = default;
@@ -144,6 +149,7 @@ namespace ME.ECS.Collections.MemoryAllocator {
         [INLINE(256)]
         public readonly Enumerator GetEnumerator(State state) {
             
+            E.IS_CREATED(this);
             return new Enumerator(state, this);
             
         }
@@ -151,6 +157,7 @@ namespace ME.ECS.Collections.MemoryAllocator {
         [INLINE(256)]
         public readonly Enumerator GetEnumerator() {
             
+            E.IS_CREATED(this);
             return this.GetEnumerator(Worlds.current.GetState());
             
         }
@@ -158,6 +165,7 @@ namespace ME.ECS.Collections.MemoryAllocator {
         [INLINE(256)]
         public readonly EnumeratorNoState GetEnumerator(in MemoryAllocator allocator) {
             
+            E.IS_CREATED(this);
             return new EnumeratorNoState(in allocator, this);
             
         }
@@ -165,18 +173,21 @@ namespace ME.ECS.Collections.MemoryAllocator {
         [INLINE(256)]
         public void Clear(in MemoryAllocator allocator) {
 
+            E.IS_CREATED(this);
             this.GetCount(in allocator) = 0;
 
         }
 
         [INLINE(256)]
         public ref InternalData GetInternalData(in MemoryAllocator allocator) {
+            E.IS_CREATED(this);
             return ref allocator.Ref<InternalData>(this.ptr);
         }
         
         public ref T this[in MemoryAllocator allocator, int index] {
             [INLINE(256)]
             get {
+                E.IS_CREATED(this);
                 E.RANGE(index, 0, this.GetCount(in allocator));
                 return ref this.GetArray(in allocator)[in allocator, index];
             }
@@ -185,6 +196,7 @@ namespace ME.ECS.Collections.MemoryAllocator {
         public ref T this[in InternalData internalData, in MemoryAllocator allocator, int index] {
             [INLINE(256)]
             get {
+                E.IS_CREATED(this);
                 return ref internalData.arr[in allocator, index];
             }
         }
@@ -192,6 +204,7 @@ namespace ME.ECS.Collections.MemoryAllocator {
         [INLINE(256)]
         public bool EnsureCapacity(ref MemoryAllocator allocator, int capacity) {
 
+            E.IS_CREATED(this);
             capacity = Helpers.NextPot(capacity);
             return this.GetArray(in allocator).Resize(ref allocator, capacity, ClearOptions.UninitializedMemory);
             
@@ -200,6 +213,7 @@ namespace ME.ECS.Collections.MemoryAllocator {
         [INLINE(256)]
         public void Add(ref MemoryAllocator allocator, T obj) {
 
+            E.IS_CREATED(this);
             ++this.GetCount(in allocator);
             this.EnsureCapacity(ref allocator, this.GetCount(in allocator));
 
@@ -210,6 +224,7 @@ namespace ME.ECS.Collections.MemoryAllocator {
         [INLINE(256)]
         public readonly bool Contains<U>(in MemoryAllocator allocator, U obj) where U : unmanaged, System.IEquatable<T> {
             
+            E.IS_CREATED(this);
             for (int i = 0, cnt = this.GetCount(in allocator); i < cnt; ++i) {
 
                 if (obj.Equals(this.GetArray(in allocator)[in allocator, i]) == true) {
@@ -227,6 +242,7 @@ namespace ME.ECS.Collections.MemoryAllocator {
         [INLINE(256)]
         public bool Remove<U>(ref MemoryAllocator allocator, U obj) where U : unmanaged, System.IEquatable<T> {
 
+            E.IS_CREATED(this);
             for (int i = 0, cnt = this.GetCount(in allocator); i < cnt; ++i) {
 
                 if (obj.Equals(this.GetArray(in allocator)[in allocator, i]) == true) {
@@ -245,6 +261,7 @@ namespace ME.ECS.Collections.MemoryAllocator {
         [INLINE(256)]
         public unsafe bool RemoveAt(ref MemoryAllocator allocator, int index) {
             
+            E.IS_CREATED(this);
             if (index < 0 || index >= this.GetCount(in allocator)) return false;
 
             if (index == this.GetCount(in allocator) - 1) {
@@ -269,6 +286,7 @@ namespace ME.ECS.Collections.MemoryAllocator {
         [INLINE(256)]
         public bool RemoveAtFast(ref MemoryAllocator allocator, int index) {
             
+            E.IS_CREATED(this);
             if (index < 0 || index >= this.GetCount(in allocator)) return false;
             
             --this.GetCount(in allocator);
@@ -282,6 +300,7 @@ namespace ME.ECS.Collections.MemoryAllocator {
         [INLINE(256)]
         public bool Resize(ref MemoryAllocator allocator, int newLength, ClearOptions options = ClearOptions.ClearMemory) {
 
+            E.IS_CREATED(this);
             if (this.isCreated == false) {
                 
                 this = new List<T>(ref allocator, newLength);
@@ -304,6 +323,7 @@ namespace ME.ECS.Collections.MemoryAllocator {
         [INLINE(256)]
         public void AddRange(ref MemoryAllocator allocator, ListCopyable<T> list) {
 
+            E.IS_CREATED(this);
             foreach (var item in list) {
                 
                 this.Add(ref allocator, item);
@@ -315,6 +335,7 @@ namespace ME.ECS.Collections.MemoryAllocator {
         [INLINE(256)]
         public unsafe void AddRange(ref MemoryAllocator allocator, List<T> collection) {
 
+            E.IS_CREATED(this);
             var index = this.GetCount(in allocator);
             if (collection.isCreated == false)
                 ThrowHelper.ThrowArgumentNullException(ExceptionArgument.collection);
@@ -343,6 +364,7 @@ namespace ME.ECS.Collections.MemoryAllocator {
         [INLINE(256)]
         public unsafe void CopyTo(ref MemoryAllocator allocator, MemArrayAllocator<T> arr, int index) {
             
+            E.IS_CREATED(this);
             if (arr.isCreated == false) {
                 ThrowHelper.ThrowArgumentException(ExceptionResource.Arg_RankMultiDimNotSupported);
             }

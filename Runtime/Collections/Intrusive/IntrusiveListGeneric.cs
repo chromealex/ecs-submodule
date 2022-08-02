@@ -710,16 +710,16 @@ namespace ME.ECS.Collections {
         private static void InitializeComponents() {
 
             IntrusiveComponents.Initialize();
-            WorldUtilities.InitComponentTypeId<IntrusiveListGenericNode<T>>();
-            ComponentInitializer.Init(ref Worlds.currentWorld.GetStructComponents());
+            WorldUtilities.InitComponentTypeId<IntrusiveListGenericNode<T>>(isBlittable: true);
+            ComponentInitializer.Init(Worlds.current.GetState(), ref Worlds.currentWorld.GetStructComponents());
 
         }
 
         private static class ComponentInitializer {
 
-            public static void Init(ref ME.ECS.StructComponentsContainer structComponentsContainer) {
+            public static void Init(State state, ref ME.ECS.StructComponentsContainer structComponentsContainer) {
 
-                structComponentsContainer.Validate<IntrusiveListGenericNode<T>>(false);
+                structComponentsContainer.ValidateUnmanaged<IntrusiveListGenericNode<T>>(ref state.allocator);
 
             }
 

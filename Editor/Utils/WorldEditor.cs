@@ -43,7 +43,8 @@ namespace ME.ECSEditor {
 
                     try {
 
-                        this.stateSize = UnityObjectUtils.GetObjectSize(this.world.GetState());
+                        this.stateSize = this.world.GetState().allocator.GetAllocatedSize();
+                        //this.stateSize += UnityObjectUtils.GetObjectSize(this.world.GetState());
 
                     } catch (System.Exception ex) {
                         

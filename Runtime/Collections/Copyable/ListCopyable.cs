@@ -409,6 +409,16 @@
                 yield return this.innerArray[i];
             }
         }
+        
+        public T Pop() {
+
+            var idx = this.Count - 1;
+            var item = this.innerArray[idx];
+            this.innerArray[idx] = default;
+            --this.Count;
+            return item;
+
+        }
 
     }
 

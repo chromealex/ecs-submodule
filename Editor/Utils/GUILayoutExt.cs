@@ -1833,7 +1833,7 @@ namespace ME.ECSEditor {
 			            
 			            var customName = (entity.IsAlive() == true ? entity.Read<ME.ECS.Name.Name>().value : string.Empty);
 			            GUILayout.BeginVertical();
-			            GUILayout.Label(string.IsNullOrEmpty(customName) == false ? customName : "Unnamed");
+			            GUILayout.Label(string.IsNullOrEmpty(customName.Value) == false ? customName.Value : "Unnamed");
 			            GUILayout.Label(entity.ToSmallString(), EditorStyles.miniLabel);
 			            GUILayout.EndVertical();
 			            

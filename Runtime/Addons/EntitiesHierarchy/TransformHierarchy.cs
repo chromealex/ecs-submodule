@@ -206,6 +206,8 @@ namespace ME.ECS {
         private static bool FindInHierarchy(in Entity child, in Entity root) {
 
             var childNodes = child.Read<Nodes>();
+            if (childNodes.items.isCreated == false) return false;
+            
             if (childNodes.items.Contains(in Worlds.current.currentState.allocator, root) == true) {
 
                 return true;

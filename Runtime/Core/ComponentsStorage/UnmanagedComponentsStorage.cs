@@ -11,7 +11,7 @@ namespace ME.ECS {
         [System.Runtime.InteropServices.StructLayoutAttribute(System.Runtime.InteropServices.LayoutKind.Sequential)]
         public struct Item<T> where T : struct, IComponentBase {
 
-            public MemArraySlicedAllocator<Component<T>> components;
+            public Collections.MemoryAllocator.SparseSet<Component<T>> components;
             public long maxVersion;
 
             public void Merge(ref MemoryAllocator allocator) {
@@ -23,7 +23,12 @@ namespace ME.ECS {
             public bool Validate(ref MemoryAllocator allocator, int entityId) {
 
                 var resized = false;
-                this.components.Resize(ref allocator, entityId + 1, out resized);
+                if (this.components.isCreated == false) {
+                    this.components = new ME.ECS.Collections.MemoryAllocator.SparseSet<Component<T>>(ref allocator, entityId + 1);
+                    resized = true;
+                } else {
+                    this.components.Validate(ref allocator, entityId + 1);
+                }
                 return resized;
 
             }

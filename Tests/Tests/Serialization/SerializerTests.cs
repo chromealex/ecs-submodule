@@ -592,14 +592,12 @@ namespace ME.ECS.Tests {
             public class FakeSerializer : ME.ECS.Network.ISerializer {
                 
                 public byte[] SerializeWorld(World.WorldState data) {
-                    var ser = new Serializers();
-                    ser.Add(new BufferArraySerializer());
+                    var ser = ME.ECS.Serializer.ECSSerializers.GetSerializers();
                     return ME.ECS.Serializer.Serializer.Pack(data, ser);
                 }
 
                 public World.WorldState DeserializeWorld(byte[] bytes) {
-                    var ser = new Serializers();
-                    ser.Add(new BufferArraySerializer());
+                    var ser = ME.ECS.Serializer.ECSSerializers.GetSerializers();
                     return ME.ECS.Serializer.Serializer.Unpack<World.WorldState>(bytes, ser);
                 }
 

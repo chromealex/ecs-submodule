@@ -21,7 +21,7 @@ namespace ME.ECS {
 
     public unsafe struct Ptr {
 
-        public void* value;
+        public Collections.MemoryAllocator.SparseSetData value;
 
     }
 

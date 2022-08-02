@@ -499,11 +499,11 @@ namespace ME.ECS {
             ref var reg = ref this.registry;
             if (group.copyMode == true) {
                 for (int i = group.fromId; i <= group.toId; ++i) {
-                    reg.components.data[in this.allocator, i] = data;
+                    reg.components.Get(ref this.allocator, i) = data;
                 }
             } else {
                 for (int i = group.fromId; i <= group.toId; ++i) {
-                    reg.components.data[in this.allocator, i] = data;
+                    reg.components.Get(ref this.allocator, i) = data;
                 }
             }
             this.world.currentState.storage.Set(ref this.world.currentState.allocator, in group, componentIndex, ComponentTypes<TComponent>.isFilterLambda);
@@ -516,7 +516,7 @@ namespace ME.ECS {
         public override void Remove(in EntitiesGroup group, bool setBits = true) {
 
             //NativeArrayUtils.Clear(this.components.data.arr, group.fromId, group.Length);
-            this.registry.components.Clear(ref this.allocator, group.fromId, group.Length);
+            this.registry.components.Remove(ref this.allocator, group.fromId, group.Length);
 
             if (setBits == true) {
                 

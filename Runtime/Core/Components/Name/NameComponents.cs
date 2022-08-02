@@ -4,7 +4,7 @@
     [ComponentOrder(1)]
     public struct Name : IComponent, IVersioned {
 
-        public string value;
+        public Unity.Collections.FixedString64Bytes value;
 
     }
 

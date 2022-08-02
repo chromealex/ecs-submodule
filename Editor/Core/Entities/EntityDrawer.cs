@@ -62,7 +62,7 @@ namespace ME.ECSEditor {
                 
                 var customName = (entity.IsAlive() == true ? entity.Read<ME.ECS.Name.Name>().value : string.Empty);
                 using (new GUILayoutExt.GUIAlphaUsing(0.7f)) {
-                    GUI.Label(contentRect, string.IsNullOrEmpty(customName) == false ? customName : "Unnamed");
+                    GUI.Label(contentRect, string.IsNullOrEmpty(customName.Value) == false ? customName.Value : "Unnamed");
                 }
 
                 GUI.Label(contentRectDescr, entity.ToSmallString(), EditorStyles.miniLabel);

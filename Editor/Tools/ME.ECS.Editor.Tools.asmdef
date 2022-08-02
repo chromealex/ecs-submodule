@@ -5,7 +5,8 @@
         "ME.ECS.Serializer",
         "ME.ECS.Editor",
         "ME.ECS",
-        "ME.Pools"
+        "ME.Pools",
+        "Unity.Collections"
     ],
     "includePlatforms": [
         "Editor"

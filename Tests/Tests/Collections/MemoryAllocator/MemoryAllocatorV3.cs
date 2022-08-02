@@ -230,6 +230,7 @@ namespace ME.ECS.Tests.MemoryAllocator.V3 {
             }
 
             allocator.Dispose();
+            allocator2.Dispose();
 
         }
 
@@ -492,10 +493,12 @@ namespace ME.ECS.Tests.MemoryAllocator.V3 {
         public void SlicedArrayAdd() {
 
             var allocator = Base.GetAllocator(1);
+            StaticAllocatorProxy.defaultAllocator = allocator;
+            
             var buffer = this.PrepareSlicedArray(ref allocator);
             Assert.AreEqual(6, buffer[in allocator, 5]);
             Assert.AreEqual(12, buffer[in allocator, 11]);
-            Assert.AreEqual(13, buffer.Length);
+            Assert.AreEqual(15, buffer.Length);
 
             buffer.Dispose(ref allocator);
             allocator.Dispose();

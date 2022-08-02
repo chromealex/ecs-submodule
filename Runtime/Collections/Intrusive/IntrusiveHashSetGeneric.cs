@@ -359,15 +359,15 @@ namespace ME.ECS.Collections {
 
             IntrusiveComponents.Initialize();
             WorldUtilities.InitComponentTypeId<IntrusiveHashSetBucketGeneric<T>>();
-            ComponentInitializer.Init(ref Worlds.currentWorld.GetStructComponents());
+            ComponentInitializer.Init(Worlds.current.GetState(), ref Worlds.currentWorld.GetStructComponents());
 
         }
 
         private static class ComponentInitializer {
 
-            public static void Init(ref ME.ECS.StructComponentsContainer structComponentsContainer) {
+            public static void Init(State state, ref ME.ECS.StructComponentsContainer structComponentsContainer) {
 
-                structComponentsContainer.Validate<IntrusiveHashSetBucketGeneric<T>>(false);
+                structComponentsContainer.ValidateUnmanaged<IntrusiveHashSetBucketGeneric<T>>(ref state.allocator);
 
             }
 
