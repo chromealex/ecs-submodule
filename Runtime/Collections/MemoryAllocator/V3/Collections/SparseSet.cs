@@ -18,23 +18,17 @@ namespace ME.ECS.Collections.MemoryAllocator {
             
         }
 
-        public ref T Get<T>(MemoryAllocator allocator, int index) where T : struct {
+        public ref Component<TComponent> Get<TComponent>(MemoryAllocator allocator, int index) where TComponent : struct, IComponentBase {
 
             var idx = this.sparse[in allocator, index];
             if (idx == 0) {
-                throw new OutOfBoundsException();
+                UnsafeUtility.ArrayElementAsRef<Component<TComponent>>(this.densePtr, idx) = new Component<TComponent>() {
+                    state = 1,
+                    data = default,
+                    version = 1L,
+                };
             }
-            return ref UnsafeUtility.ArrayElementAsRef<T>(this.densePtr, idx);
-            
-        }
-
-        public ref T Get<T>(in MemoryAllocator allocator, int index) where T : struct {
-
-            var idx = this.sparse[in allocator, index];
-            if (idx == 0) {
-                throw new OutOfBoundsException();
-            }
-            return ref UnsafeUtility.ArrayElementAsRef<T>(this.densePtr, idx);
+            return ref UnsafeUtility.ArrayElementAsRef<Component<TComponent>>(this.densePtr, idx);
             
         }
 
