@@ -8,6 +8,16 @@ namespace ME.ECS.Collections.MemoryAllocator {
         public void* densePtr;
         public MemArrayAllocator<int> sparse;
 
+        public bool Has<TComponent>(MemoryAllocator allocator, int index) where TComponent : struct, IComponentBase {
+            
+            var idx = this.sparse[in allocator, index];
+            if (idx == 0) {
+                return false;
+            }
+            return UnsafeUtility.ArrayElementAsRef<Component<TComponent>>(this.densePtr, idx).state > 0;
+            
+        }
+
         public ref T Get<T>(MemoryAllocator allocator, int index) where T : struct {
 
             var idx = this.sparse[in allocator, index];

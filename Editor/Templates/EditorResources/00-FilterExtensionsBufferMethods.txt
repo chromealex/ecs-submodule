@@ -12,5 +12,5 @@ public ref T#INDEX# GetT#INDEX#(int index) {
     return ref this.regs[#INDEX#].value.Get<Component<T#INDEX#>>(this.allocator, this.indexes[index]).data;
 }
 public ref readonly T#INDEX# ReadT#INDEX#(int index) => ref this.regs[#INDEX#].value.Get<Component<T#INDEX#>>(this.allocator, this.indexes[index]).data;
-public bool HasT#INDEX#(int index) => this.regs[#INDEX#].value.Get<Component<T#INDEX#>>(this.allocator, this.indexes[index]).state > 0;
+public bool HasT#INDEX#(int index) => this.regs[#INDEX#].value.Has<T#INDEX#>(this.allocator, this.indexes[index]);
 public long GetVersionT#INDEX#(int index) => this.regs[#INDEX#].value.Get<Component<T#INDEX#>>(this.allocator, this.indexes[index]).version;

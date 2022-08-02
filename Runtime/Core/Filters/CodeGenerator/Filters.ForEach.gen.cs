@@ -195,7 +195,7 @@ public ref T0 GetT0(int index) {
     return ref this.regs[0].value.Get<Component<T0>>(this.allocator, this.indexes[index]).data;
 }
 public ref readonly T0 ReadT0(int index) => ref this.regs[0].value.Get<Component<T0>>(this.allocator, this.indexes[index]).data;
-public bool HasT0(int index) => this.regs[0].value.Get<Component<T0>>(this.allocator, this.indexes[index]).state > 0;
+public bool HasT0(int index) => this.regs[0].value.Has<T0>(this.allocator, this.indexes[index]);
 public long GetVersionT0(int index) => this.regs[0].value.Get<Component<T0>>(this.allocator, this.indexes[index]).version;
 
     #endregion
@@ -323,7 +323,7 @@ public ref T0 GetT0(int index) {
     return ref this.regs[0].value.Get<Component<T0>>(this.allocator, this.indexes[index]).data;
 }
 public ref readonly T0 ReadT0(int index) => ref this.regs[0].value.Get<Component<T0>>(this.allocator, this.indexes[index]).data;
-public bool HasT0(int index) => this.regs[0].value.Get<Component<T0>>(this.allocator, this.indexes[index]).state > 0;
+public bool HasT0(int index) => this.regs[0].value.Has<T0>(this.allocator, this.indexes[index]);
 public long GetVersionT0(int index) => this.regs[0].value.Get<Component<T0>>(this.allocator, this.indexes[index]).version;
 public void RemoveT1(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T1>.burstTypeId.Data, code = 2, }); }
 public void Set(int index, in T1 component) {
@@ -339,7 +339,7 @@ public ref T1 GetT1(int index) {
     return ref this.regs[1].value.Get<Component<T1>>(this.allocator, this.indexes[index]).data;
 }
 public ref readonly T1 ReadT1(int index) => ref this.regs[1].value.Get<Component<T1>>(this.allocator, this.indexes[index]).data;
-public bool HasT1(int index) => this.regs[1].value.Get<Component<T1>>(this.allocator, this.indexes[index]).state > 0;
+public bool HasT1(int index) => this.regs[1].value.Has<T1>(this.allocator, this.indexes[index]);
 public long GetVersionT1(int index) => this.regs[1].value.Get<Component<T1>>(this.allocator, this.indexes[index]).version;
 
     #endregion
@@ -478,7 +478,7 @@ public ref T0 GetT0(int index) {
     return ref this.regs[0].value.Get<Component<T0>>(this.allocator, this.indexes[index]).data;
 }
 public ref readonly T0 ReadT0(int index) => ref this.regs[0].value.Get<Component<T0>>(this.allocator, this.indexes[index]).data;
-public bool HasT0(int index) => this.regs[0].value.Get<Component<T0>>(this.allocator, this.indexes[index]).state > 0;
+public bool HasT0(int index) => this.regs[0].value.Has<T0>(this.allocator, this.indexes[index]);
 public long GetVersionT0(int index) => this.regs[0].value.Get<Component<T0>>(this.allocator, this.indexes[index]).version;
 public void RemoveT1(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T1>.burstTypeId.Data, code = 2, }); }
 public void Set(int index, in T1 component) {
@@ -494,7 +494,7 @@ public ref T1 GetT1(int index) {
     return ref this.regs[1].value.Get<Component<T1>>(this.allocator, this.indexes[index]).data;
 }
 public ref readonly T1 ReadT1(int index) => ref this.regs[1].value.Get<Component<T1>>(this.allocator, this.indexes[index]).data;
-public bool HasT1(int index) => this.regs[1].value.Get<Component<T1>>(this.allocator, this.indexes[index]).state > 0;
+public bool HasT1(int index) => this.regs[1].value.Has<T1>(this.allocator, this.indexes[index]);
 public long GetVersionT1(int index) => this.regs[1].value.Get<Component<T1>>(this.allocator, this.indexes[index]).version;
 public void RemoveT2(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T2>.burstTypeId.Data, code = 2, }); }
 public void Set(int index, in T2 component) {
@@ -510,7 +510,7 @@ public ref T2 GetT2(int index) {
     return ref this.regs[2].value.Get<Component<T2>>(this.allocator, this.indexes[index]).data;
 }
 public ref readonly T2 ReadT2(int index) => ref this.regs[2].value.Get<Component<T2>>(this.allocator, this.indexes[index]).data;
-public bool HasT2(int index) => this.regs[2].value.Get<Component<T2>>(this.allocator, this.indexes[index]).state > 0;
+public bool HasT2(int index) => this.regs[2].value.Has<T2>(this.allocator, this.indexes[index]);
 public long GetVersionT2(int index) => this.regs[2].value.Get<Component<T2>>(this.allocator, this.indexes[index]).version;
 
     #endregion
@@ -660,7 +660,7 @@ public ref T0 GetT0(int index) {
     return ref this.regs[0].value.Get<Component<T0>>(this.allocator, this.indexes[index]).data;
 }
 public ref readonly T0 ReadT0(int index) => ref this.regs[0].value.Get<Component<T0>>(this.allocator, this.indexes[index]).data;
-public bool HasT0(int index) => this.regs[0].value.Get<Component<T0>>(this.allocator, this.indexes[index]).state > 0;
+public bool HasT0(int index) => this.regs[0].value.Has<T0>(this.allocator, this.indexes[index]);
 public long GetVersionT0(int index) => this.regs[0].value.Get<Component<T0>>(this.allocator, this.indexes[index]).version;
 public void RemoveT1(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T1>.burstTypeId.Data, code = 2, }); }
 public void Set(int index, in T1 component) {
@@ -676,7 +676,7 @@ public ref T1 GetT1(int index) {
     return ref this.regs[1].value.Get<Component<T1>>(this.allocator, this.indexes[index]).data;
 }
 public ref readonly T1 ReadT1(int index) => ref this.regs[1].value.Get<Component<T1>>(this.allocator, this.indexes[index]).data;
-public bool HasT1(int index) => this.regs[1].value.Get<Component<T1>>(this.allocator, this.indexes[index]).state > 0;
+public bool HasT1(int index) => this.regs[1].value.Has<T1>(this.allocator, this.indexes[index]);
 public long GetVersionT1(int index) => this.regs[1].value.Get<Component<T1>>(this.allocator, this.indexes[index]).version;
 public void RemoveT2(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T2>.burstTypeId.Data, code = 2, }); }
 public void Set(int index, in T2 component) {
@@ -692,7 +692,7 @@ public ref T2 GetT2(int index) {
     return ref this.regs[2].value.Get<Component<T2>>(this.allocator, this.indexes[index]).data;
 }
 public ref readonly T2 ReadT2(int index) => ref this.regs[2].value.Get<Component<T2>>(this.allocator, this.indexes[index]).data;
-public bool HasT2(int index) => this.regs[2].value.Get<Component<T2>>(this.allocator, this.indexes[index]).state > 0;
+public bool HasT2(int index) => this.regs[2].value.Has<T2>(this.allocator, this.indexes[index]);
 public long GetVersionT2(int index) => this.regs[2].value.Get<Component<T2>>(this.allocator, this.indexes[index]).version;
 public void RemoveT3(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T3>.burstTypeId.Data, code = 2, }); }
 public void Set(int index, in T3 component) {
@@ -708,7 +708,7 @@ public ref T3 GetT3(int index) {
     return ref this.regs[3].value.Get<Component<T3>>(this.allocator, this.indexes[index]).data;
 }
 public ref readonly T3 ReadT3(int index) => ref this.regs[3].value.Get<Component<T3>>(this.allocator, this.indexes[index]).data;
-public bool HasT3(int index) => this.regs[3].value.Get<Component<T3>>(this.allocator, this.indexes[index]).state > 0;
+public bool HasT3(int index) => this.regs[3].value.Has<T3>(this.allocator, this.indexes[index]);
 public long GetVersionT3(int index) => this.regs[3].value.Get<Component<T3>>(this.allocator, this.indexes[index]).version;
 
     #endregion
@@ -869,7 +869,7 @@ public ref T0 GetT0(int index) {
     return ref this.regs[0].value.Get<Component<T0>>(this.allocator, this.indexes[index]).data;
 }
 public ref readonly T0 ReadT0(int index) => ref this.regs[0].value.Get<Component<T0>>(this.allocator, this.indexes[index]).data;
-public bool HasT0(int index) => this.regs[0].value.Get<Component<T0>>(this.allocator, this.indexes[index]).state > 0;
+public bool HasT0(int index) => this.regs[0].value.Has<T0>(this.allocator, this.indexes[index]);
 public long GetVersionT0(int index) => this.regs[0].value.Get<Component<T0>>(this.allocator, this.indexes[index]).version;
 public void RemoveT1(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T1>.burstTypeId.Data, code = 2, }); }
 public void Set(int index, in T1 component) {
@@ -885,7 +885,7 @@ public ref T1 GetT1(int index) {
     return ref this.regs[1].value.Get<Component<T1>>(this.allocator, this.indexes[index]).data;
 }
 public ref readonly T1 ReadT1(int index) => ref this.regs[1].value.Get<Component<T1>>(this.allocator, this.indexes[index]).data;
-public bool HasT1(int index) => this.regs[1].value.Get<Component<T1>>(this.allocator, this.indexes[index]).state > 0;
+public bool HasT1(int index) => this.regs[1].value.Has<T1>(this.allocator, this.indexes[index]);
 public long GetVersionT1(int index) => this.regs[1].value.Get<Component<T1>>(this.allocator, this.indexes[index]).version;
 public void RemoveT2(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T2>.burstTypeId.Data, code = 2, }); }
 public void Set(int index, in T2 component) {
@@ -901,7 +901,7 @@ public ref T2 GetT2(int index) {
     return ref this.regs[2].value.Get<Component<T2>>(this.allocator, this.indexes[index]).data;
 }
 public ref readonly T2 ReadT2(int index) => ref this.regs[2].value.Get<Component<T2>>(this.allocator, this.indexes[index]).data;
-public bool HasT2(int index) => this.regs[2].value.Get<Component<T2>>(this.allocator, this.indexes[index]).state > 0;
+public bool HasT2(int index) => this.regs[2].value.Has<T2>(this.allocator, this.indexes[index]);
 public long GetVersionT2(int index) => this.regs[2].value.Get<Component<T2>>(this.allocator, this.indexes[index]).version;
 public void RemoveT3(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T3>.burstTypeId.Data, code = 2, }); }
 public void Set(int index, in T3 component) {
@@ -917,7 +917,7 @@ public ref T3 GetT3(int index) {
     return ref this.regs[3].value.Get<Component<T3>>(this.allocator, this.indexes[index]).data;
 }
 public ref readonly T3 ReadT3(int index) => ref this.regs[3].value.Get<Component<T3>>(this.allocator, this.indexes[index]).data;
-public bool HasT3(int index) => this.regs[3].value.Get<Component<T3>>(this.allocator, this.indexes[index]).state > 0;
+public bool HasT3(int index) => this.regs[3].value.Has<T3>(this.allocator, this.indexes[index]);
 public long GetVersionT3(int index) => this.regs[3].value.Get<Component<T3>>(this.allocator, this.indexes[index]).version;
 public void RemoveT4(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T4>.burstTypeId.Data, code = 2, }); }
 public void Set(int index, in T4 component) {
@@ -933,7 +933,7 @@ public ref T4 GetT4(int index) {
     return ref this.regs[4].value.Get<Component<T4>>(this.allocator, this.indexes[index]).data;
 }
 public ref readonly T4 ReadT4(int index) => ref this.regs[4].value.Get<Component<T4>>(this.allocator, this.indexes[index]).data;
-public bool HasT4(int index) => this.regs[4].value.Get<Component<T4>>(this.allocator, this.indexes[index]).state > 0;
+public bool HasT4(int index) => this.regs[4].value.Has<T4>(this.allocator, this.indexes[index]);
 public long GetVersionT4(int index) => this.regs[4].value.Get<Component<T4>>(this.allocator, this.indexes[index]).version;
 
     #endregion
@@ -1105,7 +1105,7 @@ public ref T0 GetT0(int index) {
     return ref this.regs[0].value.Get<Component<T0>>(this.allocator, this.indexes[index]).data;
 }
 public ref readonly T0 ReadT0(int index) => ref this.regs[0].value.Get<Component<T0>>(this.allocator, this.indexes[index]).data;
-public bool HasT0(int index) => this.regs[0].value.Get<Component<T0>>(this.allocator, this.indexes[index]).state > 0;
+public bool HasT0(int index) => this.regs[0].value.Has<T0>(this.allocator, this.indexes[index]);
 public long GetVersionT0(int index) => this.regs[0].value.Get<Component<T0>>(this.allocator, this.indexes[index]).version;
 public void RemoveT1(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T1>.burstTypeId.Data, code = 2, }); }
 public void Set(int index, in T1 component) {
@@ -1121,7 +1121,7 @@ public ref T1 GetT1(int index) {
     return ref this.regs[1].value.Get<Component<T1>>(this.allocator, this.indexes[index]).data;
 }
 public ref readonly T1 ReadT1(int index) => ref this.regs[1].value.Get<Component<T1>>(this.allocator, this.indexes[index]).data;
-public bool HasT1(int index) => this.regs[1].value.Get<Component<T1>>(this.allocator, this.indexes[index]).state > 0;
+public bool HasT1(int index) => this.regs[1].value.Has<T1>(this.allocator, this.indexes[index]);
 public long GetVersionT1(int index) => this.regs[1].value.Get<Component<T1>>(this.allocator, this.indexes[index]).version;
 public void RemoveT2(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T2>.burstTypeId.Data, code = 2, }); }
 public void Set(int index, in T2 component) {
@@ -1137,7 +1137,7 @@ public ref T2 GetT2(int index) {
     return ref this.regs[2].value.Get<Component<T2>>(this.allocator, this.indexes[index]).data;
 }
 public ref readonly T2 ReadT2(int index) => ref this.regs[2].value.Get<Component<T2>>(this.allocator, this.indexes[index]).data;
-public bool HasT2(int index) => this.regs[2].value.Get<Component<T2>>(this.allocator, this.indexes[index]).state > 0;
+public bool HasT2(int index) => this.regs[2].value.Has<T2>(this.allocator, this.indexes[index]);
 public long GetVersionT2(int index) => this.regs[2].value.Get<Component<T2>>(this.allocator, this.indexes[index]).version;
 public void RemoveT3(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T3>.burstTypeId.Data, code = 2, }); }
 public void Set(int index, in T3 component) {
@@ -1153,7 +1153,7 @@ public ref T3 GetT3(int index) {
     return ref this.regs[3].value.Get<Component<T3>>(this.allocator, this.indexes[index]).data;
 }
 public ref readonly T3 ReadT3(int index) => ref this.regs[3].value.Get<Component<T3>>(this.allocator, this.indexes[index]).data;
-public bool HasT3(int index) => this.regs[3].value.Get<Component<T3>>(this.allocator, this.indexes[index]).state > 0;
+public bool HasT3(int index) => this.regs[3].value.Has<T3>(this.allocator, this.indexes[index]);
 public long GetVersionT3(int index) => this.regs[3].value.Get<Component<T3>>(this.allocator, this.indexes[index]).version;
 public void RemoveT4(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T4>.burstTypeId.Data, code = 2, }); }
 public void Set(int index, in T4 component) {
@@ -1169,7 +1169,7 @@ public ref T4 GetT4(int index) {
     return ref this.regs[4].value.Get<Component<T4>>(this.allocator, this.indexes[index]).data;
 }
 public ref readonly T4 ReadT4(int index) => ref this.regs[4].value.Get<Component<T4>>(this.allocator, this.indexes[index]).data;
-public bool HasT4(int index) => this.regs[4].value.Get<Component<T4>>(this.allocator, this.indexes[index]).state > 0;
+public bool HasT4(int index) => this.regs[4].value.Has<T4>(this.allocator, this.indexes[index]);
 public long GetVersionT4(int index) => this.regs[4].value.Get<Component<T4>>(this.allocator, this.indexes[index]).version;
 public void RemoveT5(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T5>.burstTypeId.Data, code = 2, }); }
 public void Set(int index, in T5 component) {
@@ -1185,7 +1185,7 @@ public ref T5 GetT5(int index) {
     return ref this.regs[5].value.Get<Component<T5>>(this.allocator, this.indexes[index]).data;
 }
 public ref readonly T5 ReadT5(int index) => ref this.regs[5].value.Get<Component<T5>>(this.allocator, this.indexes[index]).data;
-public bool HasT5(int index) => this.regs[5].value.Get<Component<T5>>(this.allocator, this.indexes[index]).state > 0;
+public bool HasT5(int index) => this.regs[5].value.Has<T5>(this.allocator, this.indexes[index]);
 public long GetVersionT5(int index) => this.regs[5].value.Get<Component<T5>>(this.allocator, this.indexes[index]).version;
 
     #endregion
@@ -1368,7 +1368,7 @@ public ref T0 GetT0(int index) {
     return ref this.regs[0].value.Get<Component<T0>>(this.allocator, this.indexes[index]).data;
 }
 public ref readonly T0 ReadT0(int index) => ref this.regs[0].value.Get<Component<T0>>(this.allocator, this.indexes[index]).data;
-public bool HasT0(int index) => this.regs[0].value.Get<Component<T0>>(this.allocator, this.indexes[index]).state > 0;
+public bool HasT0(int index) => this.regs[0].value.Has<T0>(this.allocator, this.indexes[index]);
 public long GetVersionT0(int index) => this.regs[0].value.Get<Component<T0>>(this.allocator, this.indexes[index]).version;
 public void RemoveT1(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T1>.burstTypeId.Data, code = 2, }); }
 public void Set(int index, in T1 component) {
@@ -1384,7 +1384,7 @@ public ref T1 GetT1(int index) {
     return ref this.regs[1].value.Get<Component<T1>>(this.allocator, this.indexes[index]).data;
 }
 public ref readonly T1 ReadT1(int index) => ref this.regs[1].value.Get<Component<T1>>(this.allocator, this.indexes[index]).data;
-public bool HasT1(int index) => this.regs[1].value.Get<Component<T1>>(this.allocator, this.indexes[index]).state > 0;
+public bool HasT1(int index) => this.regs[1].value.Has<T1>(this.allocator, this.indexes[index]);
 public long GetVersionT1(int index) => this.regs[1].value.Get<Component<T1>>(this.allocator, this.indexes[index]).version;
 public void RemoveT2(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T2>.burstTypeId.Data, code = 2, }); }
 public void Set(int index, in T2 component) {
@@ -1400,7 +1400,7 @@ public ref T2 GetT2(int index) {
     return ref this.regs[2].value.Get<Component<T2>>(this.allocator, this.indexes[index]).data;
 }
 public ref readonly T2 ReadT2(int index) => ref this.regs[2].value.Get<Component<T2>>(this.allocator, this.indexes[index]).data;
-public bool HasT2(int index) => this.regs[2].value.Get<Component<T2>>(this.allocator, this.indexes[index]).state > 0;
+public bool HasT2(int index) => this.regs[2].value.Has<T2>(this.allocator, this.indexes[index]);
 public long GetVersionT2(int index) => this.regs[2].value.Get<Component<T2>>(this.allocator, this.indexes[index]).version;
 public void RemoveT3(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T3>.burstTypeId.Data, code = 2, }); }
 public void Set(int index, in T3 component) {
@@ -1416,7 +1416,7 @@ public ref T3 GetT3(int index) {
     return ref this.regs[3].value.Get<Component<T3>>(this.allocator, this.indexes[index]).data;
 }
 public ref readonly T3 ReadT3(int index) => ref this.regs[3].value.Get<Component<T3>>(this.allocator, this.indexes[index]).data;
-public bool HasT3(int index) => this.regs[3].value.Get<Component<T3>>(this.allocator, this.indexes[index]).state > 0;
+public bool HasT3(int index) => this.regs[3].value.Has<T3>(this.allocator, this.indexes[index]);
 public long GetVersionT3(int index) => this.regs[3].value.Get<Component<T3>>(this.allocator, this.indexes[index]).version;
 public void RemoveT4(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T4>.burstTypeId.Data, code = 2, }); }
 public void Set(int index, in T4 component) {
@@ -1432,7 +1432,7 @@ public ref T4 GetT4(int index) {
     return ref this.regs[4].value.Get<Component<T4>>(this.allocator, this.indexes[index]).data;
 }
 public ref readonly T4 ReadT4(int index) => ref this.regs[4].value.Get<Component<T4>>(this.allocator, this.indexes[index]).data;
-public bool HasT4(int index) => this.regs[4].value.Get<Component<T4>>(this.allocator, this.indexes[index]).state > 0;
+public bool HasT4(int index) => this.regs[4].value.Has<T4>(this.allocator, this.indexes[index]);
 public long GetVersionT4(int index) => this.regs[4].value.Get<Component<T4>>(this.allocator, this.indexes[index]).version;
 public void RemoveT5(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T5>.burstTypeId.Data, code = 2, }); }
 public void Set(int index, in T5 component) {
@@ -1448,7 +1448,7 @@ public ref T5 GetT5(int index) {
     return ref this.regs[5].value.Get<Component<T5>>(this.allocator, this.indexes[index]).data;
 }
 public ref readonly T5 ReadT5(int index) => ref this.regs[5].value.Get<Component<T5>>(this.allocator, this.indexes[index]).data;
-public bool HasT5(int index) => this.regs[5].value.Get<Component<T5>>(this.allocator, this.indexes[index]).state > 0;
+public bool HasT5(int index) => this.regs[5].value.Has<T5>(this.allocator, this.indexes[index]);
 public long GetVersionT5(int index) => this.regs[5].value.Get<Component<T5>>(this.allocator, this.indexes[index]).version;
 public void RemoveT6(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T6>.burstTypeId.Data, code = 2, }); }
 public void Set(int index, in T6 component) {
@@ -1464,7 +1464,7 @@ public ref T6 GetT6(int index) {
     return ref this.regs[6].value.Get<Component<T6>>(this.allocator, this.indexes[index]).data;
 }
 public ref readonly T6 ReadT6(int index) => ref this.regs[6].value.Get<Component<T6>>(this.allocator, this.indexes[index]).data;
-public bool HasT6(int index) => this.regs[6].value.Get<Component<T6>>(this.allocator, this.indexes[index]).state > 0;
+public bool HasT6(int index) => this.regs[6].value.Has<T6>(this.allocator, this.indexes[index]);
 public long GetVersionT6(int index) => this.regs[6].value.Get<Component<T6>>(this.allocator, this.indexes[index]).version;
 
     #endregion
@@ -1658,7 +1658,7 @@ public ref T0 GetT0(int index) {
     return ref this.regs[0].value.Get<Component<T0>>(this.allocator, this.indexes[index]).data;
 }
 public ref readonly T0 ReadT0(int index) => ref this.regs[0].value.Get<Component<T0>>(this.allocator, this.indexes[index]).data;
-public bool HasT0(int index) => this.regs[0].value.Get<Component<T0>>(this.allocator, this.indexes[index]).state > 0;
+public bool HasT0(int index) => this.regs[0].value.Has<T0>(this.allocator, this.indexes[index]);
 public long GetVersionT0(int index) => this.regs[0].value.Get<Component<T0>>(this.allocator, this.indexes[index]).version;
 public void RemoveT1(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T1>.burstTypeId.Data, code = 2, }); }
 public void Set(int index, in T1 component) {
@@ -1674,7 +1674,7 @@ public ref T1 GetT1(int index) {
     return ref this.regs[1].value.Get<Component<T1>>(this.allocator, this.indexes[index]).data;
 }
 public ref readonly T1 ReadT1(int index) => ref this.regs[1].value.Get<Component<T1>>(this.allocator, this.indexes[index]).data;
-public bool HasT1(int index) => this.regs[1].value.Get<Component<T1>>(this.allocator, this.indexes[index]).state > 0;
+public bool HasT1(int index) => this.regs[1].value.Has<T1>(this.allocator, this.indexes[index]);
 public long GetVersionT1(int index) => this.regs[1].value.Get<Component<T1>>(this.allocator, this.indexes[index]).version;
 public void RemoveT2(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T2>.burstTypeId.Data, code = 2, }); }
 public void Set(int index, in T2 component) {
@@ -1690,7 +1690,7 @@ public ref T2 GetT2(int index) {
     return ref this.regs[2].value.Get<Component<T2>>(this.allocator, this.indexes[index]).data;
 }
 public ref readonly T2 ReadT2(int index) => ref this.regs[2].value.Get<Component<T2>>(this.allocator, this.indexes[index]).data;
-public bool HasT2(int index) => this.regs[2].value.Get<Component<T2>>(this.allocator, this.indexes[index]).state > 0;
+public bool HasT2(int index) => this.regs[2].value.Has<T2>(this.allocator, this.indexes[index]);
 public long GetVersionT2(int index) => this.regs[2].value.Get<Component<T2>>(this.allocator, this.indexes[index]).version;
 public void RemoveT3(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T3>.burstTypeId.Data, code = 2, }); }
 public void Set(int index, in T3 component) {
@@ -1706,7 +1706,7 @@ public ref T3 GetT3(int index) {
     return ref this.regs[3].value.Get<Component<T3>>(this.allocator, this.indexes[index]).data;
 }
 public ref readonly T3 ReadT3(int index) => ref this.regs[3].value.Get<Component<T3>>(this.allocator, this.indexes[index]).data;
-public bool HasT3(int index) => this.regs[3].value.Get<Component<T3>>(this.allocator, this.indexes[index]).state > 0;
+public bool HasT3(int index) => this.regs[3].value.Has<T3>(this.allocator, this.indexes[index]);
 public long GetVersionT3(int index) => this.regs[3].value.Get<Component<T3>>(this.allocator, this.indexes[index]).version;
 public void RemoveT4(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T4>.burstTypeId.Data, code = 2, }); }
 public void Set(int index, in T4 component) {
@@ -1722,7 +1722,7 @@ public ref T4 GetT4(int index) {
     return ref this.regs[4].value.Get<Component<T4>>(this.allocator, this.indexes[index]).data;
 }
 public ref readonly T4 ReadT4(int index) => ref this.regs[4].value.Get<Component<T4>>(this.allocator, this.indexes[index]).data;
-public bool HasT4(int index) => this.regs[4].value.Get<Component<T4>>(this.allocator, this.indexes[index]).state > 0;
+public bool HasT4(int index) => this.regs[4].value.Has<T4>(this.allocator, this.indexes[index]);
 public long GetVersionT4(int index) => this.regs[4].value.Get<Component<T4>>(this.allocator, this.indexes[index]).version;
 public void RemoveT5(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T5>.burstTypeId.Data, code = 2, }); }
 public void Set(int index, in T5 component) {
@@ -1738,7 +1738,7 @@ public ref T5 GetT5(int index) {
     return ref this.regs[5].value.Get<Component<T5>>(this.allocator, this.indexes[index]).data;
 }
 public ref readonly T5 ReadT5(int index) => ref this.regs[5].value.Get<Component<T5>>(this.allocator, this.indexes[index]).data;
-public bool HasT5(int index) => this.regs[5].value.Get<Component<T5>>(this.allocator, this.indexes[index]).state > 0;
+public bool HasT5(int index) => this.regs[5].value.Has<T5>(this.allocator, this.indexes[index]);
 public long GetVersionT5(int index) => this.regs[5].value.Get<Component<T5>>(this.allocator, this.indexes[index]).version;
 public void RemoveT6(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T6>.burstTypeId.Data, code = 2, }); }
 public void Set(int index, in T6 component) {
@@ -1754,7 +1754,7 @@ public ref T6 GetT6(int index) {
     return ref this.regs[6].value.Get<Component<T6>>(this.allocator, this.indexes[index]).data;
 }
 public ref readonly T6 ReadT6(int index) => ref this.regs[6].value.Get<Component<T6>>(this.allocator, this.indexes[index]).data;
-public bool HasT6(int index) => this.regs[6].value.Get<Component<T6>>(this.allocator, this.indexes[index]).state > 0;
+public bool HasT6(int index) => this.regs[6].value.Has<T6>(this.allocator, this.indexes[index]);
 public long GetVersionT6(int index) => this.regs[6].value.Get<Component<T6>>(this.allocator, this.indexes[index]).version;
 public void RemoveT7(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T7>.burstTypeId.Data, code = 2, }); }
 public void Set(int index, in T7 component) {
@@ -1770,7 +1770,7 @@ public ref T7 GetT7(int index) {
     return ref this.regs[7].value.Get<Component<T7>>(this.allocator, this.indexes[index]).data;
 }
 public ref readonly T7 ReadT7(int index) => ref this.regs[7].value.Get<Component<T7>>(this.allocator, this.indexes[index]).data;
-public bool HasT7(int index) => this.regs[7].value.Get<Component<T7>>(this.allocator, this.indexes[index]).state > 0;
+public bool HasT7(int index) => this.regs[7].value.Has<T7>(this.allocator, this.indexes[index]);
 public long GetVersionT7(int index) => this.regs[7].value.Get<Component<T7>>(this.allocator, this.indexes[index]).version;
 
     #endregion
@@ -1975,7 +1975,7 @@ public ref T0 GetT0(int index) {
     return ref this.regs[0].value.Get<Component<T0>>(this.allocator, this.indexes[index]).data;
 }
 public ref readonly T0 ReadT0(int index) => ref this.regs[0].value.Get<Component<T0>>(this.allocator, this.indexes[index]).data;
-public bool HasT0(int index) => this.regs[0].value.Get<Component<T0>>(this.allocator, this.indexes[index]).state > 0;
+public bool HasT0(int index) => this.regs[0].value.Has<T0>(this.allocator, this.indexes[index]);
 public long GetVersionT0(int index) => this.regs[0].value.Get<Component<T0>>(this.allocator, this.indexes[index]).version;
 public void RemoveT1(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T1>.burstTypeId.Data, code = 2, }); }
 public void Set(int index, in T1 component) {
@@ -1991,7 +1991,7 @@ public ref T1 GetT1(int index) {
     return ref this.regs[1].value.Get<Component<T1>>(this.allocator, this.indexes[index]).data;
 }
 public ref readonly T1 ReadT1(int index) => ref this.regs[1].value.Get<Component<T1>>(this.allocator, this.indexes[index]).data;
-public bool HasT1(int index) => this.regs[1].value.Get<Component<T1>>(this.allocator, this.indexes[index]).state > 0;
+public bool HasT1(int index) => this.regs[1].value.Has<T1>(this.allocator, this.indexes[index]);
 public long GetVersionT1(int index) => this.regs[1].value.Get<Component<T1>>(this.allocator, this.indexes[index]).version;
 public void RemoveT2(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T2>.burstTypeId.Data, code = 2, }); }
 public void Set(int index, in T2 component) {
@@ -2007,7 +2007,7 @@ public ref T2 GetT2(int index) {
     return ref this.regs[2].value.Get<Component<T2>>(this.allocator, this.indexes[index]).data;
 }
 public ref readonly T2 ReadT2(int index) => ref this.regs[2].value.Get<Component<T2>>(this.allocator, this.indexes[index]).data;
-public bool HasT2(int index) => this.regs[2].value.Get<Component<T2>>(this.allocator, this.indexes[index]).state > 0;
+public bool HasT2(int index) => this.regs[2].value.Has<T2>(this.allocator, this.indexes[index]);
 public long GetVersionT2(int index) => this.regs[2].value.Get<Component<T2>>(this.allocator, this.indexes[index]).version;
 public void RemoveT3(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T3>.burstTypeId.Data, code = 2, }); }
 public void Set(int index, in T3 component) {
@@ -2023,7 +2023,7 @@ public ref T3 GetT3(int index) {
     return ref this.regs[3].value.Get<Component<T3>>(this.allocator, this.indexes[index]).data;
 }
 public ref readonly T3 ReadT3(int index) => ref this.regs[3].value.Get<Component<T3>>(this.allocator, this.indexes[index]).data;
-public bool HasT3(int index) => this.regs[3].value.Get<Component<T3>>(this.allocator, this.indexes[index]).state > 0;
+public bool HasT3(int index) => this.regs[3].value.Has<T3>(this.allocator, this.indexes[index]);
 public long GetVersionT3(int index) => this.regs[3].value.Get<Component<T3>>(this.allocator, this.indexes[index]).version;
 public void RemoveT4(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T4>.burstTypeId.Data, code = 2, }); }
 public void Set(int index, in T4 component) {
@@ -2039,7 +2039,7 @@ public ref T4 GetT4(int index) {
     return ref this.regs[4].value.Get<Component<T4>>(this.allocator, this.indexes[index]).data;
 }
 public ref readonly T4 ReadT4(int index) => ref this.regs[4].value.Get<Component<T4>>(this.allocator, this.indexes[index]).data;
-public bool HasT4(int index) => this.regs[4].value.Get<Component<T4>>(this.allocator, this.indexes[index]).state > 0;
+public bool HasT4(int index) => this.regs[4].value.Has<T4>(this.allocator, this.indexes[index]);
 public long GetVersionT4(int index) => this.regs[4].value.Get<Component<T4>>(this.allocator, this.indexes[index]).version;
 public void RemoveT5(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T5>.burstTypeId.Data, code = 2, }); }
 public void Set(int index, in T5 component) {
@@ -2055,7 +2055,7 @@ public ref T5 GetT5(int index) {
     return ref this.regs[5].value.Get<Component<T5>>(this.allocator, this.indexes[index]).data;
 }
 public ref readonly T5 ReadT5(int index) => ref this.regs[5].value.Get<Component<T5>>(this.allocator, this.indexes[index]).data;
-public bool HasT5(int index) => this.regs[5].value.Get<Component<T5>>(this.allocator, this.indexes[index]).state > 0;
+public bool HasT5(int index) => this.regs[5].value.Has<T5>(this.allocator, this.indexes[index]);
 public long GetVersionT5(int index) => this.regs[5].value.Get<Component<T5>>(this.allocator, this.indexes[index]).version;
 public void RemoveT6(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T6>.burstTypeId.Data, code = 2, }); }
 public void Set(int index, in T6 component) {
@@ -2071,7 +2071,7 @@ public ref T6 GetT6(int index) {
     return ref this.regs[6].value.Get<Component<T6>>(this.allocator, this.indexes[index]).data;
 }
 public ref readonly T6 ReadT6(int index) => ref this.regs[6].value.Get<Component<T6>>(this.allocator, this.indexes[index]).data;
-public bool HasT6(int index) => this.regs[6].value.Get<Component<T6>>(this.allocator, this.indexes[index]).state > 0;
+public bool HasT6(int index) => this.regs[6].value.Has<T6>(this.allocator, this.indexes[index]);
 public long GetVersionT6(int index) => this.regs[6].value.Get<Component<T6>>(this.allocator, this.indexes[index]).version;
 public void RemoveT7(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T7>.burstTypeId.Data, code = 2, }); }
 public void Set(int index, in T7 component) {
@@ -2087,7 +2087,7 @@ public ref T7 GetT7(int index) {
     return ref this.regs[7].value.Get<Component<T7>>(this.allocator, this.indexes[index]).data;
 }
 public ref readonly T7 ReadT7(int index) => ref this.regs[7].value.Get<Component<T7>>(this.allocator, this.indexes[index]).data;
-public bool HasT7(int index) => this.regs[7].value.Get<Component<T7>>(this.allocator, this.indexes[index]).state > 0;
+public bool HasT7(int index) => this.regs[7].value.Has<T7>(this.allocator, this.indexes[index]);
 public long GetVersionT7(int index) => this.regs[7].value.Get<Component<T7>>(this.allocator, this.indexes[index]).version;
 public void RemoveT8(int index) { this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T8>.burstTypeId.Data, code = 2, }); }
 public void Set(int index, in T8 component) {
@@ -2103,7 +2103,7 @@ public ref T8 GetT8(int index) {
     return ref this.regs[8].value.Get<Component<T8>>(this.allocator, this.indexes[index]).data;
 }
 public ref readonly T8 ReadT8(int index) => ref this.regs[8].value.Get<Component<T8>>(this.allocator, this.indexes[index]).data;
-public bool HasT8(int index) => this.regs[8].value.Get<Component<T8>>(this.allocator, this.indexes[index]).state > 0;
+public bool HasT8(int index) => this.regs[8].value.Has<T8>(this.allocator, this.indexes[index]);
 public long GetVersionT8(int index) => this.regs[8].value.Get<Component<T8>>(this.allocator, this.indexes[index]).version;
 
     #endregion

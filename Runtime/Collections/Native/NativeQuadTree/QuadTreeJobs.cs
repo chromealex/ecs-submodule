@@ -76,7 +76,11 @@ namespace ME.ECS.Collections {
                 UnityEngine.Debug.LogError("Temp tree collection must been disposed");
                 NativeQuadTreeUtils<T>.EndTick();
             }
-            //UnityEngine.Debug.Log("PrepareTick: " + Worlds.current.GetCurrentTick());
+
+            /*using (NoStackTrace.All) {
+                UnityEngine.Debug.Log("PrepareTick: " + Worlds.current.GetCurrentTick() + " :: " + UnityEngine.Time.frameCount);
+            }*/
+
             NativeQuadTreeUtils<T>.tempTree = new NativeQuadTree<T>(mapSize, Unity.Collections.Allocator.TempJob, maxDepth: 4);
             NativeQuadTreeUtils<T>.jobHandle = new QuadTreeJobs.ClearJob<T>() {
                 quadTree = NativeQuadTreeUtils<T>.tempTree,
@@ -91,7 +95,10 @@ namespace ME.ECS.Collections {
             if (NativeQuadTreeUtils<T>.jobHandle.IsCompleted == false) NativeQuadTreeUtils<T>.jobHandle.Complete();
             NativeQuadTreeUtils<T>.jobHandle = default;
             if (NativeQuadTreeUtils<T>.tempTree.isCreated == true) NativeQuadTreeUtils<T>.tempTree.Dispose();
-            //if (Worlds.current != null && Worlds.current.GetState() != null) UnityEngine.Debug.Log("EndTick: " + Worlds.current.GetCurrentTick());
+            /*using (NoStackTrace.All) {
+                if (Worlds.current != null && Worlds.current.GetState() != null)
+                    UnityEngine.Debug.Log("EndTick: " + Worlds.current.GetCurrentTick() + " :: " + UnityEngine.Time.frameCount);
+            }*/
 
         }
 

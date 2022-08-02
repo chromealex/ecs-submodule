@@ -632,6 +632,13 @@ namespace ME.ECS.StatesHistory {
         
         public void AddEvent(HistoryEvent historyEvent) {
 
+            if (historyEvent.tick <= Tick.Zero) {
+
+                // Tick fix if it is zero
+                historyEvent.tick = Tick.One;
+
+            }
+
             if (this.HasEvent(historyEvent) == true) {
 
                 using (NoStackTrace.All) {
@@ -644,13 +651,6 @@ namespace ME.ECS.StatesHistory {
             ++this.statEventsAdded;
             
             this.ValidatePrewarm();
-
-            if (historyEvent.tick <= Tick.Zero) {
-
-                // Tick fix if it is zero
-                historyEvent.tick = Tick.One;
-
-            }
 
             var key = MathUtils.GetKey(historyEvent.order, historyEvent.localOrder);
             if (this.events.TryGetValue(historyEvent.tick, out var list) == true) {
