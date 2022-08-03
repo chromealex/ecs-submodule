@@ -737,7 +737,7 @@ namespace ME.ECS {
          Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.ArrayBoundsChecks, false),
          Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.DivideByZeroChecks, false)]
         #endif
-        public void ValidateUnmanagedDisposable<TComponent>(ref MemoryAllocator allocator, bool isTag = false) where TComponent : struct, IComponentDisposable {
+        public void ValidateUnmanagedDisposable<TComponent>(ref MemoryAllocator allocator, bool isTag = false) where TComponent : struct, IComponentDisposable<TComponent> {
 
             var code = WorldUtilities.GetAllComponentTypeId<TComponent>();
             if (isTag == true) WorldUtilities.SetComponentAsTag<TComponent>();
@@ -750,7 +750,7 @@ namespace ME.ECS {
          Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.ArrayBoundsChecks, false),
          Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.DivideByZeroChecks, false)]
         #endif
-        public void ValidateUnmanagedDisposable<TComponent>(ref MemoryAllocator allocator, in Entity entity, bool isTag = false) where TComponent : struct, IComponentDisposable {
+        public void ValidateUnmanagedDisposable<TComponent>(ref MemoryAllocator allocator, in Entity entity, bool isTag = false) where TComponent : struct, IComponentDisposable<TComponent> {
 
             var code = WorldUtilities.GetAllComponentTypeId<TComponent>();
             this.ValidateUnmanagedDisposable<TComponent>(ref allocator, code, isTag);
@@ -767,7 +767,7 @@ namespace ME.ECS {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
-        private void ValidateUnmanagedDisposable<TComponent>(ref MemoryAllocator allocator, int code, bool isTag) where TComponent : struct, IComponentDisposable {
+        private void ValidateUnmanagedDisposable<TComponent>(ref MemoryAllocator allocator, int code, bool isTag) where TComponent : struct, IComponentDisposable<TComponent> {
 
             this.unmanagedComponentsStorage.ValidateTypeIdDisposable<TComponent>(ref allocator, code);
 
@@ -1247,7 +1247,7 @@ namespace ME.ECS {
 
         }
 
-        public void ValidateDataUnmanagedDisposable<TComponent>(in Entity entity, bool isTag = false) where TComponent : struct, IComponentDisposable {
+        public void ValidateDataUnmanagedDisposable<TComponent>(in Entity entity, bool isTag = false) where TComponent : struct, IComponentDisposable<TComponent> {
 
             this.currentState.structComponents.ValidateUnmanagedDisposable<TComponent>(ref this.currentState.allocator, in entity, isTag);
 

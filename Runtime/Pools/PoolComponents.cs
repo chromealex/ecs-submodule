@@ -37,7 +37,7 @@ namespace ME.ECS {
 			
         }
 
-        public static StructComponentsUnmanagedDisposable<T> SpawnUnmanagedDisposable<T>() where T : struct, IComponentDisposable {
+        public static StructComponentsUnmanagedDisposable<T> SpawnUnmanagedDisposable<T>() where T : struct, IComponentDisposable<T> {
 
             return Pools.current.PoolSpawn(new Data(), (data) => new StructComponentsUnmanagedDisposable<T>(), null);
 			

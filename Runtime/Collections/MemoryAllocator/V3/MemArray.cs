@@ -118,7 +118,7 @@ namespace ME.ECS.Collections.V3 {
         }
 
         [INLINE(256)]
-        public void DisposeWithData<U>(ref MemoryAllocator allocator) where U : struct, IComponentDisposable {
+        public void DisposeWithData<U>(ref MemoryAllocator allocator) where U : struct, IComponentDisposable<U> {
 
             for (int i = 0; i < this.Length; ++i) {
                 this.As<U>(in allocator, i).OnDispose(ref allocator);
@@ -127,11 +127,47 @@ namespace ME.ECS.Collections.V3 {
 
         }
 
-        public ref U As<U>(in MemoryAllocator allocator, int index) where U : struct {
+        [INLINE(256)]
+        public readonly ref U As<U>(in MemoryAllocator allocator, int index) where U : struct {
             E.RANGE(index, 0, this.Length);
             return ref allocator.RefArrayUnmanaged<U>(this.arrPtr, index);
         }
-        
+
+        [INLINE(256)]
+        public void CopyFrom(ref MemoryAllocator allocator, in MemArrayAllocator<T> other) {
+
+            if (other.arrPtr == this.arrPtr) return;
+            if (this.arrPtr == 0L && other.arrPtr == 0L) return;
+            if (this.arrPtr != 0L && other.arrPtr == 0L) {
+                this.Dispose(ref allocator);
+                return;
+            }
+            if (this.arrPtr == 0L) this = new MemArrayAllocator<T>(ref allocator, other.Length);
+            
+            ME.ECS.Collections.V3.NativeArrayUtils.Copy(ref allocator, in other, ref this);
+            
+        }
+
+        [INLINE(256)]
+        public void CopyFromWithData<U>(ref MemoryAllocator allocator, in MemArrayAllocator<U> other) where U : struct, IComponentDisposable<U> {
+
+            if (other.arrPtr == this.arrPtr) return;
+            if (this.arrPtr == 0L && other.arrPtr == 0L) return;
+            if (this.arrPtr != 0L && other.arrPtr == 0L) {
+                this.Dispose(ref allocator);
+                return;
+            }
+            if (this.arrPtr == 0L) this = new MemArrayAllocator<T>(ref allocator, other.Length);
+
+            for (int i = 0; i < this.Length; ++i) {
+                this.As<U>(in allocator, i).OnDispose(ref allocator);
+            }
+            for (int i = 0; i < this.Length; ++i) {
+                this.As<U>(in allocator, i).CopyFrom(ref allocator, in other.As<U>(in allocator, i));
+            }
+            
+        }
+
         [INLINE(256)]
         public void Dispose(ref MemoryAllocator allocator) {
 

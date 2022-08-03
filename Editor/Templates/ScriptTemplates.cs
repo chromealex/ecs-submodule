@@ -531,13 +531,15 @@ MonoBehaviour:
             ScriptTemplates.Create("New Component.cs", "37-ComponentStructTemplate");
 
         }
-
+        
+        #if COMPONENTS_COPYABLE
         [UnityEditor.MenuItem("Assets/Create/ME.ECS/Component (Copyable)", priority = ScriptTemplates.CREATE_COMPONENT_STRUCT_PRIORITY)]
         public static void CreateStructCopyableComponent() {
 
             ScriptTemplates.Create("New Component.cs", "38-ComponentStructCopyableTemplate");
 
         }
+        #endif
 
         private static Object GetSelectedDirectory() {
 

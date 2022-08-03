@@ -94,7 +94,7 @@ namespace ME.ECS.Collections.MemoryAllocator {
         private readonly ref int GetCount(in MemoryAllocator allocator) {
             return ref allocator.Ref<InternalData>(this.ptr).count;
         }
-
+        
         public readonly bool isCreated {
             [INLINE(256)]
             get => this.ptr != 0;
@@ -117,6 +117,22 @@ namespace ME.ECS.Collections.MemoryAllocator {
 
             this.ptr = allocator.AllocData<InternalData>(default);
             this.EnsureCapacity(ref allocator, capacity);
+
+        }
+
+        [INLINE(256)]
+        public void CopyFrom(ref MemoryAllocator allocator, in List<T> other) {
+
+            if (other.GetMemPtr(in allocator) == this.GetMemPtr(in allocator)) return;
+            if (this.ptr == 0L && other.ptr == 0L) return;
+            if (this.ptr != 0L && other.ptr == 0L) {
+                this.Dispose(ref allocator);
+                return;
+            }
+            if (this.ptr == 0L) this = new List<T>(ref allocator, other.Capacity(in allocator));
+            
+            NativeArrayUtils.Copy(ref allocator, in other.GetArray(in allocator), ref this.GetArray(in allocator));
+            this.GetCount(in allocator) = other.GetCount(in allocator);
 
         }
 

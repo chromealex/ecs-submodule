@@ -1,5 +1,4 @@
 ﻿#define MEMORY_ALLOCATOR_BOUNDS_CHECK
-#define DEBUG_TABLE
 
 using System;
 using Unity.Collections;

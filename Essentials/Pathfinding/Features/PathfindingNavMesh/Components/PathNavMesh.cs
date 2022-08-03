@@ -3,7 +3,7 @@ using ME.ECS.Mathematics;
 
 namespace ME.ECS.Pathfinding.Features.PathfindingNavMesh.Components {
 
-    public struct PathNavMesh : IComponent, IComponentRuntime, IComponentDisposable {
+    public struct PathNavMesh : IComponent, IComponentRuntime, IComponentDisposable<PathNavMesh> {
 
         public byte resultValue;
         public ME.ECS.Pathfinding.PathCompleteState result {
@@ -14,6 +14,11 @@ namespace ME.ECS.Pathfinding.Features.PathfindingNavMesh.Components {
 
         public void OnDispose(ref ME.ECS.Collections.V3.MemoryAllocator allocator) {
             if (this.path.isCreated == true) this.path.Dispose(ref allocator);
+        }
+
+        public void CopyFrom(ref ME.ECS.Collections.V3.MemoryAllocator allocator, in PathNavMesh other) {
+            this.resultValue = other.resultValue;
+            this.path.CopyFrom(ref allocator, in other.path);
         }
 
     }

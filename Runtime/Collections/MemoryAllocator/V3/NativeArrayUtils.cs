@@ -24,7 +24,7 @@ namespace ME.ECS.Collections.V3 {
         #endif
         public static void Copy<T>(ref MemoryAllocator allocator,
                                    in MemArrayAllocator<T> fromArr,
-                                   ref MemArrayAllocator<T> arr) where T : unmanaged {
+                                   ref MemArrayAllocator<T> arr) where T : struct {
             
             NativeArrayUtils.Copy(ref allocator, fromArr, 0, ref arr, 0, fromArr.Length);
             
@@ -35,7 +35,7 @@ namespace ME.ECS.Collections.V3 {
         #endif
         public static void CopyExact<T>(ref MemoryAllocator allocator,
                                    in MemArrayAllocator<T> fromArr,
-                                   ref MemArrayAllocator<T> arr) where T : unmanaged {
+                                   ref MemArrayAllocator<T> arr) where T : struct {
             
             NativeArrayUtils.Copy(ref allocator, fromArr, 0, ref arr, 0, fromArr.Length, true);
             
@@ -50,7 +50,7 @@ namespace ME.ECS.Collections.V3 {
                                    ref MemArrayAllocator<T> arr,
                                    int destIndex,
                                    int length,
-                                   bool copyExact = false) where T : unmanaged {
+                                   bool copyExact = false) where T : struct {
 
             switch (fromArr.isCreated) {
                 case false when arr.isCreated == false:
@@ -69,7 +69,7 @@ namespace ME.ECS.Collections.V3 {
                 
             }
 
-            var size = sizeof(T);
+            var size = Unity.Collections.LowLevel.Unsafe.UnsafeUtility.SizeOf<T>();
             allocator.MemCopy(arr.arrPtr, destIndex * size, fromArr.arrPtr, sourceIndex * size, length * size);
 
         }

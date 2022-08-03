@@ -7,7 +7,7 @@ namespace ME.ECS {
      Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.ArrayBoundsChecks, false),
      Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.DivideByZeroChecks, false)]
     #endif
-    public class StructComponentsUnmanagedDisposable<TComponent> : StructComponentsUnmanaged<TComponent> where TComponent : struct, IComponentDisposable {
+    public class StructComponentsUnmanagedDisposable<TComponent> : StructComponentsUnmanaged<TComponent> where TComponent : struct, IComponentDisposable<TComponent> {
 
         private ref UnmanagedComponentsStorage.ItemDisposable<TComponent> registry => ref this.storage.GetRegistryDisposable<TComponent>(in this.allocator);
         
@@ -180,9 +180,12 @@ namespace ME.ECS {
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
         public override void Replace(ref Component<TComponent> bucket, in TComponent data) {
-            
-            if (bucket.state > 0) bucket.data.OnDispose(ref Worlds.current.currentState.allocator);
-            bucket.data = data;
+
+            if (bucket.state > 0) {
+                bucket.data.CopyFrom(ref Worlds.current.currentState.allocator, in data);
+            } else {
+                bucket.data = data;
+            }
             
         }
 

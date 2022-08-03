@@ -1,3 +1,5 @@
+#define MEMORY_ALLOCATOR_BOUNDS_CHECK
+
 using System;
 using Unity.Collections;
 using Unity.Collections.LowLevel.Unsafe;
@@ -198,10 +200,12 @@ namespace ME.ECS.Collections.V3 {
             var block = (MemBlock*)((byte*)ptr - sizeof(MemBlock));
             var blockOffset = new MemBlockOffset(block, zone);
 
+            #if MEMORY_ALLOCATOR_BOUNDS_CHECK
             if (block->id != MemoryAllocator.ZONE_ID) {
                 //return false;
                 throw new System.ArgumentException("ZmFree: freed a pointer without ZONEID");
             }
+            #endif
 
             if (block->user > (void**)0x100) {
                 // smaller values are not pointers

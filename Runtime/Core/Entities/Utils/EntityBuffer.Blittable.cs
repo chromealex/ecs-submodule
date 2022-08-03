@@ -85,7 +85,7 @@ namespace ME.ECS {
     public static class DataUnmanagedDisposableBufferUtils {
 
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-        public static bool PushRemove_INTERNAL<T>(World world, in Entity entity, StructComponentsUnmanaged<T> reg, StorageType storageType = StorageType.Default) where T : struct, IComponentDisposable {
+        public static bool PushRemove_INTERNAL<T>(World world, in Entity entity, StructComponentsUnmanaged<T> reg, StorageType storageType = StorageType.Default) where T : struct, IComponentDisposable<T> {
 
             ref var bucket = ref reg.Get(in entity);
             reg.RemoveData(in entity, ref bucket);
@@ -95,7 +95,7 @@ namespace ME.ECS {
         }
 
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-        public static bool PushSet_INTERNAL<T>(World world, in Entity entity, StructComponentsUnmanaged<T> reg, in T data, StorageType storageType = StorageType.Default) where T : struct, IComponentDisposable {
+        public static bool PushSet_INTERNAL<T>(World world, in Entity entity, StructComponentsUnmanaged<T> reg, in T data, StorageType storageType = StorageType.Default) where T : struct, IComponentDisposable<T> {
 
             ref var bucket = ref reg.Get(in entity);
             reg.Replace(ref bucket, in data);
@@ -105,7 +105,7 @@ namespace ME.ECS {
         }
 
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-        public static bool PushRemove_INTERNAL<T>(World world, in Entity entity, ref ME.ECS.Collections.V3.MemoryAllocator allocator, ref UnmanagedComponentsStorage.ItemDisposable<T> reg) where T : struct, IComponentDisposable {
+        public static bool PushRemove_INTERNAL<T>(World world, in Entity entity, ref ME.ECS.Collections.V3.MemoryAllocator allocator, ref UnmanagedComponentsStorage.ItemDisposable<T> reg) where T : struct, IComponentDisposable<T> {
 
             ref var bucket = ref reg.components.Get(ref allocator, entity.id);
             reg.RemoveData(ref allocator, ref bucket);
@@ -118,7 +118,7 @@ namespace ME.ECS {
         }
 
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-        public static void PushSet_INTERNAL<T>(World world, in Entity entity, ref ME.ECS.Collections.V3.MemoryAllocator allocator, ref UnmanagedComponentsStorage.ItemDisposable<T> reg, in T data) where T : struct, IComponentDisposable {
+        public static void PushSet_INTERNAL<T>(World world, in Entity entity, ref ME.ECS.Collections.V3.MemoryAllocator allocator, ref UnmanagedComponentsStorage.ItemDisposable<T> reg, in T data) where T : struct, IComponentDisposable<T> {
 
             ref var bucket = ref reg.components.Get(ref allocator, entity.id);
             reg.Replace(ref allocator, ref bucket, in data);

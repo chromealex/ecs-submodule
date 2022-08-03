@@ -206,8 +206,16 @@ namespace ME.ECS.Collections.MemoryAllocator {
         }
 
         [INLINE(256)]
-        public readonly void CopyFrom(ref MemoryAllocator allocator, in Dictionary<TKey, TValue> other) {
+        public void CopyFrom(ref MemoryAllocator allocator, in Dictionary<TKey, TValue> other) {
 
+            if (this.ptr == other.ptr) return;
+            if (this.ptr == 0L && other.ptr == 0L) return;
+            if (this.ptr != 0L && other.ptr == 0L) {
+                this.Dispose(ref allocator);
+                return;
+            }
+            if (this.ptr == 0L) this = new Dictionary<TKey, TValue>(ref allocator, other.Count(in allocator));
+            
             NativeArrayUtils.CopyExact(ref allocator, other.buckets(in allocator), ref this.buckets(in allocator));
             NativeArrayUtils.CopyExact(ref allocator, other.entries(in allocator), ref this.entries(in allocator));
             this.count(in allocator) = other.count(in allocator);

@@ -55,7 +55,7 @@ namespace ME.ECS {
         }
 
         [System.Runtime.InteropServices.StructLayoutAttribute(System.Runtime.InteropServices.LayoutKind.Sequential)]
-        public struct ItemDisposable<T> where T : struct, IComponentDisposable {
+        public struct ItemDisposable<T> where T : struct, IComponentDisposable<T> {
 
             public Collections.MemoryAllocator.SparseSet<Component<T>> components;
             
@@ -143,7 +143,7 @@ namespace ME.ECS {
 
         }
 
-        public ref ItemDisposable<T> GetRegistryDisposable<T>(in MemoryAllocator allocator) where T : struct, IComponentDisposable {
+        public ref ItemDisposable<T> GetRegistryDisposable<T>(in MemoryAllocator allocator) where T : struct, IComponentDisposable<T> {
 
             var typeId = AllComponentTypes<T>.typeId;
             var ptr = this.items[in allocator, typeId];
@@ -151,13 +151,13 @@ namespace ME.ECS {
 
         }
 
-        public void ValidateTypeIdDisposable<T>(ref MemoryAllocator allocator, int typeId) where T : struct, IComponentDisposable {
+        public void ValidateTypeIdDisposable<T>(ref MemoryAllocator allocator, int typeId) where T : struct, IComponentDisposable<T> {
 
             this.items.Resize(ref allocator, AllComponentTypesCounter.counter + 1);
 
         }
 
-        public void ValidateDisposable<T>(ref MemoryAllocator allocator, int entityId) where T : struct, IComponentDisposable {
+        public void ValidateDisposable<T>(ref MemoryAllocator allocator, int entityId) where T : struct, IComponentDisposable<T> {
 
             var typeId = AllComponentTypes<T>.typeId;
             this.items.Resize(ref allocator, typeId + 1);
