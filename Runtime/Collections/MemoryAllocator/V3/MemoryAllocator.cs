@@ -1,4 +1,5 @@
 ﻿#define MEMORY_ALLOCATOR_BOUNDS_CHECK
+//#define LOGS_ENABLED
 
 using System;
 using Unity.Collections;
@@ -183,18 +184,57 @@ namespace ME.ECS.Collections.V3 {
                 ptr = MemoryAllocator.ZmMalloc(this.zonesList[i], (int)size, null);
 
                 if (ptr != null) {
-                    return this.GetSafePtr(ptr, i);
+                    var memPtr = this.GetSafePtr(ptr, i);
+                    #if LOGS_ENABLED
+                    if (startLog == true) {
+                        var str = "ALLOC: " + memPtr + ", SIZE: " + size;
+                        strList.Add(memPtr, str + "\n" + UnityEngine.StackTraceUtility.ExtractStackTrace());
+                    }
+                    #endif
+                    return memPtr;
                 }
             }
-            
-            var zone = MemoryAllocator.ZmCreateZone((int)Math.Max(size, MemoryAllocator.MIN_ZONE_SIZE));
-            var zoneIndex = this.AddZone(zone);
-            
-            ptr = MemoryAllocator.ZmMalloc(zone, (int)size, null);
 
-            return this.GetSafePtr(ptr, zoneIndex);
-            
+            {
+                var zone = MemoryAllocator.ZmCreateZone((int)Math.Max(size, MemoryAllocator.MIN_ZONE_SIZE));
+                var zoneIndex = this.AddZone(zone);
+
+                ptr = MemoryAllocator.ZmMalloc(zone, (int)size, null);
+
+                var memPtr = this.GetSafePtr(ptr, zoneIndex);
+                #if LOGS_ENABLED
+                if (startLog == true) {
+                    var str = "ALLOC: " + memPtr + ", SIZE: " + size;
+                    strList.Add(memPtr, str + "\n" + UnityEngine.StackTraceUtility.ExtractStackTrace());
+                }
+                #endif
+
+                return memPtr;
+            }
+
         }
+
+        #if LOGS_ENABLED
+        public static bool startLog;
+        public static System.Collections.Generic.Dictionary<MemPtr, string> strList = new System.Collections.Generic.Dictionary<MemPtr, string>();
+        [UnityEditor.MenuItem("TOOLS/Start Log")]
+        public static void StartLog() {
+            startLog = true;
+        }
+        
+        [UnityEditor.MenuItem("TOOLS/End Log")]
+        public static void EndLog() {
+            startLog = false;
+            MemoryAllocator.strList.Clear();
+        }
+        
+        [UnityEditor.MenuItem("TOOLS/Print Log")]
+        public static void PrintLog() {
+            foreach (var item in MemoryAllocator.strList) {
+                UnityEngine.Debug.Log(item.Key + "\n" + item.Value);
+            }
+        }
+        #endif
 
         [INLINE(256)]
         public bool Free(MemPtr ptr) {
@@ -204,6 +244,14 @@ namespace ME.ECS.Collections.V3 {
             var zoneIndex = ptr >> 32;
             
             #if MEMORY_ALLOCATOR_BOUNDS_CHECK
+            #if LOGS_ENABLED
+            if (startLog == true) {
+                strList.Remove(ptr);
+                //var str = "FREE: " + ptr + ", SIZE: " + this.zonesList[zoneIndex]->size;
+                //strList.Add(ptr, str + "\n" + UnityEngine.StackTraceUtility.ExtractStackTrace());
+            }
+            #endif
+
             if (zoneIndex >= this.zonesListCount || this.zonesList[zoneIndex]->size < (ptr & MemoryAllocator.OFFSET_MASK)) {
                 throw new OutOfBoundsException();
             }
