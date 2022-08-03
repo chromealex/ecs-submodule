@@ -16,9 +16,9 @@ namespace ME.ECS.Pathfinding.Features.PathfindingNavMesh.Components {
             if (this.path.isCreated == true) this.path.Dispose(ref allocator);
         }
 
-        public void CopyFrom(ref ME.ECS.Collections.V3.MemoryAllocator allocator, in PathNavMesh other) {
+        public void ReplaceWith(ref ME.ECS.Collections.V3.MemoryAllocator allocator, in PathNavMesh other) {
             this.resultValue = other.resultValue;
-            this.path.CopyFrom(ref allocator, in other.path);
+            this.path.ReplaceWith(ref allocator, in other.path);
         }
 
     }

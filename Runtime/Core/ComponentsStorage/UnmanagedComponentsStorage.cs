@@ -80,7 +80,7 @@ namespace ME.ECS {
 
             public void Replace(ref MemoryAllocator allocator, ref Component<T> bucket, in T data) {
 
-                bucket.data.CopyFrom(ref allocator, in data);
+                bucket.data.ReplaceWith(ref allocator, in data);
 
             }
 

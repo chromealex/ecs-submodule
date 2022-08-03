@@ -18,9 +18,9 @@ namespace ME.ECS.Pathfinding.Features.PathfindingAstar.Components {
             if (this.nodes.isCreated == false) this.nodes.Dispose(ref allocator);
         }
 
-        public void CopyFrom(ref ME.ECS.Collections.V3.MemoryAllocator allocator, in Path other) {
-            this.path.CopyFrom(ref allocator, other.path);
-            this.nodes.CopyFrom(ref allocator, other.nodes);
+        public void ReplaceWith(ref ME.ECS.Collections.V3.MemoryAllocator allocator, in Path other) {
+            this.path.ReplaceWith(ref allocator, other.path);
+            this.nodes.ReplaceWith(ref allocator, other.nodes);
         }
 
     }

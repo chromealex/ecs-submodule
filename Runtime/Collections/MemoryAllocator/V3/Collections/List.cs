@@ -121,6 +121,18 @@ namespace ME.ECS.Collections.MemoryAllocator {
         }
 
         [INLINE(256)]
+        public void ReplaceWith(ref MemoryAllocator allocator, in List<T> other) {
+            
+            if (other.GetMemPtr(in allocator) == this.GetMemPtr(in allocator)) {
+                return;
+            }
+            
+            this.Dispose(ref allocator);
+            this = other;
+            
+        }
+
+        [INLINE(256)]
         public void CopyFrom(ref MemoryAllocator allocator, in List<T> other) {
 
             if (other.GetMemPtr(in allocator) == this.GetMemPtr(in allocator)) return;

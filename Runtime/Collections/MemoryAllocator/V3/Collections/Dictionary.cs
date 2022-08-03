@@ -206,6 +206,16 @@ namespace ME.ECS.Collections.MemoryAllocator {
         }
 
         [INLINE(256)]
+        public void ReplaceWith(ref MemoryAllocator allocator, in Dictionary<TKey, TValue> other) {
+            
+            if (this.ptr == other.ptr) return;
+            
+            this.Dispose(ref allocator);
+            this = other;
+
+        }
+
+        [INLINE(256)]
         public void CopyFrom(ref MemoryAllocator allocator, in Dictionary<TKey, TValue> other) {
 
             if (this.ptr == other.ptr) return;

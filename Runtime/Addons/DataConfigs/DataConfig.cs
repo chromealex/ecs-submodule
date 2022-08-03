@@ -94,8 +94,8 @@ namespace ME.ECS.DataConfigs {
                 if (this.archetypeToId.isCreated == true) this.archetypeToId.Dispose(ref allocator);
             }
 
-            public void CopyFrom(ref ME.ECS.Collections.V3.MemoryAllocator allocator, in SharedData other) {
-                this.archetypeToId.CopyFrom(ref allocator, other.archetypeToId);
+            public void ReplaceWith(ref ME.ECS.Collections.V3.MemoryAllocator allocator, in SharedData other) {
+                this.archetypeToId.ReplaceWith(ref allocator, other.archetypeToId);
             }
 
         }

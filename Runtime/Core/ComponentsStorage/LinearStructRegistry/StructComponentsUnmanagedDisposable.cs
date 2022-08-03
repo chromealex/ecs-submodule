@@ -182,7 +182,7 @@ namespace ME.ECS {
         public override void Replace(ref Component<TComponent> bucket, in TComponent data) {
 
             if (bucket.state > 0) {
-                bucket.data.CopyFrom(ref Worlds.current.currentState.allocator, in data);
+                bucket.data.ReplaceWith(ref Worlds.current.currentState.allocator, in data);
             } else {
                 bucket.data = data;
             }

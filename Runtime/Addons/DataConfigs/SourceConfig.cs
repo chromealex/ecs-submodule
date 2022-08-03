@@ -21,8 +21,8 @@ namespace ME.ECS.DataConfigs {
             if (this.configs.isCreated == true) this.configs.Dispose(ref allocator);
         }
 
-        public void CopyFrom(ref ME.ECS.Collections.V3.MemoryAllocator allocator, in SourceConfigs other) {
-            this.configs.CopyFrom(ref allocator, other.configs);
+        public void ReplaceWith(ref ME.ECS.Collections.V3.MemoryAllocator allocator, in SourceConfigs other) {
+            this.configs.ReplaceWith(ref allocator, other.configs);
         }
 
     }

@@ -20,8 +20,8 @@
             if (this.items.isCreated == true) this.items.Dispose(ref allocator);
         }
 
-        public void CopyFrom(ref ME.ECS.Collections.V3.MemoryAllocator allocator, in Nodes other) {
-            this.items.CopyFrom(ref allocator, other.items);
+        public void ReplaceWith(ref ME.ECS.Collections.V3.MemoryAllocator allocator, in Nodes other) {
+            this.items.ReplaceWith(ref allocator, other.items);
         }
 
     }

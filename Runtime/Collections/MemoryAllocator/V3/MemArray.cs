@@ -94,6 +94,24 @@ namespace ME.ECS.Collections.V3 {
         }
 
         [INLINE(256)]
+        public MemArrayAllocator(ref MemoryAllocator allocator, MemArrayAllocator<T> arr) {
+
+            this.arrPtr = arr.arrPtr;
+            this.Length = arr.Length;
+            this.growFactor = arr.growFactor;
+            
+        }
+
+        [INLINE(256)]
+        public MemArrayAllocator(ref MemoryAllocator allocator, MemPtr ptr, int length, int growFactor) {
+
+            this.arrPtr = ptr;
+            this.Length = length;
+            this.growFactor = growFactor;
+            
+        }
+
+        [INLINE(256)]
         public MemArrayAllocator(ref MemoryAllocator allocator, BufferArray<T> arr) {
 
             this = new MemArrayAllocator<T>(ref allocator, arr.Length, ClearOptions.UninitializedMemory);
@@ -132,6 +150,30 @@ namespace ME.ECS.Collections.V3 {
             E.RANGE(index, 0, this.Length);
             return ref allocator.RefArrayUnmanaged<U>(this.arrPtr, index);
         }
+        
+        [INLINE(256)]
+        public void ReplaceWith(ref MemoryAllocator allocator, in MemArrayAllocator<T> other) {
+            
+            if (other.arrPtr == this.arrPtr) {
+                return;
+            }
+            
+            this.Dispose(ref allocator);
+            this = other;
+            
+        }
+
+        [INLINE(256)]
+        public void ReplaceWithData<U>(ref MemoryAllocator allocator, in MemArrayAllocator<U> other) where U : struct, IComponentDisposable<U> {
+            
+            if (other.arrPtr == this.arrPtr) {
+                return;
+            }
+            
+            this.DisposeWithData<U>(ref allocator);
+            this = new MemArrayAllocator<T>(ref allocator, other.arrPtr, other.Length, other.growFactor);
+            
+        }
 
         [INLINE(256)]
         public void CopyFrom(ref MemoryAllocator allocator, in MemArrayAllocator<T> other) {
@@ -163,7 +205,7 @@ namespace ME.ECS.Collections.V3 {
                 this.As<U>(in allocator, i).OnDispose(ref allocator);
             }
             for (int i = 0; i < this.Length; ++i) {
-                this.As<U>(in allocator, i).CopyFrom(ref allocator, in other.As<U>(in allocator, i));
+                this.As<U>(in allocator, i).ReplaceWith(ref allocator, in other.As<U>(in allocator, i));
             }
             
         }

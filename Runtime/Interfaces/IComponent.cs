@@ -23,7 +23,7 @@ namespace ME.ECS {
     public interface IComponentDisposable<T> : IComponentDisposable where T : IComponentDisposable<T> {
 
         void OnDispose(ref ME.ECS.Collections.V3.MemoryAllocator allocator);
-        void CopyFrom(ref ME.ECS.Collections.V3.MemoryAllocator allocator, in T other);
+        void ReplaceWith(ref ME.ECS.Collections.V3.MemoryAllocator allocator, in T other);
 
     }
 
