@@ -1,4 +1,4 @@
-﻿#define MEMORY_ALLOCATOR_BOUNDS_CHECK
+﻿//#define MEMORY_ALLOCATOR_BOUNDS_CHECK
 //#define LOGS_ENABLED
 
 using System;
@@ -243,7 +243,6 @@ namespace ME.ECS.Collections.V3 {
             
             var zoneIndex = ptr >> 32;
             
-            #if MEMORY_ALLOCATOR_BOUNDS_CHECK
             #if LOGS_ENABLED
             if (startLog == true) {
                 strList.Remove(ptr);
@@ -251,7 +250,8 @@ namespace ME.ECS.Collections.V3 {
                 //strList.Add(ptr, str + "\n" + UnityEngine.StackTraceUtility.ExtractStackTrace());
             }
             #endif
-
+            
+            #if MEMORY_ALLOCATOR_BOUNDS_CHECK
             if (zoneIndex >= this.zonesListCount || this.zonesList[zoneIndex]->size < (ptr & MemoryAllocator.OFFSET_MASK)) {
                 throw new OutOfBoundsException();
             }

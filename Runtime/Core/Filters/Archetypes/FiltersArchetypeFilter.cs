@@ -67,7 +67,7 @@ namespace ME.ECS {
 
                     ++this.index;
                     ref var arch = ref this.state.storage.allArchetypes[in allocator, this.archetypes[in allocator, this.archIndex]];
-                    if (this.index >= arch.entitiesArr.Count(in allocator)) {
+                    if (arch.entitiesArr.isCreated == false || this.index >= arch.entitiesArr.Count(in allocator)) {
 
                         ++this.archIndex;
                         if (this.archIndex < this.archetypesCount) {

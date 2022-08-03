@@ -23,14 +23,8 @@ namespace ME.ECS.FiltersArchetype {
         [Il2Cpp(Option.DivideByZeroChecks, false)]
         public struct Archetype {
 
-            public struct Info {
-
-                public int index; // Index in list
-
-            }
-
             public int index;
-            public Dictionary<int, Info> components; // Contains componentId => Info index
+            public Dictionary<int, int> components; // Contains componentId => Index in list
             public List<int> componentIds; // Contains raw list of component ids
             public List<int> entitiesArr; // Contains raw unsorted list of entities
             public HashSet<int> entitiesContains;
@@ -229,25 +223,23 @@ namespace ME.ECS.FiltersArchetype {
             #if INLINE_METHODS
             [MethodImplAttribute(MethodImplOptions.AggressiveInlining)]
             #endif
-            private static int CreateAdd(ref MemoryAllocator allocator, ref FiltersArchetypeStorage storage, int node, in List<int> componentIds, in Dictionary<int, Info> components, int componentId) {
+            private static int CreateAdd(ref MemoryAllocator allocator, ref FiltersArchetypeStorage storage, int node, in List<int> componentIds, in Dictionary<int, int> components, int componentId) {
 
                 if (storage.TryGetArchetypeAdd(ref allocator, componentIds, componentId, out var ar) == true) {
                     return ar;
                 }
 
                 var arch = new Archetype() {
-                    edgesToAdd = new Dictionary<int, int>(ref allocator, 16),
-                    edgesToRemove = new Dictionary<int, int>(ref allocator, 16),
-                    entitiesArr = new List<int>(ref allocator, 16),
-                    entitiesContains = new HashSet<int>(ref allocator, 16),
+                    edgesToAdd = new Dictionary<int, int>(ref allocator, 1),
+                    edgesToRemove = new Dictionary<int, int>(ref allocator, 1),
+                    entitiesArr = new List<int>(ref allocator, 1),
+                    entitiesContains = new HashSet<int>(ref allocator, 1),
                     componentIds = new List<int>(ref allocator, componentIds.Count(in allocator) + 1),
-                    components = new Dictionary<int, Info>(ref allocator, components.Count(in allocator) + 1),
+                    components = new Dictionary<int, int>(ref allocator, components.Count(in allocator) + 1),
                 };
                 arch.components.CopyFrom(ref allocator, components);
                 arch.componentIds.AddRange(ref allocator, componentIds);
-                arch.components.Add(ref allocator, componentId, new Info() {
-                    index = arch.componentIds.Count(in allocator),
-                });
+                arch.components.Add(ref allocator, componentId,  arch.componentIds.Count(in allocator));
                 arch.componentIds.Add(ref allocator, componentId);
                 if (node >= 0) {
                     arch.edgesToRemove.Add(ref allocator, componentId, node);
@@ -267,33 +259,30 @@ namespace ME.ECS.FiltersArchetype {
             #if INLINE_METHODS
             [MethodImplAttribute(MethodImplOptions.AggressiveInlining)]
             #endif
-            private static int CreateRemove(ref MemoryAllocator allocator, ref FiltersArchetypeStorage storage, int node, in List<int> componentIds, in Dictionary<int, Info> components, int componentId) {
+            private static int CreateRemove(ref MemoryAllocator allocator, ref FiltersArchetypeStorage storage, int node, in List<int> componentIds, in Dictionary<int, int> components, int componentId) {
 
                 if (storage.TryGetArchetypeRemove(ref allocator, componentIds, componentId, out var ar) == true) {
                     return ar;
                 }
 
                 var arch = new Archetype() {
-                    edgesToAdd = new Dictionary<int, int>(ref allocator, 16),
-                    edgesToRemove = new Dictionary<int, int>(ref allocator, 16),
-                    entitiesArr = new List<int>(ref allocator, 16),
-                    entitiesContains = new HashSet<int>(ref allocator, 16),
+                    edgesToAdd = new Dictionary<int, int>(ref allocator, 1),
+                    edgesToRemove = new Dictionary<int, int>(ref allocator, 1),
+                    entitiesArr = new List<int>(ref allocator, 1),
+                    entitiesContains = new HashSet<int>(ref allocator, 1),
                     componentIds = new List<int>(ref allocator, componentIds.Count(in allocator) - 1),
-                    components = new Dictionary<int, Info>(ref allocator, components.Count(in allocator) - 1),
+                    components = new Dictionary<int, int>(ref allocator, components.Count(in allocator) - 1),
                 };
                 arch.componentIds.AddRange(ref allocator, componentIds);
                 storage.isArchetypesDirty = true;
                 var idx = storage.allArchetypes.Count(in allocator);
                 arch.index = idx;
                 
-                var info = components[in allocator, componentId];
-                arch.componentIds.RemoveAt(ref allocator, info.index);
+                var infoIndex = components[in allocator, componentId];
+                arch.componentIds.RemoveAt(ref allocator, infoIndex);
                 for (var i = 0; i < arch.componentIds.Count(in allocator); ++i) {
                     var cId = arch.componentIds[in allocator, i];
-                    arch.components.Add(ref allocator, cId, new Info() {
-                        index = i,
-                    });
-                    
+                    arch.components.Add(ref allocator, cId, i);
                 }
 
                 if (node >= 0) {
@@ -323,12 +312,37 @@ namespace ME.ECS.FiltersArchetype {
         #if INLINE_METHODS
         [MethodImplAttribute(MethodImplOptions.AggressiveInlining)]
         #endif
+        private void CleanUpArchetype(ref MemoryAllocator allocator, ref Archetype arch) {
+
+            if (arch.entitiesArr.Count(in allocator) == 0) {
+                arch.entitiesArr.Dispose(ref allocator);
+                arch.entitiesContains.Dispose(ref allocator);
+            }
+            
+        }
+
+        #if INLINE_METHODS
+        [MethodImplAttribute(MethodImplOptions.AggressiveInlining)]
+        #endif
+        private void ValidateArchetype(ref MemoryAllocator allocator, ref Archetype arch) {
+
+            if (arch.entitiesArr.isCreated == false) {
+                arch.entitiesArr = new List<int>(ref allocator, 1);
+                arch.entitiesContains = new HashSet<int>(ref allocator, 1);
+            }
+            
+        }
+
+        #if INLINE_METHODS
+        [MethodImplAttribute(MethodImplOptions.AggressiveInlining)]
+        #endif
         private void RemoveEntityFromArch(ref MemoryAllocator allocator, ref Archetype arch, int entityId) {
 
             var idx = this.GetEntityArrIndex(ref allocator, entityId);
             var movedEntityId = arch.entitiesArr[in allocator, arch.entitiesArr.Count(in allocator) - 1];
             arch.entitiesArr.RemoveAtFast(ref allocator, idx);
             arch.entitiesContains.Remove(ref allocator, entityId);
+            this.CleanUpArchetype(ref allocator, ref arch);
             if (movedEntityId != entityId) this.SetEntityArrIndex(ref allocator, movedEntityId, idx);
             this.SetEntityArrIndex(ref allocator, entityId, -1);
             
@@ -339,6 +353,7 @@ namespace ME.ECS.FiltersArchetype {
         #endif
         private void AddEntityToArch(ref MemoryAllocator allocator, ref Archetype arch, int entityId) {
 
+            this.ValidateArchetype(ref allocator, ref arch);
             var idx = arch.entitiesArr.Count(in allocator);
             arch.entitiesArr.Add(ref allocator, entityId);
             arch.entitiesContains.Add(ref allocator, entityId);
@@ -457,12 +472,12 @@ namespace ME.ECS.FiltersArchetype {
                 edgesToRemove = new Dictionary<int, int>(ref allocator, 16),
                 entitiesArr = new List<int>(ref allocator, 16),
                 entitiesContains = new HashSet<int>(ref allocator, 16),
-                componentIds = new List<int>(ref allocator, 10),
-                components = new Dictionary<int, Archetype.Info>(ref allocator, 16),
+                componentIds = new List<int>(ref allocator, 1),
+                components = new Dictionary<int, int>(ref allocator, 1),
                 index = 0,
             };
             this.root = arch.index;
-            this.index = new Dictionary<ulong, int>(ref allocator, 16);
+            this.index = new Dictionary<ulong, int>(ref allocator, 100);
             this.allArchetypes = new List<Archetype>(ref allocator, capacity);
             this.filters = new List<FilterData>(ref allocator, capacity);
             this.dirtyArchetypes = new HashSet<int>(ref allocator, 16);
@@ -975,6 +990,7 @@ namespace ME.ECS.FiltersArchetype {
 
                 var archId = filter.archetypesList[in allocator, i];
                 var arch = this.allArchetypes[in allocator, archId];
+                if (arch.entitiesArr.isCreated == false) continue;
                 if (changedTracked > 0 || connectedTracked > 0) {
 
                     for (int index = 0; index < arch.entitiesArr.Count(in allocator); ++index) {

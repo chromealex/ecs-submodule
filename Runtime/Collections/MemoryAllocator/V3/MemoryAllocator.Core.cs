@@ -1,4 +1,4 @@
-#define MEMORY_ALLOCATOR_BOUNDS_CHECK
+//#define MEMORY_ALLOCATOR_BOUNDS_CHECK
 
 using System;
 using Unity.Collections;
@@ -78,7 +78,9 @@ namespace ME.ECS.Collections.V3 {
 
             public int size;    // including the header and possibly tiny fragments
             public void** user; // NULL if a free block
+            #if MEMORY_ALLOCATOR_BOUNDS_CHECK
             public int id;      // should be ZONEID
+            #endif
             public MemBlockOffset next;
             public MemBlockOffset prev;
 
@@ -217,7 +219,9 @@ namespace ME.ECS.Collections.V3 {
 
             // mark as free
             block->user = null;
+            #if MEMORY_ALLOCATOR_BOUNDS_CHECK
             block->id = 0;
+            #endif
 
             var other = block->prev.Ptr(zone);
             var otherOffset = block->prev;
@@ -315,8 +319,10 @@ namespace ME.ECS.Collections.V3 {
                 // mark as in use, but unowned	
                 @base->user = (void**)2;
             }
-
+            
+            #if MEMORY_ALLOCATOR_BOUNDS_CHECK
             @base->id = MemoryAllocator.ZONE_ID;
+            #endif
 
             // next allocation will start looking here
             zone->rover = @base->next;
