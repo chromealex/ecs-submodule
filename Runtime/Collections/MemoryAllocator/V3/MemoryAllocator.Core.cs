@@ -362,7 +362,7 @@ namespace ME.ECS.Collections.V3 {
         }
 
         [INLINE(256)]
-        public static int ZmFreeMemory(MemZone* zone) {
+        public static int GetZmFreeMemory(MemZone* zone) {
             var free = 0;
 
             for (var block = zone->blocklist.next.Ptr(zone); block != &zone->blocklist; block = block->next.Ptr(zone)) {

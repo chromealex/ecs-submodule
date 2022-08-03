@@ -10,6 +10,7 @@ namespace ME.ECS {
         private static readonly ProfilerCategory category = new ProfilerCategory("ME.ECS");
         private static readonly ProfilerCategory categoryNetwork = new ProfilerCategory("ME.ECS: Network");
         private static readonly ProfilerCategory categoryPools = new ProfilerCategory("ME.ECS: Pools");
+        private static readonly ProfilerCategory categoryAllocator = new ProfilerCategory("ME.ECS: Allocator");
 
         public static readonly ProfilerCounter<int> EntitiesCount = new ProfilerCounter<int>(ECSProfiler.category, "Entities Count", ProfilerMarkerDataUnit.Count);
         public static readonly ProfilerCounter<int> SystemsCount = new ProfilerCounter<int>(ECSProfiler.category, "Systems Count", ProfilerMarkerDataUnit.Count);
@@ -28,6 +29,10 @@ namespace ME.ECS {
         private static int poolAllocationPrev;
         public static readonly ProfilerCounter<int> PoolUsed = new ProfilerCounter<int>(ECSProfiler.categoryPools, "Pool: Used", ProfilerMarkerDataUnit.Count);
 
+        public static readonly ProfilerCounter<int> MemoryAllocatorReserved = new ProfilerCounter<int>(ECSProfiler.categoryAllocator, "Allocator: Reserved", ProfilerMarkerDataUnit.Bytes);
+        public static readonly ProfilerCounter<int> MemoryAllocatorUsed = new ProfilerCounter<int>(ECSProfiler.categoryAllocator, "Allocator: Used", ProfilerMarkerDataUnit.Bytes);
+        public static readonly ProfilerCounter<int> MemoryAllocatorFree = new ProfilerCounter<int>(ECSProfiler.categoryAllocator, "Allocator: Free", ProfilerMarkerDataUnit.Bytes);
+        
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         [Conditional("ENABLE_PROFILER")]
         [Pure]
@@ -77,6 +82,10 @@ namespace ME.ECS {
             ECSProfiler.PoolUsed.Sample(PoolInternalBase.allocated - PoolInternalBase.deallocated);
             ECSProfiler.PoolAllocation.Value = PoolInternalBase.newAllocated - ECSProfiler.poolAllocationPrev;
             ECSProfiler.poolAllocationPrev = PoolInternalBase.newAllocated;
+            
+            ECSProfiler.MemoryAllocatorReserved.Sample(world.currentState.allocator.GetReservedSize());
+            ECSProfiler.MemoryAllocatorUsed.Sample(world.currentState.allocator.GetUsedSize());
+            ECSProfiler.MemoryAllocatorFree.Sample(world.currentState.allocator.GetFreeSize());
 
         }
         

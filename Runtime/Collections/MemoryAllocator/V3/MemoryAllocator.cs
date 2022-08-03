@@ -1,4 +1,5 @@
 ﻿#define MEMORY_ALLOCATOR_BOUNDS_CHECK
+#define DEBUG_TABLE
 
 using System;
 using Unity.Collections;
@@ -23,19 +24,43 @@ namespace ME.ECS.Collections.V3 {
         
         public bool isValid => this.zonesList != null;
 
-        public int GetAllocatedSize() {
+        public int GetReservedSize() {
 
             var size = 0;
             for (int i = 0; i < this.zonesListCount; i++) {
                 var zone = this.zonesList[i];
                 size += zone->size;
-                size -= ZmFreeMemory(zone);
             }
 
             return size;
 
         }
-        
+
+        public int GetUsedSize() {
+
+            var size = 0;
+            for (int i = 0; i < this.zonesListCount; i++) {
+                var zone = this.zonesList[i];
+                size += zone->size;
+                size -= MemoryAllocator.GetZmFreeMemory(zone);
+            }
+
+            return size;
+
+        }
+
+        public int GetFreeSize() {
+
+            var size = 0;
+            for (int i = 0; i < this.zonesListCount; i++) {
+                var zone = this.zonesList[i];
+                size += MemoryAllocator.GetZmFreeMemory(zone);
+            }
+
+            return size;
+
+        }
+
         /// 
         /// Constructors
         /// 
