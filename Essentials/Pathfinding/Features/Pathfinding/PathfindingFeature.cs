@@ -97,12 +97,7 @@ namespace ME.ECS.Pathfinding.Features {
         public void SetPathNavMesh(in Entity entity, ME.ECS.Pathfinding.Path path, Constraint constraint, float3 from, float3 to) {
 
             ref var allocator = ref Worlds.current.GetState().allocator;
-            if (entity.Has<ME.ECS.Pathfinding.Features.PathfindingNavMesh.Components.PathNavMesh>() == true) {
-                ref var oldPath = ref entity.Get<ME.ECS.Pathfinding.Features.PathfindingNavMesh.Components.PathNavMesh>();
-                oldPath.path.Dispose(ref allocator);
-                oldPath.path = default;
-            }
-            
+
             var list = new ME.ECS.Collections.MemoryAllocator.List<float3>(ref allocator, path.navMeshPoints.Count);
             list.AddRange(ref allocator, path.navMeshPoints);
             entity.Set(new ME.ECS.Pathfinding.Features.PathfindingNavMesh.Components.PathNavMesh() {
