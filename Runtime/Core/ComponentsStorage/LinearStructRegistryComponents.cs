@@ -1878,6 +1878,7 @@ namespace ME.ECS {
             E.IS_LOGIC_STEP(this);
             E.IS_ALIVE(in entity);
             E.IS_TAG<TComponent>(in entity);
+            E.IS_DISPOSABLE<TComponent>(in entity);
             
             var reg = (StructComponentsBase<TComponent>)this.currentState.structComponents.list.arr[AllComponentTypes<TComponent>.typeId];
             ref var bucket = ref reg.Get(in entity);

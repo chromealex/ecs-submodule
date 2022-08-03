@@ -42,6 +42,17 @@ namespace ME.ECS {
         }
 
         [System.Diagnostics.Conditional("WORLD_EXCEPTIONS")]
+        public static void IS_DISPOSABLE<TComponent>(in Entity entity) {
+            
+            if (AllComponentTypes<TComponent>.isDisposable == true) {
+
+                DisposableComponentException.Throw(entity);
+
+            }
+
+        }
+
+        [System.Diagnostics.Conditional("WORLD_EXCEPTIONS")]
         public static void IS_ALIVE(in Entity entity) {
             
             if (entity.IsAlive() == false) {
@@ -210,6 +221,28 @@ namespace ME.ECS {
             if (entity.generation == 0) TagComponentException.Throw();
             
             throw new TagComponentException(entity);
+
+        }
+
+    }
+
+    public class DisposableComponentException : System.Exception {
+
+        private DisposableComponentException() : base("[ME.ECS] You are trying to get disposable component.") {}
+
+        private DisposableComponentException(Entity entity) : base("[ME.ECS] You are trying to get disposable component: " + entity) {}
+
+        public static void Throw() {
+
+            throw new DisposableComponentException();
+
+        }
+
+        public static void Throw(Entity entity) {
+
+            if (entity.generation == 0) DisposableComponentException.Throw();
+            
+            throw new DisposableComponentException(entity);
 
         }
 
