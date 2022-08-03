@@ -80,22 +80,15 @@ namespace ME.ECS {
 
             public void Replace(ref MemoryAllocator allocator, ref Component<T> bucket, in T data) {
 
-                this.DisposeData(ref allocator, ref bucket);
-                bucket.data = data;
+                bucket.data.CopyFrom(ref allocator, in data);
 
             }
 
             public void RemoveData(ref MemoryAllocator allocator, ref Component<T> bucket) {
 
-                this.DisposeData(ref allocator, ref bucket);
+                if (bucket.state > 0) bucket.data.OnDispose(ref allocator);
                 bucket.data = default;
 
-            }
-
-            private void DisposeData(ref MemoryAllocator allocator, ref Component<T> bucket) {
-                
-                bucket.data.OnDispose(ref allocator);
-                
             }
 
         }
