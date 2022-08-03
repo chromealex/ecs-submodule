@@ -181,7 +181,7 @@ namespace ME.ECS {
         #endif
         public override void Replace(ref Component<TComponent> bucket, in TComponent data) {
             
-            bucket.data.OnDispose(ref Worlds.current.currentState.allocator);
+            if (bucket.state > 0) bucket.data.OnDispose(ref Worlds.current.currentState.allocator);
             bucket.data = data;
             
         }
@@ -191,7 +191,7 @@ namespace ME.ECS {
         #endif
         public override void RemoveData(in Entity entity, ref Component<TComponent> bucket) {
 
-            bucket.data.OnDispose(ref Worlds.current.currentState.allocator);
+            if (bucket.state > 0) bucket.data.OnDispose(ref Worlds.current.currentState.allocator);
             bucket.data = default;
 
         }
@@ -231,7 +231,7 @@ namespace ME.ECS {
         protected override byte CopyFromState(in Entity from, in Entity to) {
 
             ref var bucket = ref this.Get(in from);
-            this.Get(in to).data.OnDispose(ref Worlds.current.currentState.allocator);
+            if (this.Get(in to).state > 0) this.Get(in to).data.OnDispose(ref Worlds.current.currentState.allocator);
             this.Get(in to) = bucket;
             return bucket.state;
 
