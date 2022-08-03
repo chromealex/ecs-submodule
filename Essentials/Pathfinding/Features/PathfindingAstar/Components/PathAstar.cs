@@ -3,7 +3,7 @@ using ME.ECS.Mathematics;
 
 namespace ME.ECS.Pathfinding.Features.PathfindingAstar.Components {
 
-    public struct Path : IComponent, IComponentRuntime {
+    public struct Path : IComponent, IComponentRuntime, IComponentDisposable {
 
         public byte resultValue;
         public ME.ECS.Pathfinding.PathCompleteState result {
@@ -12,6 +12,11 @@ namespace ME.ECS.Pathfinding.Features.PathfindingAstar.Components {
         }
         public ME.ECS.Collections.V3.MemArrayAllocator<float3> path;
         public ME.ECS.Collections.V3.MemArrayAllocator<int> nodes;
+
+        public void OnDispose(ref ME.ECS.Collections.V3.MemoryAllocator allocator) {
+            if (this.path.isCreated == false) this.path.Dispose(ref allocator);
+            if (this.nodes.isCreated == false) this.nodes.Dispose(ref allocator);
+        }
 
     }
 
