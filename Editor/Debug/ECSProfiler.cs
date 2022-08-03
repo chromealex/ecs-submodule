@@ -22,7 +22,12 @@ namespace ME.ECSEditor {
             var k_DynamicModulesPreferenceKey = "ProfilerWindow.DynamicModules";
             var json = UnityEditor.EditorPrefs.GetString(k_DynamicModulesPreferenceKey);
             var serializedDynamicModules = UnityEngine.JsonUtility.FromJson<SerializedDataCollection>(json);
-            if (serializedDynamicModules != null) {
+            if (serializedDynamicModules == null) {
+                serializedDynamicModules = new SerializedDataCollection() {
+                    m_Modules = new System.Collections.Generic.List<SerializedData>(),
+                };
+            }
+            {
 
                 {
                     var module = new SerializedData() {

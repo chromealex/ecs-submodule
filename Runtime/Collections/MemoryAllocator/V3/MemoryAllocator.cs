@@ -12,6 +12,28 @@ namespace ME.ECS.Collections.V3 {
 
     public unsafe partial struct MemoryAllocator : IMemoryAllocator<MemoryAllocator, MemPtr> {
 
+        #if LOGS_ENABLED && UNITY_EDITOR
+        public static bool startLog;
+        public static System.Collections.Generic.Dictionary<MemPtr, string> strList = new System.Collections.Generic.Dictionary<MemPtr, string>();
+        [UnityEditor.MenuItem("ME.ECS/Debug/Allocator: Start Log")]
+        public static void StartLog() {
+            startLog = true;
+        }
+        
+        [UnityEditor.MenuItem("ME.ECS/Debug/Allocator: End Log")]
+        public static void EndLog() {
+            startLog = false;
+            MemoryAllocator.strList.Clear();
+        }
+        
+        [UnityEditor.MenuItem("ME.ECS/Debug/Allocator: Print Log")]
+        public static void PrintLog() {
+            foreach (var item in MemoryAllocator.strList) {
+                UnityEngine.Debug.Log(item.Key + "\n" + item.Value);
+            }
+        }
+        #endif
+
         private const long OFFSET_MASK = 0xFFFFFFFF;
         private const long MIN_ZONE_SIZE = 512 * 1024;
         private const int MIN_ZONES_LIST_CAPACITY = 20;
@@ -213,28 +235,6 @@ namespace ME.ECS.Collections.V3 {
             }
 
         }
-
-        #if LOGS_ENABLED
-        public static bool startLog;
-        public static System.Collections.Generic.Dictionary<MemPtr, string> strList = new System.Collections.Generic.Dictionary<MemPtr, string>();
-        [UnityEditor.MenuItem("TOOLS/Start Log")]
-        public static void StartLog() {
-            startLog = true;
-        }
-        
-        [UnityEditor.MenuItem("TOOLS/End Log")]
-        public static void EndLog() {
-            startLog = false;
-            MemoryAllocator.strList.Clear();
-        }
-        
-        [UnityEditor.MenuItem("TOOLS/Print Log")]
-        public static void PrintLog() {
-            foreach (var item in MemoryAllocator.strList) {
-                UnityEngine.Debug.Log(item.Key + "\n" + item.Value);
-            }
-        }
-        #endif
 
         [INLINE(256)]
         public bool Free(MemPtr ptr) {
