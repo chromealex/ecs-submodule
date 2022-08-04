@@ -208,6 +208,7 @@ namespace ME.ECS {
 
         public World world => Worlds.current;
 
+        // ReSharper disable once InconsistentNaming
         public int Count {
             #if INLINE_METHODS
             [MethodImplAttribute(MethodImplOptions.AggressiveInlining)]
@@ -1183,6 +1184,7 @@ namespace ME.ECS {
 
         }
 
+        // ReSharper disable once RedundantAssignment
         public Filter Push(ref Filter filter) {
 
             if (Filter.currentInject != null) {

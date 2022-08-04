@@ -547,6 +547,7 @@ namespace ME.ECS.FiltersArchetype {
 
         #if !ENTITIES_GROUP_DISABLED
         [MethodImplAttribute(MethodImplOptions.AggressiveInlining)]
+        // ReSharper disable once RedundantAssignment
         public unsafe void Alloc(ref MemoryAllocator allocator, int count, ref EntitiesGroup group, Unity.Collections.Allocator unityAllocator, bool copyMode) {
 
             var lastId = ++this.nextEntityId + count;
@@ -578,7 +579,7 @@ namespace ME.ECS.FiltersArchetype {
         [MethodImplAttribute(MethodImplOptions.AggressiveInlining)]
         public ref Entity Alloc(ref MemoryAllocator allocator) {
 
-            var id = -1;
+            int id;
             if (this.dead.Count > 0) {
 
                 id = this.dead[in allocator, 0];
@@ -967,6 +968,7 @@ namespace ME.ECS.FiltersArchetype {
         #if INLINE_METHODS
         [MethodImplAttribute(MethodImplOptions.AggressiveInlining)]
         #endif
+        // ReSharper disable once CognitiveComplexity
         public int Count(State state, ref MemoryAllocator allocator, int filterId) {
 
             var filterStaticData = Worlds.current.GetFilterStaticData(filterId);
@@ -1062,6 +1064,7 @@ namespace ME.ECS.FiltersArchetype {
         #if INLINE_METHODS
         [MethodImplAttribute(MethodImplOptions.AggressiveInlining)]
         #endif
+        // ReSharper disable once CognitiveComplexity
         public void UpdateFilters(State state, ref MemoryAllocator allocator) {
 
             if (this.forEachMode > 0) {
