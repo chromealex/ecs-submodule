@@ -113,7 +113,7 @@ namespace ME.ECS.FiltersArchetype {
             #endif
             public readonly bool HasAll(in MemoryAllocator allocator, List<int> componentIds) {
 
-                for (int i = 0, cnt = componentIds.Count(in allocator); i < cnt; ++i) {
+                for (int i = 0, cnt = componentIds.Count; i < cnt; ++i) {
                     var item = componentIds[in allocator, i];
                     if (this.components.ContainsKey(in allocator, item) == false) {
                         return false;
@@ -147,7 +147,7 @@ namespace ME.ECS.FiltersArchetype {
             #endif
             public readonly bool HasAllExcept(in MemoryAllocator allocator, List<int> componentIds, int componentId) {
 
-                for (int i = 0, cnt = componentIds.Count(in allocator); i < cnt; ++i) {
+                for (int i = 0, cnt = componentIds.Count; i < cnt; ++i) {
                     
                     var item = componentIds[in allocator, i];
                     if (item == componentId) {
@@ -234,19 +234,19 @@ namespace ME.ECS.FiltersArchetype {
                     edgesToRemove = new Dictionary<int, int>(ref allocator, 1),
                     entitiesArr = new List<int>(ref allocator, 1),
                     entitiesContains = new HashSet<int>(ref allocator, 1),
-                    componentIds = new List<int>(ref allocator, componentIds.Count(in allocator) + 1),
-                    components = new Dictionary<int, int>(ref allocator, components.Count(in allocator) + 1),
+                    componentIds = new List<int>(ref allocator, componentIds.Count + 1),
+                    components = new Dictionary<int, int>(ref allocator, components.Count + 1),
                 };
                 arch.components.CopyFrom(ref allocator, components);
                 arch.componentIds.AddRange(ref allocator, componentIds);
-                arch.components.Add(ref allocator, componentId,  arch.componentIds.Count(in allocator));
+                arch.components.Add(ref allocator, componentId,  arch.componentIds.Count);
                 arch.componentIds.Add(ref allocator, componentId);
                 if (node >= 0) {
                     arch.edgesToRemove.Add(ref allocator, componentId, node);
                 }
 
                 storage.isArchetypesDirty = true;
-                var idx = storage.allArchetypes.Count(in allocator);
+                var idx = storage.allArchetypes.Count;
                 arch.index = idx;
 
                 storage.dirtyArchetypes.Add(ref allocator, idx);
@@ -270,17 +270,17 @@ namespace ME.ECS.FiltersArchetype {
                     edgesToRemove = new Dictionary<int, int>(ref allocator, 1),
                     entitiesArr = new List<int>(ref allocator, 1),
                     entitiesContains = new HashSet<int>(ref allocator, 1),
-                    componentIds = new List<int>(ref allocator, componentIds.Count(in allocator) - 1),
-                    components = new Dictionary<int, int>(ref allocator, components.Count(in allocator) - 1),
+                    componentIds = new List<int>(ref allocator, componentIds.Count - 1),
+                    components = new Dictionary<int, int>(ref allocator, components.Count - 1),
                 };
                 arch.componentIds.AddRange(ref allocator, componentIds);
                 storage.isArchetypesDirty = true;
-                var idx = storage.allArchetypes.Count(in allocator);
+                var idx = storage.allArchetypes.Count;
                 arch.index = idx;
                 
                 var infoIndex = components[in allocator, componentId];
                 arch.componentIds.RemoveAt(ref allocator, infoIndex);
-                for (var i = 0; i < arch.componentIds.Count(in allocator); ++i) {
+                for (var i = 0; i < arch.componentIds.Count; ++i) {
                     var cId = arch.componentIds[in allocator, i];
                     arch.components.Add(ref allocator, cId, i);
                 }
@@ -305,7 +305,7 @@ namespace ME.ECS.FiltersArchetype {
             
             if (this.dead.isCreated == false) return 0;
             
-            return this.versions.GetHash(in allocator) ^ this.flags.GetHash(in allocator) ^ this.aliveCount ^ this.nextEntityId ^ this.dead.Count(in allocator) ^ this.allArchetypes.Count(in allocator);
+            return this.versions.GetHash(in allocator) ^ this.flags.GetHash(in allocator) ^ this.aliveCount ^ this.nextEntityId ^ this.dead.Count ^ this.allArchetypes.Count;
 
         }
 
@@ -314,7 +314,7 @@ namespace ME.ECS.FiltersArchetype {
         #endif
         private void CleanUpArchetype(ref MemoryAllocator allocator, ref Archetype arch) {
 
-            if (arch.entitiesArr.Count(in allocator) == 0) {
+            if (arch.entitiesArr.Count == 0) {
                 arch.entitiesArr.Dispose(ref allocator);
                 arch.entitiesContains.Dispose(ref allocator);
             }
@@ -339,7 +339,7 @@ namespace ME.ECS.FiltersArchetype {
         private void RemoveEntityFromArch(ref MemoryAllocator allocator, ref Archetype arch, int entityId) {
 
             var idx = this.GetEntityArrIndex(ref allocator, entityId);
-            var movedEntityId = arch.entitiesArr[in allocator, arch.entitiesArr.Count(in allocator) - 1];
+            var movedEntityId = arch.entitiesArr[in allocator, arch.entitiesArr.Count - 1];
             arch.entitiesArr.RemoveAtFast(ref allocator, idx);
             arch.entitiesContains.Remove(ref allocator, entityId);
             this.CleanUpArchetype(ref allocator, ref arch);
@@ -354,7 +354,7 @@ namespace ME.ECS.FiltersArchetype {
         private void AddEntityToArch(ref MemoryAllocator allocator, ref Archetype arch, int entityId) {
 
             this.ValidateArchetype(ref allocator, ref arch);
-            var idx = arch.entitiesArr.Count(in allocator);
+            var idx = arch.entitiesArr.Count;
             arch.entitiesArr.Add(ref allocator, entityId);
             arch.entitiesContains.Add(ref allocator, entityId);
             this.SetEntityArrIndex(ref allocator, entityId, idx);
@@ -411,7 +411,7 @@ namespace ME.ECS.FiltersArchetype {
 
         #region Entities Storage
         public int AliveCount => this.aliveCount;
-        public int DeadCount(in MemoryAllocator allocator) => this.dead.Count(in allocator);
+        public int DeadCount(in MemoryAllocator allocator) => this.dead.Count;
 
         [ME.ECS.Serializer.SerializeField]
         internal MemArrayAllocator<Entity> cache;
@@ -537,7 +537,7 @@ namespace ME.ECS.FiltersArchetype {
         public bool ForEach(in MemoryAllocator allocator, ListCopyable<Entity> results) {
 
             results.Clear();
-            for (var i = 0; i < this.alive.Count(in allocator); ++i) {
+            for (var i = 0; i < this.alive.Count; ++i) {
                 results.Add(this.GetEntityById(in allocator, this.alive[in allocator, i]));
             }
 
@@ -579,7 +579,7 @@ namespace ME.ECS.FiltersArchetype {
         public ref Entity Alloc(ref MemoryAllocator allocator) {
 
             var id = -1;
-            if (this.dead.Count(in allocator) > 0) {
+            if (this.dead.Count > 0) {
 
                 id = this.dead[in allocator, 0];
                 this.dead.RemoveAtFast(ref allocator, 0);
@@ -623,7 +623,7 @@ namespace ME.ECS.FiltersArchetype {
         [MethodImplAttribute(MethodImplOptions.AggressiveInlining)]
         public void ApplyDead(ref MemoryAllocator allocator) {
 
-            var cnt = this.deadPrepared.Count(in allocator);
+            var cnt = this.deadPrepared.Count;
             if (cnt > 0) {
 
                 for (var i = 0; i < cnt; ++i) {
@@ -679,10 +679,10 @@ namespace ME.ECS.FiltersArchetype {
 
             // Try to search archetype with componentIds + componentId contained in
             arch = default;
-            for (var i = 0; i < this.allArchetypes.Count(in allocator); ++i) {
+            for (var i = 0; i < this.allArchetypes.Count; ++i) {
 
                 ref var ar = ref this.allArchetypes[in allocator, i];
-                if (ar.componentIds.Count(in allocator) == componentIds.Count(in allocator) &&
+                if (ar.componentIds.Count == componentIds.Count &&
                     ar.Has(in allocator, componentId) == true &&
                     ar.HasAll(in allocator, componentIds) == true) {
 
@@ -704,10 +704,10 @@ namespace ME.ECS.FiltersArchetype {
 
             // Try to search archetype with componentIds except componentId contained in
             arch = default;
-            for (var i = 0; i < this.allArchetypes.Count(in allocator); ++i) {
+            for (var i = 0; i < this.allArchetypes.Count; ++i) {
 
                 ref var ar = ref this.allArchetypes[in allocator, i];
-                if (ar.componentIds.Count(in allocator) == componentIds.Count(in allocator) - 1 &&
+                if (ar.componentIds.Count == componentIds.Count - 1 &&
                     ar.Has(in allocator, componentId) == false &&
                     ar.HasAllExcept(in allocator, componentIds, componentId) == true) {
 
@@ -986,14 +986,14 @@ namespace ME.ECS.FiltersArchetype {
 
             ref var filter = ref this.GetFilter(in allocator, filterId);
             var count = 0;
-            for (int i = 0, cnt = filter.archetypes.Count(in allocator); i < cnt; ++i) {
+            for (int i = 0, cnt = filter.archetypes.Count; i < cnt; ++i) {
 
                 var archId = filter.archetypesList[in allocator, i];
                 var arch = this.allArchetypes[in allocator, archId];
                 if (arch.entitiesArr.isCreated == false) continue;
                 if (changedTracked > 0 || connectedTracked > 0) {
 
-                    for (int index = 0; index < arch.entitiesArr.Count(in allocator); ++index) {
+                    for (int index = 0; index < arch.entitiesArr.Count; ++index) {
 
                         var entityId = arch.entitiesArr[in allocator, index];
                         
@@ -1039,7 +1039,7 @@ namespace ME.ECS.FiltersArchetype {
                 
                 if (changedTracked == 0 && connectedTracked == 0) {
 
-                    count += arch.entitiesArr.Count(in allocator);
+                    count += arch.entitiesArr.Count;
 
                 }
 
@@ -1051,7 +1051,7 @@ namespace ME.ECS.FiltersArchetype {
 
         public void MarkAllArchetypesAsDirty(ref MemoryAllocator allocator) {
 
-            for (int archId = 0, cnt2 = this.allArchetypes.Count(in allocator); archId < cnt2; ++archId) {
+            for (int archId = 0, cnt2 = this.allArchetypes.Count; archId < cnt2; ++archId) {
                 
                 this.dirtyArchetypes.Add(ref allocator, archId);
                 
@@ -1075,7 +1075,7 @@ namespace ME.ECS.FiltersArchetype {
 
                 this.isArchetypesDirty = false;
                 var world = Worlds.current;
-                for (int idx = 0, cnt = this.filters.Count(in allocator); idx < cnt; ++idx) {
+                for (int idx = 0, cnt = this.filters.Count; idx < cnt; ++idx) {
                     
                     ref var item = ref this.filters[in allocator, idx];
                     var e = this.dirtyArchetypes.GetEnumerator(state);
@@ -1158,7 +1158,7 @@ namespace ME.ECS.FiltersArchetype {
             filterData = default;
 
             var world = Worlds.current;
-            for (int i = 0, cnt = this.filters.Count(in allocator); i < cnt; ++i) {
+            for (int i = 0, cnt = this.filters.Count; i < cnt; ++i) {
 
                 var filter = this.filters[in allocator, i];
                 var filterStaticData = world.GetFilterStaticData(filter.id);
@@ -1248,7 +1248,7 @@ namespace ME.ECS.FiltersArchetype {
         #endif
         public bool WillNew(in MemoryAllocator allocator) {
 
-            return this.dead.Count(in allocator) == 0;
+            return this.dead.Count == 0;
 
         }
 
@@ -1282,7 +1282,7 @@ namespace ME.ECS.FiltersArchetype {
         #endif
         public bool IsDeadPrepared(in MemoryAllocator allocator, int entityId) {
 
-            if (this.deadPrepared.Count(in allocator) == 0) return false;
+            if (this.deadPrepared.Count == 0) return false;
 
             return this.deadPrepared.Contains(in allocator, entityId);
 

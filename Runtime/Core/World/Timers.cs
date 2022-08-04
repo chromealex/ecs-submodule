@@ -56,7 +56,7 @@ namespace ME.ECS {
         #endif
         public unsafe void Update(ref MemoryAllocator allocator, tfloat deltaTime) {
 
-            var tempList = stackalloc ulong[this.values.Count(in allocator)];
+            var tempList = stackalloc ulong[this.values.Count];
             var k = 0;
             var e = this.values.GetEnumerator(in allocator);
             while (e.MoveNext() == true) {

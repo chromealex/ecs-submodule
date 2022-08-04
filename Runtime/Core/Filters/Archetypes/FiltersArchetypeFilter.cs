@@ -67,7 +67,7 @@ namespace ME.ECS {
 
                     ++this.index;
                     ref var arch = ref this.state.storage.allArchetypes[in allocator, this.archetypes[in allocator, this.archIndex]];
-                    if (arch.entitiesArr.isCreated == false || this.index >= arch.entitiesArr.Count(in allocator)) {
+                    if (arch.entitiesArr.isCreated == false || this.index >= arch.entitiesArr.Count) {
 
                         ++this.archIndex;
                         if (this.archIndex < this.archetypesCount) {
@@ -192,9 +192,9 @@ namespace ME.ECS {
                 index = range.GetFrom(),
                 maxIndex = range.GetTo(),
                 archIndex = 0,
-                arr = filterData.archetypes.Count(in world.currentState.allocator) > 0 ? filterData.storage.allArchetypes[in world.currentState.allocator, filterData.archetypesList[in world.currentState.allocator, 0]].entitiesArr : default,
+                arr = filterData.archetypes.Count > 0 ? filterData.storage.allArchetypes[in world.currentState.allocator, filterData.archetypesList[in world.currentState.allocator, 0]].entitiesArr : default,
                 archetypes = filterData.archetypesList,
-                archetypesCount = filterData.archetypesList.Count(in world.currentState.allocator),
+                archetypesCount = filterData.archetypesList.Count,
                 enableGroupByEntityId = enableGroupByEntityId,
                 onChanged = filterStaticData.data.onChanged,
                 connectedFilters = filterStaticData.data.connectedFilters,
@@ -308,7 +308,7 @@ namespace ME.ECS {
 
             public bool Execute(UnsafeData component, UnsafeData data) {
 
-                return data.Equals(component);
+                return data.Equals(in Worlds.current.currentState.allocator, component);
 
             }
 
@@ -318,7 +318,7 @@ namespace ME.ECS {
 
             public bool Execute(UnsafeData component, UnsafeData data) {
 
-                return data.Equals(component) == false;
+                return data.Equals(in Worlds.current.currentState.allocator, component) == false;
 
             }
 
@@ -463,11 +463,11 @@ namespace ME.ECS {
             var filterData = Worlds.current.currentState.storage.GetFilter(in allocator, this.id);
             min = int.MaxValue;
             max = int.MinValue;
-            for (int j = 0; j < filterData.archetypesList.Count(in allocator); ++j) {
+            for (int j = 0; j < filterData.archetypesList.Count; ++j) {
 
                 var archId = filterData.archetypesList[in allocator, j];
                 var arch = filterData.storage.allArchetypes[in allocator, archId];
-                for (int i = 0, count = arch.entitiesArr.Count(in allocator); i < count; ++i) {
+                for (int i = 0, count = arch.entitiesArr.Count; i < count; ++i) {
                     
                     var e = arch.entitiesArr[in allocator, i];
                     if (e < min) {
@@ -495,7 +495,7 @@ namespace ME.ECS {
         public Unity.Collections.NativeArray<Entity> ToArray(Unity.Collections.Allocator allocator = Unity.Collections.Allocator.Persistent) {
 
             var filterData = Worlds.current.currentState.storage.GetFilter(in Worlds.current.currentState.allocator, this.id);
-            var result = new Unity.Collections.NativeList<Entity>(filterData.archetypes.Count(in Worlds.current.currentState.allocator) * 10, allocator);
+            var result = new Unity.Collections.NativeList<Entity>(filterData.archetypes.Count * 10, allocator);
             foreach (var entity in this) {
                 result.Add(entity);
             }
@@ -518,7 +518,7 @@ namespace ME.ECS {
             min = int.MaxValue;
             max = int.MinValue;
             var filterData = Worlds.current.currentState.storage.GetFilter(in Worlds.current.currentState.allocator, this.id);
-            var result = new Unity.Collections.NativeList<Entity>(filterData.archetypes.Count(in Worlds.current.currentState.allocator) * 10, allocator);
+            var result = new Unity.Collections.NativeList<Entity>(filterData.archetypes.Count * 10, allocator);
             foreach (var entity in this) {
                 if (entity.id < min) {
                     min = entity.id;
@@ -546,7 +546,7 @@ namespace ME.ECS {
         public Unity.Collections.NativeList<int> ToList(Unity.Collections.Allocator allocator, out Unity.Collections.NativeArray<int> idToIndex) {
 
             var filterData = Worlds.current.currentState.storage.GetFilter(in Worlds.current.currentState.allocator, this.id);
-            var result = new Unity.Collections.NativeList<int>(filterData.archetypes.Count(in Worlds.current.currentState.allocator) * 10, allocator);
+            var result = new Unity.Collections.NativeList<int>(filterData.archetypes.Count * 10, allocator);
             var max = -1;
             foreach (var entity in this) {
                 result.Add(entity.id);
@@ -572,7 +572,7 @@ namespace ME.ECS {
             min = int.MaxValue;
             max = int.MinValue;
             var filterData = Worlds.current.currentState.storage.GetFilter(in Worlds.current.currentState.allocator, this.id);
-            var result = new Unity.Collections.NativeList<int>(filterData.archetypes.Count(in Worlds.current.currentState.allocator) * 10, allocator);
+            var result = new Unity.Collections.NativeList<int>(filterData.archetypes.Count * 10, allocator);
             foreach (var entity in this) {
                 if (entity.id < min) {
                     min = entity.id;
@@ -594,7 +594,7 @@ namespace ME.ECS {
         public Unity.Collections.NativeList<int> ToList(Unity.Collections.Allocator allocator) {
 
             var filterData = Worlds.current.currentState.storage.GetFilter(in Worlds.current.currentState.allocator, this.id);
-            var result = new Unity.Collections.NativeList<int>(filterData.archetypes.Count(in Worlds.current.currentState.allocator) * 10, allocator);
+            var result = new Unity.Collections.NativeList<int>(filterData.archetypes.Count * 10, allocator);
             foreach (var entity in this) {
                 result.Add(entity.id);
             }
@@ -758,7 +758,7 @@ namespace ME.ECS {
         #endif
         public bool Contains(in MemoryAllocator allocator, int entityId) {
 
-            for (int i = 0; i < this.archetypesList.Count(in allocator); ++i) {
+            for (int i = 0; i < this.archetypesList.Count; ++i) {
 
                 var idx = this.archetypesList[in allocator, i];
                 var arch = this.storage.allArchetypes[in allocator, idx];
@@ -1200,7 +1200,7 @@ namespace ME.ECS {
 
             }
 
-            var nextId = this.storage.filters.Count(in allocator) + 1;
+            var nextId = this.storage.filters.Count + 1;
             Worlds.current.SetFilterStaticData(nextId, this.data);
             filterData = new FilterData() {
                 id = nextId,

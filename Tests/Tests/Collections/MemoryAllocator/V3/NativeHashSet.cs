@@ -63,7 +63,7 @@ namespace ME.ECS.Tests.MemoryAllocator.V3.Collections {
             }
             e.Dispose();
             
-            Assert.IsTrue(list.Count(in allocator) == 100);
+            Assert.IsTrue(list.Count == 100);
             Assert.IsTrue(cnt == 100);
 
             allocator.Dispose();
@@ -82,7 +82,7 @@ namespace ME.ECS.Tests.MemoryAllocator.V3.Collections {
                 
             }
             
-            Assert.IsTrue(list.Count(in allocator) == 100);
+            Assert.IsTrue(list.Count == 100);
 
             allocator.Dispose();
 
@@ -123,10 +123,10 @@ namespace ME.ECS.Tests.MemoryAllocator.V3.Collections {
                 
             }
             
-            Assert.IsTrue(list.Count(in allocator) == 100);
+            Assert.IsTrue(list.Count == 100);
             Assert.IsTrue(list.Remove(ref allocator, new Test(50, 50, 50)));
             Assert.IsFalse(list.Remove(ref allocator, new Test(50, 50, 50)));
-            Assert.IsTrue(list.Count(in allocator) == 99);
+            Assert.IsTrue(list.Count == 99);
 
             allocator.Dispose();
 
@@ -144,9 +144,9 @@ namespace ME.ECS.Tests.MemoryAllocator.V3.Collections {
                 
             }
             
-            Assert.IsTrue(list.Count(in allocator) == 100);
+            Assert.IsTrue(list.Count == 100);
             list.Clear(in allocator);
-            Assert.IsTrue(list.Count(in allocator) == 0);
+            Assert.IsTrue(list.Count == 0);
 
             allocator.Dispose();
 

@@ -369,7 +369,7 @@ namespace ME.ECS {
 
             if (this.dirtyMap.isCreated == false) return;
 
-            for (int i = 0, count = this.dirtyMap.Count(in allocator); i < count; ++i) {
+            for (int i = 0, count = this.dirtyMap.Count; i < count; ++i) {
 
                 var idx = this.dirtyMap[in allocator, i];
                 if (idx < 0 || idx >= this.list.Count) {
@@ -1310,11 +1310,11 @@ namespace ME.ECS {
         private unsafe void UseLifetimeStep(ref MemoryAllocator allocator, ComponentLifetime step, tfloat deltaTime, ref StructComponentsContainer structComponentsContainer) {
 
             ref var list = ref structComponentsContainer.nextTickTasks;
-            if (list.Count(in allocator) > 0) {
+            if (list.Count > 0) {
 
                 // We need to allocate temporary list to store entities
                 // because on entity.Destroy we clean up all data including tasks list
-                var tempList = stackalloc Entity[list.Count(in allocator)];
+                var tempList = stackalloc Entity[list.Count];
                 var k = 0;
                 var cnt = 0;
                 var e = list.GetEnumerator(in allocator);
@@ -1349,7 +1349,7 @@ namespace ME.ECS {
                     tempList[i].Destroy();
                 }
                 
-                if (cnt == list.Count(in allocator)) {
+                if (cnt == list.Count) {
                     
                     // All is null
                     list.Clear(in allocator);
@@ -1878,7 +1878,6 @@ namespace ME.ECS {
             E.IS_LOGIC_STEP(this);
             E.IS_ALIVE(in entity);
             E.IS_TAG<TComponent>(in entity);
-            E.IS_DISPOSABLE<TComponent>(in entity);
             
             var reg = (StructComponentsBase<TComponent>)this.currentState.structComponents.list.arr[AllComponentTypes<TComponent>.typeId];
             ref var bucket = ref reg.Get(in entity);

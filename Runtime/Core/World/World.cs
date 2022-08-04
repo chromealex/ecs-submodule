@@ -1064,7 +1064,7 @@ namespace ME.ECS {
 
             } else if (globalEventType == GlobalEventType.Logic) {
 
-                for (int i = 0; i < this.currentState.globalEvents.globalEventLogicItems.Count(in this.currentState.allocator); ++i) {
+                for (int i = 0; i < this.currentState.globalEvents.globalEventLogicItems.Count; ++i) {
 
                     var item = this.currentState.globalEvents.globalEventLogicItems[in this.currentState.allocator, i];
                     GlobalEvent.GetEventById(item.globalEvent).Run(in item.data);

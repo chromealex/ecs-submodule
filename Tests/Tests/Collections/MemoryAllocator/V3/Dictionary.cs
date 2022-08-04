@@ -41,7 +41,7 @@ namespace ME.ECS.Tests.MemoryAllocator.V3.Collections {
             }
             e.Dispose();
             
-            Assert.IsTrue(list.Count(in allocator) == 100);
+            Assert.IsTrue(list.Count == 100);
             Assert.IsTrue(cnt == 100);
 
             allocator.Dispose();
@@ -61,7 +61,7 @@ namespace ME.ECS.Tests.MemoryAllocator.V3.Collections {
                 
             }
             
-            Assert.IsTrue(list.Count(in allocator) == 100);
+            Assert.IsTrue(list.Count == 100);
 
             allocator.Dispose();
 
@@ -93,21 +93,21 @@ namespace ME.ECS.Tests.MemoryAllocator.V3.Collections {
 
         private void CheckEquals(in ME.ECS.Collections.V3.MemoryAllocator allocator, ME.ECS.Collections.DictionaryCopyable<int, int> source, Dictionary<int, int> list) {
             
-            Assert.IsTrue(source._buckets.Length == list.buckets(in allocator).Length);
-            Assert.IsTrue(source._entries.Length == list.entries(in allocator).Length);
+            Assert.IsTrue(source._buckets.Length == list.buckets.Length);
+            Assert.IsTrue(source._entries.Length == list.entries.Length);
 
             for (int i = 0; i < source._buckets.Length; ++i) {
                 
-                Assert.IsTrue(source._buckets[i] == list.buckets(in allocator)[in allocator, i]);
+                Assert.IsTrue(source._buckets[i] == list.buckets[in allocator, i]);
                 
             }
 
             for (int i = 0; i < source._entries.Length; ++i) {
                 
-                Assert.IsTrue(source._entries[i].key == list.entries(in allocator)[in allocator, i].key);
-                Assert.IsTrue(source._entries[i].value == list.entries(in allocator)[in allocator, i].value);
-                Assert.IsTrue(source._entries[i].next == list.entries(in allocator)[in allocator, i].next);
-                Assert.IsTrue(source._entries[i].hashCode == list.entries(in allocator)[in allocator, i].hashCode);
+                Assert.IsTrue(source._entries[i].key == list.entries[in allocator, i].key);
+                Assert.IsTrue(source._entries[i].value == list.entries[in allocator, i].value);
+                Assert.IsTrue(source._entries[i].next == list.entries[in allocator, i].next);
+                Assert.IsTrue(source._entries[i].hashCode == list.entries[in allocator, i].hashCode);
                 
             }
 
@@ -194,7 +194,7 @@ namespace ME.ECS.Tests.MemoryAllocator.V3.Collections {
             }
 
             {
-                var newDic = new Dictionary<int, int>(ref allocator, list.Count(in allocator));
+                var newDic = new Dictionary<int, int>(ref allocator, list.Count);
                 newDic.CopyFrom(ref allocator, list);
 
                 for (int i = 0; i < testData.Length; ++i) {
@@ -213,7 +213,7 @@ namespace ME.ECS.Tests.MemoryAllocator.V3.Collections {
 
             }
             
-            Assert.IsTrue(list.Count(in allocator) == cnt / 2);
+            Assert.IsTrue(list.Count == cnt / 2);
             Assert.IsTrue(source.Count == cnt / 2);
 
             for (int i = testData.Length / 2; i < testData.Length; ++i) {
@@ -225,7 +225,7 @@ namespace ME.ECS.Tests.MemoryAllocator.V3.Collections {
             }
 
             Assert.AreEqual(0, source.Count);
-            Assert.AreEqual(0, list.Count(in allocator));
+            Assert.AreEqual(0, list.Count);
 
             list.Clear(in allocator);
             source.Clear();
@@ -252,7 +252,7 @@ namespace ME.ECS.Tests.MemoryAllocator.V3.Collections {
             }
 
             {
-                var newDic = new Dictionary<int, int>(ref allocator, list.Count(in allocator));
+                var newDic = new Dictionary<int, int>(ref allocator, list.Count);
                 newDic.CopyFrom(ref allocator, list);
 
                 for (int i = 0; i < testData.Length; ++i) {
@@ -272,7 +272,7 @@ namespace ME.ECS.Tests.MemoryAllocator.V3.Collections {
                     newDic.Add(ref allocator, item, item);
                 }
                 
-                var newDic2 = new Dictionary<int, int>(ref allocator, newDic.Count(in allocator) + 1);
+                var newDic2 = new Dictionary<int, int>(ref allocator, newDic.Count + 1);
                 newDic2.CopyFrom(ref allocator, newDic);
                 newDic2.Add(ref allocator, 178, 178);
                 newDic.Add(ref allocator, 178, 178);
@@ -296,10 +296,10 @@ namespace ME.ECS.Tests.MemoryAllocator.V3.Collections {
                 
             }
             
-            Assert.IsTrue(list.Count(in allocator) == 100);
+            Assert.IsTrue(list.Count == 100);
             Assert.IsTrue(list.Remove(ref allocator, 50));
             Assert.IsFalse(list.Remove(ref allocator, 50));
-            Assert.IsTrue(list.Count(in allocator) == 99);
+            Assert.IsTrue(list.Count == 99);
 
             allocator.Dispose();
 
@@ -317,9 +317,9 @@ namespace ME.ECS.Tests.MemoryAllocator.V3.Collections {
                 
             }
             
-            Assert.IsTrue(list.Count(in allocator) == 100);
+            Assert.IsTrue(list.Count == 100);
             list.Clear(in allocator);
-            Assert.IsTrue(list.Count(in allocator) == 0);
+            Assert.IsTrue(list.Count == 0);
 
             allocator.Dispose();
 

@@ -7,21 +7,6 @@ namespace ME.ECS.Collections.MemoryAllocator {
     [System.Diagnostics.DebuggerTypeProxyAttribute(typeof(ListProxy<>))]
     public struct List<T> : IIsCreated where T : unmanaged {
 
-        public struct InternalData {
-
-            public MemArrayAllocator<T> arr;
-            public int count;
-
-            [INLINE(256)]
-            public void Dispose(ref MemoryAllocator allocator) {
-                
-                this.arr.Dispose(ref allocator);
-                this = default;
-
-            }
-
-        }
-        
         public struct Enumerator : System.Collections.Generic.IEnumerator<T> {
             
             private readonly State state;
@@ -39,7 +24,7 @@ namespace ME.ECS.Collections.MemoryAllocator {
 
             public bool MoveNext() {
                 ++this.index;
-                return this.index < this.list.GetCount(in this.state.allocator);
+                return this.index < this.list.Count;
             }
 
             public ref T Current => ref this.list[in this.state.allocator, this.index];
@@ -71,7 +56,7 @@ namespace ME.ECS.Collections.MemoryAllocator {
 
             public bool MoveNext() {
                 ++this.index;
-                return this.index < this.list.GetCount(in this.allocator);
+                return this.index < this.list.Count;
             }
 
             public T Current => this.list[in this.allocator, this.index];
@@ -85,37 +70,26 @@ namespace ME.ECS.Collections.MemoryAllocator {
         }
 
         [ME.ECS.Serializer.SerializeField]
-        private readonly MemPtr ptr;
-        
-        [INLINE(256)]
-        private readonly ref MemArrayAllocator<T> GetArray(in MemoryAllocator allocator) => ref allocator.Ref<InternalData>(this.ptr).arr;
+        private MemArrayAllocator<T> arr;
+        [ME.ECS.Serializer.SerializeField]
+        public int Count;
 
-        [INLINE(256)]
-        private readonly ref int GetCount(in MemoryAllocator allocator) {
-            return ref allocator.Ref<InternalData>(this.ptr).count;
-        }
-        
         public readonly bool isCreated {
             [INLINE(256)]
-            get => this.ptr != 0;
+            get => this.arr.isCreated;
         }
 
         [INLINE(256)]
         public readonly int Capacity(in MemoryAllocator allocator) {
             E.IS_CREATED(this);
-            return this.GetArray(in allocator).Length;
+            return this.arr.Length;
         }
         
         [INLINE(256)]
-        public readonly int Count(in MemoryAllocator allocator) {
-            E.IS_CREATED(this);
-            return this.GetCount(in allocator);
-        }
-
-        [INLINE(256)]
         public List(ref MemoryAllocator allocator, int capacity) {
 
-            this.ptr = allocator.AllocData<InternalData>(default);
+            this.arr = default;
+            this.Count = 0;
             this.EnsureCapacity(ref allocator, capacity);
 
         }
@@ -136,15 +110,15 @@ namespace ME.ECS.Collections.MemoryAllocator {
         public void CopyFrom(ref MemoryAllocator allocator, in List<T> other) {
 
             if (other.GetMemPtr(in allocator) == this.GetMemPtr(in allocator)) return;
-            if (this.ptr == 0L && other.ptr == 0L) return;
-            if (this.ptr != 0L && other.ptr == 0L) {
+            if (this.arr.arrPtr == 0L && other.arr.arrPtr == 0L) return;
+            if (this.arr.arrPtr != 0L && other.arr.arrPtr == 0L) {
                 this.Dispose(ref allocator);
                 return;
             }
-            if (this.ptr == 0L) this = new List<T>(ref allocator, other.Capacity(in allocator));
+            if (this.arr.arrPtr == 0L) this = new List<T>(ref allocator, other.Capacity(in allocator));
             
-            NativeArrayUtils.Copy(ref allocator, in other.GetArray(in allocator), ref this.GetArray(in allocator));
-            this.GetCount(in allocator) = other.GetCount(in allocator);
+            NativeArrayUtils.Copy(ref allocator, in other.arr, ref this.arr);
+            this.Count = other.Count;
 
         }
 
@@ -152,7 +126,7 @@ namespace ME.ECS.Collections.MemoryAllocator {
         public readonly MemPtr GetMemPtr(in MemoryAllocator allocator) {
             
             E.IS_CREATED(this);
-            return this.GetArray(in allocator).arrPtr;
+            return this.arr.arrPtr;
             
         }
 
@@ -160,7 +134,7 @@ namespace ME.ECS.Collections.MemoryAllocator {
         public readonly unsafe void* GetUnsafePtr(in MemoryAllocator allocator) {
 
             E.IS_CREATED(this);
-            return this.GetArray(in allocator).GetUnsafePtr(in allocator);
+            return this.arr.GetUnsafePtr(in allocator);
 
         }
 
@@ -168,8 +142,7 @@ namespace ME.ECS.Collections.MemoryAllocator {
         public void Dispose(ref MemoryAllocator allocator) {
 
             E.IS_CREATED(this);
-            allocator.Ref<InternalData>(this.ptr).Dispose(ref allocator);
-            allocator.Free(this.ptr);
+            this.arr.Dispose(ref allocator);
             this = default;
             
         }
@@ -199,53 +172,39 @@ namespace ME.ECS.Collections.MemoryAllocator {
         }
         
         [INLINE(256)]
-        public readonly void Clear(in MemoryAllocator allocator) {
+        public void Clear(in MemoryAllocator allocator) {
 
             E.IS_CREATED(this);
-            this.GetCount(in allocator) = 0;
+            this.Count = 0;
 
         }
 
-        [INLINE(256)]
-        public readonly ref InternalData GetInternalData(in MemoryAllocator allocator) {
-            E.IS_CREATED(this);
-            return ref allocator.Ref<InternalData>(this.ptr);
-        }
-        
         public readonly ref T this[in MemoryAllocator allocator, int index] {
             [INLINE(256)]
             get {
                 E.IS_CREATED(this);
-                E.RANGE(index, 0, this.GetCount(in allocator));
-                return ref this.GetArray(in allocator)[in allocator, index];
-            }
-        }
-
-        public readonly ref T this[in InternalData internalData, in MemoryAllocator allocator, int index] {
-            [INLINE(256)]
-            get {
-                E.IS_CREATED(this);
-                return ref internalData.arr[in allocator, index];
+                E.RANGE(index, 0, this.Count);
+                return ref this.arr[in allocator, index];
             }
         }
 
         [INLINE(256)]
-        public readonly bool EnsureCapacity(ref MemoryAllocator allocator, int capacity) {
+        public bool EnsureCapacity(ref MemoryAllocator allocator, int capacity) {
 
             E.IS_CREATED(this);
             capacity = Helpers.NextPot(capacity);
-            return this.GetArray(in allocator).Resize(ref allocator, capacity, ClearOptions.UninitializedMemory);
+            return this.arr.Resize(ref allocator, capacity, ClearOptions.UninitializedMemory);
             
         }
         
         [INLINE(256)]
-        public readonly void Add(ref MemoryAllocator allocator, T obj) {
+        public void Add(ref MemoryAllocator allocator, T obj) {
 
             E.IS_CREATED(this);
-            ++this.GetCount(in allocator);
-            this.EnsureCapacity(ref allocator, this.GetCount(in allocator));
+            ++this.Count;
+            this.EnsureCapacity(ref allocator, this.Count);
 
-            this.GetArray(in allocator)[in allocator, this.GetCount(in allocator) - 1] = obj;
+            this.arr[in allocator, this.Count - 1] = obj;
 
         }
 
@@ -253,9 +212,9 @@ namespace ME.ECS.Collections.MemoryAllocator {
         public readonly bool Contains<U>(in MemoryAllocator allocator, U obj) where U : unmanaged, System.IEquatable<T> {
             
             E.IS_CREATED(this);
-            for (int i = 0, cnt = this.GetCount(in allocator); i < cnt; ++i) {
+            for (int i = 0, cnt = this.Count; i < cnt; ++i) {
 
-                if (obj.Equals(this.GetArray(in allocator)[in allocator, i]) == true) {
+                if (obj.Equals(this.arr[in allocator, i]) == true) {
 
                     return true;
 
@@ -268,12 +227,12 @@ namespace ME.ECS.Collections.MemoryAllocator {
         }
 
         [INLINE(256)]
-        public readonly bool Remove<U>(ref MemoryAllocator allocator, U obj) where U : unmanaged, System.IEquatable<T> {
+        public bool Remove<U>(ref MemoryAllocator allocator, U obj) where U : unmanaged, System.IEquatable<T> {
 
             E.IS_CREATED(this);
-            for (int i = 0, cnt = this.GetCount(in allocator); i < cnt; ++i) {
+            for (int i = 0, cnt = this.Count; i < cnt; ++i) {
 
-                if (obj.Equals(this.GetArray(in allocator)[in allocator, i]) == true) {
+                if (obj.Equals(this.arr[in allocator, i]) == true) {
 
                     this.RemoveAt(ref allocator, i);
                     return true;
@@ -287,39 +246,39 @@ namespace ME.ECS.Collections.MemoryAllocator {
         }
 
         [INLINE(256)]
-        public readonly unsafe bool RemoveAt(ref MemoryAllocator allocator, int index) {
+        public unsafe bool RemoveAt(ref MemoryAllocator allocator, int index) {
             
             E.IS_CREATED(this);
-            if (index < 0 || index >= this.GetCount(in allocator)) return false;
+            if (index < 0 || index >= this.Count) return false;
 
-            if (index == this.GetCount(in allocator) - 1) {
+            if (index == this.Count - 1) {
 
-                --this.GetCount(in allocator);
-                this.GetArray(in allocator)[in allocator, this.GetCount(in allocator)] = default;
+                --this.Count;
+                this.arr[in allocator, this.Count] = default;
                 return true;
 
             }
             
-            var ptr = this.GetArray(in allocator).arrPtr;
+            var ptr = this.arr.arrPtr;
             var size = sizeof(T);
-            allocator.MemCopy(ptr, size * index, ptr, size * (index + 1), (this.GetCount(in allocator) - index - 1) * size);
+            allocator.MemCopy(ptr, size * index, ptr, size * (index + 1), (this.Count - index - 1) * size);
             
-            --this.GetCount(in allocator);
-            this.GetArray(in allocator)[in allocator, this.GetCount(in allocator)] = default;
+            --this.Count;
+            this.arr[in allocator, this.Count] = default;
             
             return true;
 
         }
 
         [INLINE(256)]
-        public readonly bool RemoveAtFast(ref MemoryAllocator allocator, int index) {
+        public bool RemoveAtFast(ref MemoryAllocator allocator, int index) {
             
             E.IS_CREATED(this);
-            if (index < 0 || index >= this.GetCount(in allocator)) return false;
+            if (index < 0 || index >= this.Count) return false;
             
-            --this.GetCount(in allocator);
-            var last = this.GetArray(in allocator)[in allocator, this.GetCount(in allocator)];
-            this.GetArray(in allocator)[in allocator, index] = last;
+            --this.Count;
+            var last = this.arr[in allocator, this.Count];
+            this.arr[in allocator, index] = last;
             
             return true;
 
@@ -336,20 +295,20 @@ namespace ME.ECS.Collections.MemoryAllocator {
 
             }
             
-            if (newLength <= this.GetCount(in allocator)) {
+            if (newLength <= this.Count) {
 
                 return false;
                 
             }
 
-            this.GetArray(in allocator).Resize(ref allocator, newLength, options);
-            this.GetCount(in allocator) = newLength;
+            this.arr.Resize(ref allocator, newLength, options);
+            this.Count = newLength;
             return true;
 
         }
 
         [INLINE(256)]
-        public readonly void AddRange(ref MemoryAllocator allocator, ListCopyable<T> list) {
+        public void AddRange(ref MemoryAllocator allocator, ListCopyable<T> list) {
 
             E.IS_CREATED(this);
             foreach (var item in list) {
@@ -361,30 +320,30 @@ namespace ME.ECS.Collections.MemoryAllocator {
         }
 
         [INLINE(256)]
-        public readonly unsafe void AddRange(ref MemoryAllocator allocator, List<T> collection) {
+        public unsafe void AddRange(ref MemoryAllocator allocator, List<T> collection) {
 
             E.IS_CREATED(this);
-            var index = this.GetCount(in allocator);
+            var index = this.Count;
             if (collection.isCreated == false)
                 ThrowHelper.ThrowArgumentNullException(ExceptionArgument.collection);
-            if ((uint) index > (uint) this.GetCount(in allocator))
+            if ((uint) index > (uint)this.Count)
                 throw new System.IndexOutOfRangeException();
-            int count = collection.GetCount(in allocator);
+            int count = collection.Count;
             if (count > 0) {
-                this.EnsureCapacity(ref allocator, this.GetCount(in allocator) + count);
+                this.EnsureCapacity(ref allocator, this.Count + count);
                 var size = sizeof(T);
-                if (index < this.GetCount(in allocator)) {
-                    allocator.MemCopy(this.GetArray(in allocator).arrPtr, (index + count) * size, this.GetArray(in allocator).arrPtr, index * size, (this.GetCount(in allocator) - index) * size);
+                if (index < this.Count) {
+                    allocator.MemCopy(this.arr.arrPtr, (index + count) * size, this.arr.arrPtr, index * size, (this.Count - index) * size);
                 }
 
-                if (this.GetArray(in allocator).arrPtr == collection.GetArray(in allocator).arrPtr) {
-                    allocator.MemCopy(this.GetArray(in allocator).arrPtr, index * size, this.GetArray(in allocator).arrPtr, 0, index * size);
-                    allocator.MemCopy(this.GetArray(in allocator).arrPtr, (index * 2) * size, this.GetArray(in allocator).arrPtr, (index + count) * size, (this.GetCount(in allocator) - index) * size);
+                if (this.arr.arrPtr == collection.arr.arrPtr) {
+                    allocator.MemCopy(this.arr.arrPtr, index * size, this.arr.arrPtr, 0, index * size);
+                    allocator.MemCopy(this.arr.arrPtr, (index * 2) * size, this.arr.arrPtr, (index + count) * size, (this.Count - index) * size);
                 } else {
-                    collection.CopyTo(ref allocator, this.GetArray(in allocator), index);
+                    collection.CopyTo(ref allocator, this.arr, index);
                 }
 
-                this.GetCount(in allocator) += count;
+                this.Count += count;
             }
             
         }
@@ -398,7 +357,7 @@ namespace ME.ECS.Collections.MemoryAllocator {
             }
 
             var size = sizeof(T);
-            allocator.MemCopy(arr.arrPtr, index * size, this.GetArray(in allocator).arrPtr, 0, this.GetCount(in allocator) * size);
+            allocator.MemCopy(arr.arrPtr, index * size, this.arr.arrPtr, 0, this.Count * size);
             
         }
         

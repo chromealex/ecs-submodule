@@ -5,77 +5,57 @@ namespace ME.ECS.Collections.MemoryAllocator {
 
     [System.Diagnostics.DebuggerTypeProxyAttribute(typeof(QueueProxy<>))]
     public struct Queue<T> where T : unmanaged {
-
-        private struct InternalData {
-
-            public MemArrayAllocator<T> array;
-            public int head; // First valid element in the queue
-            public int tail; // Last valid element in the queue
-            public int size; // Number of elements.
-            public int version;
-
-            public void Dispose(ref MemoryAllocator allocator) {
-                
-                this.array.Dispose(ref allocator);
-                this = default;
-
-            }
-
-        }
         
         private const int MINIMUM_GROW = 4;
         private const int GROW_FACTOR = 200;
 
         [ME.ECS.Serializer.SerializeField]
-        private readonly MemPtr ptr;
+        private MemArrayAllocator<T> array;
+        [ME.ECS.Serializer.SerializeField]
+        private int head;
+        [ME.ECS.Serializer.SerializeField]
+        private int tail;
+        [ME.ECS.Serializer.SerializeField]
+        private int size;
+        [ME.ECS.Serializer.SerializeField]
+        private int version;
+        public readonly bool isCreated => this.array.isCreated;
 
-        private readonly ref MemArrayAllocator<T> array(in MemoryAllocator allocator) => ref allocator.Ref<InternalData>(this.ptr).array;
-        private readonly ref int head(in MemoryAllocator allocator) => ref allocator.Ref<InternalData>(this.ptr).head;
-        private readonly ref int tail(in MemoryAllocator allocator) => ref allocator.Ref<InternalData>(this.ptr).tail;
-        private readonly ref int size(in MemoryAllocator allocator) => ref allocator.Ref<InternalData>(this.ptr).size;
-        private readonly ref int version(in MemoryAllocator allocator) => ref allocator.Ref<InternalData>(this.ptr).version;
-        public readonly bool isCreated => this.ptr != 0;
-
-        public readonly int Count(in MemoryAllocator allocator) => this.size(in allocator);
+        public readonly int Count => this.size;
 
         public Queue(ref MemoryAllocator allocator, int capacity) {
-            this.ptr = allocator.AllocData<InternalData>(default);
-            this.array(in allocator) = new MemArrayAllocator<T>(ref allocator, capacity);
-            this.head(in allocator) = 0;
-            this.tail(in allocator) = 0;
-            this.size(in allocator) = 0;
-            this.version(in allocator) = 0;
+            this = default;
+            this.array = new MemArrayAllocator<T>(ref allocator, capacity);
         }
 
         public void Dispose(ref MemoryAllocator allocator) {
             
-            allocator.Ref<InternalData>(this.ptr).Dispose(ref allocator);
-            allocator.Free(this.ptr);
+            this.array.Dispose(ref allocator);
             this = default;
             
         }
 
         public void Clear(in MemoryAllocator allocator) {
-            this.head(in allocator) = 0;
-            this.tail(in allocator) = 0;
-            this.size(in allocator) = 0;
-            this.version(in allocator)++;
+            this.head = 0;
+            this.tail = 0;
+            this.size = 0;
+            this.version++;
         }
 
         public void Enqueue(ref MemoryAllocator allocator, T item) {
-            if (this.size(in allocator) == this.array(in allocator).Length) {
-                var newCapacity = (int)((long)this.array(in allocator).Length * (long)Queue<T>.GROW_FACTOR / 100);
-                if (newCapacity < this.array(in allocator).Length + Queue<T>.MINIMUM_GROW) {
-                    newCapacity = this.array(in allocator).Length + Queue<T>.MINIMUM_GROW;
+            if (this.size == this.array.Length) {
+                var newCapacity = (int)((long)this.array.Length * (long)Queue<T>.GROW_FACTOR / 100);
+                if (newCapacity < this.array.Length + Queue<T>.MINIMUM_GROW) {
+                    newCapacity = this.array.Length + Queue<T>.MINIMUM_GROW;
                 }
 
                 this.SetCapacity(ref allocator, newCapacity);
             }
 
-            this.array(in allocator)[in allocator, this.tail(in allocator)] = item;
-            this.tail(in allocator) = (this.tail(in allocator) + 1) % this.array(in allocator).Length;
-            this.size(in allocator)++;
-            this.version(in allocator)++;
+            this.array[in allocator, this.tail] = item;
+            this.tail = (this.tail + 1) % this.array.Length;
+            this.size++;
+            this.version++;
         }
 
         public readonly Enumerator GetEnumerator(State state) {
@@ -93,50 +73,50 @@ namespace ME.ECS.Collections.MemoryAllocator {
         }
 
         public T Dequeue(in MemoryAllocator allocator) {
-            if (this.size(in allocator) == 0) {
+            if (this.size == 0) {
                 ThrowHelper.ThrowInvalidOperationException(ExceptionResource.InvalidOperation_EmptyQueue);
             }
 
-            var removed = this.array(in allocator)[in allocator, this.head(in allocator)];
-            this.array(in allocator)[in allocator, this.head(in allocator)] = default(T);
-            this.head(in allocator) = (this.head(in allocator) + 1) % this.array(in allocator).Length;
-            this.size(in allocator)--;
-            this.version(in allocator)++;
+            var removed = this.array[in allocator, this.head];
+            this.array[in allocator, this.head] = default(T);
+            this.head = (this.head + 1) % this.array.Length;
+            this.size--;
+            this.version++;
             return removed;
         }
 
         public T Peek(in MemoryAllocator allocator) {
-            if (this.size(in allocator) == 0) {
+            if (this.size == 0) {
                 ThrowHelper.ThrowInvalidOperationException(ExceptionResource.InvalidOperation_EmptyQueue);
             }
 
-            return this.array(in allocator)[in allocator, this.head(in allocator)];
+            return this.array[in allocator, this.head];
         }
 
         public bool Contains<U>(in MemoryAllocator allocator, U item) where U : System.IEquatable<T> {
-            var index = this.head(in allocator);
-            var count = this.size(in allocator);
+            var index = this.head;
+            var count = this.size;
 
             while (count-- > 0) {
-                if (item.Equals(this.array(in allocator)[in allocator, index])) {
+                if (item.Equals(this.array[in allocator, index])) {
                     return true;
                 }
 
-                index = (index + 1) % this.array(in allocator).Length;
+                index = (index + 1) % this.array.Length;
             }
 
             return false;
         }
 
         private T GetElement(in MemoryAllocator allocator, int i) {
-            return this.array(in allocator)[in allocator, (this.head(in allocator) + i) % this.array(in allocator).Length];
+            return this.array[in allocator, (this.head + i) % this.array.Length];
         }
 
         private void SetCapacity(ref MemoryAllocator allocator, int capacity) {
-            this.array(in allocator).Resize(ref allocator, capacity);
-            this.head(in allocator) = 0;
-            this.tail(in allocator) = this.size(in allocator) == capacity ? 0 : this.size(in allocator);
-            this.version(in allocator)++;
+            this.array.Resize(ref allocator, capacity);
+            this.head = 0;
+            this.tail = this.size == capacity ? 0 : this.size;
+            this.version++;
         }
 
         public struct Enumerator : System.Collections.Generic.IEnumerator<T> {
@@ -149,7 +129,7 @@ namespace ME.ECS.Collections.MemoryAllocator {
 
             internal Enumerator(Queue<T> q, State state) {
                 this.q = q;
-                this.version = this.q.version(in state.allocator);
+                this.version = this.q.version;
                 this.index = -1;
                 this.currentElement = default(T);
                 this.state = state;
@@ -161,7 +141,7 @@ namespace ME.ECS.Collections.MemoryAllocator {
             }
 
             public bool MoveNext() {
-                if (this.version != this.q.version(in this.state.allocator)) {
+                if (this.version != this.q.version) {
                     ThrowHelper.ThrowInvalidOperationException(ExceptionResource.InvalidOperation_EnumFailedVersion);
                 }
 
@@ -171,7 +151,7 @@ namespace ME.ECS.Collections.MemoryAllocator {
 
                 this.index++;
 
-                if (this.index == this.q.size(in this.state.allocator)) {
+                if (this.index == this.q.size) {
                     this.index = -2;
                     this.currentElement = default(T);
                     return false;
@@ -210,7 +190,7 @@ namespace ME.ECS.Collections.MemoryAllocator {
             }
 
             void System.Collections.IEnumerator.Reset() {
-                if (this.version != this.q.version(in this.state.allocator)) {
+                if (this.version != this.q.version) {
                     ThrowHelper.ThrowInvalidOperationException(ExceptionResource.InvalidOperation_EnumFailedVersion);
                 }
 
@@ -230,7 +210,7 @@ namespace ME.ECS.Collections.MemoryAllocator {
 
             internal EnumeratorNoState(Queue<T> q, in MemoryAllocator allocator) {
                 this.q = q;
-                this.version = this.q.version(in allocator);
+                this.version = this.q.version;
                 this.index = -1;
                 this.currentElement = default(T);
                 this.allocator = allocator;
@@ -242,7 +222,7 @@ namespace ME.ECS.Collections.MemoryAllocator {
             }
 
             public bool MoveNext() {
-                if (this.version != this.q.version(in this.allocator)) {
+                if (this.version != this.q.version) {
                     ThrowHelper.ThrowInvalidOperationException(ExceptionResource.InvalidOperation_EnumFailedVersion);
                 }
 
@@ -252,7 +232,7 @@ namespace ME.ECS.Collections.MemoryAllocator {
 
                 this.index++;
 
-                if (this.index == this.q.size(in this.allocator)) {
+                if (this.index == this.q.size) {
                     this.index = -2;
                     this.currentElement = default(T);
                     return false;
@@ -291,7 +271,7 @@ namespace ME.ECS.Collections.MemoryAllocator {
             }
 
             void System.Collections.IEnumerator.Reset() {
-                if (this.version != this.q.version(in this.allocator)) {
+                if (this.version != this.q.version) {
                     ThrowHelper.ThrowInvalidOperationException(ExceptionResource.InvalidOperation_EnumFailedVersion);
                 }
 

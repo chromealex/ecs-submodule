@@ -61,15 +61,15 @@ namespace ME.ECS.Collections.V3 {
         public int Count {
             get {
                 if (StaticAllocatorProxy.allocator.isValid == false) return 0;
-                return this.arr.Count(StaticAllocatorProxy.allocator);
+                return this.arr.Count;
             }
         }
 
         public T[] items {
             get {
                 if (StaticAllocatorProxy.allocator.isValid == false) return null;
-                var arr = new T[this.arr.Count(StaticAllocatorProxy.allocator)];
-                for (int i = 0; i < this.arr.Count(StaticAllocatorProxy.allocator); ++i) {
+                var arr = new T[this.arr.Count];
+                for (int i = 0; i < this.arr.Count; ++i) {
                     arr[i] = this.arr[in StaticAllocatorProxy.allocator, i];
                 }
 
@@ -92,21 +92,21 @@ namespace ME.ECS.Collections.V3 {
         public int Count {
             get {
                 if (StaticAllocatorProxy.allocator.isValid == false) return 0;
-                return this.arr.Count(StaticAllocatorProxy.allocator);
+                return this.arr.Count;
             }
         }
         
-        public MemArrayAllocator<int> buckets => this.arr.buckets(StaticAllocatorProxy.allocator);
-        public MemArrayAllocator<HashSet<T>.Slot> slots => this.arr.slots(StaticAllocatorProxy.allocator);
-        public int count => this.arr.count(StaticAllocatorProxy.allocator);
-        public int version => this.arr.version(StaticAllocatorProxy.allocator);
-        public int freeList => this.arr.freeList(StaticAllocatorProxy.allocator);
-        public int lastIndex => this.arr.lastIndex(StaticAllocatorProxy.allocator);
+        public MemArrayAllocator<int> buckets => this.arr.buckets;
+        public MemArrayAllocator<HashSet<T>.Slot> slots => this.arr.slots;
+        public int count => this.arr.count;
+        public int version => this.arr.version;
+        public int freeList => this.arr.freeList;
+        public int lastIndex => this.arr.lastIndex;
 
         public T[] items {
             get {
                 if (StaticAllocatorProxy.allocator.isValid == false) return null;
-                var arr = new T[this.arr.Count(StaticAllocatorProxy.allocator)];
+                var arr = new T[this.arr.Count];
                 var i = 0;
                 var e = this.arr.GetEnumerator(in StaticAllocatorProxy.allocator);
                 while (e.MoveNext() == true) {
@@ -133,21 +133,21 @@ namespace ME.ECS.Collections.V3 {
         public int Count {
             get {
                 if (StaticAllocatorProxy.allocator.isValid == false) return 0;
-                return this.arr.Count(StaticAllocatorProxy.allocator);
+                return this.arr.Count;
             }
         }
 
-        public MemArrayAllocator<int> buckets => this.arr.buckets(StaticAllocatorProxy.allocator);
-        public MemArrayAllocator<Dictionary<K, V>.Entry> entries => this.arr.entries(StaticAllocatorProxy.allocator);
-        public int count => this.arr.count(StaticAllocatorProxy.allocator);
-        public int version => this.arr.version(StaticAllocatorProxy.allocator);
-        public int freeList => this.arr.freeList(StaticAllocatorProxy.allocator);
-        public int freeCount => this.arr.freeCount(StaticAllocatorProxy.allocator);
+        public MemArrayAllocator<int> buckets => this.arr.buckets;
+        public MemArrayAllocator<Dictionary<K, V>.Entry> entries => this.arr.entries;
+        public int count => this.arr.count;
+        public int version => this.arr.version;
+        public int freeList => this.arr.freeList;
+        public int freeCount => this.arr.freeCount;
 
         public System.Collections.Generic.KeyValuePair<K, V>[] items {
             get {
                 if (StaticAllocatorProxy.allocator.isValid == false) return null;
-                var arr = new System.Collections.Generic.KeyValuePair<K, V>[this.arr.Count(StaticAllocatorProxy.allocator)];
+                var arr = new System.Collections.Generic.KeyValuePair<K, V>[this.arr.Count];
                 var i = 0;
                 var e = this.arr.GetEnumerator(in StaticAllocatorProxy.allocator);
                 while (e.MoveNext() == true) {
@@ -174,14 +174,14 @@ namespace ME.ECS.Collections.V3 {
         public int Count {
             get {
                 if (StaticAllocatorProxy.allocator.isValid == false) return 0;
-                return this.arr.Count(StaticAllocatorProxy.allocator);
+                return this.arr.Count;
             }
         }
 
         public T[] items {
             get {
                 if (StaticAllocatorProxy.allocator.isValid == false) return null;
-                var arr = new T[this.arr.Count(StaticAllocatorProxy.allocator)];
+                var arr = new T[this.arr.Count];
                 var i = 0;
                 var e = this.arr.GetEnumerator(in StaticAllocatorProxy.allocator);
                 while (e.MoveNext() == true) {
@@ -208,14 +208,14 @@ namespace ME.ECS.Collections.V3 {
         public int Count {
             get {
                 if (StaticAllocatorProxy.allocator.isValid == false) return 0;
-                return this.arr.Count(StaticAllocatorProxy.allocator);
+                return this.arr.Count;
             }
         }
 
         public T[] items {
             get {
                 if (StaticAllocatorProxy.allocator.isValid == false) return null;
-                var arr = new T[this.arr.Count(StaticAllocatorProxy.allocator)];
+                var arr = new T[this.arr.Count];
                 var i = 0;
                 var e = this.arr.GetEnumerator(in StaticAllocatorProxy.allocator);
                 while (e.MoveNext() == true) {

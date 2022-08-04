@@ -127,7 +127,7 @@ namespace ME.ECS.Collections.MemoryAllocator {
 
             ref var idx = ref this.sparse[in allocator, entityId];
             if (idx == 0) {
-                if (this.freeIndexes.Count(in allocator) > 0) {
+                if (this.freeIndexes.Count > 0) {
                     idx = this.freeIndexes.Pop(in allocator);
                 } else {
                     idx = this.dense.Length + 1;

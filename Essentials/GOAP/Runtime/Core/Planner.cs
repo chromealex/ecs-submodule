@@ -36,8 +36,8 @@ namespace ME.ECS.Essentials.GOAP {
 
             var entityStateList = world.GetState().structComponents.entitiesIndexer.Get(in world.GetState().allocator, entity.id);
             ref var allocator = ref world.GetState().allocator;
-            var entityState = new EquatableHashSet<int>(ref allocator, entityStateList.Count(in allocator));
-            var entityStateData = new NativeHashSet<UnsafeData>(ref allocator, entityStateList.Count(in allocator));
+            var entityState = new EquatableHashSet<int>(ref allocator, entityStateList.Count);
+            var entityStateData = new NativeHashSet<UnsafeData>(ref allocator, entityStateList.Count);
             
             var e = entityStateList.GetEnumerator(in world.GetState().allocator);
             while (e.MoveNext() == true) {
