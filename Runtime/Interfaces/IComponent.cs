@@ -18,9 +18,9 @@ namespace ME.ECS {
     public interface IVersionedNoState : IComponentBase { }
     #endif
     
-    public interface IComponentDisposable : IComponentBase {}
+    public interface IComponentDisposableBase : IComponentBase {}
 
-    public interface IComponentDisposable<T> : IComponentDisposable where T : IComponentDisposable<T> {
+    public interface IComponentDisposable<T> : IComponentDisposableBase where T : IComponentDisposable<T> {
 
         void OnDispose(ref ME.ECS.Collections.V3.MemoryAllocator allocator);
         void ReplaceWith(ref ME.ECS.Collections.V3.MemoryAllocator allocator, in T other);
