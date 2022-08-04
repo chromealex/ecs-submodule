@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using ME.ECS.DataConfigs;
+using System.Linq;
 using UnityEngine;
 
 namespace ME.ECS {
@@ -25,6 +26,10 @@ namespace ME.ECS {
         public ConfigId(T config) {
             
             var module = Worlds.current.GetFeature<ME.ECS.DataConfigs.DataConfigIndexerFeature>();
+			if (module == null) {
+				Worlds.current.AddFeature(DataConfigComponentsInitializer.GetFeature());
+				module = Worlds.current.GetFeature<ME.ECS.DataConfigs.DataConfigIndexerFeature>();
+			}
             this = module.RegisterConfig(config);
 
         }
@@ -38,6 +43,10 @@ namespace ME.ECS {
         public T GetData() {
 
             var module = Worlds.current.GetFeature<ME.ECS.DataConfigs.DataConfigIndexerFeature>();
+			if (module == null) {
+				Worlds.current.AddFeature(DataConfigComponentsInitializer.GetFeature());
+				module = Worlds.current.GetFeature<ME.ECS.DataConfigs.DataConfigIndexerFeature>();
+			}
             return module.GetData(this);
 
         }

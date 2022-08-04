@@ -6,7 +6,6 @@ namespace ME.ECSEditor {
 
         public static void Generate(string dir) {
             
-            #if !STATIC_API_DISABLED
             var feature = ME.ECS.ViewComponentsInitializer.GetFeature();
             if (feature == null) {
 
@@ -20,7 +19,6 @@ namespace ME.ECSEditor {
                 UnityEngine.Debug.Log($"ViewGenerator {path} feature created");
 
             }
-            #endif
 
         }
 

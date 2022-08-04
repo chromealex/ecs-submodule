@@ -11,6 +11,6 @@ public ref T#INDEX# GetT#INDEX#(int index) {
     this.componentOps.Write(new Op() { entityIndex = index, componentId = AllComponentTypes<T#INDEX#>.burstTypeId.Data, code = 1, });
     return ref this.regs[#INDEX#].value.Get<T#INDEX#>(this.allocator, this.indexes[index]).data;
 }
-public ref readonly T#INDEX# ReadT#INDEX#(int index) => ref this.regs[#INDEX#].value.Get<T#INDEX#>(this.allocator, this.indexes[index]).data;
+public T#INDEX# ReadT#INDEX#(int index) => this.regs[#INDEX#].value.Read<T#INDEX#>(this.allocator, this.indexes[index]).data;
 public bool HasT#INDEX#(int index) => this.regs[#INDEX#].value.Has<T#INDEX#>(this.allocator, this.indexes[index]);
 public long GetVersionT#INDEX#(int index) => this.regs[#INDEX#].value.Get<T#INDEX#>(this.allocator, this.indexes[index]).version;

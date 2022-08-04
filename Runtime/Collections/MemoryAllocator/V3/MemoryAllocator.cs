@@ -1,4 +1,4 @@
-﻿//#define MEMORY_ALLOCATOR_BOUNDS_CHECK
+﻿#define MEMORY_ALLOCATOR_BOUNDS_CHECK
 //#define LOGS_ENABLED
 
 using System;
@@ -101,7 +101,8 @@ namespace ME.ECS.Collections.V3 {
             
             if (this.zonesList != null) {
                 UnsafeUtility.Free(this.zonesList, Allocator.Persistent);
-            }
+				this.zonesList = null;
+			}
 
             this.zonesListCapacity = 0;
             this.maxSize = default;

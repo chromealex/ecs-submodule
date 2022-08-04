@@ -399,14 +399,14 @@ namespace ME.ECSEditor {
 
                     }
 
-                    if (isStatic == true) return 0;
+					if (isStatic == true) return 0;
                     if (isBlittable == true) return 1;
                     if (isTag == true) return 2;
                     if (isCopyable == true) return 5;
                     if (isDisposable == true) return 6;
                     if (isOneShot == true) return 10;
 
-                    return int.MaxValue;
+                    return 100;
 
                 }
                 

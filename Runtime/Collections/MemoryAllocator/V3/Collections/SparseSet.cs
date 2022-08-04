@@ -18,6 +18,16 @@ namespace ME.ECS.Collections.MemoryAllocator {
             
         }
 
+		public Component<TComponent> Read<TComponent>(MemoryAllocator allocator, int index) where TComponent : struct, IComponentBase {
+
+			var idx = this.sparse[in allocator, index];
+			if (idx == 0) {
+				return default;
+			}
+			return UnsafeUtility.ReadArrayElement<Component<TComponent>>(this.densePtr, idx);
+            
+		}
+
         public ref Component<TComponent> Get<TComponent>(MemoryAllocator allocator, int index) where TComponent : struct, IComponentBase {
 
             var idx = this.sparse[in allocator, index];

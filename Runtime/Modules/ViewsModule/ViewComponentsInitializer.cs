@@ -22,6 +22,10 @@ namespace ME.ECS {
         public ViewId(T config) {
             
             var module = Worlds.current.GetFeature<ME.ECS.Views.Features.ViewIndexerFeature>();
+			if (module == null) {
+				Worlds.current.AddFeature(ViewComponentsInitializer.GetFeature());
+				module = Worlds.current.GetFeature<ME.ECS.Views.Features.ViewIndexerFeature>();
+			}
             this = module.RegisterConfig(config);
 
         }
@@ -35,6 +39,10 @@ namespace ME.ECS {
         public T GetData() {
 
             var module = Worlds.current.GetFeature<ME.ECS.Views.Features.ViewIndexerFeature>();
+			if (module == null) {
+				Worlds.current.AddFeature(ViewComponentsInitializer.GetFeature());
+				module = Worlds.current.GetFeature<ME.ECS.Views.Features.ViewIndexerFeature>();
+			}
             return module.GetData(this);
 
         }

@@ -6,7 +6,6 @@ namespace ME.ECSEditor {
 
         public static void Generate(string dir) {
             
-            #if !STATIC_API_DISABLED
             var feature = DataConfigComponentsInitializer.GetFeature();
             if (feature == null) {
 
@@ -20,7 +19,6 @@ namespace ME.ECSEditor {
                 UnityEngine.Debug.Log($"DataConfigGenerator {path} feature created");
 
             }
-            #endif
 
         }
 
