@@ -21,11 +21,11 @@ namespace ME.ECS {
 
         }
 
-        public static readonly string caption = "<b><color=#3477eb>ME.ECS</color></b>";
+        public static readonly string caption = "<b><color=#888>ME.ECS</color></b>";
         private static readonly ProfilerCategory category = new ProfilerCategory(caption);
         private static readonly ProfilerCategory categoryNetwork = new ProfilerCategory($"{caption}: Network");
-        private static readonly ProfilerCategory categoryPools = new ProfilerCategory($"{caption}: Pools");
-        private static readonly ProfilerCategory categoryAllocator = new ProfilerCategory($"{caption}: Allocator");
+        private static readonly ProfilerCategory categoryPools = new ProfilerCategory($"{caption} Pools");
+        private static readonly ProfilerCategory categoryAllocator = new ProfilerCategory($"{caption} Allocator");
 
         public static readonly ProfilerCounterData EntitiesCount_Data = new ProfilerCounterData(ECSProfiler.category, "Entities Count");
         public static readonly ProfilerCounterData SystemsCount_Data = new ProfilerCounterData(ECSProfiler.category, "Systems Count");

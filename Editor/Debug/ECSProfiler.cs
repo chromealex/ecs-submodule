@@ -56,7 +56,7 @@ namespace ME.ECSEditor {
 
                 {
                     var module = new SerializedData() {
-                        m_Name = $"{ME.ECS.ECSProfiler.caption}: Network",
+                        m_Name = $"{ME.ECS.ECSProfiler.caption} Network",
                         m_ChartCounters = new System.Collections.Generic.List<ME.ECS.ECSProfiler.ProfilerCounterData>() {
                             ME.ECS.ECSProfiler.NetworkEventsSentCount_Data,
                             ME.ECS.ECSProfiler.NetworkEventsReceivedCount_Data,
@@ -75,7 +75,7 @@ namespace ME.ECSEditor {
 
                 {
                     var module = new SerializedData() {
-                        m_Name = $"{ME.ECS.ECSProfiler.caption}: Pools",
+                        m_Name = $"{ME.ECS.ECSProfiler.caption} Pools",
                         m_ChartCounters = new System.Collections.Generic.List<ME.ECS.ECSProfiler.ProfilerCounterData>() {
                             ME.ECS.ECSProfiler.PoolAllocation_Data,
                             ME.ECS.ECSProfiler.PoolUsed_Data,
@@ -90,7 +90,7 @@ namespace ME.ECSEditor {
 
                 {
                     var module = new SerializedData() {
-                        m_Name = $"{ME.ECS.ECSProfiler.caption}: Allocator",
+                        m_Name = $"{ME.ECS.ECSProfiler.caption} Allocator",
                         m_ChartCounters = new System.Collections.Generic.List<ME.ECS.ECSProfiler.ProfilerCounterData>() {
                             ME.ECS.ECSProfiler.MemoryAllocatorReserved_Data,
                             ME.ECS.ECSProfiler.MemoryAllocatorUsed_Data,
