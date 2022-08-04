@@ -203,7 +203,7 @@ namespace ME.ECS.Collections.V3 {
             void* ptr = null;
 
             for (int i = 0; i < this.zonesListCount; i++) {
-                ptr = MemoryAllocator.ZmMalloc(this.zonesList[i], (int)size, null);
+                ptr = MemoryAllocator.ZmMalloc(this.zonesList[i], (int)size);
 
                 if (ptr != null) {
                     var memPtr = this.GetSafePtr(ptr, i);
@@ -221,7 +221,7 @@ namespace ME.ECS.Collections.V3 {
                 var zone = MemoryAllocator.ZmCreateZone((int)Math.Max(size, MemoryAllocator.MIN_ZONE_SIZE));
                 var zoneIndex = this.AddZone(zone);
 
-                ptr = MemoryAllocator.ZmMalloc(zone, (int)size, null);
+                ptr = MemoryAllocator.ZmMalloc(zone, (int)size);
 
                 var memPtr = this.GetSafePtr(ptr, zoneIndex);
                 #if LOGS_ENABLED
