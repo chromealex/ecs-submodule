@@ -309,7 +309,7 @@ namespace ME.ECS.FiltersArchetype {
 
         }
 
-        #if INLINE_METHODS
+        /*#if INLINE_METHODS
         [MethodImplAttribute(MethodImplOptions.AggressiveInlining)]
         #endif
         private void CleanUpArchetype(ref MemoryAllocator allocator, ref Archetype arch) {
@@ -331,7 +331,7 @@ namespace ME.ECS.FiltersArchetype {
                 arch.entitiesContains = new HashSet<int>(ref allocator, 1);
             }
             
-        }
+        }*/
 
         #if INLINE_METHODS
         [MethodImplAttribute(MethodImplOptions.AggressiveInlining)]
@@ -342,7 +342,7 @@ namespace ME.ECS.FiltersArchetype {
             var movedEntityId = arch.entitiesArr[in allocator, arch.entitiesArr.Count - 1];
             arch.entitiesArr.RemoveAtFast(ref allocator, idx);
             arch.entitiesContains.Remove(ref allocator, entityId);
-            this.CleanUpArchetype(ref allocator, ref arch);
+            //this.CleanUpArchetype(ref allocator, ref arch);
             if (movedEntityId != entityId) this.SetEntityArrIndex(ref allocator, movedEntityId, idx);
             this.SetEntityArrIndex(ref allocator, entityId, -1);
             
@@ -353,7 +353,7 @@ namespace ME.ECS.FiltersArchetype {
         #endif
         private void AddEntityToArch(ref MemoryAllocator allocator, ref Archetype arch, int entityId) {
 
-            this.ValidateArchetype(ref allocator, ref arch);
+            //this.ValidateArchetype(ref allocator, ref arch);
             var idx = arch.entitiesArr.Count;
             arch.entitiesArr.Add(ref allocator, entityId);
             arch.entitiesContains.Add(ref allocator, entityId);

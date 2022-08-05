@@ -1,4 +1,4 @@
-﻿#define MEMORY_ALLOCATOR_BOUNDS_CHECK
+﻿//#define MEMORY_ALLOCATOR_BOUNDS_CHECK
 //#define LOGS_ENABLED
 
 using System;
@@ -10,6 +10,9 @@ namespace ME.ECS.Collections.V3 {
 
     using MemPtr = System.Int64;
 
+    [Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.NullChecks, false)]
+    [Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.ArrayBoundsChecks, false)]
+    [Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.DivideByZeroChecks, false)]
     public unsafe partial struct MemoryAllocator : IMemoryAllocator<MemoryAllocator, MemPtr> {
 
         #if LOGS_ENABLED && UNITY_EDITOR

@@ -1,4 +1,4 @@
-#define MEMORY_ALLOCATOR_BOUNDS_CHECK
+//#define MEMORY_ALLOCATOR_BOUNDS_CHECK
 
 using System;
 using Unity.Collections;
@@ -59,6 +59,9 @@ namespace ME.ECS.Collections.V3 {
 
     }
 
+    [Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.NullChecks, false)]
+    [Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.ArrayBoundsChecks, false)]
+    [Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.DivideByZeroChecks, false)]
     [System.Diagnostics.DebuggerTypeProxyAttribute(typeof(MemoryAllocatorProxy))]
     public unsafe partial struct MemoryAllocator {
 
