@@ -1,3 +1,7 @@
+# Version 2.8
+* Runtime.Essentials: All essential packages has been moved out from the main repo
+
+05/08/2022
 # Version 2.7
 * Runtime.Serialization: MemoryAllocator serializer added
 * Tests.Tests: 
