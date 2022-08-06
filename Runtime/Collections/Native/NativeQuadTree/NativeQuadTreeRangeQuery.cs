@@ -31,7 +31,8 @@ namespace ME.ECS.Collections {
                 // Get pointer to inner list data for faster writing
                 //this.fastResults = (UnsafeList*)NativeListUnsafeUtility.GetInternalListDataPtrUnchecked(ref results);
 
-                this.RecursiveRangeQuery(results, tree.bounds, false, 1, 1);
+                ref var tempAllocator = ref ME.ECS.Collections.V3.StaticAllocators.GetAllocator(AllocatorType.Temp);
+                this.RecursiveRangeQuery(ref tempAllocator, results, tree.bounds, false, 1, 1);
                 results.Length = this.count;
 
                 //this.fastResults->Length = this.count;
@@ -49,13 +50,14 @@ namespace ME.ECS.Collections {
                 // Get pointer to inner list data for faster writing
                 //this.fastResults = (UnsafeList*)NativeListUnsafeUtility.GetInternalListDataPtrUnchecked(ref results);
 
-                this.RecursiveRangeQuery(results, tree.bounds, false, 1, 1);
+                ref var tempAllocator = ref ME.ECS.Collections.V3.StaticAllocators.GetAllocator(AllocatorType.Temp);
+                this.RecursiveRangeQuery(ref tempAllocator, results, tree.bounds, false, 1, 1);
                 results.Length = this.count;
 
                 //this.fastResults->Length = this.count;
             }
 
-            public void RecursiveRangeQuery(NativeList<QuadElement<T>> results, in AABB2D parentBounds, bool parentContained, int prevOffset, int depth) {
+            public void RecursiveRangeQuery(ref ME.ECS.Collections.V3.MemoryAllocator tempAllocator, NativeList<QuadElement<T>> results, in AABB2D parentBounds, bool parentContained, int prevOffset, int depth) {
                 
                 /*if (this.count + 4 * this.tree.maxLeafElements > results.Length) {
                     results.Resize(math.max(results.Length * 2, this.count + 4 * this.tree.maxLeafElements), NativeArrayOptions.ClearMemory);
@@ -76,14 +78,14 @@ namespace ME.ECS.Collections {
                     }
                     
                     var at = prevOffset + l * depthSize;
-                    var elementCount = this.tree.lookup[at]; //UnsafeUtility.ReadArrayElement<int>(tree.lookup->Ptr, at);
+                    var elementCount = this.tree.lookup[in tempAllocator, at]; //UnsafeUtility.ReadArrayElement<int>(tree.lookup->Ptr, at);
                     if (elementCount > this.tree.maxLeafElements && depth < this.tree.maxDepth) {
                         
-                        this.RecursiveRangeQuery(results, in childBounds, contained, at + 1, depth + 1);
+                        this.RecursiveRangeQuery(ref tempAllocator, results, in childBounds, contained, at + 1, depth + 1);
                         
                     } else if (elementCount != 0) {
 
-                        var node = this.tree.nodes[at]; //UnsafeUtility.ReadArrayElement<QuadNode>(tree.nodes->Ptr, at);
+                        var node = this.tree.nodes[in tempAllocator, at]; //UnsafeUtility.ReadArrayElement<QuadNode>(tree.nodes->Ptr, at);
                         /*if (contained == true) {
 
                             var source = (void*)((IntPtr)this.tree.elements->Ptr + node.firstChildIndex * UnsafeUtility.SizeOf<QuadElement<T>>());

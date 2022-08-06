@@ -3,43 +3,47 @@
     #if UNITY_EDITOR
     [UnityEditor.InitializeOnLoadAttribute]
     #endif
-    public static class StaticAllocators {
+    public static class StaticAllocatorInitializer {
 
         private static readonly Destructor finalize = new Destructor();
 
-        private static MemoryAllocator persistent;
-        private static MemoryAllocator temp;
-
-        public static ref MemoryAllocator GetAllocator(AllocatorType type) {
-
-            switch (type) {
-                case AllocatorType.Persistent:
-                    return ref StaticAllocators.persistent;
-
-                case AllocatorType.Temp:
-                    return ref StaticAllocators.temp;
-            }
-
-            throw new System.Exception($"Allocator type {type} is unknown");
-
-        }
-
-        static StaticAllocators() {
+        static StaticAllocatorInitializer() {
 
             // 4 MB of persistent memory + no max size
-            StaticAllocators.persistent = new MemoryAllocator().Initialize(4 * 1024 * 1024, -1);
+            StaticAllocators.persistent.Data = new MemoryAllocator().Initialize(4 * 1024 * 1024, -1);
 
             // 256 KB of temp memory + max size = 256 KB
-            StaticAllocators.temp = new MemoryAllocator().Initialize(256 * 1024, 256 * 1024);
+            StaticAllocators.temp.Data = new MemoryAllocator().Initialize(256 * 1024, 256 * 1024);
 
         }
 
         private sealed class Destructor {
 
             ~Destructor() {
-                StaticAllocators.persistent.Dispose();
-                StaticAllocators.temp.Dispose();
+                StaticAllocators.persistent.Data.Dispose();
+                StaticAllocators.temp.Data.Dispose();
             }
+
+        }
+
+    }
+    
+    public struct StaticAllocators {
+
+        internal static readonly Unity.Burst.SharedStatic<MemoryAllocator> persistent = Unity.Burst.SharedStatic<MemoryAllocator>.GetOrCreate<StaticAllocators, MemoryAllocator>();
+        internal static readonly Unity.Burst.SharedStatic<MemoryAllocator> temp = Unity.Burst.SharedStatic<MemoryAllocator>.GetOrCreate<StaticAllocators, MemoryAllocator>();
+
+        public static ref MemoryAllocator GetAllocator(AllocatorType type) {
+
+            switch (type) {
+                case AllocatorType.Persistent:
+                    return ref StaticAllocators.persistent.Data;
+
+                case AllocatorType.Temp:
+                    return ref StaticAllocators.temp.Data;
+            }
+
+            throw new System.Exception($"Allocator type {type} is unknown");
 
         }
 

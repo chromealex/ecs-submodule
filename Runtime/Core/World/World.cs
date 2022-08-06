@@ -167,6 +167,7 @@ namespace ME.ECS {
 
         public int id { get; private set; }
 
+        public MemoryAllocator tempAllocator;
         private State resetState;
         private bool hasResetState;
         internal State currentState;
@@ -179,6 +180,8 @@ namespace ME.ECS {
         public bool isPaused { private set; get; }
 
         void IPoolableSpawn.OnSpawn() {
+
+            this.tempAllocator = new MemoryAllocator().Initialize(1024 * 512);
 
             this.InitializePools();
             ME.WeakRef.Reg(this);
@@ -309,6 +312,8 @@ namespace ME.ECS {
             //PoolInternalBase.Clear();
 
             this.DeInitializePools();
+            
+            this.tempAllocator.Dispose();
 
         }
 
@@ -1022,12 +1027,12 @@ namespace ME.ECS {
         }
 
         private System.Collections.Generic.List<GlobalEventFrameItem> globalEventFrameItems;
-        private System.Collections.Generic.HashSet<long> globalEventFrameEvents;
+        private HashSet<long> globalEventFrameEvents;
 
         internal void InitializeGlobalEvents() {
-            
+
             this.globalEventFrameItems = PoolList<GlobalEventFrameItem>.Spawn(10);
-            this.globalEventFrameEvents = PoolHashSet<long>.Spawn(10);
+            this.globalEventFrameEvents = new HashSet<long>(ref this.tempAllocator, 10);
 
         }
 
@@ -1036,7 +1041,7 @@ namespace ME.ECS {
             GlobalEvent.ResetCache();
             
             PoolList<GlobalEventFrameItem>.Recycle(ref this.globalEventFrameItems);
-            PoolHashSet<long>.Recycle(ref this.globalEventFrameEvents);
+            this.globalEventFrameEvents.Dispose(ref this.tempAllocator);
             
         }
 
@@ -1060,7 +1065,7 @@ namespace ME.ECS {
                 }
 
                 this.globalEventFrameItems.Clear();
-                this.globalEventFrameEvents.Clear();
+                this.globalEventFrameEvents.Clear(in this.tempAllocator);
 
             } else if (globalEventType == GlobalEventType.Logic) {
 
@@ -1083,14 +1088,14 @@ namespace ME.ECS {
             var key = MathUtils.GetKey(globalEvent.GetHashCode(), entity.GetHashCode());
             if (globalEventType == GlobalEventType.Visual) {
 
-                if (this.globalEventFrameEvents.Contains(key) == true) {
+                if (this.globalEventFrameEvents.Contains(in this.tempAllocator, key) == true) {
 
                     for (int i = 0; i < this.globalEventFrameItems.Count; ++i) {
 
                         var item = this.globalEventFrameItems[i];
                         if (item.globalEvent == globalEvent && item.data == entity) {
 
-                            this.globalEventFrameEvents.Remove(key);
+                            this.globalEventFrameEvents.Remove(ref this.tempAllocator, key);
                             this.globalEventFrameItems.RemoveAt(i);
                             return true;
 
@@ -1115,9 +1120,9 @@ namespace ME.ECS {
             var key = MathUtils.GetKey(globalEvent.GetHashCode(), entity.GetHashCode());
             if (globalEventType == GlobalEventType.Visual) {
 
-                if (this.globalEventFrameEvents.Contains(key) == false) {
+                if (this.globalEventFrameEvents.Contains(in this.tempAllocator, key) == false) {
 
-                    this.globalEventFrameEvents.Add(key);
+                    this.globalEventFrameEvents.Add(ref this.tempAllocator, key);
                     this.globalEventFrameItems.Add(new GlobalEventFrameItem() {
                         globalEvent = globalEvent,
                         data = entity,

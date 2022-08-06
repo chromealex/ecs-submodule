@@ -9,6 +9,7 @@ using tfloat = sfloat;
 using Unity.Mathematics;
 using tfloat = System.Single;
 #endif
+using ME.ECS.Collections.V3;
 
 namespace ME.ECS.Collections {
 
@@ -51,10 +52,10 @@ namespace ME.ECS.Collections {
         private UnsafeList<QuadElement<T>>* elements;
 
         [NativeDisableUnsafePtrRestriction]
-        private NativeArray<int> lookup;
+        private MemArrayAllocator<int> lookup;
 
         [NativeDisableUnsafePtrRestriction]
-        private NativeArray<QuadNode> nodes;
+        private MemArrayAllocator<QuadNode> nodes;
 
         private int elementsCount;
 
@@ -92,11 +93,13 @@ namespace ME.ECS.Collections {
             // Allocate memory for every depth, the nodes on all depths are stored in a single continuous array
             var totalSize = LookupTables.DepthSizeLookup[maxDepth + 1];
 
-            this.lookup = new NativeArray<int>(
-                totalSize, allocator); //UnsafeList.Create(UnsafeUtility.SizeOf<int>(), UnsafeUtility.AlignOf<int>(), totalSize, allocator, NativeArrayOptions.ClearMemory);
+            ref var tempAllocator = ref StaticAllocators.GetAllocator(AllocatorType.Temp);
+            this.lookup = new MemArrayAllocator<int>(ref tempAllocator, totalSize);
+                //new NativeArray<int>(
+                //totalSize, allocator); //UnsafeList.Create(UnsafeUtility.SizeOf<int>(), UnsafeUtility.AlignOf<int>(), totalSize, allocator, NativeArrayOptions.ClearMemory);
 
-            this.nodes = new NativeArray<QuadNode>(
-                totalSize, allocator); //UnsafeList.Create(UnsafeUtility.SizeOf<QuadNode>(), UnsafeUtility.AlignOf<QuadNode>(), totalSize, allocator, NativeArrayOptions.ClearMemory);
+            this.nodes = new MemArrayAllocator<QuadNode>(ref tempAllocator, totalSize);
+                //totalSize, allocator); //UnsafeList.Create(UnsafeUtility.SizeOf<QuadNode>(), UnsafeUtility.AlignOf<QuadNode>(), totalSize, allocator, NativeArrayOptions.ClearMemory);
 
             this.elements = UnsafeList<QuadElement<T>>.Create(initialElementsCapacity, allocator);
         }
@@ -137,6 +140,7 @@ namespace ME.ECS.Collections {
                 mortonCodes[i] = LookupTables.MortonLookup[(int)pos.x] | (LookupTables.MortonLookup[(int)pos.y] << 1);
             }
 
+            ref var tempAllocator = ref StaticAllocators.GetAllocator(AllocatorType.Temp);
             // Index total child element count per node (total, so parent's counts include those of child nodes)
             for (var i = 0; i < mortonCodes.Length; i++) {
                 var atIndex = 0;
@@ -144,26 +148,26 @@ namespace ME.ECS.Collections {
                 for (var depth = 0; depth <= this.maxDepth; depth++) {
                     // Increment the node on this depth that this element is contained in
                     //(*(int*)((IntPtr)this.lookup->Ptr + atIndex * sizeof(int)))++;
-                    ++this.lookup.GetRef(atIndex);
+                    ++this.lookup[in tempAllocator, atIndex];
                     atIndex = this.IncrementIndex(depth, val, atIndex);
                 }
             }
 
             // Prepare the tree leaf nodes
-            this.RecursivePrepareLeaves(1, 1);
+            this.RecursivePrepareLeaves(ref tempAllocator, 1, 1);
 
             // Add elements to leaf nodes
             for (var i = 0; i < incomingElementsLength; i++) {
                 var atIndex = 0;
                 var val = mortonCodes[i];
                 for (var depth = 0; depth <= this.maxDepth; depth++) {
-                    var node = this.nodes[atIndex]; //UnsafeUtility.ReadArrayElement<QuadNode>(this.nodes->Ptr, atIndex);
+                    var node = this.nodes[in tempAllocator, atIndex]; //UnsafeUtility.ReadArrayElement<QuadNode>(this.nodes->Ptr, atIndex);
                     if (node.isLeaf) {
                         // We found a leaf, add this element to it and move to the next element
                         UnsafeUtility.WriteArrayElement(this.elements->Ptr, node.firstChildIndex + node.count, incomingElements[i]);
                         //this.elements[node.firstChildIndex + node.count] = incomingElements[i];
                         node.count++;
-                        this.nodes[atIndex] = node;
+                        this.nodes[in tempAllocator, atIndex] = node;
                         //UnsafeUtility.WriteArrayElement(this.nodes->Ptr, atIndex, node);
                         break;
                     }
@@ -186,20 +190,20 @@ namespace ME.ECS.Collections {
             return atIndex;
         }
 
-        private void RecursivePrepareLeaves(int prevOffset, int depth) {
+        private void RecursivePrepareLeaves(ref ME.ECS.Collections.V3.MemoryAllocator tempAllocator, int prevOffset, int depth) {
             for (var l = 0; l < 4; l++) {
                 var at = prevOffset + l * LookupTables.DepthSizeLookup[this.maxDepth - depth + 1];
 
-                var elementCount = this.lookup[at]; //UnsafeUtility.ReadArrayElement<int>(this.lookup->Ptr, at);
+                var elementCount = this.lookup[in tempAllocator, at]; //UnsafeUtility.ReadArrayElement<int>(this.lookup->Ptr, at);
 
                 if (elementCount > this.maxLeafElements && depth < this.maxDepth) {
                     // There's more elements than allowed on this node so keep going deeper
-                    this.RecursivePrepareLeaves(at + 1, depth + 1);
+                    this.RecursivePrepareLeaves(ref tempAllocator, at + 1, depth + 1);
                 } else if (elementCount != 0) {
                     // We either hit max depth or there's less than the max elements on this node, make it a leaf
                     var node = new QuadNode { firstChildIndex = this.elementsCount, count = 0, isLeaf = true };
                     //UnsafeUtility.WriteArrayElement(this.nodes->Ptr, at, node);
-                    this.nodes[at] = node;
+                    this.nodes[in tempAllocator, at] = node;
                     this.elementsCount += elementCount;
                 }
             }
@@ -220,14 +224,15 @@ namespace ME.ECS.Collections {
         }
 
         public void Clear() {
+            ref var tempAllocator = ref StaticAllocators.GetAllocator(AllocatorType.Temp);
             #if ENABLE_UNITY_COLLECTIONS_CHECKS
             AtomicSafetyHandle.CheckWriteAndBumpSecondaryVersion(this.safetyHandle);
             #endif
             //this.lookup.Clear();
             //this.nodes.Clear();
             //this.elements.Clear();
-            NativeArrayUtils.Clear(this.lookup);
-            NativeArrayUtils.Clear(this.nodes);
+            this.lookup.Clear(in tempAllocator);
+            this.nodes.Clear(in tempAllocator);
             //NativeArrayUtils.Clear(this.elements);
             //UnsafeUtility.MemClear(this.lookup->Ptr, this.lookup->Capacity * UnsafeUtility.SizeOf<int>());
             //UnsafeUtility.MemClear(this.nodes->Ptr, this.nodes->Capacity * UnsafeUtility.SizeOf<QuadNode>());
@@ -236,11 +241,12 @@ namespace ME.ECS.Collections {
         }
 
         public void Dispose() {
+            ref var tempAllocator = ref StaticAllocators.GetAllocator(AllocatorType.Temp);
             //this.elements.Dispose();
             //this.elements = default;
-            this.lookup.Dispose();
+            this.lookup.Dispose(ref tempAllocator);
             this.lookup = default;
-            this.nodes.Dispose();
+            this.nodes.Dispose(ref tempAllocator);
             this.nodes = default;
             this.isCreated = false;
             UnsafeList<QuadElement<T>>.Destroy(this.elements);

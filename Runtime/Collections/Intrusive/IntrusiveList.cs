@@ -144,6 +144,7 @@ namespace ME.ECS.Collections {
         private void ValidateData() {
 
             if (this.data == Entity.Null) {
+                WorldUtilities.InitComponentTypeId<ME.ECS.Collections.IntrusiveData>(false, isBlittable: true);
                 this.data = new Entity(EntityFlag.None);
                 this.data.ValidateDataUnmanaged<IntrusiveData>();
                 this.data.Set(new IntrusiveData());
