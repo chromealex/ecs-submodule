@@ -290,8 +290,17 @@ public class AddonsWindow : EditorWindow {
         if (System.IO.Directory.Exists("Assets/ME.ECS.Addons") == false) System.IO.Directory.CreateDirectory("Assets/ME.ECS.Addons");
         var targetDir = $"ME.ECS.Addons/{packageInfo.name}";
         Git.Run($"submodule add --force {url} {targetDir}");
-        AssetDatabase.ImportAsset("Assets/" + targetDir);
-        this.UpdateAfterInstallation();
+        EditorApplication.CallbackFunction action = null;
+        action = () => {
+            if (System.IO.File.Exists("Assets/" + targetDir + "/package.json") == true) {
+                AssetDatabase.ImportAsset("Assets/" + targetDir, ImportAssetOptions.ImportRecursive);
+                AssetDatabase.ImportAsset("Assets/" + targetDir + "/package.json");
+                this.UpdateAfterInstallation();
+            } else {
+                EditorApplication.delayCall += action;
+            }
+        };
+        EditorApplication.delayCall += action;
 
     }
     
