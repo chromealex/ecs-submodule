@@ -22,11 +22,19 @@
     width: 100%;
 }
 
+.buttons {
+    flex-direction: row;
+    flex-shrink: 0;
+}
+
 .item .caption {
     background-color: rgba(128, 128, 128, 0.4);
+    border-bottom-color: rgba(30, 30, 30, 0.4);
+    border-bottom-width: 1px;
     font-size: 14px;
     padding: 4px;
     margin-bottom: 4px;
+    color: rgba(255, 255, 255, 0.5);
 }
 .item.new-version-available .caption {
     background-color: rgba(255, 0, 0, 0.1);
@@ -248,4 +256,27 @@ TemplateContainer .content {
     margin: 1px;
     width: 10px;
     height: 10px;
+}
+
+.version-container {
+    flex-direction: row;
+    align-items: center;
+    margin-left: 4px;
+    flex-shrink: 0;
+}
+.version-container .version-caption {
+    border-radius: 6px;
+    border-bottom-right-radius: 0px;
+    border-top-right-radius: 0px;
+    background-color: rgb(30, 30, 30);
+    padding: 2px;
+    padding-left: 4px;
+}
+.version-container .version {
+    border-radius: 6px;
+    border-bottom-left-radius: 0px;
+    border-top-left-radius: 0px;
+    background-color: rgb(0, 80, 120);
+    padding: 2px;
+    padding-right: 4px;
 }

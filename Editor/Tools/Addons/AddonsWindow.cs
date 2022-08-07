@@ -155,10 +155,20 @@ public class AddonsWindow : EditorWindow {
                         var currentVersion = new Label();
                         currentVersion.AddToClassList("current-version");
                         
-                        var version = new Label();
-                        version.AddToClassList("version");
-                        this.GetVersion(container, bottom, version, currentVersion, url);
-                        bottom.Add(version);
+                        var versionElement = new VisualElement();
+                        versionElement.AddToClassList("version-container");
+                        {
+                            var versionCaption = new Label("version");
+                            versionCaption.AddToClassList("version-caption");
+                            versionElement.Add(versionCaption);
+                        }
+                        {
+                            var version = new Label();
+                            version.AddToClassList("version");
+                            this.GetVersion(container, bottom, version, currentVersion, url);
+                            versionElement.Add(version);
+                        }
+                        bottom.Add(versionElement);
                         bottom.Add(currentVersion);
                     }
 
@@ -227,6 +237,10 @@ public class AddonsWindow : EditorWindow {
                 flex.AddToClassList("flex");
                 bottomContainer.Add(flex);
                 
+                var buttons = new VisualElement();
+                buttons.AddToClassList("buttons");
+                bottomContainer.Add(buttons);
+                
                 if (json.documentationUrl != null) { // documentation
                     var button = new Button(() => { Application.OpenURL(json.documentationUrl); });
                     button.AddToClassList("button");
@@ -236,7 +250,7 @@ public class AddonsWindow : EditorWindow {
                     button.Add(icon);
                     var buttonLabel = new Label("docs");
                     button.Add(buttonLabel);
-                    bottomContainer.Add(button);
+                    buttons.Add(button);
                 }
                 { // github
                     var button = new Button(() => { Application.OpenURL(url); });
@@ -247,7 +261,7 @@ public class AddonsWindow : EditorWindow {
                     button.Add(icon);
                     var buttonLabel = new Label("github");
                     button.Add(buttonLabel);
-                    bottomContainer.Add(button);
+                    buttons.Add(button);
                 }
                 if (isInstalled == false) {
                     { // upm
@@ -262,7 +276,7 @@ public class AddonsWindow : EditorWindow {
                         var buttonLabel = new Label("UPM install");
                         buttonLabel.tooltip = "Install package via Unity Package Manager";
                         button.Add(buttonLabel);
-                        bottomContainer.Add(button);
+                        buttons.Add(button);
                     }
                     { // submodule
                         var button = new Button(() => {
@@ -276,7 +290,7 @@ public class AddonsWindow : EditorWindow {
                         var buttonLabel = new Label("git submodule install");
                         buttonLabel.tooltip = "Install package via git submodule";
                         button.Add(buttonLabel);
-                        bottomContainer.Add(button);
+                        buttons.Add(button);
                     }
                 }
             },
