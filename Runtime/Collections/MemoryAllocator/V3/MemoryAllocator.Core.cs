@@ -146,15 +146,13 @@ namespace ME.ECS.Collections.V3 {
 
         [INLINE(256)]
         public static MemZone* ZmCreateZone(int size) {
+            
             size = MemoryAllocator.ZmGetMemBlockSize(size) + sizeof(MemZone);
-
             var zone = (MemZone*)UnsafeUtility.Malloc(size, UnsafeUtility.AlignOf<byte>(), Allocator.Persistent);
-
             UnsafeUtility.MemSet(zone, 0, size);
             zone->size = size;
-
             MemoryAllocator.ZmClearZone(zone);
-
+            
             return zone;
         }
 

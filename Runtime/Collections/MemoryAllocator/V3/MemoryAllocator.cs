@@ -91,6 +91,8 @@ namespace ME.ECS.Collections.V3 {
         /// 
         public MemoryAllocator Initialize(long initialSize, long maxSize = -1L) {
 
+            if (maxSize < initialSize) maxSize = initialSize;
+            
             this.AddZone(MemoryAllocator.ZmCreateZone((int)Math.Max(initialSize, MemoryAllocator.MIN_ZONE_SIZE)));
             
             this.maxSize = maxSize;
