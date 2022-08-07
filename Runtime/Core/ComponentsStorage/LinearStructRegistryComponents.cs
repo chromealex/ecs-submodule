@@ -995,21 +995,29 @@ namespace ME.ECS {
          Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.ArrayBoundsChecks, false),
          Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.DivideByZeroChecks, false)]
         #endif
-        public void OnRecycle(ref MemoryAllocator allocator) {
+        public void OnRecycle(ref MemoryAllocator allocator, bool destroyAllocator) {
 
-            this.entitiesIndexer.Dispose(ref allocator);
-            
-            if (this.nextTickTasks.isCreated == true) {
+            if (destroyAllocator == false) {
+                
+                this.entitiesIndexer.Dispose(ref allocator);
+                
+                if (this.nextTickTasks.isCreated == true) {
 
-                var e = this.nextTickTasks.GetEnumerator(in allocator);
-                while (e.MoveNext() == true) {
+                    var e = this.nextTickTasks.GetEnumerator(in allocator);
+                    while (e.MoveNext() == true) {
 
-                    var task = e.Current;
-                    task.Dispose(ref allocator);
+                        var task = e.Current;
+                        task.Dispose(ref allocator);
+
+                    }
+                    e.Dispose();
+                    this.nextTickTasks.Dispose(ref allocator);
 
                 }
-                e.Dispose();
-                this.nextTickTasks.Dispose(ref allocator);
+
+                if (this.dirtyMap.isCreated == true) this.dirtyMap.Dispose(ref allocator);
+
+                this.unmanagedComponentsStorage = default;
 
             }
             
@@ -1029,10 +1037,6 @@ namespace ME.ECS {
                 PoolArray<StructRegistryBase>.Recycle(ref this.list);
 
             }
-
-            if (this.dirtyMap.isCreated == true) this.dirtyMap.Dispose(ref allocator);
-            
-            this.unmanagedComponentsStorage.Dispose(ref allocator);
 
             this.isCreated = default;
 
@@ -1127,7 +1131,7 @@ namespace ME.ECS {
 
             public void Dispose() {
                 
-                this.storage.OnRecycle(ref this.allocator);
+                this.storage.OnRecycle(ref this.allocator, true);
                 this.allocator.Dispose();
                 
             }

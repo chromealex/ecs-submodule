@@ -99,15 +99,6 @@ namespace ME.ECS {
 
         }
 
-        public void Dispose(ref MemoryAllocator allocator) {
-            
-            // We don't need to dispose everything here recursively because Dispose called on state de-initialization
-            // and allocator disposed with all state
-            //if (this.items.isCreated == true) this.items.Dispose(ref allocator);
-            this.items = default;
-
-        }
-
         public ref Item<T> GetRegistry<T>(in MemoryAllocator allocator) where T : struct, IComponentBase {
 
             var typeId = AllComponentTypes<T>.typeId;

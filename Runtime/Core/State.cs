@@ -72,13 +72,14 @@ namespace ME.ECS {
             this.tick = default;
             this.randomState = default;
             this.sharedEntity = default;
-            
+
             #if !ENTITY_TIMERS_DISABLED
-            this.timers.Dispose(ref this.allocator);
+            this.timers = default;
             #endif
-            this.globalEvents.Dispose(ref this.allocator);
-            this.storage.Dispose(ref this.allocator);
-            this.structComponents.OnRecycle(ref this.allocator);
+            this.globalEvents = default;
+            this.storage = default;
+            
+            this.structComponents.OnRecycle(ref this.allocator, true);
             
             this.allocator.Dispose();
 
