@@ -61,12 +61,14 @@ public class AddonsWindow : EditorWindow {
                     
                     this.isUpdated = true;
                     this.UpdateData(this.request.downloadHandler.text);
+                    this.request = null;
 
                 }
 
             } else if (string.IsNullOrEmpty(this.request.error) == false) {
                 
                 Debug.LogWarning(this.request.error);
+                this.request = null;
                 
             } else {
                 
@@ -103,7 +105,11 @@ public class AddonsWindow : EditorWindow {
 
     }
 
+    private UnityEditor.PackageManager.Requests.AddRequest addRequest;
+    private string lastTextRequest;
     private void UpdateData(string text) {
+
+        this.lastTextRequest = text;
 
         this.container.Clear();
         var lines = text.Split('\n');
@@ -125,7 +131,7 @@ public class AddonsWindow : EditorWindow {
                 v.text = val;
                 container.Add(v);
 
-            } else {
+            } else if (container != null) {
 
                 if (line.Trim().Length > 0) {
 
@@ -151,19 +157,9 @@ public class AddonsWindow : EditorWindow {
                         
                         var version = new Label();
                         version.AddToClassList("version");
-                        this.GetVersion(container, version, currentVersion, url);
+                        this.GetVersion(container, bottom, version, currentVersion, url);
                         bottom.Add(version);
                         bottom.Add(currentVersion);
-                    }
-                    {
-                        var button = new Button(() => { Application.OpenURL(url); });
-                        button.AddToClassList("button");
-                        var icon = new Image();
-                        icon.image = EditorUtilities.Load<Texture>("Editor/Tools/Addons/EditorResources/github-icon.png");
-                        button.Add(icon);
-                        var buttonLabel = new Label("github");
-                        button.Add(buttonLabel);
-                        bottom.Add(button);
                     }
 
                 }
@@ -197,7 +193,7 @@ public class AddonsWindow : EditorWindow {
     }
 
     private List<Item> requests = new List<Item>();
-    private void GetVersion(VisualElement container, Label label, Label currentVersion, string url) {
+    private void GetVersion(VisualElement container, VisualElement bottomContainer, Label label, Label currentVersion, string url) {
         
         currentVersion.text = "Checking installed version...";
         
@@ -208,7 +204,9 @@ public class AddonsWindow : EditorWindow {
             callback = (data) => {
                 var json = JsonUtility.FromJson<PackageInfo>(data);
                 label.text = json.version;
+                var isInstalled = false;
                 if (this.HasInstalledPackage(json, out var installedInfo) == true) {
+                    isInstalled = true;
                     if (installedInfo.version != json.version) {
                         currentVersion.AddToClassList("new-version-available");
                         container.AddToClassList("new-version-available");
@@ -223,8 +221,72 @@ public class AddonsWindow : EditorWindow {
                     container.AddToClassList("not-installed");
                     currentVersion.text = "Not installed";
                 }
+                
+                var flex = new VisualElement();
+                flex.AddToClassList("flex");
+                bottomContainer.Add(flex);
+                
+                { // github
+                    var button = new Button(() => { Application.OpenURL(url); });
+                    button.AddToClassList("button");
+                    var icon = new Image();
+                    icon.image = EditorUtilities.Load<Texture>("Editor/Tools/Addons/EditorResources/github-icon.png");
+                    button.Add(icon);
+                    var buttonLabel = new Label("github");
+                    button.Add(buttonLabel);
+                    bottomContainer.Add(button);
+                }
+                if (isInstalled == false) {
+                    { // upm
+                        var button = new Button(() => {
+                            this.InstallUPM(json, url);
+                        });
+                        button.AddToClassList("button");
+                        var icon = new Image();
+                        icon.image = EditorUtilities.Load<Texture>("Editor/Tools/Addons/EditorResources/upm-icon.png");
+                        button.Add(icon);
+                        var buttonLabel = new Label("UPM Install");
+                        button.Add(buttonLabel);
+                        bottomContainer.Add(button);
+                    }
+                    { // submodule
+                        var button = new Button(() => {
+                            this.InstallSubmodule(json, url);
+                        });
+                        button.AddToClassList("button");
+                        var icon = new Image();
+                        icon.image = EditorUtilities.Load<Texture>("Editor/Tools/Addons/EditorResources/github-icon.png");
+                        button.Add(icon);
+                        var buttonLabel = new Label("Submodule Install");
+                        button.Add(buttonLabel);
+                        bottomContainer.Add(button);
+                    }
+                }
             },
         });
+        
+    }
+
+    private void UpdateAfterInstallation() {
+        
+        this.UpdateData(this.lastTextRequest);
+        this.LoadPackages();
+        
+    }
+
+    private void InstallSubmodule(PackageInfo packageInfo, string url) {
+
+        if (System.IO.Directory.Exists("Assets/ME.ECS.Addons") == false) System.IO.Directory.CreateDirectory("Assets/ME.ECS.Addons");
+        var targetDir = $"ME.ECS.Addons/{packageInfo.name}";
+        Git.Run($"submodule add --force {url} {targetDir}");
+        AssetDatabase.ImportAsset("Assets/" + targetDir);
+        this.UpdateAfterInstallation();
+
+    }
+    
+    private void InstallUPM(PackageInfo packageInfo, string url) {
+        
+        this.addRequest = UnityEditor.PackageManager.Client.Add(url + ".git");
         
     }
 
@@ -276,6 +338,17 @@ public class AddonsWindow : EditorWindow {
     }
 
     private void UpdateRequests() {
+
+        if (this.addRequest != null) {
+
+            if (this.addRequest.IsCompleted == true) {
+
+                this.UpdateAfterInstallation();
+                this.addRequest = null;
+                
+            }
+            
+        }
 
         for (int i = this.requests.Count - 1; i >= 0; --i) {
 
