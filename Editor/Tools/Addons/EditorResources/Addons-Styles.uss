@@ -1,3 +1,7 @@
+#unity-content-viewport {
+    background-color: #2E3335;
+}
+
 .item {
     border-width: 1px;
     border-color: rgba(255, 255, 255, 0.1);
@@ -18,6 +22,10 @@
     cursor: arrow-plus;
 }
 
+.button Label {
+    color: rgba(255, 255, 255, 0.7);
+}
+
 .flex {
     width: 100%;
 }
@@ -31,10 +39,10 @@
     background-color: rgba(128, 128, 128, 0.4);
     border-bottom-color: rgba(30, 30, 30, 0.4);
     border-bottom-width: 1px;
-    font-size: 14px;
     padding: 4px;
     margin-bottom: 4px;
     color: rgba(255, 255, 255, 0.5);
+    font-size: 14px;
 }
 .item.new-version-available .caption {
     background-color: rgba(255, 0, 0, 0.1);
@@ -58,6 +66,7 @@
 }
 .item .current-version {
     padding: 4px;
+    font-size: 10px;
 }
 .item .new-version-available {
     color: rgba(255, 0, 0, 0.7);
@@ -69,10 +78,12 @@
     color: rgba(255, 255, 255, 0.7);
 }
 .item .description {
+    color: rgba(255, 255, 255, 0.7);
     padding: 4px;
 }
 .item .button {
     background-color: rgba(0, 0, 0, 0.2);
+    border-radius: 10px;
     margin: 0px;
     margin-left: 4px;
     flex-direction: row;
@@ -99,9 +110,6 @@
     color: #ddd;
 }
 
-.main-scroll-view.dark .main-header {
-    color: #ccc;
-}
 .main-scroll-view.dark .block {
     border-color: rgba(245, 245, 245, 0.1);
     background-color: rgba(245, 245, 245, 0.05);
@@ -139,15 +147,6 @@
     color: #111;
 }
 
-.main-scroll-view.light .main-header {
-    color: #222;
-    background-color: whitesmoke;
-}
-.main-scroll-view.light .block {
-    border-color: #ddd;
-    background-color: whitesmoke;
-}
-
 .main-scroll-view.light .block .header {
     background-color: #ddd;
 }
@@ -183,17 +182,6 @@ TemplateContainer {
 
 TemplateContainer .content {
     flex-grow: 1;
-}
-
-.main-scroll-view .main-header {
-    font-size: 24px;
-    align-self: center;
-    margin-bottom: 20px;
-    margin-top: 20px;
-    border-color: #69a55b;
-    border-width: 1px;
-    border-radius: 10px;
-    padding: 5px;
 }
 
 .main-scroll-view Foldout {
@@ -258,6 +246,41 @@ TemplateContainer .content {
     height: 10px;
 }
 
+.main-scroll-view .main-header {
+    flex-direction: row;
+    align-items: center;
+    align-self: center;
+}
+
+.main-scroll-view .main-header .left {
+    font-size: 24px;
+    align-self: center;
+    margin-bottom: 20px;
+    margin-top: 20px;
+    background-color: #2a475a;
+    border-color: #38586b;
+    border-width: 1px;
+    border-radius: 10px;
+    border-bottom-right-radius: 0px;
+    border-top-right-radius: 0px;
+    border-right-width: 0px;
+    padding: 5px;
+}
+.main-scroll-view .main-header .right {
+    font-size: 24px;
+    align-self: center;
+    margin-bottom: 20px;
+    margin-top: 20px;
+    background-color: #5a8850;
+    border-color: #5d9250;
+    border-width: 1px;
+    border-radius: 10px;
+    border-bottom-left-radius: 0px;
+    border-top-left-radius: 0px;
+    border-left-width: 0px;
+    padding: 5px;
+}
+
 .version-container {
     flex-direction: row;
     align-items: center;
@@ -265,18 +288,18 @@ TemplateContainer .content {
     flex-shrink: 0;
 }
 .version-container .version-caption {
-    border-radius: 6px;
+    border-radius: 8px;
     border-bottom-right-radius: 0px;
     border-top-right-radius: 0px;
     background-color: rgb(30, 30, 30);
     padding: 2px;
-    padding-left: 4px;
+    padding-left: 6px;
 }
 .version-container .version {
-    border-radius: 6px;
+    border-radius: 8px;
     border-bottom-left-radius: 0px;
     border-top-left-radius: 0px;
     background-color: rgb(0, 80, 120);
     padding: 2px;
-    padding-right: 4px;
+    padding-right: 6px;
 }

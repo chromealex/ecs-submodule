@@ -8,7 +8,8 @@
     <engine:VisualElement class="content" fixed-pane-initial-dimension="280">
         <engine:ScrollView class="main-scroll-view">
             <engine:VisualElement class="main-header">
-                <engine:Label text="Add-ons"/>
+                <engine:Label text="ME.ECS" class="left"/>
+                <engine:Label text="Add-ons" class="right"/>
             </engine:VisualElement>
             <engine:VisualElement class="loader invisible">
                 <engine:VisualElement class="item1"></engine:VisualElement>
