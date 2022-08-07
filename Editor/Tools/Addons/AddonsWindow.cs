@@ -182,6 +182,7 @@ public class AddonsWindow : EditorWindow {
 
         public string name;
         public string version;
+        public string documentationUrl;
 
     }
 
@@ -226,6 +227,16 @@ public class AddonsWindow : EditorWindow {
                 flex.AddToClassList("flex");
                 bottomContainer.Add(flex);
                 
+                if (json.documentationUrl != null) { // documentation
+                    var button = new Button(() => { Application.OpenURL(json.documentationUrl); });
+                    button.AddToClassList("button");
+                    var icon = new Image();
+                    icon.image = EditorUtilities.Load<Texture>("Editor/Tools/Addons/EditorResources/docs-icon.png");
+                    button.Add(icon);
+                    var buttonLabel = new Label("docs");
+                    button.Add(buttonLabel);
+                    bottomContainer.Add(button);
+                }
                 { // github
                     var button = new Button(() => { Application.OpenURL(url); });
                     button.AddToClassList("button");
