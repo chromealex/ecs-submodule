@@ -7,21 +7,21 @@ namespace ME.ECSEditor {
     using ME.ECS;
     using UnityEngine.UIElements;
     
-    [UnityEditor.CustomEditor(typeof(ME.ECS.Debug.EntityDebugComponent), true)]
+    [UnityEditor.CustomEditor(typeof(ME.ECS.DebugUtils.EntityDebugComponent), true)]
     public class EntityDebugComponentEditor : Editor, IEditorContainer {
 
         public class TempDataObject : MonoBehaviour {
 
-            public ME.ECS.Debug.EntityProxyDebugger.ComponentData[] components;
+            public ME.ECS.DebugUtils.EntityProxyDebugger.ComponentData[] components;
             #if !SHARED_COMPONENTS_DISABLED
-            public ME.ECS.Debug.EntityProxyDebugger.ComponentData[] sharedComponents;
+            public ME.ECS.DebugUtils.EntityProxyDebugger.ComponentData[] sharedComponents;
             #endif
 
         }
         
         public GameObject go;
         public TempDataObject temp;
-        private ME.ECS.Debug.EntityProxyDebugger debug;
+        private ME.ECS.DebugUtils.EntityProxyDebugger debug;
 
         private readonly System.Collections.Generic.Dictionary<int, UnityEditor.UIElements.PropertyField> fieldsCacheComponents = new System.Collections.Generic.Dictionary<int, PropertyField>();
         private VisualElement rootElement;
@@ -51,7 +51,7 @@ namespace ME.ECSEditor {
 
         public void OnEnable() {
 
-            var target = this.target as ME.ECS.Debug.EntityDebugComponent;
+            var target = this.target as ME.ECS.DebugUtils.EntityDebugComponent;
             this.go = new GameObject("Temp", typeof(TempDataObject));
             this.go.transform.SetParent(target.transform);
 
@@ -70,7 +70,7 @@ namespace ME.ECSEditor {
 
         public void Update() {
             
-            var target = this.target as ME.ECS.Debug.EntityDebugComponent;
+            var target = this.target as ME.ECS.DebugUtils.EntityDebugComponent;
             var entity = this.UpdateEntity(target.entity);
             if (entity != Entity.Empty) {
                 
@@ -105,7 +105,7 @@ namespace ME.ECSEditor {
 
         private Entity UpdateEntity(Entity entity) {
 
-            var target = this.target as ME.ECS.Debug.EntityDebugComponent;
+            var target = this.target as ME.ECS.DebugUtils.EntityDebugComponent;
             if (target.world != null && target.world.isActive == true) {
 
                 var currentEntity = target.world.GetEntityById(entity.id);
@@ -302,10 +302,10 @@ namespace ME.ECSEditor {
             container.styleSheets.Add(EditorUtilities.Load<StyleSheet>("Editor/Core/DataConfigs/styles.uss", isRequired: true));
             this.rootElement = container;
             
-            var target = this.target as ME.ECS.Debug.EntityDebugComponent;
+            var target = this.target as ME.ECS.DebugUtils.EntityDebugComponent;
             if (target.world != null && target.world.isActive == true) {
 
-                this.debug = new ME.ECS.Debug.EntityProxyDebugger(target.entity, target.world);
+                this.debug = new ME.ECS.DebugUtils.EntityProxyDebugger(target.entity, target.world);
                 this.temp.components = this.debug.GetComponentsList();
                 #if !SHARED_COMPONENTS_DISABLED
                 this.temp.sharedComponents = this.debug.GetSharedComponentsList();

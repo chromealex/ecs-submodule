@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace ME.ECS.Debug {
+namespace ME.ECS.DebugUtils {
 
     [System.Serializable]
     public struct EntityStatistic {

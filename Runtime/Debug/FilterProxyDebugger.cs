@@ -1,5 +1,5 @@
 ﻿
-namespace ME.ECS.Debug {
+namespace ME.ECS.DebugUtils {
 
     public class FilterProxyDebugger {
 

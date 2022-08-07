@@ -1,6 +1,6 @@
 namespace ME.ECS.Collections {
 
-    [System.Diagnostics.DebuggerTypeProxyAttribute(typeof(ME.ECS.Debug.SpanArrayProxyDebugger<>))]
+    [System.Diagnostics.DebuggerTypeProxyAttribute(typeof(ME.ECS.DebugUtils.SpanArrayProxyDebugger<>))]
     public unsafe struct SpanArray<T> where T : unmanaged {
 
         private T* ptr;

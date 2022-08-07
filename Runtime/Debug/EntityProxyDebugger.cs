@@ -2,7 +2,7 @@
 using System.Linq;
 using System.Reflection;
 
-namespace ME.ECS.Debug {
+namespace ME.ECS.DebugUtils {
 
     public class EntityProxyDebugger {
 

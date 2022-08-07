@@ -6,15 +6,27 @@ namespace ME.ECS {
     
     public static class CoreComponentsInitializer {
 
+        public delegate void InitTypeIdStaticCallback();
+        private static InitTypeIdStaticCallback initTypeIdStaticCallback;
+
+        public delegate void InitStaticCallback(State state, ref World.NoState noState);
+        private static InitStaticCallback initStaticCallback;
+        
+        public delegate void InitEntityStaticCallback(in Entity entity);
+        private static InitEntityStaticCallback initEntityStaticCallback;
+
+        public static void RegisterInitCallback(InitTypeIdStaticCallback initTypeId, InitStaticCallback init, InitEntityStaticCallback initEntity) {
+            
+            CoreComponentsInitializer.initTypeIdStaticCallback += initTypeId;
+            CoreComponentsInitializer.initStaticCallback += init;
+            CoreComponentsInitializer.initEntityStaticCallback += initEntity;
+            
+        }
+        
         public static void InitTypeId() {
             
             WorldUtilities.InitComponentTypeId<IsEntityOneShot>(true, isOneShot: true);
             WorldUtilities.InitComponentTypeId<IsEntityEmptyOneShot>(true, isOneShot: true);
-            WorldUtilities.InitComponentTypeId<ME.ECS.Collections.IntrusiveData>(false, isBlittable: true);
-            WorldUtilities.InitComponentTypeId<ME.ECS.Collections.IntrusiveSortedListData>(false, isBlittable: true);
-            WorldUtilities.InitComponentTypeId<ME.ECS.Collections.IntrusiveListNode>(false, isBlittable: true);
-            WorldUtilities.InitComponentTypeId<ME.ECS.Collections.IntrusiveHashSetBucket>(false, isBlittable: true);
-            WorldUtilities.InitComponentTypeId<ME.ECS.Collections.IntrusiveHashSetData>(false, isBlittable: true);
             
             ViewComponentsInitializer.InitTypeId();
             ME.ECS.DataConfigs.DataConfig.InitTypeId();
@@ -22,6 +34,8 @@ namespace ME.ECS {
             NameComponentsInitializer.InitTypeId();
             CameraComponentsInitializer.InitTypeId();
             ME.ECS.DataConfigs.DataConfigComponentsInitializer.InitTypeId();
+            
+            initTypeIdStaticCallback?.Invoke();
 
         }
         
@@ -29,11 +43,6 @@ namespace ME.ECS {
             
             noState.storage.ValidateOneShot<IsEntityOneShot>(true);
             noState.storage.ValidateOneShot<IsEntityEmptyOneShot>(true);
-            state.structComponents.ValidateUnmanaged<ME.ECS.Collections.IntrusiveData>(ref state.allocator, false);
-            state.structComponents.ValidateUnmanaged<ME.ECS.Collections.IntrusiveSortedListData>(ref state.allocator, false);
-            state.structComponents.ValidateUnmanaged<ME.ECS.Collections.IntrusiveListNode>(ref state.allocator, false);
-            state.structComponents.ValidateUnmanaged<ME.ECS.Collections.IntrusiveHashSetBucket>(ref state.allocator, false);
-            state.structComponents.ValidateUnmanaged<ME.ECS.Collections.IntrusiveHashSetData>(ref state.allocator, false);
 
             ViewComponentsInitializer.Init(state);
             ME.ECS.DataConfigs.DataConfig.Init(state);
@@ -42,17 +51,14 @@ namespace ME.ECS {
             CameraComponentsInitializer.Init(state);
             ME.ECS.DataConfigs.DataConfigComponentsInitializer.Init(state);
             
+            initStaticCallback?.Invoke(state, ref noState);
+            
         }
 
         public static void Init(in Entity entity) {
             
             entity.ValidateDataOneShot<IsEntityOneShot>(true);
             entity.ValidateDataOneShot<IsEntityEmptyOneShot>(true);
-            entity.ValidateDataUnmanaged<ME.ECS.Collections.IntrusiveData>(false);
-            entity.ValidateDataUnmanaged<ME.ECS.Collections.IntrusiveSortedListData>(false);
-            entity.ValidateDataUnmanaged<ME.ECS.Collections.IntrusiveListNode>(false);
-            entity.ValidateDataUnmanaged<ME.ECS.Collections.IntrusiveHashSetBucket>(false);
-            entity.ValidateDataUnmanaged<ME.ECS.Collections.IntrusiveHashSetData>(false);
 
             ViewComponentsInitializer.Init(in entity);
             ME.ECS.DataConfigs.DataConfig.Init(in entity);
@@ -60,6 +66,8 @@ namespace ME.ECS {
             NameComponentsInitializer.Init(in entity);
             CameraComponentsInitializer.Init(in entity);
             ME.ECS.DataConfigs.DataConfigComponentsInitializer.Init(in entity);
+            
+            initEntityStaticCallback?.Invoke(in entity);
 
         }
 

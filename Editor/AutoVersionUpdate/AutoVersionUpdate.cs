@@ -86,24 +86,28 @@ namespace ME.ECSEditor {
 
         }
 
-        internal static void UpdatePackageVersion(string[] filepaths, string commitName) {
-            
-            var package = EditorUtilities.Load<TextAsset>("package.json", out var realPath);
+        internal static void UpdatePackageVersion(string packagePath, string[] filepaths, string commitName) {
+
+            var package = AssetDatabase.LoadAssetAtPath<TextAsset>(packagePath);//EditorUtilities.Load<TextAsset>("package.json", out var realPath);
+            var realPath = packagePath;
             if (package != null) {
 
                 var files = new string[filepaths.Length];
                 var rootDir = System.IO.Path.GetDirectoryName(realPath);
                 for (int i = 0; i < filepaths.Length; ++i) {
+                
                     var d = System.IO.Path.GetDirectoryName(filepaths[i]);
                     var dir = d.Substring(rootDir.Length, d.Length - rootDir.Length);
                     var splitted = dir.Split('/');
-                    if (splitted.Length > 1) {
+                    if (splitted.Length > 2) {
                         files[i] = splitted[1] + "." + splitted[2]; //System.IO.Path.GetFileNameWithoutExtension(filepaths[i]);
                     } else {
                         files[i] = splitted[0];
                     }
+                    
                 }
 
+                Debug.Log(realPath);
                 var source = package.text;
                 var pattern = @"""version"":\s*""(?<major>[0-9]+).(?<minor>[0-9]+).(?<build>[0-9]+)""";
                 var result = Regex.Replace(source, pattern, AutoVersionUpdateCompilation.UpBuild);
@@ -119,7 +123,7 @@ namespace ME.ECSEditor {
             var sourceVersionCheck = string.Join(".", sourceVersion.Split('.').Take(2).ToArray());
             var verCheck = string.Join(".", ver.Split('.').Take(2).ToArray());
             
-            Debug.Log($"Version up {sourceVersion} => {ver}");
+            Debug.Log($"{realPath}: Version up {sourceVersion} => {ver}");
             if (sourceVersionCheck == verCheck) {
                 // major/minor not changed
                 System.IO.File.WriteAllText(realPath, text);
@@ -191,6 +195,7 @@ namespace ME.ECSEditor {
             
             if (AutoVersionUpdateCompilation.assemblies == null) AutoVersionUpdateCompilation.assemblies = UnityEditor.Compilation.CompilationPipeline.GetAssemblies();
 
+            var packagePath = string.Empty;
             var assetReimport = new System.Collections.Generic.List<string>();
             var found = false;
             foreach (var asset in importedAssets) {
@@ -200,6 +205,9 @@ namespace ME.ECSEditor {
                     var assembly = AutoVersionUpdateCompilation.assemblies.FirstOrDefault(a => a.name.Contains("ME.ECS") == true && a.sourceFiles.Contains(asset) == true);
                     if (assembly != null) {
 
+                        var srcDir = System.IO.Path.GetDirectoryName(asset);
+                        packagePath = GetPackageFilePath(srcDir);
+                        
                         assetReimport.Add(asset);
                         found = true;
                     
@@ -209,8 +217,29 @@ namespace ME.ECSEditor {
             
             }
             
-            if (found == true) AutoVersionUpdateCompilation.UpdatePackageVersion(assetReimport.ToArray(), commitName);
+            if (found == true) AutoVersionUpdateCompilation.UpdatePackageVersion(packagePath, assetReimport.ToArray(), commitName);
             
+        }
+
+        private static string GetPackageFilePath(string path) {
+            
+            var result = System.IO.Path.Combine(path, "package.json");
+            if (System.IO.File.Exists(result) == true) return result;
+
+            var prevPath = path;
+            var splitted = path.Split('/');
+            var sb = new System.Text.StringBuilder();
+            for (int i = 0; i < splitted.Length - 1; ++i) {
+                sb.Append(splitted[i]);
+                if (i < splitted.Length - 2) sb.Append('/');
+            }
+            path = sb.ToString();
+            
+            //path = new System.IO.DirectoryInfo(path).Parent.ToString();
+            if (string.IsNullOrEmpty(path) == true || path.Length <= 1) return string.Empty;
+            if (prevPath.Length == path.Length) return string.Empty;
+            
+            return GetPackageFilePath(path);
         }
 
     }

@@ -132,7 +132,6 @@ namespace ME.ECS.DataConfigs {
             #if !SHARED_COMPONENTS_DISABLED
             WorldUtilities.InitComponentTypeId<SharedData>(isCopyable: true);
             #endif
-            WorldUtilities.InitComponentTypeId<ME.ECS.Collections.IntrusiveHashSetBucketGeneric<ME.ECS.Collections.IntrusiveDictionary<int, int>.Entry>>();
             
         }
 
@@ -141,7 +140,6 @@ namespace ME.ECS.DataConfigs {
             #if !SHARED_COMPONENTS_DISABLED
             state.structComponents.ValidateUnmanaged<SharedData>(ref state.allocator, false);
             #endif
-            state.structComponents.Validate<ME.ECS.Collections.IntrusiveHashSetBucketGeneric<ME.ECS.Collections.IntrusiveDictionary<int, int>.Entry>>(false);
 
         }
 
@@ -150,7 +148,6 @@ namespace ME.ECS.DataConfigs {
             #if !SHARED_COMPONENTS_DISABLED
             entity.ValidateDataUnmanaged<SharedData>(false);
             #endif
-            entity.ValidateData<ME.ECS.Collections.IntrusiveHashSetBucketGeneric<ME.ECS.Collections.IntrusiveDictionary<int, int>.Entry>>(false);
 
         }
         #endregion

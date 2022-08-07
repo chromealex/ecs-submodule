@@ -16,7 +16,7 @@ namespace ME.ECS {
     [Il2Cpp(Option.NullChecks, false)]
     [Il2Cpp(Option.ArrayBoundsChecks, false)]
     [Il2Cpp(Option.DivideByZeroChecks, false)]
-    [System.Diagnostics.DebuggerTypeProxyAttribute(typeof(ME.ECS.Debug.FilterProxyDebugger))]
+    [System.Diagnostics.DebuggerTypeProxyAttribute(typeof(ME.ECS.DebugUtils.FilterProxyDebugger))]
     public struct Filter {
 
         public static Filter Empty = new Filter();

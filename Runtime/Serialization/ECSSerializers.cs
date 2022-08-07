@@ -305,6 +305,15 @@ namespace ME.ECS.Serializer {
 
     public static class ECSSerializers {
 
+        public delegate void RegisterSerializerCallback(ref Serializers serializers);
+        private static RegisterSerializerCallback registerSerializerCallback;
+
+        public static void RegisterSerializer(RegisterSerializerCallback callback) {
+
+            ECSSerializers.registerSerializerCallback += callback;
+
+        }
+        
         public static Serializers GetSerializers() {
 
             var ser = new Serializers();
@@ -314,12 +323,14 @@ namespace ME.ECS.Serializer {
             ser.Add(new TickSerializer());
             ser.Add(new HistoryEventSerializer());
             ser.Add(new BufferArraySerializer());
-            ser.Add(new DisposeSentinelSerializer());
             ser.Add(new MemoryAllocatorSerializer());
             ser.Add(new GenericIntDictionarySerializer());
             ser.Add(new GenericULongDictionarySerializer());
             ser.Add(new NextTickTaskSerializer());
             ser.Add(new UnsafeDataSerializer());
+            
+            registerSerializerCallback?.Invoke(ref ser);
+            
             return ser;
 
         }

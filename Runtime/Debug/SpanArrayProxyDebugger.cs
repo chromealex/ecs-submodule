@@ -1,4 +1,4 @@
-namespace ME.ECS.Debug {
+namespace ME.ECS.DebugUtils {
 
     public class SpanArrayProxyDebugger<T> where T : unmanaged {
 

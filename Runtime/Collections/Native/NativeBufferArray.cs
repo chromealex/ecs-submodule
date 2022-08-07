@@ -297,7 +297,7 @@ namespace ME.ECS.Collections {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
-        internal NativeBufferArray(NativeArray<T> arr, int length) {
+        public NativeBufferArray(NativeArray<T> arr, int length) {
             
             this.Length = length;
             this.arr = arr;
@@ -307,7 +307,7 @@ namespace ME.ECS.Collections {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
-        internal NativeBufferArray(T[] arr, int length, int realSize) {
+        public NativeBufferArray(T[] arr, int length, int realSize) {
 
             this.Length = length;
             if (arr == null) {
@@ -321,7 +321,7 @@ namespace ME.ECS.Collections {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
-        internal NativeBufferArray(int length, Unity.Collections.NativeArrayOptions options = Unity.Collections.NativeArrayOptions.ClearMemory) {
+        public NativeBufferArray(int length, Unity.Collections.NativeArrayOptions options = Unity.Collections.NativeArrayOptions.ClearMemory) {
 
             this.Length = length;
             this.arr = new NativeArray<T>(length, Allocator.Persistent, options);
@@ -331,7 +331,7 @@ namespace ME.ECS.Collections {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
-        internal NativeBufferArray(T[] arr) {
+        public NativeBufferArray(T[] arr) {
 
             this.Length = arr.Length;
             this.arr = new NativeArray<T>(arr, Allocator.Persistent);
@@ -341,7 +341,7 @@ namespace ME.ECS.Collections {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
-        internal NativeBufferArray(NativeArray<T> arr) {
+        public NativeBufferArray(NativeArray<T> arr) {
 
             this.Length = arr.Length;
             this.arr = new NativeArray<T>(arr, Allocator.Persistent);
@@ -351,7 +351,7 @@ namespace ME.ECS.Collections {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
-        internal NativeBufferArray(NativeBufferArray<T> arr) {
+        public NativeBufferArray(NativeBufferArray<T> arr) {
 
             this.Length = arr.Length;
             this.arr = new NativeArray<T>(arr.arr, Allocator.Persistent);
@@ -361,7 +361,7 @@ namespace ME.ECS.Collections {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
-        internal NativeBufferArray(BufferArray<T> arr) {
+        public NativeBufferArray(BufferArray<T> arr) {
 
             this.Length = arr.Length;
             this.arr = new NativeArray<T>(arr.arr, Allocator.Persistent);
@@ -371,7 +371,7 @@ namespace ME.ECS.Collections {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
-        internal NativeBufferArray(ListCopyable<T> arr) {
+        public NativeBufferArray(ListCopyable<T> arr) {
 
             this.Length = arr.Count;
             this.arr = new NativeArray<T>(arr.innerArray, Allocator.Persistent);

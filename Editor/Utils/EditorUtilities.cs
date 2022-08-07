@@ -38,7 +38,7 @@ namespace ME.ECSEditor {
 
             if (found == false) {
 
-                var objects = GameObject.FindObjectsOfType<ME.ECS.Debug.EntityDebugComponent>();
+                var objects = GameObject.FindObjectsOfType<ME.ECS.DebugUtils.EntityDebugComponent>();
                 foreach (var obj in objects) {
 
                     if (obj.entity == entity) {
@@ -61,8 +61,8 @@ namespace ME.ECSEditor {
 
                 } else {
 
-                    var debug = new GameObject("Debug-" + entity.ToString(), typeof(ME.ECS.Debug.EntityDebugComponent));
-                    var info = debug.GetComponent<ME.ECS.Debug.EntityDebugComponent>();
+                    var debug = new GameObject("Debug-" + entity.ToString(), typeof(ME.ECS.DebugUtils.EntityDebugComponent));
+                    var info = debug.GetComponent<ME.ECS.DebugUtils.EntityDebugComponent>();
                     info.entity = entity;
                     info.world = Worlds.currentWorld;
                     info.hasName = false;

@@ -210,7 +210,7 @@ namespace ME.ECS {
     #if MESSAGE_PACK_SUPPORT
     [MessagePack.MessagePackObjectAttribute()]
     #endif
-    [System.Diagnostics.DebuggerTypeProxyAttribute(typeof(ME.ECS.Debug.EntityProxyDebugger))]
+    [System.Diagnostics.DebuggerTypeProxyAttribute(typeof(ME.ECS.DebugUtils.EntityProxyDebugger))]
     public readonly struct Entity : System.IEquatable<Entity>, System.IComparable<Entity> {
 
         public const ushort GENERATION_ZERO = 0;

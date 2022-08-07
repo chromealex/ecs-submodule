@@ -636,10 +636,10 @@ namespace ME.ECSEditor {
                                 GUILayout.Space(10f);
                                 {
                                     GUILayout.BeginVertical();
-                                    var statObj = (ME.ECS.Debug.StatisticsObject)EditorGUILayout.ObjectField("Statistic Object",
-                                                                                                            target.worldDebugSettings.statisticsObject,
-                                                                                                            typeof(ME.ECS.Debug.StatisticsObject),
-                                                                                                            allowSceneObjects: false);
+                                    var statObj = (ME.ECS.DebugUtils.StatisticsObject)EditorGUILayout.ObjectField("Statistic Object",
+                                                                                                                  target.worldDebugSettings.statisticsObject,
+                                                                                                                  typeof(ME.ECS.DebugUtils.StatisticsObject),
+                                                                                                                  allowSceneObjects: false);
                                     if (target.worldDebugSettings.statisticsObject != statObj) {
                                         
                                         target.worldDebugSettings.statisticsObject = statObj;
@@ -651,14 +651,14 @@ namespace ME.ECSEditor {
                                         EditorGUILayout.HelpBox("Object is None, create custom statistic object or create default one.", MessageType.Warning);
                                         if (GUILayout.Button("Create Default") == true) {
 
-                                            statObj = ME.ECS.Debug.StatisticsObject.CreateInstance<ME.ECS.Debug.StatisticsObject>();
+                                            statObj = ME.ECS.DebugUtils.StatisticsObject.CreateInstance<ME.ECS.DebugUtils.StatisticsObject>();
                                             var path = AssetDatabase.GetAssetPath(this.target);
                                             var dir = System.IO.Path.GetDirectoryName(path);
                                             path = dir + "/" + this.target.name + "_StatisticObject.asset";
                                             AssetDatabase.CreateAsset(statObj, path);
                                             AssetDatabase.ImportAsset(path);
 
-                                            var so = AssetDatabase.LoadAssetAtPath<ME.ECS.Debug.StatisticsObject>(path);
+                                            var so = AssetDatabase.LoadAssetAtPath<ME.ECS.DebugUtils.StatisticsObject>(path);
                                             target.worldDebugSettings.statisticsObject = so;
                                             isDirty = true;
 

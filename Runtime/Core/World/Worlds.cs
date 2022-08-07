@@ -14,7 +14,7 @@ namespace ME.ECS {
         
         public static readonly List<World> registeredWorlds = new List<World>();
 
-        internal static bool isInDeInitialization;
+        public static bool isInDeInitialization;
         public static void DeInitializeBegin() {
 
             Worlds.isInDeInitialization = true;

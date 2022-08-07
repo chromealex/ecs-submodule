@@ -1,6 +1,6 @@
 namespace ME.ECS {
     
-    using Collections;
+    using MemPtr = System.Int64;
     using Collections.MemoryAllocator;
     using ME.ECS.Collections.V3;
 
