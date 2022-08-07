@@ -230,6 +230,7 @@ public class AddonsWindow : EditorWindow {
                 if (json.documentationUrl != null) { // documentation
                     var button = new Button(() => { Application.OpenURL(json.documentationUrl); });
                     button.AddToClassList("button");
+                    button.AddToClassList("cursor-hand");
                     var icon = new Image();
                     icon.image = EditorUtilities.Load<Texture>("Editor/Tools/Addons/EditorResources/docs-icon.png");
                     button.Add(icon);
@@ -240,6 +241,7 @@ public class AddonsWindow : EditorWindow {
                 { // github
                     var button = new Button(() => { Application.OpenURL(url); });
                     button.AddToClassList("button");
+                    button.AddToClassList("cursor-hand");
                     var icon = new Image();
                     icon.image = EditorUtilities.Load<Texture>("Editor/Tools/Addons/EditorResources/github-icon.png");
                     button.Add(icon);
@@ -253,10 +255,12 @@ public class AddonsWindow : EditorWindow {
                             this.InstallUPM(json, url);
                         });
                         button.AddToClassList("button");
+                        button.AddToClassList("cursor-action");
                         var icon = new Image();
                         icon.image = EditorUtilities.Load<Texture>("Editor/Tools/Addons/EditorResources/upm-icon.png");
                         button.Add(icon);
-                        var buttonLabel = new Label("UPM Install");
+                        var buttonLabel = new Label("UPM install");
+                        buttonLabel.tooltip = "Install package via Unity Package Manager";
                         button.Add(buttonLabel);
                         bottomContainer.Add(button);
                     }
@@ -265,10 +269,12 @@ public class AddonsWindow : EditorWindow {
                             this.InstallSubmodule(json, url);
                         });
                         button.AddToClassList("button");
+                        button.AddToClassList("cursor-action");
                         var icon = new Image();
                         icon.image = EditorUtilities.Load<Texture>("Editor/Tools/Addons/EditorResources/github-icon.png");
                         button.Add(icon);
-                        var buttonLabel = new Label("Submodule Install");
+                        var buttonLabel = new Label("git submodule install");
+                        buttonLabel.tooltip = "Install package via git submodule";
                         button.Add(buttonLabel);
                         bottomContainer.Add(button);
                     }
