@@ -28,6 +28,8 @@
 .item .bottom {
     flex-direction: row;
     align-items: center;
+    margin-bottom: 4px;
+    margin-right: 4px;
 }
 .item .version {
     font-size: 12px;
