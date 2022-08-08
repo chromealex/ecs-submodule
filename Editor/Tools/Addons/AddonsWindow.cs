@@ -9,7 +9,7 @@ public class AddonsWindow : EditorWindow {
 
     private bool isUpdated;
     
-    [MenuItem("ME.ECS/Add-ons...", priority = 10005)]
+    [MenuItem("ME.ECS/⚙ Add-ons...", priority = 10005)]
     public static void Open() {
 
         var win = QuickStartWindow.CreateInstance<AddonsWindow>();
