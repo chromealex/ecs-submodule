@@ -26,6 +26,10 @@
     cursor: arrow-minus;
 }
 
+.cursor-action-update, .cursor-action-update * {
+    cursor: link;
+}
+
 .button Label {
     color: rgba(255, 255, 255, 0.7);
 }
@@ -49,7 +53,7 @@
     font-size: 14px;
 }
 .item.new-version-available .caption {
-    background-color: rgba(255, 0, 0, 0.1);
+    background-color: rgba(255, 255, 0, 0.3);
 }
 .item.up-to-date .caption {
     background-color: rgba(0, 255, 0, 0.1);
@@ -73,7 +77,7 @@
     font-size: 10px;
 }
 .item .new-version-available {
-    color: rgba(255, 0, 0, 0.7);
+    color: rgba(255, 255, 0, 0.7);
 }
 .item .up-to-date {
     color: rgba(0, 255, 0, 0.7);
@@ -93,13 +97,42 @@
     flex-direction: row;
     align-items: center;
 }
-.item .button:hover {
-    background-color: rgba(0, 0, 0, 0.4);
-}
 .item .button Image {
     margin-right: 2px;
     width: 10px;
     height: 10px;
+}
+
+.item .button.cursor-action-add {
+    background-color: rgba(255, 255, 255, 0.2);
+}
+.item .button.cursor-action-update {
+    background-color: rgba(0, 255, 0, 0.2);
+}
+.item .button.cursor-action-remove {
+    background-color: rgba(255, 0, 0, 0.2);
+}
+.item .button:hover {
+    opacity: 0.9;
+    border-color: olivedrab;
+}
+.item .button:active {
+    opacity: 0.6;
+    border-color: #666677;
+}
+.item .button.cursor-hand {
+    background-color: rgba(0, 0, 0, 0);
+    border-radius: 0px;
+    padding-left: 0px;
+    padding-right: 0px;
+    margin-left: 2px;
+    margin-right: 8px;
+    border-width: 0px;
+    border-bottom-width: 1px;
+    border-color: #558ed9;
+}
+.item .button.cursor-hand * {
+    color: #558ED9;
 }
 
 .main-scroll-view.dark {
@@ -292,6 +325,7 @@ TemplateContainer .content {
     flex-shrink: 0;
 }
 .version-container .version-caption {
+    border-width: 0px;
     border-radius: 8px;
     border-bottom-right-radius: 0px;
     border-top-right-radius: 0px;
@@ -300,10 +334,14 @@ TemplateContainer .content {
     padding-left: 6px;
 }
 .version-container .version {
+    border-width: 2px;
+    border-color: rgb(30, 30, 30);
     border-radius: 8px;
     border-bottom-left-radius: 0px;
     border-top-left-radius: 0px;
     background-color: rgb(0, 80, 120);
-    padding: 2px;
+    padding: 0px;
+    padding-left: 4px;
+    border-left-width: 0px;
     padding-right: 6px;
 }

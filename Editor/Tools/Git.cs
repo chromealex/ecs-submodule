@@ -42,6 +42,8 @@ namespace ME.ECSEditor {
             }
         }
 
+        public static string RootDir => Git.Run("rev-parse --show-toplevel");
+        
         /// <summary>
         /// The currently active branch.
         /// </summary>
@@ -58,8 +60,14 @@ namespace ME.ECSEditor {
         /// Runs git.exe with the specified arguments and returns the output.
         /// </summary>
         public static string Run(string arguments) {
+            
+            return Run(arguments, Application.dataPath);
+
+        }
+
+        public static string Run(string arguments, string path) {
             using (var process = new System.Diagnostics.Process()) {
-                var exitCode = process.Run(@"git", arguments, Application.dataPath, out var output, out var errors);
+                var exitCode = process.Run(@"git", arguments, path, out var output, out var errors);
                 if (exitCode == 0) {
                     return output;
                 } else {

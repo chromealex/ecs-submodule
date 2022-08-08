@@ -8,18 +8,104 @@ using UnityEngine.UIElements;
 public class AddonsWindow : EditorWindow {
 
     private bool isUpdated;
+
+    [System.Serializable]
+    private struct InstallSource {
+
+        public struct Item<T> {
+
+            public string name;
+            public string description;
+            public System.Action<T, string> action;
+
+        }
+
+        public InstallationSourceType type;
+        public string icon;
+        public Item<PackageInfo> install;
+        public Item<InstalledPackageInfo> uninstall;
+        public Item<InstalledPackageInfo> update;
+        
+    }
+
+    private List<InstallSource> installSources = new List<InstallSource>();
     
     [MenuItem("ME.ECS/⚙ Add-ons...", priority = 10005)]
     public static void Open() {
 
         var win = QuickStartWindow.CreateInstance<AddonsWindow>();
         win.titleContent = new GUIContent("Add-ons");
-        win.position = new Rect(100f, 100f, 600f, 800f);
-        win.minSize = new Vector2(600f, 800f);
+        win.position = new Rect(100f, 100f, 700f, 800f);
+        win.minSize = new Vector2(700f, 800f);
         win.maxSize = win.minSize;
         win.LoadPackages();
         win.ShowUtility();
         //win.Show();
+
+    }
+
+    private void Initialize() {
+        
+        this.installSources.Clear();
+        this.installSources.Add(new InstallSource() {
+            type = InstallationSourceType.GitSubmodule,
+            icon = "github-icon.png",
+            install    = new InstallSource.Item<PackageInfo>() {
+                name = "git submodule install",
+                description = "Install via git submodule",
+                action = this.Install_Submodule,
+            },
+            uninstall    = new InstallSource.Item<InstalledPackageInfo>() {
+                name = "uninstall",
+                description = "Uninstall via git submodule",
+                action = this.Uninstall_Submodule,
+            },
+            update    = new InstallSource.Item<InstalledPackageInfo>() {
+                name = "update",
+                description = "Update via git submodule",
+                action = this.Update_Submodule,
+            },
+        });
+
+        this.installSources.Add(new InstallSource() {
+            type = InstallationSourceType.UPM,
+            icon = "upm-icon.png",
+            install    = new InstallSource.Item<PackageInfo>() {
+                name = "UPM install",
+                description = "Install via Unity Package Manager",
+                action = this.Install_UPM,
+            },
+            uninstall    = new InstallSource.Item<InstalledPackageInfo>() {
+                name = "uninstall",
+                description = "Uninstall via Unity Package Manager",
+                action = this.Uninstall_UPM,
+            },
+            update    = new InstallSource.Item<InstalledPackageInfo>() {
+                name = "update",
+                description = "Update via Unity Package Manager",
+                action = this.Update_UPM,
+            },
+        });
+
+        this.installSources.Add(new InstallSource() {
+            type = InstallationSourceType.Raw,
+            icon = "docs-icon.png",
+            install    = new InstallSource.Item<PackageInfo>() {
+                name = "copy files",
+                description = "Install files copy",
+                action = this.Install_Raw,
+            },
+            uninstall    = new InstallSource.Item<InstalledPackageInfo>() {
+                name = "uninstall",
+                description = "Uninstall",
+                action = this.Uninstall_Raw,
+            },
+            update    = new InstallSource.Item<InstalledPackageInfo>() {
+                name = "update",
+                description = "Update",
+                action = this.Update_Raw,
+            },
+        });
 
     }
 
@@ -223,6 +309,7 @@ public class AddonsWindow : EditorWindow {
         public PackageInfo info;
         public InstallationSourceType installationSourceType;
         public string installedDirectory;
+        public string installedDirectoryLocal => this.installedDirectory.Replace("Assets/", "");
 
     }
 
@@ -294,88 +381,54 @@ public class AddonsWindow : EditorWindow {
                     buttons.Add(button);
                 }
                 if (isInstalled == false) {
-                    { // upm
+                    foreach (var item in this.installSources) {
+                        var itemSource = item;
                         var button = new Button(() => {
-                            this.InstallUPM(json, url);
+                            this.InstallPackage(json, url, itemSource);
                         });
                         button.AddToClassList("button");
                         button.AddToClassList("cursor-action-add");
                         var icon = new Image();
-                        icon.image = EditorUtilities.Load<Texture>("Editor/Tools/Addons/EditorResources/upm-icon.png");
+                        icon.image = EditorUtilities.Load<Texture>($"Editor/Tools/Addons/EditorResources/{item.icon}");
                         button.Add(icon);
-                        var buttonLabel = new Label("UPM install");
-                        buttonLabel.tooltip = "Install package via Unity Package Manager";
-                        button.Add(buttonLabel);
-                        buttons.Add(button);
-                    }
-                    { // submodule
-                        var button = new Button(() => {
-                            this.InstallSubmodule(json, url);
-                        });
-                        button.AddToClassList("button");
-                        button.AddToClassList("cursor-action-add");
-                        var icon = new Image();
-                        icon.image = EditorUtilities.Load<Texture>("Editor/Tools/Addons/EditorResources/github-icon.png");
-                        button.Add(icon);
-                        var buttonLabel = new Label("git submodule install");
-                        buttonLabel.tooltip = "Install package via git submodule";
-                        button.Add(buttonLabel);
-                        buttons.Add(button);
-                    }
-                    { // raw
-                        var button = new Button(() => {
-                            this.InstallRaw(json, url);
-                        });
-                        button.AddToClassList("button");
-                        button.AddToClassList("cursor-action-add");
-                        var icon = new Image();
-                        icon.image = EditorUtilities.Load<Texture>("Editor/Tools/Addons/EditorResources/docs-icon.png");
-                        button.Add(icon);
-                        var buttonLabel = new Label("install");
-                        buttonLabel.tooltip = "Copy package files";
+                        var buttonLabel = new Label(item.install.name);
+                        buttonLabel.tooltip = item.install.description;
                         button.Add(buttonLabel);
                         buttons.Add(button);
                     }
                 } else {
-                    if (installedInfo.installationSourceType == InstallationSourceType.UPM) { // upm
-                        var button = new Button(() => {
-                            if (this.RemoveDialog(installedInfo) == true) this.UninstallUPM(installedInfo);
-                        });
-                        button.AddToClassList("button");
-                        button.AddToClassList("cursor-action-remove");
-                        var icon = new Image();
-                        icon.image = EditorUtilities.Load<Texture>("Editor/Tools/Addons/EditorResources/upm-icon.png");
-                        button.Add(icon);
-                        var buttonLabel = new Label("UPM uninstall");
-                        buttonLabel.tooltip = "Uninstall package via Unity Package Manager";
-                        button.Add(buttonLabel);
-                        buttons.Add(button);
-                    } else if (installedInfo.installationSourceType == InstallationSourceType.GitSubmodule) { // submodule
-                        var button = new Button(() => {
-                            if (this.RemoveDialog(installedInfo) == true) this.UninstallSubmodule(installedInfo);
-                        });
-                        button.AddToClassList("button");
-                        button.AddToClassList("cursor-action-remove");
-                        var icon = new Image();
-                        icon.image = EditorUtilities.Load<Texture>("Editor/Tools/Addons/EditorResources/github-icon.png");
-                        button.Add(icon);
-                        var buttonLabel = new Label("git submodule uninstall");
-                        buttonLabel.tooltip = "Uninstall package via git submodule";
-                        button.Add(buttonLabel);
-                        buttons.Add(button);
-                    } else if (installedInfo.installationSourceType == InstallationSourceType.Raw) { // raw
-                        var button = new Button(() => {
-                            if (this.RemoveDialog(installedInfo) == true) this.UninstallRaw(installedInfo);
-                        });
-                        button.AddToClassList("button");
-                        button.AddToClassList("cursor-action-remove");
-                        var icon = new Image();
-                        icon.image = EditorUtilities.Load<Texture>("Editor/Tools/Addons/EditorResources/docs-icon.png");
-                        button.Add(icon);
-                        var buttonLabel = new Label("uninstall");
-                        buttonLabel.tooltip = "Remove package files";
-                        button.Add(buttonLabel);
-                        buttons.Add(button);
+                    if (installedInfo.info.version != json.version) {
+                        foreach (var item in this.installSources) {
+                            if (item.type == installedInfo.installationSourceType) {
+                                var itemSource = item;
+                                var button = new Button(() => { this.UpdatePackage(installedInfo, url, itemSource); });
+                                button.AddToClassList("button");
+                                button.AddToClassList("cursor-action-update");
+                                var icon = new Image();
+                                icon.image = EditorUtilities.Load<Texture>($"Editor/Tools/Addons/EditorResources/{item.icon}");
+                                button.Add(icon);
+                                var buttonLabel = new Label(item.update.name);
+                                buttonLabel.tooltip = item.update.description;
+                                button.Add(buttonLabel);
+                                buttons.Add(button);
+                            }
+                        }
+                    }
+
+                    foreach (var item in this.installSources) {
+                        if (item.type == installedInfo.installationSourceType) {
+                            var itemSource = item;
+                            var button = new Button(() => { this.UninstallPackage(installedInfo, url, itemSource); });
+                            button.AddToClassList("button");
+                            button.AddToClassList("cursor-action-remove");
+                            var icon = new Image();
+                            icon.image = EditorUtilities.Load<Texture>($"Editor/Tools/Addons/EditorResources/{item.icon}");
+                            button.Add(icon);
+                            var buttonLabel = new Label(item.uninstall.name);
+                            buttonLabel.tooltip = item.uninstall.description;
+                            button.Add(buttonLabel);
+                            buttons.Add(button);
+                        }
                     }
                 }
             },
@@ -383,38 +436,81 @@ public class AddonsWindow : EditorWindow {
         
     }
 
+    private void RefreshData() {
+
+        EditorApplication.delayCall += () => {
+
+            this.UpdateData(this.lastTextRequest);
+            this.LoadPackages();
+
+        };
+
+    }
+
+    private void UninstallPackage(InstalledPackageInfo json, string url, InstallSource itemSource) {
+        if (this.RemoveDialog(json) == true) itemSource.uninstall.action.Invoke(json, url);
+    }
+
+    private void UpdatePackage(InstalledPackageInfo json, string url, InstallSource itemSource) {
+        itemSource.update.action.Invoke(json, url);
+    }
+
+    private void InstallPackage(PackageInfo json, string url, InstallSource itemSource) {
+        itemSource.install.action.Invoke(json, url);
+    }
+
     private bool RemoveDialog(InstalledPackageInfo installedInfo) {
         return EditorUtility.DisplayDialog("Are you sure?", $"Do you want to uninstall {installedInfo.info.name}", "Yes", "No");
     }
 
-    private void UninstallUPM(InstalledPackageInfo packageInfo) {
+    private void Update_UPM(InstalledPackageInfo packageInfo, string url) {
+        
+        this.addRequest = UnityEditor.PackageManager.Client.Add(packageInfo.info.name);
+        
+    }
+
+    private void Update_Raw(InstalledPackageInfo packageInfo, string url) {
+
+        AssetDatabase.DeleteAsset(packageInfo.installedDirectory);
+        this.Install_Raw(packageInfo.info, url);
+        this.RefreshData();
+
+    }
+
+    private void Update_Submodule(InstalledPackageInfo packageInfo, string url) {
+
+        this.Uninstall_Submodule(packageInfo, url);
+        this.Install_Submodule(packageInfo.info, url);
+        this.RefreshData();
+
+    }
+
+    private void Uninstall_UPM(InstalledPackageInfo packageInfo, string url) {
         
         this.removeRequest = UnityEditor.PackageManager.Client.Remove(packageInfo.info.name);
         
     }
 
-    private void UninstallRaw(InstalledPackageInfo packageInfo) {
+    private void Uninstall_Raw(InstalledPackageInfo packageInfo, string url) {
 
         AssetDatabase.DeleteAsset(packageInfo.installedDirectory);
         this.RefreshData();
 
     }
 
-    private void UninstallSubmodule(InstalledPackageInfo packageInfo) {
+    private void Uninstall_Submodule(InstalledPackageInfo packageInfo, string url) {
 
-        Git.Run($"submodule rm {packageInfo.installedDirectory}");
+        var rootDir = Git.RootDir;
+        var baseDir = Application.dataPath.Replace(Git.RootDir, "");
+        Git.Run($"submodule deinit -f {packageInfo.installedDirectoryLocal}");
+        System.IO.Directory.Delete($"{rootDir}/.git/modules/{baseDir}/{packageInfo.installedDirectoryLocal}", true);
+        AssetDatabase.DeleteAsset(packageInfo.installedDirectory);
+        Git.Run($"rm -f {packageInfo.installedDirectoryLocal}");
         this.RefreshData();
 
     }
 
-    private void RefreshData() {
-        
-        this.UpdateData(this.lastTextRequest);
-        this.LoadPackages();
-        
-    }
-
-    private void InstallSubmodule(PackageInfo packageInfo, string url) {
+    private void Install_Submodule(PackageInfo packageInfo, string url) {
 
         if (System.IO.Directory.Exists("Assets/ME.ECS.Addons") == false) System.IO.Directory.CreateDirectory("Assets/ME.ECS.Addons");
         var targetDir = $"ME.ECS.Addons/{packageInfo.name}";
@@ -433,7 +529,7 @@ public class AddonsWindow : EditorWindow {
 
     }
 
-    private void InstallRaw(PackageInfo packageInfo, string url) {
+    private void Install_Raw(PackageInfo packageInfo, string url) {
 
         if (System.IO.Directory.Exists("Assets/ME.ECS.Addons") == false) System.IO.Directory.CreateDirectory("Assets/ME.ECS.Addons");
         var targetDir = $"ME.ECS.Addons/{packageInfo.name}";
@@ -453,7 +549,7 @@ public class AddonsWindow : EditorWindow {
 
     }
 
-    private void InstallUPM(PackageInfo packageInfo, string url) {
+    private void Install_UPM(PackageInfo packageInfo, string url) {
         
         this.addRequest = UnityEditor.PackageManager.Client.Add(url + ".git");
         
@@ -499,8 +595,11 @@ public class AddonsWindow : EditorWindow {
         }
         
     }
+    
     private void LoadPackages() {
 
+        this.Initialize();
+        
         var packages = AssetDatabase.FindAssets("package");
         foreach (var guid in packages) {
             var path = AssetDatabase.GUIDToAssetPath(guid);
