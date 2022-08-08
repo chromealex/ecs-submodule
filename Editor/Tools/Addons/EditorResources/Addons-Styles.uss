@@ -18,8 +18,12 @@
     cursor: link;
 }
 
-.cursor-action, .cursor-action * {
+.cursor-action-add, .cursor-action-add * {
     cursor: arrow-plus;
+}
+
+.cursor-action-remove, .cursor-action-remove * {
+    cursor: arrow-minus;
 }
 
 .button Label {

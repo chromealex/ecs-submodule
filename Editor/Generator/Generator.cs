@@ -603,7 +603,7 @@ namespace ME.ECSEditor {
             
             bool answer;
 
-            if (!type.IsValueType) {
+            if (type.IsPointer == false && !type.IsValueType) {
                 // not a struct -> false
                 answer = false;
             } else if (type.IsPrimitive || type.IsPointer || type.IsEnum) {
