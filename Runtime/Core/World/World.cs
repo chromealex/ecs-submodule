@@ -251,6 +251,8 @@ namespace ME.ECS {
 
             this.InitializeGlobalEvents();
 
+            WorldStaticCallbacks.RaiseCallbackInit(this);
+
             #if UNITY_EDITOR
             this.SetDebugStatisticKey(null);
             #endif
@@ -268,6 +270,8 @@ namespace ME.ECS {
             this.seed = default;
 
             this.tickTimeWatcher.Stop();
+
+            WorldStaticCallbacks.RaiseCallbackDispose(this);
 
             this.noStateData.Dispose();
 
