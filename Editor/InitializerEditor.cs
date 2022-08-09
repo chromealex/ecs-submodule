@@ -570,11 +570,47 @@ namespace ME.ECSEditor {
                             "Create instance copy for Features",
                             "When you add feature into the world, do you need to create copy of feature data at runtime? Turn off this checkbox if you do not want to change features data.");
 
-                        GUILayoutExt.IntFieldLeft(
-                            ref target.worldSettings.maxTicksSimulationCount,
+                        GUILayoutExt.EnumField(
+                            ref target.worldSettings.frameFixType,
                             ref isDirty,
-                            "Max ticks per simulation frame",
-                            "If simulation ticks count will be over this value, exception will be throw. Zero value = ignore this parameter.");
+                            "Simulation limitation type",
+                            "You can choose right behaviour depends on your game.");
+
+                        GUILayout.BeginHorizontal();
+                        {
+                            GUILayout.Space(10);
+                            GUILayout.BeginVertical();
+                            if (target.worldSettings.frameFixType == FrameFixBehaviour.ExceptionOverTicksPreFrame) {
+
+                                GUILayoutExt.IntFieldLeft(
+                                    ref target.worldSettings.frameFixValue,
+                                    ref isDirty,
+                                    "Max ticks per simulation frame",
+                                    "If simulation ticks count will be over this value, exception will be thrown.",
+                                    1);
+
+                            } else if (target.worldSettings.frameFixType == FrameFixBehaviour.AsyncOverMillisecondsPerFrame) {
+
+                                GUILayoutExt.IntFieldLeft(
+                                    ref target.worldSettings.frameFixValue,
+                                    ref isDirty,
+                                    "Max ms per simulation frame",
+                                    "If simulation frame time in milliseconds will be over this value, value will be clamped and simulation continues at the next simulation frame.",
+                                    1);
+
+                            } else if (target.worldSettings.frameFixType == FrameFixBehaviour.AsyncOverTicksPerFrame) {
+
+                                GUILayoutExt.IntFieldLeft(
+                                    ref target.worldSettings.frameFixValue,
+                                    ref isDirty,
+                                    "Max ticks per simulation frame",
+                                    "If simulation frame time in milliseconds will be over this value, value will be clamped and simulation continues at the next simulation frame.",
+                                    1);
+
+                            }
+                            GUILayout.EndVertical();
+                        }
+                        GUILayout.EndHorizontal();
 
                         GUILayoutExt.ToggleLeft(
                             ref target.worldSettings.useJobsForViews,
@@ -743,7 +779,9 @@ namespace ME.ECSEditor {
                 if (isDirty == true) {
                     
                     EditorUtility.SetDirty(this.target);
-                    AssetDatabase.ForceReserializeAssets(new string[] { AssetDatabase.GetAssetPath(this.target) });
+                    EditorApplication.delayCall += () => {
+                        AssetDatabase.ForceReserializeAssets(new string[] { AssetDatabase.GetAssetPath(this.target) });
+                    };
 
                 }
 
@@ -753,6 +791,7 @@ namespace ME.ECSEditor {
             
             EditorGUI.BeginDisabledGroup(EditorApplication.isPlaying == true || EditorApplication.isPaused == true);
             //InitializerEditor.listCategories.DoLayoutList();
+            this.listCategoriesProp = this.serializedObject.FindProperty("featuresListCategories");
             EditorGUILayout.PropertyField(this.listCategoriesProp);
             EditorGUI.EndDisabledGroup();
 

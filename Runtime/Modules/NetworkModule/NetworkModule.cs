@@ -795,8 +795,25 @@ namespace ME.ECS.Network {
             
         }
 
-        protected virtual void OnRevertingBegin(Tick sourceTick) {}
-        protected virtual void OnRevertingEnd() {}
+        internal void DoRevertingBegin(Tick sourceTick) {
+        
+            this.isReverting = true;
+            this.OnRevertingBegin(sourceTick);
+            
+        }
+        internal void DoRevertingEnd() {
+        
+            this.OnRevertingEnd();
+            this.isReverting = false;
+
+        }
+
+        protected virtual void OnRevertingBegin(Tick sourceTick) {
+        
+        }
+        protected virtual void OnRevertingEnd() {
+        
+        }
 
         protected virtual void ApplyTicksByState() {
 
@@ -807,6 +824,18 @@ namespace ME.ECS.Network {
             var oldestEventTick = this.statesHistoryModule.GetAndResetOldestTick(tick);
             //UnityEngine.Debug.LogError("Tick: " + tick + ", timeSinceGameStart: " + timeSinceGameStart + ", targetTick: " + targetTick + ", oldestEventTick: " + oldestEventTick);
             if (oldestEventTick == Tick.Invalid || oldestEventTick >= tick) {
+
+                if (this.isReverting == true && tick == this.revertingTo) {
+                    
+                    this.DoRevertingEnd();
+                    
+                }
+
+                if (this.isReverting == false && tick < this.revertingTo) {
+                    
+                    this.DoRevertingBegin(tick);
+                    
+                }
 
                 // No events found
                 this.world.SetFromToTicks(tick, targetTick);
@@ -847,18 +876,18 @@ namespace ME.ECS.Network {
             #if ENABLE_PROFILER
             var ns = System.Diagnostics.Stopwatch.StartNew();
             #endif
-            this.OnRevertingBegin(sourceTick);
-            // Applying old state.
-            this.isReverting = true;
+            this.DoRevertingBegin(sourceTick);
             {
                 var currentState = this.world.GetState();
                 this.revertingTo = tick;
                 currentState.CopyFrom(sourceState);
                 currentState.Initialize(this.world, freeze: false, restore: true);
-                if (this.asyncMode == false) this.world.Simulate(sourceTick, tick);
+                if (this.asyncMode == false) {
+                    this.world.SetFromToTicks(sourceTick, tick);
+                    tick = this.world.Simulate(sourceTick, tick);
+                }
             }
-            this.isReverting = false;
-            this.OnRevertingEnd();
+            this.DoRevertingEnd();
             #if ENABLE_PROFILER
             ECSProfiler.LogicRollback.Sample((long)(ns.ElapsedTicks / (double)System.Diagnostics.Stopwatch.Frequency) * 1000000000L);
             #endif

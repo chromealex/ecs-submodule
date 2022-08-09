@@ -1253,6 +1253,7 @@ namespace ME.ECS.Views {
         public void UpdatePost(in float deltaTime) {
 
             if (this.world.settings.turnOffViews == true) return;
+            if (this.world.IsReverting() == true) return;
 
             var hasChanged = this.UpdateRequests();
             if (this.world.currentState != null) {

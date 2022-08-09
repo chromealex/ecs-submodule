@@ -911,29 +911,56 @@ namespace ME.ECSEditor {
 
 	    }
 
-	    public static bool IntFieldLeft(ref int state, ref bool isDirty, string caption, string text) {
+        public static bool IntFieldLeft(ref int state, ref bool isDirty, string caption, string text, int minValue = int.MinValue, int maxValue = int.MaxValue) {
 
-		    var labelRich = new GUIStyle(EditorStyles.label);
-		    labelRich.richText = true;
+            var labelRich = new GUIStyle(EditorStyles.numberField);
+            labelRich.richText = true;
 
-		    var isLocalDirty = false;
-		    GUILayout.BeginHorizontal();
-		    var flag = EditorGUILayout.IntField(state, labelRich);
-		    EditorGUILayout.LabelField(caption);
-		    GUILayout.EndHorizontal();
-		    if (flag != state) {
+            var isLocalDirty = false;
+            GUILayout.BeginHorizontal();
+            var flag = EditorGUILayout.IntField(state, labelRich);
+            EditorGUILayout.LabelField(caption);
+            GUILayout.EndHorizontal();
+            if (flag < minValue) flag = minValue;
+            if (flag > maxValue) flag = maxValue;
 
-			    isLocalDirty = true;
-			    isDirty = true;
-			    state = flag;
+            if (flag != state) {
+
+                isLocalDirty = true;
+                isDirty = true;
+                state = flag;
                         
-		    }
-		    if (string.IsNullOrEmpty(text) == false) GUILayoutExt.SmallLabel(text);
-		    EditorGUILayout.Space();
+            }
+            if (string.IsNullOrEmpty(text) == false) GUILayoutExt.SmallLabel(text);
+            EditorGUILayout.Space();
 
-		    return isLocalDirty;
+            return isLocalDirty;
 
-	    }
+        }
+
+        public static bool EnumField<T>(ref T state, ref bool isDirty, string caption, string text) where T : struct, System.Enum {
+
+            var labelRich = new GUIStyle(EditorStyles.popup);
+            labelRich.richText = true;
+
+            var isLocalDirty = false;
+            GUILayout.BeginHorizontal();
+            EditorGUILayout.LabelField(caption);
+            var newState = (T)EditorGUILayout.EnumPopup(state, labelRich);
+            GUILayout.EndHorizontal();
+            if (System.Collections.Generic.EqualityComparer<T>.Default.Equals(newState, state) == false) {
+
+                isLocalDirty = true;
+                isDirty = true;
+                state = newState;
+                        
+            }
+            if (string.IsNullOrEmpty(text) == false) GUILayoutExt.SmallLabel(text);
+            EditorGUILayout.Space();
+
+            return isLocalDirty;
+
+        }
 
         public static LayerMask DrawLayerMaskField(string label, LayerMask layerMask) {
 

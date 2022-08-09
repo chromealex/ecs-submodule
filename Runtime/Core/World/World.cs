@@ -61,14 +61,33 @@ namespace ME.ECS {
     [System.Serializable]
     public partial struct WorldViewsSettings { }
 
+    public enum FrameFixBehaviour {
+
+        None = 0,
+        /// <summary>
+        /// This means that if ticks per frame is over than X - exception will be thrown
+        /// </summary>
+        ExceptionOverTicksPreFrame,
+        /// <summary>
+        /// This means that if ticks per frame is over than X - simulation will be stopped at this frame and continues at the next frame
+        /// </summary>
+        AsyncOverTicksPerFrame,
+        /// <summary>
+        /// This means that if milliseconds per frame is over than X - simulation will be stopped at this frame and continues at the next frame
+        /// </summary>
+        AsyncOverMillisecondsPerFrame,
+
+    }
+    
     [System.Serializable]
     public struct WorldSettings {
 
         public bool useJobsForSystems;
         public bool useJobsForViews;
         public bool createInstanceForFeatures;
-        public int maxTicksSimulationCount;
         public bool turnOffViews;
+        public FrameFixBehaviour frameFixType;
+        public int frameFixValue;
 
         public WorldViewsSettings viewsSettings;
 
@@ -77,7 +96,8 @@ namespace ME.ECS {
             useJobsForViews = true,
             createInstanceForFeatures = true,
             turnOffViews = false,
-            viewsSettings = new WorldViewsSettings()
+            frameFixType = FrameFixBehaviour.None,
+            viewsSettings = new WorldViewsSettings(),
         };
 
     }
@@ -177,6 +197,7 @@ namespace ME.ECS {
         private bool isLoading;
         private bool isLoaded;
         private float loadingProgress;
+        private System.Diagnostics.Stopwatch tickTimeWatcher;
         public bool isPaused { private set; get; }
 
         void IPoolableSpawn.OnSpawn() {
@@ -185,6 +206,8 @@ namespace ME.ECS {
 
             this.InitializePools();
             ME.WeakRef.Reg(this);
+
+            this.tickTimeWatcher = new System.Diagnostics.Stopwatch();
             
             this.isPaused = false;
             this.speed = 1f;
@@ -243,6 +266,8 @@ namespace ME.ECS {
             this.isActive = false;
             this.speed = 0f;
             this.seed = default;
+
+            this.tickTimeWatcher.Stop();
 
             this.noStateData.Dispose();
 
@@ -1602,6 +1627,15 @@ namespace ME.ECS {
 
         }
 
+        public bool IsReverting() {
+
+            var module = this.GetModule<ME.ECS.Network.INetworkModuleBase>();
+            if (module == null) return false;
+            
+            return module.IsReverting();
+
+        }
+
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
@@ -1644,12 +1678,6 @@ namespace ME.ECS {
             #if UNITY_EDITOR
             UnityEngine.Profiling.Profiler.BeginSample($"Simulate");
             #endif
-
-            if (this.settings.maxTicksSimulationCount > 0L && this.simulationToTick > this.simulationFromTick + this.settings.maxTicksSimulationCount) {
-
-                throw new System.Exception("Simulation failed because of ticks count is out of range: [" + this.simulationFromTick + ".." + this.simulationToTick + ")");
-
-            }
 
             this.Simulate(this.simulationFromTick, this.simulationToTick);
 
@@ -2108,12 +2136,6 @@ namespace ME.ECS {
             //UnityEngine.Debug.Log("Set FromTo: " + from + " >> " + to);
             this.simulationFromTick = from;
             this.simulationToTick = to;
-
-            if (this.settings.maxTicksSimulationCount > 0L && this.simulationToTick > this.simulationFromTick + this.settings.maxTicksSimulationCount) {
-
-                throw new System.Exception("Simulation failed because of ticks count is out of range: [" + this.simulationFromTick + ".." + this.simulationToTick + ")");
-
-            }
 
         }
 
@@ -2744,16 +2766,31 @@ namespace ME.ECS {
             #endif
             
         }
-        
+
+        /// <summary>
+        /// Simulates world ticks [source..target)
+        /// </summary>
+        /// <param name="from">Source tick</param>
+        /// <param name="to">Target tick</param>
+        /// <returns>New target tick</returns>
+        /// <exception cref="Exception">Failed if frame fix behaviour is FrameFixBehaviour.ExceptionOverTicksPreFrame and </exception>
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
-        public void Simulate(Tick from, Tick to) {
+        public Tick Simulate(Tick from, Tick to) {
             
+            if (this.settings.frameFixType == FrameFixBehaviour.ExceptionOverTicksPreFrame &&
+                this.settings.frameFixValue > 0L &&
+                this.simulationToTick > this.simulationFromTick + this.settings.frameFixValue) {
+
+                throw new System.Exception($"Simulation failed because of ticks count is out of range: [{this.simulationFromTick}..{this.simulationToTick})");
+
+            }
+
             if (from > to) {
 
                 //UnityEngine.Debug.LogError( UnityEngine.Time.frameCount + " From: " + from + ", To: " + to);
-                return;
+                return to;
 
             }
 
@@ -2765,11 +2802,36 @@ namespace ME.ECS {
             ECSProfiler.LogicSystems.Value = 0;
             #endif
             
+            if (this.settings.frameFixType == FrameFixBehaviour.AsyncOverTicksPerFrame &&
+                to - from > this.settings.frameFixValue) {
+
+                // Clamp simulation to frame fix value
+                // to be sure we have reached target cpf value
+                to = from + this.settings.frameFixValue;
+
+            }
+            
             this.cpf = to - from;
             var fixedDeltaTime = this.GetTickTime();
+            var frameTime = 0L;
             for (state.tick = from; state.tick < to; ++state.tick) {
                 
-                this.RunTick(state.tick, fixedDeltaTime);
+                this.tickTimeWatcher.Restart();
+                {
+                    this.RunTick(state.tick, fixedDeltaTime);
+                }
+                this.tickTimeWatcher.Stop();
+
+                frameTime += this.tickTimeWatcher.ElapsedMilliseconds;
+                if (this.settings.frameFixType == FrameFixBehaviour.AsyncOverMillisecondsPerFrame &&
+                    frameTime > this.settings.frameFixValue) {
+
+                    // Stop simulation at this point
+                    // because we have reached max ms per frame
+                    to = state.tick + 1;
+                    break;
+
+                }
 
             }
 
@@ -2809,6 +2871,8 @@ namespace ME.ECS {
             ////////////////
             this.currentStep &= ~WorldStep.PluginsLogicSimulate;
             ////////////////
+            
+            return to;
 
         }
 
