@@ -1,0 +1,20 @@
+{
+    "name": "ME.ECS.Addons.DataConfigs.Editor",
+    "rootNamespace": "",
+    "references": [
+        "ME.ECS",
+        "ME.ECS.Editor",
+        "ME.ECS.Addons.DataConfigs"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

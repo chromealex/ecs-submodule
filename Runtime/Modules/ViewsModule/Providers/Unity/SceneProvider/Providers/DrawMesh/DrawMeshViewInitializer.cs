@@ -1,6 +1,6 @@
 namespace ME.ECS.Views.Providers {
 
-    public class DrawMeshViewInitializer : SceneViewInitializer {
+    public class DrawMeshViewInitializer : SceneViewInitializerBase {
 
         public DrawMeshViewSourceBase view;
         

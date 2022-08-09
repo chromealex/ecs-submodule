@@ -63,12 +63,6 @@ namespace ME.ECS {
     
     /// <summary>
     /// Used in data configs
-    /// If component has this interface - it would be ignored in DataConfig::Apply method
-    /// </summary>
-    public interface IComponentStatic : IComponentBase { }
-
-    /// <summary>
-    /// Used in data configs
     /// If component has this interface - data will be initialized in DataConfig::Apply method
     /// </summary>
     public interface IComponentInitializable {
@@ -92,23 +86,7 @@ namespace ME.ECS {
 namespace ME.ECS.DataConfigs {
 
     [CreateAssetMenu(menuName = "ME.ECS/Data Config")]
-    public partial class DataConfig : ScriptableObject {
-
-        #if !SHARED_COMPONENTS_DISABLED
-        public struct SharedData : IComponent, IComponentDisposable<SharedData> {
-
-            public ME.ECS.Collections.MemoryAllocator.Dictionary<int, uint> archetypeToId;
-
-            public void OnDispose(ref ME.ECS.Collections.V3.MemoryAllocator allocator) {
-                if (this.archetypeToId.isCreated == true) this.archetypeToId.Dispose(ref allocator);
-            }
-
-            public void ReplaceWith(ref ME.ECS.Collections.V3.MemoryAllocator allocator, in SharedData other) {
-                this.archetypeToId.ReplaceWith(ref allocator, other.archetypeToId);
-            }
-
-        }
-        #endif
+    public partial class DataConfig : ConfigBase {
 
         public uint sharedGroupId;
         [SerializeReference]
@@ -161,7 +139,7 @@ namespace ME.ECS.DataConfigs {
                 // We already has SourceConfig onto this entity,
                 // so need to add config's list
                 ref var configs = ref entity.Get<SourceConfigs>();
-                ref var allocator = ref Worlds.current.currentState.allocator;
+                ref var allocator = ref Worlds.current.GetState().allocator;
                 if (configs.configs.isCreated == false) configs.configs = new ME.ECS.Collections.MemoryAllocator.List<ConfigId<DataConfig>>(ref allocator, 1);
                 configs.configs.Add(ref allocator, config);
 
@@ -177,7 +155,7 @@ namespace ME.ECS.DataConfigs {
             
         }
 
-        public virtual void Apply(in Entity entity, bool overrideIfExist = true) {
+        public override void Apply(in Entity entity, bool overrideIfExist = true) {
 
             //this.Reset();
             this.Prewarm();
@@ -221,7 +199,7 @@ namespace ME.ECS.DataConfigs {
                     if (overrideIfExist == true || world.HasSharedDataBit(in entity, dataIndex, this.sharedGroupId) == false) {
 
                         ref var sharedData = ref entity.Get<SharedData>();
-                        ref var allocator = ref world.currentState.allocator;
+                        ref var allocator = ref world.GetState().allocator;
                         if (sharedData.archetypeToId.isCreated == false) sharedData.archetypeToId = new ME.ECS.Collections.MemoryAllocator.Dictionary<int, uint>(ref allocator, 10);
 
                         world.SetSharedData(in entity, in this.structComponents[i], dataIndex, this.sharedGroupId);
@@ -273,7 +251,7 @@ namespace ME.ECS.DataConfigs {
 	        
         }
         
-        public void Prewarm(bool forced = false) {
+        public override void Prewarm(bool forced = false) {
 
             if (forced == false) {
 

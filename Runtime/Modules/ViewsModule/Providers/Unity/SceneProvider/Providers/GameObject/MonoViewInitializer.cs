@@ -1,6 +1,6 @@
 namespace ME.ECS.Views.Providers {
 
-    public class MonoViewInitializer : SceneViewInitializer {
+    public class MonoViewInitializer : SceneViewInitializerBase {
 
         [UnityEngine.SpaceAttribute]
         public DestroyViewBehaviour destroyViewBehaviour;

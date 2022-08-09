@@ -6,6 +6,8 @@ namespace ME.ECSEditor {
 
     public class Generator : AssetPostprocessor {
 
+        public static System.Action<string> onGenerate;
+        
         private static string MENU_ITEM_AUTO;
         private static string CONTENT_ITEM;
         private static string CONTENT_ITEM2;
@@ -588,7 +590,7 @@ namespace ME.ECSEditor {
                                                         new Dictionary<string, string>() { { "CONTENT", output }, { "CONTENT2", output2 }, { "CONTENT3", output3 } }, false) == true) {
 
                     UnityEngine.Debug.Log($"{Generator.FILE_NAME} successfully refreshed at path {asmNamePath}");
-                    DataConfigGenerator.Generate(asmNamePath);
+                    onGenerate?.Invoke(asmNamePath);
                     ViewGenerator.Generate(asmNamePath);
 
                 }

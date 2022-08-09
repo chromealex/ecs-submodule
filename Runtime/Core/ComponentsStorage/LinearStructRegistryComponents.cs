@@ -1482,9 +1482,9 @@ namespace ME.ECS {
             E.IS_ALIVE(in entity);
             E.IS_TAG<TComponent>(in entity);
 
-            if (groupId == 0 && entity.Has<ME.ECS.DataConfigs.DataConfig.SharedData>() == true) {
+            if (groupId == 0 && entity.Has<SharedData>() == true) {
 
-                ref readonly var sharedData = ref entity.Read<ME.ECS.DataConfigs.DataConfig.SharedData>();
+                ref readonly var sharedData = ref entity.Read<SharedData>();
                 ref var allocator = ref Worlds.current.currentState.allocator;
                 if (sharedData.archetypeToId.TryGetValue(in allocator, AllComponentTypes<TComponent>.typeId, out var innerGroupId) == true && innerGroupId != 0) {
 
@@ -1514,9 +1514,9 @@ namespace ME.ECS {
             
             E.IS_ALIVE(in entity);
 
-            if (groupId == 0 && entity.Has<ME.ECS.DataConfigs.DataConfig.SharedData>() == true) {
+            if (groupId == 0 && entity.Has<SharedData>() == true) {
 
-                ref readonly var sharedData = ref entity.Read<ME.ECS.DataConfigs.DataConfig.SharedData>();
+                ref readonly var sharedData = ref entity.Read<SharedData>();
                 ref var allocator = ref Worlds.current.currentState.allocator;
                 if (sharedData.archetypeToId.TryGetValue(in allocator, AllComponentTypes<TComponent>.typeId, out var innerGroupId) == true && innerGroupId != 0) {
 
@@ -1541,9 +1541,9 @@ namespace ME.ECS {
             E.IS_ALIVE(in entity);
             E.IS_TAG<TComponent>(in entity);
 
-            if (groupId == 0 && entity.Has<ME.ECS.DataConfigs.DataConfig.SharedData>() == true) {
+            if (groupId == 0 && entity.Has<SharedData>() == true) {
 
-                ref readonly var sharedData = ref entity.Read<ME.ECS.DataConfigs.DataConfig.SharedData>();
+                ref readonly var sharedData = ref entity.Read<SharedData>();
                 ref var allocator = ref Worlds.current.currentState.allocator;
                 if (sharedData.archetypeToId.TryGetValue(in allocator, AllComponentTypes<TComponent>.typeId, out var innerGroupId) == true && innerGroupId != 0) {
 
@@ -1627,9 +1627,9 @@ namespace ME.ECS {
             E.IS_ALIVE(in entity);
             E.IS_TAG<TComponent>(in entity);
             
-            if (groupId == 0 && entity.Has<ME.ECS.DataConfigs.DataConfig.SharedData>() == true) {
+            if (groupId == 0 && entity.Has<SharedData>() == true) {
 
-                ref readonly var sharedData = ref entity.Read<ME.ECS.DataConfigs.DataConfig.SharedData>();
+                ref readonly var sharedData = ref entity.Read<SharedData>();
                 ref var allocator = ref Worlds.current.currentState.allocator;
                 if (sharedData.archetypeToId.TryGetValue(in allocator, AllComponentTypes<TComponent>.typeId, out var innerGroupId) == true && innerGroupId != 0) {
 

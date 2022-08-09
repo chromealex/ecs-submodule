@@ -42,4 +42,10 @@ namespace ME.ECS {
     }
     #endif
 
+    /// <summary>
+    /// Used in data configs
+    /// If component has this interface - it would be ignored in DataConfig::Apply method
+    /// </summary>
+    public interface IComponentStatic : IComponentBase { }
+
 }

@@ -1,6 +1,6 @@
 namespace ME.ECS.Views.Providers {
 
-    public class ParticleViewInitializer : SceneViewInitializer {
+    public class ParticleViewInitializer : SceneViewInitializerBase {
 
         public ParticleViewSourceBase view;
         

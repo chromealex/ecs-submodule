@@ -1,0 +1,20 @@
+{
+    "name": "ME.ECS.Addons.Views.SceneProvider",
+    "rootNamespace": "",
+    "references": [
+        "ME.ECS",
+        "ME.ECS.Addons.DataConfigs",
+        "Unity.Mathematics",
+        "ME.Pools",
+        "ME.ECS.FPMath"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

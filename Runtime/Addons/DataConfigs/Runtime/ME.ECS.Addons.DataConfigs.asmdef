@@ -1,0 +1,20 @@
+{
+    "name": "ME.ECS.Addons.DataConfigs",
+    "rootNamespace": "",
+    "references": [
+        "ME.ECS",
+        "ME.ECS.Serializer",
+        "ME.ECS.IL2CPP",
+        "ME.ECS.FPMath",
+        "Unity.Mathematics"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

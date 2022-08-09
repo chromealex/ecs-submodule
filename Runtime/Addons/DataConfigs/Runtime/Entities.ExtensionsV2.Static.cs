@@ -46,7 +46,7 @@ namespace ME.ECS {
             // check if this component in SourceConfigs
             if (entity.TryRead<ME.ECS.DataConfigs.SourceConfigs>(out var sourceConfigs) == true) {
 
-                var e = sourceConfigs.configs.GetEnumerator(Worlds.current.currentState);
+                var e = sourceConfigs.configs.GetEnumerator(Worlds.current.GetState());
                 while (e.MoveNext() == true) {
 
                     var config = e.Current;
@@ -82,7 +82,7 @@ namespace ME.ECS {
             // check if this component in SourceConfigs
             if (entity.TryRead<ME.ECS.DataConfigs.SourceConfigs>(out var sourceConfigs) == true) {
 
-                var e = sourceConfigs.configs.GetEnumerator(Worlds.current.currentState);
+                var e = sourceConfigs.configs.GetEnumerator(Worlds.current.GetState());
                 while (e.MoveNext() == true) {
 
                     var config = e.Current;
@@ -146,7 +146,7 @@ namespace ME.ECS {
             // check if this component in SourceConfigs
             if (source.TryRead<ME.ECS.DataConfigs.SourceConfigs>(out var sourceConfigs) == true) {
 
-                var e = sourceConfigs.configs.GetEnumerator(Worlds.current.currentState);
+                var e = sourceConfigs.configs.GetEnumerator(Worlds.current.GetState());
                 while (e.MoveNext() == true) {
 
                     var config = e.Current;

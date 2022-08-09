@@ -12,6 +12,46 @@ namespace ME.ECS.Views.Providers {
 
     }
 
+    public static class SceneViewInitializer {
+
+        static SceneViewInitializer() {
+
+            InitializerBase.RegisterSceneCallback(InitializeScene);
+
+        }
+        
+        private static void InitializeScene(World world, bool callLateInitialization) {
+            
+            var sceneEntityViews = InitializerBase.FindObjectsOfType<ME.ECS.Views.Providers.SceneViewInitializerBase>();
+            var list = PoolList<ME.ECS.Views.Providers.SceneViewInitializerBase>.Spawn(sceneEntityViews.Length);
+            for (int i = 0; i < sceneEntityViews.Length; ++i) {
+
+                var view = sceneEntityViews[i];
+                if (view != null) {
+
+                    var parent = view.GetComponentsInParent<ME.ECS.Views.Providers.SceneViewInitializerBase>(true);
+                    if (parent.Length <= 1) {
+
+                        list.Add(view);
+
+                    }
+
+                }
+
+            }
+            for (int i = 0; i < list.Count; ++i) {
+
+                var view = list[i];
+                ((ME.ECS.Views.Providers.ISceneView)view).Initialize(world);
+                
+            }
+            
+            PoolList<ME.ECS.Views.Providers.SceneViewInitializerBase>.Recycle(ref list);
+
+        }
+
+    }
+
     [System.Serializable]
     public struct TransformProperties {
 
@@ -45,7 +85,7 @@ namespace ME.ECS.Views.Providers {
         public bool rotation;
         public bool scale;
 
-        public void Apply(in Entity entity, in Entity rootEntity, SceneViewInitializer initializer, World world) {
+        public void Apply(in Entity entity, in Entity rootEntity, SceneViewInitializerBase initializer, World world) {
 
             var transform = initializer.transform;
             switch (this.type) {
@@ -67,30 +107,30 @@ namespace ME.ECS.Views.Providers {
 
             if (transform.childCount > 0) {
 
-                var results = PoolList<SceneViewInitializer>.Spawn(10);
+                var results = PoolList<SceneViewInitializerBase>.Spawn(10);
                 transform.GetComponentsInChildren(false, results);
                 for (int i = 0; i < results.Count; ++i) {
                     
                     var childInitializer = results[i];
                     if (childInitializer == initializer) continue;
                     
-                    var parents = PoolList<SceneViewInitializer>.Spawn(10);
+                    var parents = PoolList<SceneViewInitializerBase>.Spawn(10);
                     childInitializer.GetComponentsInParent(false, parents);
                     if (parents.Contains(initializer) == true) {
                         
-                        PoolList<SceneViewInitializer>.Recycle(ref parents);
+                        PoolList<SceneViewInitializerBase>.Recycle(ref parents);
                         
                         // Run just for the one level
                         childInitializer.Initialize_INTERNAL(world, in entity);
                         
                     } else {
                         
-                        PoolList<SceneViewInitializer>.Recycle(ref parents);
+                        PoolList<SceneViewInitializerBase>.Recycle(ref parents);
                         
                     }
 
                 }
-                PoolList<SceneViewInitializer>.Recycle(ref results);
+                PoolList<SceneViewInitializerBase>.Recycle(ref results);
                 
             }
  
@@ -122,7 +162,7 @@ namespace ME.ECS.Views.Providers {
 
     }
     
-    public abstract class SceneViewInitializer : UnityEngine.MonoBehaviour, ISceneView {
+    public abstract class SceneViewInitializerBase : UnityEngine.MonoBehaviour, ISceneView {
 
         [UnityEngine.SpaceAttribute]
         public bool applyName = true;
@@ -141,7 +181,7 @@ namespace ME.ECS.Views.Providers {
             var components = this.GetComponentsInChildren<SceneSourceComponent>(false);
             foreach (var component in components) {
 
-                var initializers = component.GetComponentsInParent<SceneViewInitializer>(true);
+                var initializers = component.GetComponentsInParent<SceneViewInitializerBase>(true);
                 if (initializers.Length > 0 && initializers[0] == this) {
                     
                     list.Add(component);

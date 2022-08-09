@@ -2,8 +2,15 @@ namespace ME.ECSEditor {
     
     using ME.ECS.DataConfigs;
 
-    public class DataConfigGenerator {
+    [UnityEditor.InitializeOnLoadAttribute]
+    public static class DataConfigGenerator {
 
+        static DataConfigGenerator() {
+
+            Generator.onGenerate += Generate;
+
+        }
+        
         public static void Generate(string dir) {
             
             var feature = DataConfigComponentsInitializer.GetFeature();

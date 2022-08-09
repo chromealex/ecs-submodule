@@ -1,7 +1,5 @@
 namespace ME.ECSEditor {
     
-    using ME.ECS.DataConfigs;
-
     public class ViewGenerator {
 
         public static void Generate(string dir) {

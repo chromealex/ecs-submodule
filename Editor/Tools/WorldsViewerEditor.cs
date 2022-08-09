@@ -15,7 +15,7 @@ namespace ME.ECSEditor {
         private Vector2 scrollPosition;
         private Vector2 scrollEntitiesPosition;
 
-        [MenuItem("ME.ECS/Worlds Viewer...", priority = 10000)]
+        [MenuItem("ME.ECS/\u2630 Worlds Viewer...", priority = 10000)]
         public static void ShowInstance() {
 
             var instance = EditorWindow.GetWindow(typeof(WorldsViewerEditor));

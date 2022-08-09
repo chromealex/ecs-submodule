@@ -70,26 +70,6 @@ namespace ME.ECS {
 
         }
 
-        public override int GetCustomHash() {
-
-            var hash = 0;
-            if (typeof(TComponent) == typeof(ME.ECS.Transform.Position)) {
-
-                for (int i = 0; i < this.components.Length; ++i) {
-
-                    var p = (ME.ECS.Transform.Position)(object)this.components[i].data;
-                    hash ^= (int)(p.value.x * 100000f);
-                    hash ^= (int)(p.value.y * 100000f);
-                    hash ^= (int)(p.value.z * 100000f);
-
-                }
-
-            }
-
-            return hash;
-
-        }
-
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif

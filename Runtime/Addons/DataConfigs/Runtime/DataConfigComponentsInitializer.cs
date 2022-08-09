@@ -8,15 +8,12 @@ namespace ME.ECS.DataConfigs {
 
     public static class DataConfigComponentsInitializer {
 
-        public static void InitTypeId() {
+        static DataConfigComponentsInitializer() {
             
-            WorldUtilities.InitComponentTypeId<SourceConfig>();
-            #if !STATIC_API_DISABLED
-            WorldUtilities.InitComponentTypeId<SourceConfigs>();
-            #endif
+            CoreComponentsInitializer.RegisterInitCallback(DataConfigComponentsInitializer.InitTypeId, DataConfigComponentsInitializer.Init, DataConfigComponentsInitializer.Init);
             
         }
-
+        
         public static DataConfigIndexerFeature GetFeature() {
 
             try {
@@ -31,8 +28,21 @@ namespace ME.ECS.DataConfigs {
 
         }
 
-        public static void Init(State state) {
+        public static void InitTypeId() {
+            
+            ME.ECS.DataConfigs.DataConfig.InitTypeId();
+            
+            WorldUtilities.InitComponentTypeId<SourceConfig>();
+            #if !STATIC_API_DISABLED
+            WorldUtilities.InitComponentTypeId<SourceConfigs>();
+            #endif
+            
+        }
+
+        public static void Init(State state, ref World.NoState noState) {
     
+            ME.ECS.DataConfigs.DataConfig.Init(state);
+            
             state.structComponents.Validate<SourceConfig>();
             #if !STATIC_API_DISABLED
             state.structComponents.Validate<SourceConfigs>();
@@ -49,6 +59,8 @@ namespace ME.ECS.DataConfigs {
     
         public static void Init(in Entity entity) {
 
+            ME.ECS.DataConfigs.DataConfig.Init(in entity);
+            
             entity.ValidateData<SourceConfig>();
             #if !STATIC_API_DISABLED
             entity.ValidateData<SourceConfigs>();

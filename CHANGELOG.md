@@ -1,5 +1,9 @@
 # Version 2.8
 * Runtime.Essentials: All essential packages has been moved out from the main repo
+* Runtime.Core:
+  * Add-ons window added
+  * Initializer Settings: Fixed Behaviour type 
+  * Additional components added
 
 05/08/2022
 # Version 2.7

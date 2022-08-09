@@ -299,7 +299,7 @@ namespace ME.ECSEditor {
         public override VisualElement CreateInspectorGUI() {
             
             var container = new VisualElement();
-            container.styleSheets.Add(EditorUtilities.Load<StyleSheet>("Editor/Core/DataConfigs/styles.uss", isRequired: true));
+            container.styleSheets.Add(EditorUtilities.Load<StyleSheet>("Editor/Core/styles.uss", isRequired: true));
             this.rootElement = container;
             
             var target = this.target as ME.ECS.DebugUtils.EntityDebugComponent;
@@ -317,9 +317,9 @@ namespace ME.ECSEditor {
                 searchField.RegisterValueChangedCallback((evt) => {
 
                     var search = evt.newValue.ToLower();
-                    DataConfigEditor.Search(search, this.componentsContainer);
+                    GUIExt.Search(search, this.componentsContainer);
                     #if !SHARED_COMPONENTS_DISABLED
-                    DataConfigEditor.Search(search, this.sharedComponentsContainer);
+                    GUIExt.Search(search, this.sharedComponentsContainer);
                     #endif
                 
                 });
@@ -423,18 +423,18 @@ namespace ME.ECSEditor {
             }
             var source = so.FindProperty("components");
             this.fieldsCacheComponents.Clear();
-            DataConfigEditor.BuildInspectorPropertiesElement("data",
-                                                             this,
-                                                             null,
-                                                             source,
-                                                             element,
-                                                             noFields: false,
-                                                             onBuild: (index, propElement) => {
+            GUIExt.BuildInspectorPropertiesElement("data",
+                                                   this,
+                                                   null,
+                                                   source,
+                                                   element,
+                                                   noFields: false,
+                                                   onBuild: (index, propElement) => {
                                                               
-                                                                 this.fieldsCacheComponents.Add(index, propElement);
+                                                       this.fieldsCacheComponents.Add(index, propElement);
                                                               
-                                                             },
-                                                             drawGroups: true);
+                                                   },
+                                                   drawGroups: true);
 
             /*
             this.fieldsCacheComponents.Clear();
@@ -469,17 +469,17 @@ namespace ME.ECSEditor {
             var so = new SerializedObject(this.temp);
             var source = so.FindProperty("sharedComponents");
             this.fieldsCacheSharedComponents.Clear();
-            DataConfigEditor.BuildInspectorPropertiesElement("data",
-                                                             this,
-                                                             null,
-                                                             source,
-                                                             element,
-                                                             noFields: false,
-                                                             onBuild: (index, propElement) => {
+            GUIExt.BuildInspectorPropertiesElement("data",
+                                                         this,
+                                                         null,
+                                                         source,
+                                                         element,
+                                                         noFields: false,
+                                                         onBuild: (index, propElement) => {
                                                               
-                                                                 this.fieldsCacheSharedComponents.Add(index, propElement);
+                                                             this.fieldsCacheSharedComponents.Add(index, propElement);
                                                               
-                                                             });
+                                                         });
             
             this.sharedComponentsDirty = true;
             
