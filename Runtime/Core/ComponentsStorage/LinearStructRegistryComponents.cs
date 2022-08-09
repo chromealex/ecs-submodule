@@ -1759,57 +1759,6 @@ namespace ME.ECS {
         #endif
         #endregion
 
-        #region TIMERS
-        #if !ENTITY_TIMERS_DISABLED
-        #if INLINE_METHODS
-        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-        #endif
-        public void SetTimer(in Entity entity, uint index, tfloat time) {
-
-            E.IS_LOGIC_STEP(this);
-            E.IS_ALIVE(in entity);
-            
-            this.currentState.timers.Set(ref this.currentState.allocator, in entity, index, time);
-
-        }
-        
-        #if INLINE_METHODS
-        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-        #endif
-        public ref tfloat GetTimer(in Entity entity, uint index) {
-
-            E.IS_LOGIC_STEP(this);
-            E.IS_ALIVE(in entity);
-
-            return ref this.currentState.timers.Get(ref this.currentState.allocator, in entity, index);
-
-        }
-        
-        #if INLINE_METHODS
-        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-        #endif
-        public tfloat ReadTimer(in Entity entity, uint index) {
-            
-            E.IS_ALIVE(in entity);
-
-            return this.currentState.timers.Read(in this.currentState.allocator, in entity, index);
-
-        }
-        
-        #if INLINE_METHODS
-        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-        #endif
-        public bool RemoveTimer(in Entity entity, uint index) {
-            
-            E.IS_LOGIC_STEP(this);
-            E.IS_ALIVE(in entity);
-
-            return this.currentState.timers.Remove(ref this.currentState.allocator, in entity, index);
-
-        }
-        #endif
-        #endregion
-
         #region HAS/GET/SET/READ/REMOVE
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]

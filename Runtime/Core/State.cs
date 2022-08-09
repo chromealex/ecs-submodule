@@ -17,14 +17,12 @@ namespace ME.ECS {
         public ME.ECS.FiltersArchetype.FiltersArchetypeStorage storage;
         
         public MemoryAllocator allocator;
-        #if !ENTITY_TIMERS_DISABLED
-        [ME.ECS.Serializer.SerializeField]
-        public Timers timers;
-        #endif
         [ME.ECS.Serializer.SerializeField]
         public StructComponentsContainer structComponents;
         [ME.ECS.Serializer.SerializeField]
         public GlobalEventStorage globalEvents;
+
+        public PluginsStorage pluginsStorage;
         
         /// <summary>
         /// Return most unique hash
@@ -43,11 +41,13 @@ namespace ME.ECS {
 
             world.Register(ref this.allocator, ref this.storage, freeze, restore);
             world.Register(ref this.allocator, ref this.structComponents, freeze, restore);
-            this.globalEvents.Initialize(ref this.allocator);
-            #if !ENTITY_TIMERS_DISABLED
-            this.timers.Initialize(ref this.allocator);
-            #endif
             
+            this.pluginsStorage.Initialize(ref this.allocator);
+            
+            this.globalEvents.Initialize(ref this.allocator);
+
+            WorldStaticCallbacks.RaiseCallbackInitState(this);
+
         }
 
         public virtual void CopyFrom(State other) {
@@ -58,24 +58,23 @@ namespace ME.ECS {
             this.randomState = other.randomState;
             this.sharedEntity = other.sharedEntity;
 
+            this.pluginsStorage = other.pluginsStorage;
+
             this.storage = other.storage;
             this.structComponents.CopyFrom(other.structComponents);
             this.globalEvents = other.globalEvents;
-            #if !ENTITY_TIMERS_DISABLED
-            this.timers = other.timers;
-            #endif
 
         }
 
         public virtual void OnRecycle() {
+            
+            WorldStaticCallbacks.RaiseCallbackDisposeState(this);
 
             this.tick = default;
             this.randomState = default;
             this.sharedEntity = default;
 
-            #if !ENTITY_TIMERS_DISABLED
-            this.timers = default;
-            #endif
+            this.pluginsStorage = default;
             this.globalEvents = default;
             this.storage = default;
             

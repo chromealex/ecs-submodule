@@ -1071,6 +1071,8 @@ namespace ME.ECS {
 
         public void SaveResetState<TState>() where TState : State, new() {
 
+            WorldStaticCallbacks.RaiseCallbackInitResetState(this.GetState());
+
             if (this.resetState != null) WorldUtilities.ReleaseState<TState>(ref this.resetState);
             this.resetState = WorldUtilities.CreateState<TState>();
             this.resetState.Initialize(this, freeze: true, restore: false);
@@ -1080,7 +1082,7 @@ namespace ME.ECS {
             this.hasResetState = true;
 
             this.currentState.structComponents.Merge(in this.currentState.allocator);
-
+            
         }
 
         #if INLINE_METHODS
@@ -1343,10 +1345,9 @@ namespace ME.ECS {
                 if (cleanUpHierarchy == true) ECSTransformHierarchy.OnEntityDestroy(ref this.currentState.allocator, in entity);
                 this.RemoveFromAllFilters(ref this.currentState.allocator, entity);
                 this.DestroyEntityPlugins(in entity);
-                #if !ENTITY_TIMERS_DISABLED
-                this.currentState.timers.OnEntityDestroy(ref this.currentState.allocator, in entity);
-                #endif
 
+                WorldStaticCallbacks.RaiseCallbackEntityDestroy(this.currentState, in entity);
+                
                 this.currentState.storage.IncrementGeneration(in this.currentState.allocator, in entity);
 
                 return true;
