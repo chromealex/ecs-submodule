@@ -6,6 +6,7 @@ namespace ME.ECS {
     public interface IPlugin {
 
         void Initialize(int key, ref MemoryAllocator allocator);
+        int GetKey();
 
     }
     
@@ -23,9 +24,20 @@ namespace ME.ECS {
             
         }
 
-        public int Add<T>(ref MemoryAllocator allocator, T storage) where T : unmanaged, IPlugin {
+        public ref T GetOrCreate<T>(ref MemoryAllocator allocator) where T : unmanaged, IPlugin {
+            
+            var key = default(T).GetKey();
+            if (this.storages.ContainsKey(in allocator, key) == false) {
+                var storage = default(T);
+                this.Add(ref allocator, key, storage);
+            }
+            return ref this.storages.GetValue(ref allocator, key).Get<T>(ref allocator);
+            
+        }
 
-            var key = ++this.nextKey;
+        private int Add<T>(ref MemoryAllocator allocator, int key, T storage) where T : unmanaged, IPlugin {
+
+            if (key == 0) key = ++this.nextKey;
             storage.Initialize(key, ref allocator);
             this.storages.Add(ref allocator, key, new UnsafeData().Set(ref allocator, storage));
             return key;
@@ -34,6 +46,9 @@ namespace ME.ECS {
 
         public ref T Get<T>(ref MemoryAllocator allocator, int key) where T : unmanaged {
 
+            if (this.storages.ContainsKey(in allocator, key) == false) {
+                throw new System.Collections.Generic.KeyNotFoundException();
+            }
             return ref this.storages.GetValue(ref allocator, key).Get<T>(ref allocator);
 
         }

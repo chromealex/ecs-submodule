@@ -42,8 +42,6 @@ namespace ME.ECS {
             
             this.pluginsStorage.Initialize(ref this.allocator);
             
-            WorldStaticCallbacks.RaiseCallbackInitState(this);
-
         }
 
         public virtual void CopyFrom(State other) {
@@ -63,8 +61,6 @@ namespace ME.ECS {
 
         public virtual void OnRecycle() {
             
-            WorldStaticCallbacks.RaiseCallbackDisposeState(this);
-
             this.tick = default;
             this.randomState = default;
             this.sharedEntity = default;

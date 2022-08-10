@@ -28,8 +28,6 @@ namespace ME.ECS {
         private static Init onInit;
         private static Dispose onDispose;
 
-        private static InitState onInitState;
-        private static DisposeState onDisposeState;
         private static InitState onInitResetState;
 
         private static EntityDestroy onEntityDestroy;
@@ -56,10 +54,8 @@ namespace ME.ECS {
 
         }
 
-        public static void RegisterCallbacks(InitState onInitState, DisposeState onDisposeState, InitState onInitResetState) {
+        public static void RegisterCallbacks(InitState onInitResetState) {
 
-            WorldStaticCallbacks.onInitState += onInitState;
-            WorldStaticCallbacks.onDisposeState += onDisposeState;
             WorldStaticCallbacks.onInitResetState += onInitResetState;
 
         }
@@ -89,10 +85,8 @@ namespace ME.ECS {
 
         }
 
-        public static void UnRegisterCallbacks(InitState onInitState, DisposeState onDisposeState, InitState onInitResetState) {
+        public static void UnRegisterCallbacks(InitState onInitResetState) {
 
-            WorldStaticCallbacks.onInitState -= onInitState;
-            WorldStaticCallbacks.onDisposeState -= onDisposeState;
             WorldStaticCallbacks.onInitResetState -= onInitResetState;
 
         }
@@ -106,18 +100,6 @@ namespace ME.ECS {
         public static void RaiseCallbackInitResetState(State state) {
             
             WorldStaticCallbacks.onInitResetState?.Invoke(state);
-            
-        }
-
-        public static void RaiseCallbackInitState(State state) {
-            
-            WorldStaticCallbacks.onInitState?.Invoke(state);
-            
-        }
-
-        public static void RaiseCallbackDisposeState(State state) {
-            
-            WorldStaticCallbacks.onDisposeState?.Invoke(state);
             
         }
 
