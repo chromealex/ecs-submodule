@@ -14,7 +14,6 @@
 .item {
     border-width: 1px;
     border-color: rgba(255, 255, 255, 0.1);
-    border-bottom-color: rgba(255, 255, 255, 0);
     background-color: rgba(128, 128, 128, 0.1);
     border-radius: 5px;
     padding: 0px;
@@ -48,7 +47,6 @@
 
 .dependencies {
     flex-direction: row;
-    border-radius: 10px;
     background-color: rgba(0, 0, 0, 0.1);
     padding: 2px;
 }
