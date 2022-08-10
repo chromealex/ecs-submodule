@@ -1121,16 +1121,19 @@ namespace ME.ECS {
 
             public StructComponentsContainer storage;
             public MemoryAllocator allocator;
+            public PluginsStorage pluginsStorage;
 
             public void Initialize() {
 
                 this.allocator.Initialize(1024 * 1024, -1);
                 this.storage.Initialize(ref this.allocator, true);
-                
+                this.pluginsStorage.Initialize(ref this.allocator);
+
             }
 
             public void Dispose() {
                 
+                this.pluginsStorage = default;
                 this.storage.OnRecycle(ref this.allocator, true);
                 this.allocator.Dispose();
                 
@@ -1292,14 +1295,8 @@ namespace ME.ECS {
         #endif
         private void UseLifetimeStep(ComponentLifetime step, tfloat deltaTime) {
 
-            #if !ENTITY_TIMERS_DISABLED
-            if (step == ComponentLifetime.NotifyAllSystemsBelow) {
-                
-                this.currentState.timers.Update(ref this.currentState.allocator, deltaTime);
-                
-            }
-            #endif
-        
+            WorldStaticCallbacks.RaiseCallbackLifetimeStep(this, step, deltaTime);
+
             this.UseLifetimeStep(ref this.currentState.allocator, step, deltaTime, ref this.currentState.structComponents);
             this.UseLifetimeStep(ref this.noStateData.allocator, step, deltaTime, ref this.noStateData.storage);
             

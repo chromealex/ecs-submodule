@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using ME.ECS.GlobalEvents;
+using UnityEngine;
 
 namespace ME.ECS {
 
@@ -101,17 +102,17 @@ namespace ME.ECS {
 
         public bool Cancel() {
             
-            return this.Cancel(in Entity.Empty, World.GlobalEventType.Visual);
+            return this.Cancel(in Entity.Empty, ME.ECS.GlobalEvents.GlobalEventType.Visual);
             
         }
 
         public bool Cancel(in Entity entity) {
             
-            return this.Cancel(in entity, World.GlobalEventType.Visual);
+            return this.Cancel(in entity, ME.ECS.GlobalEvents.GlobalEventType.Visual);
             
         }
 
-        public virtual bool Cancel(in Entity entity, World.GlobalEventType globalEventType) {
+        public virtual bool Cancel(in Entity entity, ME.ECS.GlobalEvents.GlobalEventType globalEventType) {
             
             var evt = GlobalEvent.GetInstance(this);
             
@@ -123,22 +124,22 @@ namespace ME.ECS {
 
         public void Execute() {
             
-            this.Execute(in Entity.Empty, World.GlobalEventType.Visual);
+            this.Execute(in Entity.Empty, GlobalEventType.Visual);
             
         }
 
         public void Execute(in Entity entity) {
             
-            this.Execute(in entity, World.GlobalEventType.Visual);
+            this.Execute(in entity, GlobalEventType.Visual);
             
         }
 
-        public virtual void Execute(in Entity entity, World.GlobalEventType globalEventType) {
+        public virtual void Execute(in Entity entity, GlobalEventType globalEventType) {
             
             var evt = GlobalEvent.GetInstance(this);
             
             // If we are reverting - skip visual events
-            if (this.callOnRollback == false && globalEventType == World.GlobalEventType.Visual) {
+            if (this.callOnRollback == false && globalEventType == GlobalEventType.Visual) {
 
                 if (Worlds.currentWorld.HasResetState() == true) {
 

@@ -1,0 +1,16 @@
+{
+    "name": "ME.ECS.Essentials.GlobalEvents",
+    "rootNamespace": "",
+    "references": [
+        "ME.ECS"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

@@ -249,8 +249,6 @@ namespace ME.ECS {
             this.OnSpawnMarkers();
             this.OnSpawnFilters();
 
-            this.InitializeGlobalEvents();
-
             WorldStaticCallbacks.RaiseCallbackInit(this);
 
             #if UNITY_EDITOR
@@ -274,8 +272,6 @@ namespace ME.ECS {
             WorldStaticCallbacks.RaiseCallbackDispose(this);
 
             this.noStateData.Dispose();
-
-            this.DisposeGlobalEvents();
 
             var list = PoolListCopyable<Entity>.Spawn(World.ENTITIES_CACHE_CAPACITY);
             if (this.ForEachEntity(list) == true) {
@@ -2035,7 +2031,7 @@ namespace ME.ECS {
             this.currentStep &= ~WorldStep.SystemsVisualTick;
             ////////////////
 
-            this.ProcessGlobalEvents(GlobalEventType.Visual);
+            WorldStaticCallbacks.RaiseCallbackStep(this, WorldStep.VisualTick);
 
             #if ENABLE_PROFILER
             ECSProfiler.VisualViews.Value += (long)((tickSw.ElapsedTicks / (double)System.Diagnostics.Stopwatch.Frequency) * 1000000000L);
@@ -2729,7 +2725,7 @@ namespace ME.ECS {
                 UnityEngine.Profiling.Profiler.BeginSample($"ProcessGlobalEvents [Logic]");
                 #endif
 
-                this.ProcessGlobalEvents(GlobalEventType.Logic);
+                WorldStaticCallbacks.RaiseCallbackStep(this, WorldStep.LogicTick);
 
                 #if UNITY_EDITOR
                 UnityEngine.Profiling.Profiler.EndSample();

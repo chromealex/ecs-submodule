@@ -1,11 +1,13 @@
-namespace ME.ECS {
+namespace ME.ECS.GlobalEvents {
     
     using MemPtr = System.Int64;
     using Collections.MemoryAllocator;
     using ME.ECS.Collections.V3;
 
-    public struct GlobalEventStorage {
+    public struct GlobalEventStorage : IPlugin {
 
+        public static int key;
+        
         public struct GlobalEventFrameItem {
 
             public uint globalEvent;
@@ -16,17 +18,12 @@ namespace ME.ECS {
         public List<GlobalEventFrameItem> globalEventLogicItems;
         public HashSet<long> globalEventLogicEvents;
 
-        public void Initialize(ref MemoryAllocator allocator) {
+        public void Initialize(int key, ref MemoryAllocator allocator) {
+
+            GlobalEventStorage.key = GlobalEventStorage.key;
             
             if (this.globalEventLogicItems.isCreated == false) this.globalEventLogicItems = new List<GlobalEventFrameItem>(ref allocator, 10);
             if (this.globalEventLogicEvents.isCreated == false) this.globalEventLogicEvents = new HashSet<long>(ref allocator, 10);
-
-        }
-
-        public void Dispose(ref MemoryAllocator allocator) {
-
-            this.globalEventLogicEvents.Dispose(ref allocator);
-            this.globalEventLogicItems.Dispose(ref allocator);
 
         }
 

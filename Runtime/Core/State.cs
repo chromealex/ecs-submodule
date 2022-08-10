@@ -19,8 +19,6 @@ namespace ME.ECS {
         public MemoryAllocator allocator;
         [ME.ECS.Serializer.SerializeField]
         public StructComponentsContainer structComponents;
-        [ME.ECS.Serializer.SerializeField]
-        public GlobalEventStorage globalEvents;
 
         public PluginsStorage pluginsStorage;
         
@@ -44,8 +42,6 @@ namespace ME.ECS {
             
             this.pluginsStorage.Initialize(ref this.allocator);
             
-            this.globalEvents.Initialize(ref this.allocator);
-
             WorldStaticCallbacks.RaiseCallbackInitState(this);
 
         }
@@ -62,7 +58,6 @@ namespace ME.ECS {
 
             this.storage = other.storage;
             this.structComponents.CopyFrom(other.structComponents);
-            this.globalEvents = other.globalEvents;
 
         }
 
@@ -75,7 +70,6 @@ namespace ME.ECS {
             this.sharedEntity = default;
 
             this.pluginsStorage = default;
-            this.globalEvents = default;
             this.storage = default;
             
             this.structComponents.OnRecycle(ref this.allocator, true);

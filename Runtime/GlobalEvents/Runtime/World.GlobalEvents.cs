@@ -1,47 +1,25 @@
-namespace ME.ECS {
-    
-    using MemPtr = System.Int64;
-    using ME.ECS.Collections.V3;
-    using ME.ECS.Collections.MemoryAllocator;
+namespace ME.ECS.GlobalEvents {
 
-    public partial class World {
+    public enum GlobalEventType : byte {
+
+        Logic,
+        Visual,
+
+    }
+
+    public static class WorldExt {
         
-        #region GlobalEvents
-        public enum GlobalEventType : byte {
-
-            Logic,
-            Visual,
-
-        }
-
-        private System.Collections.Generic.List<GlobalEventStorage.GlobalEventFrameItem> globalEventFrameItems;
-        private HashSet<long> globalEventFrameEvents;
-
-        internal void InitializeGlobalEvents() {
-
-            this.globalEventFrameItems = PoolList<GlobalEventStorage.GlobalEventFrameItem>.Spawn(10);
-            this.globalEventFrameEvents = new HashSet<long>(ref this.tempAllocator, 10);
-
-        }
-
-        internal void DisposeGlobalEvents() {
-
-            GlobalEvent.ResetCache();
-            
-            PoolList<GlobalEventStorage.GlobalEventFrameItem>.Recycle(ref this.globalEventFrameItems);
-            this.globalEventFrameEvents.Dispose(ref this.tempAllocator);
-            
-        }
-
-        public void ProcessGlobalEvents(GlobalEventType globalEventType) {
+        public static void ProcessGlobalEvents(this ME.ECS.World world, GlobalEventType globalEventType) {
 
             if (globalEventType == GlobalEventType.Visual) {
 
+                ref var allocator = ref world.GetNoStateData().allocator;
+                ref var storage = ref world.GetNoStateData().pluginsStorage.Get<ME.ECS.GlobalEvents.WorldStorage>(ref allocator, ME.ECS.GlobalEvents.WorldStorage.key);
                 try {
 
-                    for (int i = 0; i < this.globalEventFrameItems.Count; ++i) {
+                    for (int i = 0; i < storage.globalEventFrameItems.Count; ++i) {
 
-                        var item = this.globalEventFrameItems[i];
+                        var item = storage.globalEventFrameItems[in allocator, i];
                         GlobalEvent.GetEventById(item.globalEvent).Run(in item.data);
 
                     }
@@ -52,39 +30,43 @@ namespace ME.ECS {
 
                 }
 
-                this.globalEventFrameItems.Clear();
-                this.globalEventFrameEvents.Clear(in this.tempAllocator);
+                storage.globalEventFrameItems.Clear(in allocator);
+                storage.globalEventFrameEvents.Clear(in allocator);
 
             } else if (globalEventType == GlobalEventType.Logic) {
 
-                for (int i = 0; i < this.currentState.globalEvents.globalEventLogicItems.Count; ++i) {
+                ref var allocator = ref world.GetState().allocator;
+                ref var storage = ref world.GetNoStateData().pluginsStorage.Get<ME.ECS.GlobalEvents.GlobalEventStorage>(ref allocator, ME.ECS.GlobalEvents.GlobalEventStorage.key);
+                for (int i = 0; i < storage.globalEventLogicItems.Count; ++i) {
 
-                    var item = this.currentState.globalEvents.globalEventLogicItems[in this.currentState.allocator, i];
+                    var item = storage.globalEventLogicItems[in allocator, i];
                     GlobalEvent.GetEventById(item.globalEvent).Run(in item.data);
 
                 }
 
-                this.currentState.globalEvents.globalEventLogicItems.Clear(in this.currentState.allocator);
-                this.currentState.globalEvents.globalEventLogicEvents.Clear(in this.currentState.allocator);
+                storage.globalEventLogicItems.Clear(in allocator);
+                storage.globalEventLogicEvents.Clear(in allocator);
 
             }
 
         }
 
-        public bool CancelGlobalEvent(GlobalEvent globalEvent, in Entity entity, GlobalEventType globalEventType) {
+        public static bool CancelGlobalEvent(this ME.ECS.World world, GlobalEvent globalEvent, in Entity entity, GlobalEventType globalEventType) {
 
             var key = MathUtils.GetKey(globalEvent.GetHashCode(), entity.GetHashCode());
             if (globalEventType == GlobalEventType.Visual) {
 
-                if (this.globalEventFrameEvents.Contains(in this.tempAllocator, key) == true) {
+                ref var allocator = ref world.GetNoStateData().allocator;
+                ref var storage = ref world.GetNoStateData().pluginsStorage.Get<ME.ECS.GlobalEvents.WorldStorage>(ref allocator, ME.ECS.GlobalEvents.WorldStorage.key);
+                if (storage.globalEventFrameEvents.Contains(in allocator, key) == true) {
 
-                    for (int i = 0; i < this.globalEventFrameItems.Count; ++i) {
+                    for (int i = 0; i < storage.globalEventFrameItems.Count; ++i) {
 
-                        var item = this.globalEventFrameItems[i];
+                        var item = storage.globalEventFrameItems[in allocator, i];
                         if (item.globalEvent == globalEvent.id && item.data == entity) {
 
-                            this.globalEventFrameEvents.Remove(ref this.tempAllocator, key);
-                            this.globalEventFrameItems.RemoveAt(i);
+                            storage.globalEventFrameEvents.Remove(ref allocator, key);
+                            storage.globalEventFrameItems.RemoveAt(ref allocator, i);
                             return true;
 
                         }
@@ -95,7 +77,9 @@ namespace ME.ECS {
 
             } else if (globalEventType == GlobalEventType.Logic) {
 
-                this.currentState.globalEvents.Remove(ref this.currentState.allocator, globalEvent, in entity);
+                ref var allocator = ref world.GetState().allocator;
+                ref var storage = ref world.GetNoStateData().pluginsStorage.Get<ME.ECS.GlobalEvents.GlobalEventStorage>(ref allocator, ME.ECS.GlobalEvents.GlobalEventStorage.key);
+                storage.Remove(ref allocator, globalEvent, in entity);
                 
             }
 
@@ -103,15 +87,17 @@ namespace ME.ECS {
 
         }
 
-        public void RegisterGlobalEvent(GlobalEvent globalEvent, in Entity entity, GlobalEventType globalEventType) {
+        public static void RegisterGlobalEvent(this ME.ECS.World world, GlobalEvent globalEvent, in Entity entity, GlobalEventType globalEventType) {
 
             var key = MathUtils.GetKey(globalEvent.GetHashCode(), entity.GetHashCode());
             if (globalEventType == GlobalEventType.Visual) {
 
-                if (this.globalEventFrameEvents.Contains(in this.tempAllocator, key) == false) {
+                ref var allocator = ref world.noStateData.allocator;
+                ref var storage = ref world.noStateData.pluginsStorage.Get<ME.ECS.GlobalEvents.WorldStorage>(ref allocator, ME.ECS.GlobalEvents.WorldStorage.key);
+                if (storage.globalEventFrameEvents.Contains(in allocator, key) == false) {
 
-                    this.globalEventFrameEvents.Add(ref this.tempAllocator, key);
-                    this.globalEventFrameItems.Add(new GlobalEventStorage.GlobalEventFrameItem() {
+                    storage.globalEventFrameEvents.Add(ref allocator, key);
+                    storage.globalEventFrameItems.Add(ref allocator, new GlobalEventStorage.GlobalEventFrameItem() {
                         globalEvent = globalEvent.id,
                         data = entity,
                     });
@@ -120,9 +106,37 @@ namespace ME.ECS {
 
             } else if (globalEventType == GlobalEventType.Logic) {
 
-                this.currentState.globalEvents.Add(ref this.currentState.allocator, globalEvent, in entity);
+                ref var allocator = ref world.GetState().allocator;
+                ref var storage = ref world.GetNoStateData().pluginsStorage.Get<ME.ECS.GlobalEvents.GlobalEventStorage>(ref allocator, ME.ECS.GlobalEvents.GlobalEventStorage.key);
+                storage.Add(ref allocator, globalEvent, in entity);
                 
             }
+
+        }
+
+    }
+
+}
+
+namespace ME.ECS.GlobalEvents {
+    
+    using MemPtr = System.Int64;
+    using ME.ECS.Collections.V3;
+    using ME.ECS.Collections.MemoryAllocator;
+
+    public struct WorldStorage : IPlugin {
+
+        public static int key;
+        
+        #region GlobalEvents
+        internal List<GlobalEventStorage.GlobalEventFrameItem> globalEventFrameItems;
+        internal HashSet<long> globalEventFrameEvents;
+
+        public void Initialize(int key, ref MemoryAllocator allocator) {
+            
+            WorldStorage.key = key;
+            this.globalEventFrameItems = new List<GlobalEventStorage.GlobalEventFrameItem>(ref allocator, 10);
+            this.globalEventFrameEvents = new HashSet<long>(ref allocator, 10);
 
         }
         #endregion
