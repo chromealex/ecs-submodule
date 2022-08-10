@@ -6,31 +6,6 @@ namespace ME.ECS.Tests {
         private class TestState : State {}
         public struct TestComponent : IComponent {}
 
-        private class TestDataConfigSystem : ISystem, IAdvanceTick {
-
-            public World world { get; set; }
-
-            public int testValueCount;
-            private Filter filter;
-            
-            public void OnConstruct() {
-                
-                this.filter = Filter.Create("Test").With<DataConfigTestComponent>().Push();
-                
-            }
-
-            public void OnDeconstruct() {
-                
-            }
-
-            public void AdvanceTick(in float deltaTime) {
-                
-                NUnit.Framework.Assert.AreEqual(this.testValueCount, this.filter.Count);
-                
-            }
-
-        }
-
         private class TestSystem : ISystem, IAdvanceTick {
 
             public World world { get; set; }
