@@ -22,7 +22,7 @@ namespace ME.ECS {
         
         public delegate void EntityDestroy(State state, in Entity entity);
         
-        public delegate void WorldStep(World world, ME.ECS.WorldStep step);
+        public delegate void WorldStep(World world, ME.ECS.WorldCallbackStep step);
         public delegate void WorldLifetimeStep(World world, ComponentLifetime step, tfloat deltaTime);
 
         private static Init onInit;
@@ -121,7 +121,7 @@ namespace ME.ECS {
 
         }
 
-        public static void RaiseCallbackStep(World world, ME.ECS.WorldStep step) {
+        public static void RaiseCallbackStep(World world, ME.ECS.WorldCallbackStep step) {
             
             WorldStaticCallbacks.onWorldStep?.Invoke(world, step);
 

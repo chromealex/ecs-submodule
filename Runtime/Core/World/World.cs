@@ -23,6 +23,15 @@ namespace ME.ECS {
     using Collections.V3;
     using Collections.MemoryAllocator;
 
+    public enum WorldCallbackStep {
+
+        None = 0,
+        LogicTick,
+        VisualTick,
+        UpdateVisualPreStageEnd,
+
+    }
+
     [System.Flags]
     public enum WorldStep : byte {
 
@@ -1821,24 +1830,8 @@ namespace ME.ECS {
             this.currentStep &= ~WorldStep.SystemsVisualTick;
             ////////////////
 
-            #if CHECKPOINT_COLLECTOR
-            if (this.checkpointCollector != null) this.checkpointCollector.Checkpoint("RemoveMarkers", WorldStep.None);
-            #endif
-
-            #if UNITY_EDITOR
-            UnityEngine.Profiling.Profiler.BeginSample($"Remove Markers");
-            #endif
-
-            this.RemoveMarkers();
-
-            #if UNITY_EDITOR
-            UnityEngine.Profiling.Profiler.EndSample();
-            #endif
-
-            #if CHECKPOINT_COLLECTOR
-            if (this.checkpointCollector != null) this.checkpointCollector.Checkpoint("RemoveMarkers", WorldStep.None);
-            #endif
-
+            WorldStaticCallbacks.RaiseCallbackStep(this, WorldCallbackStep.UpdateVisualPreStageEnd);
+            
             ////////////////
             this.currentStep |= WorldStep.ModulesVisualTick;
             ////////////////
@@ -2033,7 +2026,7 @@ namespace ME.ECS {
             this.currentStep &= ~WorldStep.SystemsVisualTick;
             ////////////////
 
-            WorldStaticCallbacks.RaiseCallbackStep(this, WorldStep.VisualTick);
+            WorldStaticCallbacks.RaiseCallbackStep(this, WorldCallbackStep.VisualTick);
 
             #if ENABLE_PROFILER
             ECSProfiler.VisualViews.Value += (long)((tickSw.ElapsedTicks / (double)System.Diagnostics.Stopwatch.Frequency) * 1000000000L);
@@ -2727,7 +2720,7 @@ namespace ME.ECS {
                 UnityEngine.Profiling.Profiler.BeginSample($"ProcessGlobalEvents [Logic]");
                 #endif
 
-                WorldStaticCallbacks.RaiseCallbackStep(this, WorldStep.LogicTick);
+                WorldStaticCallbacks.RaiseCallbackStep(this, WorldCallbackStep.LogicTick);
 
                 #if UNITY_EDITOR
                 UnityEngine.Profiling.Profiler.EndSample();
