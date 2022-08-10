@@ -29,7 +29,7 @@ namespace ME.ECS {
             var key = default(T).GetKey();
             if (this.storages.ContainsKey(in allocator, key) == false) {
                 var storage = default(T);
-                this.Add(ref allocator, key, storage);
+                key = this.Add(ref allocator, key, storage);
             }
             return ref this.storages.GetValue(ref allocator, key).Get<T>(ref allocator);
             
@@ -46,7 +46,7 @@ namespace ME.ECS {
 
         public ref T Get<T>(ref MemoryAllocator allocator, int key) where T : unmanaged {
 
-            if (this.storages.ContainsKey(in allocator, key) == false) {
+            if (key == 0 || this.storages.ContainsKey(in allocator, key) == false) {
                 throw new System.Collections.Generic.KeyNotFoundException();
             }
             return ref this.storages.GetValue(ref allocator, key).Get<T>(ref allocator);

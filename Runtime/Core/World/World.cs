@@ -2829,6 +2829,7 @@ namespace ME.ECS {
 
                     // Stop simulation at this point
                     // because we have reached max ms per frame
+                    ++state.tick;
                     to = state.tick + 1;
                     break;
 
