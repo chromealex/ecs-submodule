@@ -23,6 +23,29 @@
     margin-bottom: 8px;
 }
 
+.header {
+    flex-direction: row;
+    justify-content: space-between;
+    background-color: rgba(128, 128, 128, 0.4);
+    border-bottom-color: rgba(30, 30, 30, 0.4);
+    border-bottom-width: 1px;
+    padding: 4px;
+    margin-bottom: 4px;
+    color: rgba(255, 255, 255, 0.5);
+    font-size: 14px;
+}
+
+.package-name {
+    background-color: rgba(0, 0, 0, 0.1);
+    border-radius: 10px;
+    font-size: 10px;
+    align-self: center;
+    padding: 5px;
+    padding-bottom: 1px;
+    padding-top: 1px;
+    margin-right: 4px;
+}
+
 .dependencies {
     flex-direction: row;
     border-radius: 10px;
@@ -76,21 +99,16 @@
 }
 
 .item .caption {
-    background-color: rgba(128, 128, 128, 0.4);
-    border-bottom-color: rgba(30, 30, 30, 0.4);
-    border-bottom-width: 1px;
-    padding: 4px;
-    margin-bottom: 4px;
     color: rgba(255, 255, 255, 0.5);
     font-size: 14px;
 }
-.item.new-version-available .caption {
+.item.new-version-available .header {
     background-color: rgba(255, 255, 0, 0.3);
 }
-.item.up-to-date .caption {
+.item.up-to-date .header {
     background-color: rgba(0, 255, 0, 0.1);
 }
-.item.not-installed .caption {
+.item.not-installed .header {
     background-color: rgba(255, 255, 255, 0.05);
 }
 .item .bottom {

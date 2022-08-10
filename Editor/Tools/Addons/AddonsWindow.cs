@@ -213,6 +213,7 @@ public class AddonsWindow : EditorWindow {
         this.container.Clear();
         var lines = text.Split('\n');
         VisualElement container = null;
+        Label packageName = null;
         for (int i = 0; i < lines.Length; ++i) {
 
             var line = lines[i];
@@ -225,10 +226,23 @@ public class AddonsWindow : EditorWindow {
                 container.AddToClassList("item");
                 this.container.Add(container);
 
-                var v = new Label();
-                v.AddToClassList("caption");
-                v.text = val;
-                container.Add(v);
+                var c = new VisualElement();
+                c.AddToClassList("header");
+                container.Add(c);
+                {
+                    var v = new Label();
+                    v.AddToClassList("caption");
+                    v.text = val;
+                    c.Add(v);
+                }
+
+                {
+                    var v = new Label();
+                    v.AddToClassList("package-name");
+                    v.text = string.Empty;
+                    c.Add(v);
+                    packageName = v;
+                }
 
             } else if (container != null) {
 
@@ -264,7 +278,7 @@ public class AddonsWindow : EditorWindow {
                         {
                             var version = new Label();
                             version.AddToClassList("version");
-                            this.GetVersion(container, bottom, version, currentVersion, url);
+                            this.GetVersion(container, bottom, packageName, version, currentVersion, url);
                             versionElement.Add(version);
                         }
                         bottom.Add(versionElement);
@@ -322,7 +336,7 @@ public class AddonsWindow : EditorWindow {
     }
 
     private List<Item> requests = new List<Item>();
-    private void GetVersion(VisualElement container, VisualElement bottomContainer, Label label, Label currentVersion, string url) {
+    private void GetVersion(VisualElement container, VisualElement bottomContainer, Label packageName, Label label, Label currentVersion, string url) {
         
         currentVersion.text = "Checking installed version...";
         
@@ -333,6 +347,7 @@ public class AddonsWindow : EditorWindow {
             callback = (data) => {
                 var json = JsonUtility.FromJson<PackageInfo>(data);
                 label.text = json.version;
+                packageName.text = json.name;
                 var isInstalled = false;
                 if (this.HasInstalledPackage(json, out var installedInfo) == true) {
                     isInstalled = true;
