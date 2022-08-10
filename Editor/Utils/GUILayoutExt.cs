@@ -1,10 +1,16 @@
+#if FIXED_POINT_MATH
+using ME.ECS.Mathematics;
+using tfloat = sfloat;
+#else
+using Unity.Mathematics;
+using tfloat = System.Single;
+#endif
 using UnityEngine;
 using UnityEditor;
 using System;
 using System.IO;
 using System.Linq;
 using System.CodeDom.Compiler;
-using ME.ECS.Mathematics;
 using System.Text.RegularExpressions;
 
 namespace ME.ECSEditor {
@@ -1647,11 +1653,13 @@ namespace ME.ECSEditor {
 	        if (type == typeof(Vector3)) return true;
 	        if (type == typeof(Vector4)) return true;
 	        if (type == typeof(Quaternion)) return true;
+            #if FIXED_POINT_MATH
             if (type == typeof(sfloat)) return true;
             if (type == typeof(ME.ECS.Mathematics.quaternion)) return true;
             if (type == typeof(ME.ECS.Mathematics.float2)) return true;
             if (type == typeof(ME.ECS.Mathematics.float3)) return true;
 	        if (type == typeof(ME.ECS.Mathematics.float4)) return true;
+            #endif
 	        return false;
 
         }
@@ -1870,8 +1878,25 @@ namespace ME.ECSEditor {
 		            value = EditorGUILayout.Vector3Field(caption, (Vector3)value);
 
 	            }
+                
+            #if FIXED_POINT_MATH
+            } else if (type == typeof(ME.ECS.Mathematics.quaternion)) {
 
-            }  else if (type == typeof(ME.ECS.Mathematics.float2)) {
+                if (typeCheckOnly == false) {
+
+                    value = (ME.ECS.Mathematics.quaternion)Quaternion.Euler(EditorGUILayout.Vector3Field(caption, (Vector3)((ME.ECS.Mathematics.quaternion)value).ToEuler()));
+
+                }
+
+            } else if (type == typeof(sfloat)) {
+
+                if (typeCheckOnly == false) {
+
+                    value = (sfloat)EditorGUILayout.FloatField(caption, (float)(sfloat)value);
+
+                }
+
+            } else if (type == typeof(ME.ECS.Mathematics.float2)) {
 
 	            if (typeCheckOnly == false) {
 
@@ -1894,7 +1919,7 @@ namespace ME.ECSEditor {
                     value = (ME.ECS.Mathematics.float4)EditorGUILayout.Vector4Field(caption, (Vector4)(ME.ECS.Mathematics.float4)value);
 
                 }
-
+            #endif
             } else if (type == typeof(Vector4)) {
 
                 if (typeCheckOnly == false) {
@@ -1908,22 +1933,6 @@ namespace ME.ECSEditor {
 	            if (typeCheckOnly == false) {
 
 		            value = Quaternion.Euler(EditorGUILayout.Vector3Field(caption, ((Quaternion)value).eulerAngles));
-
-	            }
-
-            } else if (type == typeof(ME.ECS.Mathematics.quaternion)) {
-
-	            if (typeCheckOnly == false) {
-
-		            value = (ME.ECS.Mathematics.quaternion)Quaternion.Euler(EditorGUILayout.Vector3Field(caption, (Vector3)((ME.ECS.Mathematics.quaternion)value).ToEuler()));
-
-	            }
-
-            } else if (type == typeof(sfloat)) {
-
-	            if (typeCheckOnly == false) {
-
-		            value = (sfloat)EditorGUILayout.FloatField(caption, (float)(sfloat)value);
 
 	            }
 

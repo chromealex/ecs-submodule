@@ -382,7 +382,9 @@ namespace ME.ECS.Serializer {
             serializers.Add(new GenericDictionarySerializer());
 
             #if UNITY
+            #if FIXED_POINT_MATH
             serializers.Add(new FPSerializer());
+            #endif
 
             serializers.Add(new Vector2IntSerializer());
             serializers.Add(new Vector3IntSerializer());

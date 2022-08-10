@@ -1,4 +1,10 @@
-﻿using ME.ECS.Mathematics;
+﻿#if FIXED_POINT_MATH
+using ME.ECS.Mathematics;
+using tfloat = sfloat;
+#else
+using Unity.Mathematics;
+using tfloat = System.Single;
+#endif
 
 namespace ME.ECS.Collections {
 
@@ -14,7 +20,7 @@ namespace ME.ECS.Collections {
 
         private struct Node {
 
-            public sfloat priority;
+            public tfloat priority;
             public T @object;
 
         }
@@ -52,7 +58,7 @@ namespace ME.ECS.Collections {
         /// </summary>
         /// <param name="priority"></param>
         /// <param name="obj"></param>
-        public void Enqueue(sfloat priority, T obj) {
+        public void Enqueue(tfloat priority, T obj) {
             var node = new Node() { priority = priority, @object = obj };
             this.queue.Add(node);
             this.heapSize++;
@@ -92,7 +98,7 @@ namespace ME.ECS.Collections {
         /// </summary>
         /// <param name="obj"></param>
         /// <param name="priority"></param>
-        public void UpdatePriority(T obj, sfloat priority) {
+        public void UpdatePriority(T obj, tfloat priority) {
             var i = 0;
             for (; i <= this.heapSize; i++) {
                 var node = this.queue[i];
@@ -197,7 +203,7 @@ namespace ME.ECS.Collections {
 
         private struct Node {
 
-            public sfloat priority;
+            public tfloat priority;
             public T @object;
 
         }
@@ -240,7 +246,7 @@ namespace ME.ECS.Collections {
         /// </summary>
         /// <param name="priority"></param>
         /// <param name="obj"></param>
-        public void Enqueue(sfloat priority, T obj) {
+        public void Enqueue(tfloat priority, T obj) {
             var node = new Node() { priority = priority, @object = obj };
             this.queue.Add(node);
             this.heapSize++;

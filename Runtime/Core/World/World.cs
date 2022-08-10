@@ -371,6 +371,7 @@ namespace ME.ECS {
             
         }
         
+        #if FIXED_POINT_MATH
         /// <summary>
         /// Calculates constant operation with fp
         /// Useful for matching servers
@@ -386,6 +387,7 @@ namespace ME.ECS {
             return res.x.ToStringDec() + res.y.ToStringDec() + res.z.ToStringDec();// + " :: " + res.x + " :: " + res.y + " :: " + res.z;
             
         }
+        #endif
 
         public float GetLoadingProgress() {
 

@@ -281,12 +281,14 @@ namespace ME.ECS {
 
         }
 
+        #if FIXED_POINT_MATH
         public static string ToStringDec(this sfloat value) {
 
             uint lVal = value.RawValue;
             return lVal.ToString("X");
 
         }
+        #endif
 
         public static string ToStringDec(this float2 value) {
 

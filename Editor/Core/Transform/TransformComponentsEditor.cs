@@ -28,6 +28,7 @@ namespace ME.ECSEditor {
 
     }
 
+    #if FIXED_POINT_MATH
     [UnityEditor.CustomPropertyDrawer(typeof(ME.ECS.Mathematics.quaternion))]
     public class TransformFPQuaternionComponentEditor : UnityEditor.PropertyDrawer {
 
@@ -55,6 +56,8 @@ namespace ME.ECSEditor {
         }
 
     }
+    #endif
+    
 /*
     [UnityEditor.CustomPropertyDrawer(typeof(ME.ECS.Transform.Position))]
     public class TransformPositionComponentEditor : UnityEditor.PropertyDrawer {

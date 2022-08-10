@@ -251,6 +251,7 @@ namespace ME.ECS {
 
     }
 
+    #if FIXED_POINT_MATH
     public static class MEECSMathExt {
 
         #if INLINE_METHODS
@@ -371,5 +372,6 @@ namespace ME.ECS {
         }
 
     }
+    #endif
 
 }
