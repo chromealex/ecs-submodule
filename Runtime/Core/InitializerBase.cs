@@ -211,7 +211,7 @@ namespace ME.ECS {
             this.InitializeFeatures(world, callLateInitialization);
             
             // Initialize scene
-            InitializerBase.initializeSceneCallback.Invoke(world, callLateInitialization);
+            InitializerBase.initializeSceneCallback?.Invoke(world, callLateInitialization);
 
         }
 
