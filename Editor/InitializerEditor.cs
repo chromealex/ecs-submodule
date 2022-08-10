@@ -16,8 +16,9 @@ namespace ME.ECSEditor {
     [UnityEditor.CustomEditor(typeof(InitializerBase), true)]
     public class InitializerEditor : Editor {
 
-        private const float ONE_LINE_HEIGHT = 22f;
-        
+        public static System.Func<InitializerBase.Configuration, InitializerBase.Configuration> buildConfiguration;
+        public static System.Func<InitializerBase.DefineInfo[]> getAdditionalDefines;
+
         private static System.Collections.Generic.Dictionary<object, bool> systemFoldouts = new System.Collections.Generic.Dictionary<object, bool>();
         private static System.Collections.Generic.Dictionary<object, bool> moduleFoldouts = new System.Collections.Generic.Dictionary<object, bool>();
         private static System.Collections.Generic.Dictionary<object, bool> featureFoldouts = new System.Collections.Generic.Dictionary<object, bool>();
@@ -46,6 +47,17 @@ namespace ME.ECSEditor {
             }
         }
 
+        public static InitializerBase.DefineInfo[] GetDefines() {
+            if (InitializerEditor.getAdditionalDefines != null) {
+                var list = new System.Collections.Generic.List<InitializerBase.DefineInfo>();
+                list.AddRange(InitializerEditor.defines);
+                list.AddRange(InitializerEditor.getAdditionalDefines.Invoke());
+                return list.ToArray();
+            }
+
+            return InitializerEditor.defines;
+        }
+        
         private static readonly InitializerBase.DefineInfo[] defines = new[] {
             new InitializerBase.DefineInfo(true, "GAMEOBJECT_VIEWS_MODULE_SUPPORT", "Turn on/off GameObject View Provider.", () => {
                 #if GAMEOBJECT_VIEWS_MODULE_SUPPORT
@@ -159,13 +171,6 @@ namespace ME.ECSEditor {
                 return false;
                 #endif
             }, true, InitializerBase.ConfigurationType.DebugOnly, InitializerBase.CodeSize.Light, InitializerBase.RuntimeSpeed.Heavy),
-            new InitializerBase.DefineInfo(true, "FIXED_POINT_MATH", "Fixed-Point Math.", () => {
-                #if FIXED_POINT_MATH
-                return true;
-                #else
-                return false;
-                #endif
-            }, true, InitializerBase.ConfigurationType.DebugAndRelease, InitializerBase.CodeSize.Normal, InitializerBase.RuntimeSpeed.Normal),
             new InitializerBase.DefineInfo(false, "SHARED_COMPONENTS_DISABLED", "Disable shared components storage and entity shared API. Use this if you don't use this feature at all to speed up your runtime.", () => {
                 #if SHARED_COMPONENTS_DISABLED
                 return true;
@@ -294,15 +299,25 @@ namespace ME.ECSEditor {
             var target = this.target as InitializerBase;
 
             var changed = false;
+            var defines = InitializerEditor.GetDefines();
             for (int i = 0; i < target.configurations.Count; ++i) {
 
                 var conf = target.configurations[i];
-                foreach (var define in InitializerEditor.defines) {
+                foreach (var define in defines) {
 
-                    if (conf.Add(define) == true) {
-
+                    if (conf.Contains(define) == false) {
+                        
+                        conf.Remove(define);
                         changed = true;
+                        
+                    } else {
+                        
+                        if (conf.Add(define) == true) {
 
+                            changed = true;
+
+                        }
+                        
                     }
 
                 }
@@ -322,7 +337,7 @@ namespace ME.ECSEditor {
 
         private InitializerBase.DefineInfo GetDefineInfo(string define) {
 
-            foreach (var defineInfo in InitializerEditor.defines) {
+            foreach (var defineInfo in InitializerEditor.GetDefines()) {
 
                 if (defineInfo.define == define) {
                     
@@ -795,7 +810,7 @@ namespace ME.ECSEditor {
         private System.Collections.Generic.List<string> CollectAllActiveDefines(bool isRelease) {
 
             var list = new System.Collections.Generic.List<string>();
-            foreach (var define in InitializerEditor.defines) {
+            foreach (var define in InitializerEditor.GetDefines()) {
 
                 if (isRelease == true) {
                     
@@ -814,6 +829,8 @@ namespace ME.ECSEditor {
         
         private void BuildConfiguration(InitializerBase.Configuration configuration) {
 
+            if (InitializerEditor.buildConfiguration != null) configuration = InitializerEditor.buildConfiguration.Invoke(configuration);
+            
             var path = "Assets";
             string file = $"csc-{configuration.name.ToLower()}.gen.rsp";
             

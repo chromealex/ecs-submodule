@@ -104,6 +104,31 @@ namespace ME.ECS {
             public ConfigurationType configurationType;
             public System.Collections.Generic.List<Define> defines;
 
+            public bool Contains(DefineInfo info) {
+
+                foreach (var item in this.defines) {
+                    if (item.name == info.define) {
+                        return true;
+                    }
+                }
+
+                return false;
+
+            }
+
+            public void Remove(DefineInfo info) {
+
+                for (int i = 0; i < this.defines.Count; ++i) {
+
+                    if (this.defines[i].name == info.define) {
+                        this.defines.RemoveAt(i);
+                        return;
+                    }
+                    
+                }
+                
+            }
+            
             public bool Add(DefineInfo info) {
 
                 if (this.configurationType == ConfigurationType.DebugOnly &&
