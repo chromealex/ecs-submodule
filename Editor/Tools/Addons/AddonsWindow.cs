@@ -292,6 +292,7 @@ public class AddonsWindow : EditorWindow {
         public string name;
         public string version;
         public string documentationUrl;
+        public string[] ecsdependencies;
 
     }
 
@@ -348,6 +349,26 @@ public class AddonsWindow : EditorWindow {
                     currentVersion.AddToClassList("not-installed");
                     container.AddToClassList("not-installed");
                     currentVersion.text = "Not installed";
+                }
+
+                if (json.ecsdependencies != null && json.ecsdependencies.Length > 0) {
+
+                    var dependencies = new VisualElement();
+                    dependencies.AddToClassList("dependencies");
+                    var caption = new Label("Dependencies:");
+                    caption.AddToClassList("dependencies-caption");
+                    dependencies.Add(caption);
+                    container.Add(dependencies);
+
+                    for (int i = 0; i < json.ecsdependencies.Length; ++i) {
+
+                        var item = json.ecsdependencies[i];
+                        var dep = new Label(item);
+                        dep.AddToClassList("dependency");
+                        dependencies.Add(dep);
+
+                    }
+                    
                 }
                 
                 var flex = new VisualElement();

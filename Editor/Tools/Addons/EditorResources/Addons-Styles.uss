@@ -23,6 +23,29 @@
     margin-bottom: 8px;
 }
 
+.dependencies {
+    flex-direction: row;
+    border-radius: 10px;
+    background-color: rgba(0, 0, 0, 0.1);
+    padding: 2px;
+}
+
+.dependency {
+    border-radius: 6px;
+    background-color: rgba(0, 0, 0, 0.2);
+    padding: 2px;
+    padding-left: 5px;
+    padding-right: 5px;
+    margin: 2px;
+    margin-left: 10px;
+}
+
+.dependencies-caption {
+    -unity-font-style: bold;
+    align-self: center;
+    margin-left: 4px;
+}
+
 .cursor-hand, .cursor-hand * {
     cursor: link;
 }
