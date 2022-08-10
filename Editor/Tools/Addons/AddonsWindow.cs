@@ -214,6 +214,7 @@ public class AddonsWindow : EditorWindow {
         var lines = text.Split('\n');
         VisualElement container = null;
         Label packageName = null;
+        Label license = null;
         for (int i = 0; i < lines.Length; ++i) {
 
             var line = lines[i];
@@ -238,10 +239,25 @@ public class AddonsWindow : EditorWindow {
 
                 {
                     var v = new Label();
+                    v.AddToClassList("flex");
+                    v.text = string.Empty;
+                    c.Add(v);
+                }
+
+                {
+                    var v = new Label();
                     v.AddToClassList("package-name");
                     v.text = string.Empty;
                     c.Add(v);
                     packageName = v;
+                }
+
+                {
+                    var v = new Label();
+                    v.AddToClassList("license");
+                    v.text = string.Empty;
+                    c.Add(v);
+                    license = v;
                 }
 
             } else if (container != null) {
@@ -278,7 +294,7 @@ public class AddonsWindow : EditorWindow {
                         {
                             var version = new Label();
                             version.AddToClassList("version");
-                            this.GetVersion(container, bottom, packageName, version, currentVersion, url);
+                            this.GetVersion(container, bottom, license, packageName, version, currentVersion, url);
                             versionElement.Add(version);
                         }
                         bottom.Add(versionElement);
@@ -307,6 +323,7 @@ public class AddonsWindow : EditorWindow {
         public string version;
         public string documentationUrl;
         public string[] ecsdependencies;
+        public string license;
 
     }
 
@@ -328,15 +345,8 @@ public class AddonsWindow : EditorWindow {
 
     }
 
-    [System.Serializable]
-    private struct ManifestInfo {
-
-        public Dictionary<string, string> dependencies;
-
-    }
-
     private List<Item> requests = new List<Item>();
-    private void GetVersion(VisualElement container, VisualElement bottomContainer, Label packageName, Label label, Label currentVersion, string url) {
+    private void GetVersion(VisualElement container, VisualElement bottomContainer, Label license, Label packageName, Label label, Label currentVersion, string url) {
         
         currentVersion.text = "Checking installed version...";
         
@@ -348,6 +358,11 @@ public class AddonsWindow : EditorWindow {
                 var json = JsonUtility.FromJson<PackageInfo>(data);
                 label.text = json.version;
                 packageName.text = json.name;
+                if (string.IsNullOrEmpty(json.license) == true) {
+                    license.text = "MIT";
+                } else {
+                    license.text = json.license;
+                }
                 var isInstalled = false;
                 if (this.HasInstalledPackage(json, out var installedInfo) == true) {
                     isInstalled = true;

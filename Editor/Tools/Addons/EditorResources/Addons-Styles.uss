@@ -34,6 +34,17 @@
     font-size: 14px;
 }
 
+.license {
+    background-color: rgba(0, 0, 0, 0.1);
+    border-radius: 10px;
+    font-size: 10px;
+    align-self: center;
+    padding: 5px;
+    padding-bottom: 1px;
+    padding-top: 1px;
+    margin-right: 4px;
+}
+
 .package-name {
     background-color: rgba(0, 0, 0, 0.1);
     border-radius: 10px;
@@ -89,6 +100,7 @@
 
 .flex {
     width: 100%;
+    flex-shrink: 1;
 }
 
 .buttons {
