@@ -383,7 +383,7 @@ namespace ME.ECS {
             var t = new ME.ECS.Mathematics.float3(0.5726798f, 0f, 0.8197792f);
             var rotationSpeed = (sfloat)50f;
             var deltaTime = (sfloat)0.04f;
-            var res = ME.ECS.Mathematics.VecMath.RotateTowards(p, t, deltaTime * rotationSpeed, 0f);
+            var res = ME.ECS.VecMath.RotateTowards(p, t, deltaTime * rotationSpeed, 0f);
             return res.x.ToStringDec() + res.y.ToStringDec() + res.z.ToStringDec();// + " :: " + res.x + " :: " + res.y + " :: " + res.z;
             
         }
