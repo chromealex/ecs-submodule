@@ -14,19 +14,19 @@ namespace ME.ECS {
 
         public static void InitTypeId() {
             
-            WorldUtilities.InitComponentTypeId<ME.ECS.Name.Name>(isVersioned: false, isSimple: true);
+            WorldUtilities.InitComponentTypeId<ME.ECS.Name.Name>(isVersioned: false, isSimple: true, isBlittable: true);
             
         }
         
         public static void Init(State state) {
     
-            state.structComponents.Validate<ME.ECS.Name.Name>();
+            state.structComponents.ValidateUnmanaged<ME.ECS.Name.Name>(ref state.allocator, false);
 
         }
     
         public static void Init(in Entity entity) {
 
-            entity.ValidateData<ME.ECS.Name.Name>();
+            entity.ValidateDataUnmanaged<ME.ECS.Name.Name>(false);
             
         }
 
