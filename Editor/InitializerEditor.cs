@@ -173,13 +173,6 @@ namespace ME.ECSEditor {
                 return false;
                 #endif
             }, true, InitializerBase.ConfigurationType.DebugAndRelease, InitializerBase.CodeSize.Heavy, InitializerBase.RuntimeSpeed.Normal),
-            new InitializerBase.DefineInfo(false, "ENTITY_TIMERS_DISABLED", "Disable timers storage and entity timers API. Use this if you don't use this feature at all to speed up your runtime.", () => {
-                #if ENTITY_TIMERS_DISABLED
-                return true;
-                #else
-                return false;
-                #endif
-            }, true, InitializerBase.ConfigurationType.DebugAndRelease, InitializerBase.CodeSize.Light, InitializerBase.RuntimeSpeed.Light),
             new InitializerBase.DefineInfo(false, "COMPONENTS_VERSION_NO_STATE_DISABLED", "Disable components version no state storage and entity no state API. Use this if you don't use this feature at all to speed up your runtime.", () => {
                 #if COMPONENTS_VERSION_NO_STATE_DISABLED
                 return true;
