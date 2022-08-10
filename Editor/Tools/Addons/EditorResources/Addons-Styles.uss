@@ -36,7 +36,7 @@
 
 .license {
     background-color: rgba(0, 0, 0, 0.1);
-    border-radius: 10px;
+    border-radius: 8px;
     font-size: 10px;
     align-self: center;
     padding: 5px;
@@ -47,7 +47,7 @@
 
 .package-name {
     background-color: rgba(0, 0, 0, 0.1);
-    border-radius: 10px;
+    border-radius: 8px;
     font-size: 10px;
     align-self: center;
     padding: 5px;
