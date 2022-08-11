@@ -220,14 +220,15 @@ namespace ME.ECS.StatesHistory {
 
         void HardResetTo(Tick tick);
 
+        void GetResultEntries(List<ME.ECS.Network.ResultEntry<State>> states);
+        
         State GetOldestState();
         State GetLatestState();
         HistoryStorage GetHistoryStorage();
         HistoryStorage GetHistoryStorage(Tick from, Tick to);
         
         System.Collections.IDictionary GetData();
-        ME.ECS.Network.IStatesHistory GetDataStates();
-
+        
         void PlayEventsForTickPre(Tick tick);
         void PlayEventsForTickPost(Tick tick);
         void RunEvent(HistoryEvent historyEvent);
@@ -256,7 +257,9 @@ namespace ME.ECS.StatesHistory {
 
     public interface IStatesHistoryModule<TState> : IStatesHistoryModuleBase, IModule where TState : State, new() {
 
-        new ME.ECS.Network.IStatesHistory<TState> GetDataStates();
+        public void GetEntries(List<TState> states);
+        public void GetResultEntries(List<ME.ECS.Network.ResultEntry<TState>> states);
+
         Tick GetAndResetOldestTick(Tick tick);
         void InvalidateEntriesAfterTick(Tick tick);
         void SetLastSavedTick(Tick tick);
@@ -282,7 +285,7 @@ namespace ME.ECS.StatesHistory {
         private const uint DEFAULT_QUEUE_CAPACITY = 10u;
         private const uint DEFAULT_TICKS_PER_STATE = 100u;
         
-        private ME.ECS.Network.StatesHistory<TState> statesHistory;
+        private ME.ECS.Network.StatesHistoryStorage<TState> statesHistory;
         private Dictionary<Tick, ME.ECS.Collections.SortedList<long, HistoryEvent>> events;
         private Dictionary<Tick, Dictionary<int, int>> syncHashTable;
         
@@ -310,7 +313,7 @@ namespace ME.ECS.StatesHistory {
             this.statEventsAdded = 0;
             this.statPlayedEvents = 0;
             
-            this.statesHistory = new ME.ECS.Network.StatesHistory<TState>(this.world, this.GetQueueCapacity());
+            this.statesHistory = new ME.ECS.Network.StatesHistoryStorage<TState>(this.world, this.GetQueueCapacity());
             this.events = PoolDictionary<Tick, ME.ECS.Collections.SortedList<long, HistoryEvent>>.Spawn(StatesHistoryModule<TState>.POOL_EVENTS_CAPACITY);
             this.syncHashTable = PoolDictionary<Tick, Dictionary<int, int>>.Spawn(StatesHistoryModule<TState>.POOL_SYNCHASH_CAPACITY);
             
@@ -332,7 +335,7 @@ namespace ME.ECS.StatesHistory {
             this.pauseStoreStateSinceTick = Tick.Invalid;
             
             this.statesHistory.DiscardAll();
-            this.statesHistory = null;
+            this.statesHistory = default;
             
             this.world.SetStatesHistoryModule(null);
             
@@ -563,8 +566,7 @@ namespace ME.ECS.StatesHistory {
 
         public void RecalculateFromResetState() {
 
-            this.statesHistory.DiscardAll();
-            this.statesHistory.Clear();
+            this.statesHistory.DiscardAllAndReinitialize(this.world);
             
             var targetTick = this.world.GetCurrentTick();
             this.world.RewindTo(Tick.Zero, doVisualUpdate: false);
@@ -583,8 +585,7 @@ namespace ME.ECS.StatesHistory {
                 
             }
             this.syncHashTable.Clear();
-            this.statesHistory.DiscardAll();
-            this.statesHistory.Clear();
+            this.statesHistory.DiscardAllAndReinitialize(this.world);
             
             foreach (var item in this.events) {
                 
@@ -980,16 +981,16 @@ namespace ME.ECS.StatesHistory {
 
         }
 
-        ME.ECS.Network.IStatesHistory<TState> IStatesHistoryModule<TState>.GetDataStates() {
-
-            return this.statesHistory;
-
+        public void GetEntries(List<TState> states) {
+            this.statesHistory.GetEntries(states);
         }
 
-        public ME.ECS.Network.IStatesHistory GetDataStates() {
+        public void GetResultEntries(List<ME.ECS.Network.ResultEntry<TState>> states) {
+            this.statesHistory.GetResultEntries(states);
+        }
 
-            return this.statesHistory;
-
+        public void GetResultEntries(List<ME.ECS.Network.ResultEntry<State>> states) {
+            this.statesHistory.GetResultEntries(states);
         }
 
         public System.Collections.IDictionary GetData() {

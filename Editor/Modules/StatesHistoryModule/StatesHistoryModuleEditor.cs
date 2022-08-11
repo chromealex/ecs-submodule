@@ -248,13 +248,12 @@ namespace ME.ECSEditor {
                                      GUILayout.Height(cellHeight));
                 }
                 GUILayout.EndHorizontal();
-                
-                var dataStates = this.target.GetDataStates();
-                var entries = dataStates.GetEntries();
-                foreach (var entryData in entries) {
 
-                    var entry = entryData as ME.ECS.Network.IStatesHistoryEntry;
-                    var state = entry.GetData() as State;
+                var list = PoolList<ME.ECS.Network.ResultEntry<State>>.Spawn(10);
+                this.target.GetResultEntries(list);
+                foreach (var entry in list) {
+
+                    var state = entry.data;
                     UnityEngine.GUILayout.BeginHorizontal();
                     {
                         
@@ -276,6 +275,7 @@ namespace ME.ECSEditor {
                     UnityEngine.GUILayout.EndHorizontal();
                 
                 }
+                PoolList<ME.ECS.Network.ResultEntry<State>>.Recycle(ref list);
 
             });
             this.statesHistoryFoldState = val;
