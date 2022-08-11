@@ -63,16 +63,16 @@ namespace ME.ECS {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
-        public ViewId RegisterViewSource(UnityEngine.GameObject prefab) {
+        public ViewId RegisterViewSource(UnityEngine.GameObject prefab, ViewId customId = default) {
 
-            return this.RegisterViewSource(new UnityGameObjectProviderInitializer(), prefab);
+            return this.RegisterViewSource(new UnityGameObjectProviderInitializer(), prefab, customId);
 
         }
 
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
-        public ViewId RegisterViewSource(UnityGameObjectProviderInitializer providerInitializer, UnityEngine.GameObject prefab) {
+        public ViewId RegisterViewSource(UnityGameObjectProviderInitializer providerInitializer, UnityEngine.GameObject prefab, ViewId customId = default) {
 
             if (prefab == null) {
 
@@ -82,7 +82,7 @@ namespace ME.ECS {
 
             if (prefab.TryGetComponent(out IView component) == true) {
 
-                return this.RegisterViewSource(providerInitializer, component);
+                return this.RegisterViewSource(providerInitializer, component, customId);
 
             }
 
@@ -93,9 +93,9 @@ namespace ME.ECS {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
-        public ViewId RegisterViewSource(MonoBehaviourViewBase prefab) {
+        public ViewId RegisterViewSource(MonoBehaviourViewBase prefab, ViewId customId = default) {
 
-            return this.RegisterViewSource(new UnityGameObjectProviderInitializer(), (IView)prefab);
+            return this.RegisterViewSource(new UnityGameObjectProviderInitializer(), (IView)prefab, customId);
 
         }
 
@@ -131,7 +131,7 @@ namespace ME.ECS.Views {
 
     public partial interface IViewModule {
 
-        ViewId RegisterViewSource(UnityEngine.GameObject prefab);
+        ViewId RegisterViewSource(UnityEngine.GameObject prefab, ViewId customId = default);
         void UnRegisterViewSource(UnityEngine.GameObject prefab);
         void InstantiateView(UnityEngine.GameObject prefab, Entity entity);
 
@@ -147,9 +147,9 @@ namespace ME.ECS.Views {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
-        public ViewId RegisterViewSource(UnityEngine.GameObject prefab) {
+        public ViewId RegisterViewSource(UnityEngine.GameObject prefab, ViewId customId = default) {
 
-            return this.RegisterViewSource(new UnityGameObjectProviderInitializer(), prefab.GetComponent<MonoBehaviourView>());
+            return this.RegisterViewSource(new UnityGameObjectProviderInitializer(), prefab.GetComponent<MonoBehaviourView>(), customId);
 
         }
 

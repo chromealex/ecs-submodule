@@ -44,7 +44,7 @@ namespace ME.ECS {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
-        public ViewId RegisterViewSource(DrawMeshViewSourceBase prefab) {
+        public ViewId RegisterViewSource(DrawMeshViewSourceBase prefab, ViewId customId = default) {
 
             if (prefab == null) {
 
@@ -52,7 +52,7 @@ namespace ME.ECS {
 
             }
 
-            return this.RegisterViewSource(new UnityDrawMeshProviderInitializer(), prefab.GetSource());
+            return this.RegisterViewSource(new UnityDrawMeshProviderInitializer(), prefab.GetSource(), customId);
 
         }
 
@@ -81,7 +81,7 @@ namespace ME.ECS.Views {
 
     public partial interface IViewModule {
 
-        ViewId RegisterViewSource(DrawMeshViewSourceBase prefab);
+        ViewId RegisterViewSource(DrawMeshViewSourceBase prefab, ViewId customId = default);
         void UnRegisterViewSource(DrawMeshViewSourceBase prefab);
         void InstantiateView(DrawMeshViewSourceBase prefab, Entity entity);
 
@@ -97,7 +97,7 @@ namespace ME.ECS.Views {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
-        public ViewId RegisterViewSource(DrawMeshViewSourceBase prefab) {
+        public ViewId RegisterViewSource(DrawMeshViewSourceBase prefab, ViewId customId = default) {
 
             if (prefab == null) {
 
@@ -105,7 +105,7 @@ namespace ME.ECS.Views {
 
             }
 
-            return this.RegisterViewSource(new UnityDrawMeshProviderInitializer(), prefab.GetSource());
+            return this.RegisterViewSource(new UnityDrawMeshProviderInitializer(), prefab.GetSource(), customId);
 
         }
 

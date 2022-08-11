@@ -41,7 +41,7 @@ namespace ME.ECS {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
-        public ViewId RegisterViewSource(ParticleViewSourceBase prefab) {
+        public ViewId RegisterViewSource(ParticleViewSourceBase prefab, ViewId customId = default) {
 
             if (prefab == null) {
 
@@ -49,7 +49,7 @@ namespace ME.ECS {
 
             }
 
-            return this.RegisterViewSource(new UnityParticlesProviderInitializer(), prefab.GetSource());
+            return this.RegisterViewSource(new UnityParticlesProviderInitializer(), prefab.GetSource(), customId);
 
         }
 
@@ -78,7 +78,7 @@ namespace ME.ECS.Views {
 
     public partial interface IViewModule {
 
-        ViewId RegisterViewSource(ParticleViewSourceBase prefab);
+        ViewId RegisterViewSource(ParticleViewSourceBase prefab, ViewId customId = default);
         void UnRegisterViewSource(ParticleViewSourceBase prefab);
         void InstantiateView(ParticleViewSourceBase prefab, Entity entity);
 
@@ -94,7 +94,7 @@ namespace ME.ECS.Views {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
-        public ViewId RegisterViewSource(ParticleViewSourceBase prefab) {
+        public ViewId RegisterViewSource(ParticleViewSourceBase prefab, ViewId customId = default) {
 
             if (prefab == null) {
 
@@ -102,7 +102,7 @@ namespace ME.ECS.Views {
 
             }
 
-            return this.RegisterViewSource(new UnityParticlesProviderInitializer(), prefab.GetSource());
+            return this.RegisterViewSource(new UnityParticlesProviderInitializer(), prefab.GetSource(), customId);
 
         }
 

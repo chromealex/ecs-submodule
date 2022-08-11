@@ -24,9 +24,9 @@ namespace ME.ECS {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
-        public ViewId RegisterViewSource(NoViewBase prefab) {
+        public ViewId RegisterViewSource(NoViewBase prefab, ViewId customId = default) {
 
-            return this.RegisterViewSource(new NoViewProviderInitializer(), (IView)prefab);
+            return this.RegisterViewSource(new NoViewProviderInitializer(), (IView)prefab, customId);
 
         }
 
