@@ -764,9 +764,8 @@ namespace ME.ECSEditor {
 				                
 						    usedComponents.Add(addType);
 						    registry.SetObject(entity, (IComponentBase)System.Activator.CreateInstance(addType), StorageType.Default);
-						    Worlds.currentWorld.AddComponentToFilter(ref Worlds.currentWorld.currentState.allocator, entity);
 
-					    }
+                        }
 
 					    break;
 

@@ -88,6 +88,7 @@ namespace ME.ECS.Collections.MemoryAllocator {
         [INLINE(256)]
         public List(ref MemoryAllocator allocator, int capacity) {
 
+            if (capacity <= 0) capacity = 1;
             this.arr = new MemArrayAllocator<T>(ref allocator, capacity);
             this.Count = 0;
             this.EnsureCapacity(ref allocator, capacity);

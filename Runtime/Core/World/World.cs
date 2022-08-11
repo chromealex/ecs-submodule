@@ -211,6 +211,8 @@ namespace ME.ECS {
 
         void IPoolableSpawn.OnSpawn() {
 
+            Unity.Burst.BurstCompiler.SetExecutionMode(Unity.Burst.BurstExecutionEnvironment.Deterministic);
+            
             this.tempAllocator = new MemoryAllocator().Initialize(1024 * 512);
 
             this.InitializePools();

@@ -346,9 +346,9 @@ namespace ME.ECS.Collections.MemoryAllocator {
         /// </summary>
         [INLINE(256)]
         private void SetCapacity(ref MemoryAllocator allocator, int newSize, bool forceNewHashCodes) { 
-            System.Diagnostics.Contracts.Contract.Assert(HashHelpers.IsPrime(newSize), "New size is not prime!");
+            //System.Diagnostics.Contracts.Contract.Assert(HashHelpers.IsPrime(newSize), "New size is not prime!");
 
-            System.Diagnostics.Contracts.Contract.Assert(this.buckets.isCreated, "SetCapacity called on a set with no elements");
+            //System.Diagnostics.Contracts.Contract.Assert(this.buckets.isCreated, "SetCapacity called on a set with no elements");
 
             var newSlots = new MemArrayAllocator<Slot>(ref allocator, newSize);
             if (this.slots.isCreated == true) {

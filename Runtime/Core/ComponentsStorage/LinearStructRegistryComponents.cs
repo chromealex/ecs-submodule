@@ -1570,7 +1570,6 @@ namespace ME.ECS {
                 if (ComponentTypes<TComponent>.typeId >= 0) {
 
                     this.AddFilterByStructComponent<TComponent>(ref this.currentState.allocator, in entity);
-                    this.UpdateFilterByStructComponent<TComponent>(ref this.currentState.allocator, in entity);
 
                 }
 
@@ -1656,7 +1655,6 @@ namespace ME.ECS {
                 if (ComponentTypes<TComponent>.typeId >= 0) {
 
                     this.RemoveFilterByStructComponent<TComponent>(ref this.currentState.allocator, in entity);
-                    this.UpdateFilterByStructComponent<TComponent>(ref this.currentState.allocator, in entity);
 
                 }
 
@@ -1696,7 +1694,6 @@ namespace ME.ECS {
                 if (ComponentTypes<TComponent>.typeId >= 0) {
 
                     this.AddFilterByStructComponent<TComponent>(ref this.currentState.allocator, in entity);
-                    this.UpdateFilterByStructComponent<TComponent>(ref this.currentState.allocator,  entity);
 
                 }
 

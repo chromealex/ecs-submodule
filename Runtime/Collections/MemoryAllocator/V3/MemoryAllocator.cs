@@ -24,12 +24,12 @@ namespace ME.ECS.Collections.V3 {
     }
 
     #if !LOGS_ENABLED && !MEMORY_ALLOCATOR_BOUNDS_CHECK
-    [BURST(CompileSynchronously = true)]
+    //[BURST(CompileSynchronously = true)]
     #endif
     public static unsafe class MemoryAllocatorExt {
 
         #if !LOGS_ENABLED && !MEMORY_ALLOCATOR_BOUNDS_CHECK
-        [BURST(CompileSynchronously = true)]
+        //[BURST(CompileSynchronously = true)]
         #endif
         public static MemPtr Alloc(this ref MemoryAllocator allocator, long size) {
 
@@ -63,7 +63,7 @@ namespace ME.ECS.Collections.V3 {
         }
 
         #if !LOGS_ENABLED && !MEMORY_ALLOCATOR_BOUNDS_CHECK
-        [BURST(CompileSynchronously = true)]
+        //[BURST(CompileSynchronously = true)]
         #endif
         public static bool Free(this ref MemoryAllocator allocator, MemPtr ptr) {
 

@@ -64,7 +64,7 @@ namespace ME.ECS.Collections.V3 {
     [Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.ArrayBoundsChecks, false)]
     [Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.DivideByZeroChecks, false)]
     [System.Diagnostics.DebuggerTypeProxyAttribute(typeof(MemoryAllocatorProxy))]
-    [BURST(CompileSynchronously = true)]
+    //[BURST(CompileSynchronously = true)]
     public unsafe partial struct MemoryAllocator {
 
         private const int ZONE_ID = 0x1d4a11;
@@ -128,7 +128,7 @@ namespace ME.ECS.Collections.V3 {
 
         }
         
-        [INLINE(256)][BURST(CompileSynchronously = true)]
+        //[BURST(CompileSynchronously = true)]
         public static void ZmClearZone(MemZone* zone) {
             var block = (MemBlock*)((byte*)zone + sizeof(MemZone));
             var blockOffset = new MemBlockOffset(block, zone);
@@ -146,7 +146,7 @@ namespace ME.ECS.Collections.V3 {
             block->size = zone->size - TSize<MemZone>.size;
         }
 
-        [INLINE(256)][BURST(CompileSynchronously = true)]
+        //[BURST(CompileSynchronously = true)]
         public static MemZone* ZmCreateZone(int size) {
             
             size = MemoryAllocator.ZmGetMemBlockSize(size) + TSize<MemZone>.size;
@@ -158,7 +158,7 @@ namespace ME.ECS.Collections.V3 {
             return zone;
         }
 
-        [INLINE(256)][BURST(CompileSynchronously = true)]
+        //[BURST(CompileSynchronously = true)]
         public static MemZone* ZmReallocZone(MemZone* zone, int newSize) {
             if (zone->size >= newSize) return zone;
 
@@ -198,12 +198,12 @@ namespace ME.ECS.Collections.V3 {
             return newZone;
         }
 
-        [INLINE(256)][BURST(CompileSynchronously = true)]
+        //[BURST(CompileSynchronously = true)]
         public static void ZmFreeZone(MemZone* zone) {
             UnsafeUtility.Free(zone, Allocator.Persistent);
         }
 
-        [INLINE(256)][BURST(CompileSynchronously = true)]
+        //[BURST(CompileSynchronously = true)]
         public static bool ZmFree(MemZone* zone, void* ptr) {
             var block = (MemBlock*)((byte*)ptr - TSize<MemBlock>.size);
             var blockOffset = new MemBlockOffset(block, zone);
@@ -250,12 +250,12 @@ namespace ME.ECS.Collections.V3 {
             return true;
         }
 
-        [INLINE(256)][BURST(CompileSynchronously = true)]
+        //[BURST(CompileSynchronously = true)]
         private static int ZmGetMemBlockSize(int size) {
             return ((size + 3) & ~3) + TSize<MemBlock>.size;
         }
 
-        [INLINE(256)][BURST(CompileSynchronously = true)]
+        //[BURST(CompileSynchronously = true)]
         public static void* ZmMalloc(MemZone* zone, int size) {
             size = MemoryAllocator.ZmGetMemBlockSize(size);
 
@@ -362,7 +362,7 @@ namespace ME.ECS.Collections.V3 {
             }
         }
 
-        [INLINE(256)][BURST(CompileSynchronously = true)]
+        //[BURST(CompileSynchronously = true)]
         public static int GetZmFreeMemory(MemZone* zone) {
             var free = 0;
 
@@ -373,7 +373,7 @@ namespace ME.ECS.Collections.V3 {
             return free;
         }
 
-        [INLINE(256)][BURST(CompileSynchronously = true)]
+        //[BURST(CompileSynchronously = true)]
         public static bool ZmHasFreeBlock(MemZone* zone, int size) {
             size = MemoryAllocator.ZmGetMemBlockSize(size);
 
