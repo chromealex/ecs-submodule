@@ -81,6 +81,8 @@ namespace ME.ECSEditor {
             for (int i = 0; i < len; ++i) {
 
                 var changedFilename = SessionState.GetString("temp.file." + i, string.Empty);
+                if (string.IsNullOrEmpty(changedFilename) == true) continue;
+                
                 var win = ChangeLogEditorWindow.CreateInstance<ChangeLogEditorWindow>();
                 win.titleContent = new GUIContent("CHANGE LOG");
                 win.position = new Rect(Screen.width * 0.5f - 300f, Screen.height * 0.5f - 60f, 600f, 120f);
@@ -98,7 +100,8 @@ namespace ME.ECSEditor {
                 win.ShowAsDropDown(rect, win.position.size);
                 win.Repaint();
                 win.Focus();
-                if (i == 0) break;
+                
+                break;
 
             }
 

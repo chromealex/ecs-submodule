@@ -11,11 +11,18 @@ namespace ME.ECSEditor {
 
         static System.Type m_toolbarType = typeof(Editor).Assembly.GetType("UnityEditor.Toolbar");
         static System.Type m_guiViewType = typeof(Editor).Assembly.GetType("UnityEditor.GUIView");
+        #if UNITY_2020_1_OR_NEWER
         static System.Type m_iWindowBackendType = typeof(Editor).Assembly.GetType("UnityEditor.IWindowBackend");
         static System.Reflection.PropertyInfo m_windowBackend = m_guiViewType.GetProperty("windowBackend",
                                                                                           System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
         static System.Reflection.PropertyInfo m_viewVisualTree = m_iWindowBackendType.GetProperty("visualTree",
                                                                                                   System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+        #else
+		static PropertyInfo m_viewVisualTree = m_guiViewType.GetProperty("visualTree",
+			BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
+        #endif
+        static System.Reflection.FieldInfo m_imguiContainerOnGui = typeof(IMGUIContainer).GetField("m_OnGUIHandler",
+                                                                                                   System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
         static ScriptableObject m_currentToolbar;
         
         internal static UnityEditor.Compilation.Assembly[] assemblies;
@@ -50,7 +57,6 @@ namespace ME.ECSEditor {
 
         private static void AddButton() {
             
-            #if UNITY_2021_OR_NEWER
             var username = UnityEditor.CloudProjectSettings.userName;
             if (AutoVersionUpdate.IsUserEditor(username, out var commitName) == false) return;
             
@@ -60,30 +66,176 @@ namespace ME.ECSEditor {
                 var toolbars = Resources.FindObjectsOfTypeAll(m_toolbarType);
                 m_currentToolbar = toolbars.Length > 0 ? (ScriptableObject) toolbars[0] : null;
                 if (m_currentToolbar != null) {
+                    #if UNITY_2021_OR_NEWER
                     var root = m_currentToolbar.GetType().GetField("m_Root", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
                     var rawRoot = root.GetValue(m_currentToolbar);
                     var mRoot = rawRoot as VisualElement;
                     var element = mRoot.Q("ToolbarZoneRightAlign");
-                    {
-                        var uss = EditorUtilities.Load<StyleSheet>("Editor/AutoVersionUpdate/styles.uss");
-                        element.styleSheets.Add(uss);
-                        var dropdown = new DropdownField();
-                        dropdown.value = "ME.ECS Collab";
-                        dropdown.AddToClassList("autoupdate-button");
-                        dropdown.RemoveFromClassList("unity-button");
-                        dropdown.RemoveFromClassList("unity-base-field");
-                        dropdown.Q(className:"unity-base-field__input").RemoveFromClassList("unity-base-field__input");
-                        dropdown.RegisterCallback<ClickEvent>(evt => {
+                    DrawButton(element);
+                    #else
+                    #if UNITY_2020_1_OR_NEWER
+                    var windowBackend = m_windowBackend.GetValue(m_currentToolbar);
+                    // Get it's visual tree
+                    var visualTree = (VisualElement) m_viewVisualTree.GetValue(windowBackend, null);
+                    #else
+			        // Get it's visual tree
+			        var visualTree = (VisualElement) m_viewVisualTree.GetValue(m_currentToolbar, null);
+                    #endif
 
-                            ChangeLogEditorWindow.CreateAfterCompilation(dropdown.worldBound);
+                    // Get first child which 'happens' to be toolbar IMGUIContainer
+                    var container = (IMGUIContainer) visualTree[0];
 
-                        });
-                        element.Add(dropdown);
-                    }
+                    // (Re)attach handler
+                    var handler = (System.Action) m_imguiContainerOnGui.GetValue(container);
+                    handler -= OnGUI;
+                    handler += OnGUI;
+                    m_imguiContainerOnGui.SetValue(container, handler);
+					        
+                    #endif
                 }
             }
+            
+        }
+
+        #if UNITY_2019_3_OR_NEWER
+        public const float space = 8;
+        #else
+		public const float space = 10;
+        #endif
+        public const float largeSpace = 20;
+        public const float buttonWidth = 32;
+        public const float dropdownWidth = 80;
+        #if UNITY_2019_1_OR_NEWER
+        public const float playPauseStopWidth = 140;
+        #else
+		public const float playPauseStopWidth = 100;
+        #endif
+
+        static int m_toolCount;
+        static GUIStyle m_commandStyle = null;
+        
+        static void OnGUI()
+		{
+            System.Type toolbarType = typeof(Editor).Assembly.GetType("UnityEditor.Toolbar");
+			
+            #if UNITY_2019_1_OR_NEWER
+            string fieldName = "k_ToolCount";
+            #else
+			string fieldName = "s_ShownToolIcons";
+            #endif
+			
+            System.Reflection.FieldInfo toolIcons = toolbarType.GetField(fieldName,
+                                                                         System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Static);
+			
+            #if UNITY_2019_3_OR_NEWER
+            m_toolCount = toolIcons != null ? ((int) toolIcons.GetValue(null)) : 8;
+            #elif UNITY_2019_1_OR_NEWER
+			m_toolCount = toolIcons != null ? ((int) toolIcons.GetValue(null)) : 7;
+            #elif UNITY_2018_1_OR_NEWER
+			m_toolCount = toolIcons != null ? ((Array) toolIcons.GetValue(null)).Length : 6;
+            #else
+			m_toolCount = toolIcons != null ? ((Array) toolIcons.GetValue(null)).Length : 5;
             #endif
 
+			// Create two containers, left and right
+			// Screen is whole toolbar
+
+			if (m_commandStyle == null)
+			{
+				m_commandStyle = new GUIStyle("CommandLeft");
+			}
+
+			var screenWidth = EditorGUIUtility.currentViewWidth;
+
+			// Following calculations match code reflected from Toolbar.OldOnGUI()
+			float playButtonsPosition = Mathf.RoundToInt ((screenWidth - playPauseStopWidth) / 2);
+
+			Rect leftRect = new Rect(0, 0, screenWidth, Screen.height);
+			leftRect.xMin += space; // Spacing left
+			leftRect.xMin += buttonWidth * m_toolCount; // Tool buttons
+#if UNITY_2019_3_OR_NEWER
+			leftRect.xMin += space; // Spacing between tools and pivot
+#else
+			leftRect.xMin += largeSpace; // Spacing between tools and pivot
+#endif
+			leftRect.xMin += 64 * 2; // Pivot buttons
+			leftRect.xMax = playButtonsPosition;
+
+			Rect rightRect = new Rect(0, 0, screenWidth, Screen.height);
+			rightRect.xMin = playButtonsPosition;
+			rightRect.xMin += m_commandStyle.fixedWidth * 3; // Play buttons
+			rightRect.xMax = screenWidth;
+			rightRect.xMax -= space; // Spacing right
+			rightRect.xMax -= dropdownWidth; // Layout
+			rightRect.xMax -= space; // Spacing between layout and layers
+			rightRect.xMax -= dropdownWidth; // Layers
+#if UNITY_2019_3_OR_NEWER
+			rightRect.xMax -= space; // Spacing between layers and account
+#else
+			rightRect.xMax -= largeSpace; // Spacing between layers and account
+#endif
+			rightRect.xMax -= dropdownWidth; // Account
+			rightRect.xMax -= space; // Spacing between account and cloud
+			rightRect.xMax -= buttonWidth; // Cloud
+			rightRect.xMax -= space; // Spacing between cloud and collab
+			rightRect.xMax -= 78; // Colab
+
+			// Add spacing around existing controls
+			leftRect.xMin += space;
+			leftRect.xMax -= space;
+			rightRect.xMin += space;
+			rightRect.xMax -= space;
+
+			// Add top and bottom margins
+#if UNITY_2019_3_OR_NEWER
+			leftRect.y = 4;
+			leftRect.height = 22;
+			rightRect.y = 4;
+			rightRect.height = 22;
+#else
+			leftRect.y = 5;
+			leftRect.height = 24;
+			rightRect.y = 5;
+			rightRect.height = 24;
+#endif
+
+			if (rightRect.width > 0)
+			{
+				GUILayout.BeginArea(rightRect);
+				GUILayout.BeginHorizontal();
+
+                {
+
+                    if (GUILayout.Button("ME.ECS Collab", EditorStyles.toolbarPopup, GUILayout.Width(100f)) == true) {
+                        
+                        ChangeLogEditorWindow.CreateAfterCompilation(rightRect);
+
+                    }
+
+                }
+
+				GUILayout.EndHorizontal();
+				GUILayout.EndArea();
+			}
+		}
+        
+        private static void DrawButton(VisualElement element) {
+            
+            var uss = EditorUtilities.Load<StyleSheet>("Editor/AutoVersionUpdate/styles.uss");
+            element.styleSheets.Add(uss);
+            var dropdown = new DropdownField();
+            dropdown.value = "ME.ECS Collab";
+            dropdown.AddToClassList("autoupdate-button");
+            dropdown.RemoveFromClassList("unity-button");
+            dropdown.RemoveFromClassList("unity-base-field");
+            dropdown.Q(className:"unity-base-field__input").RemoveFromClassList("unity-base-field__input");
+            dropdown.RegisterCallback<ClickEvent>(evt => {
+
+                ChangeLogEditorWindow.CreateAfterCompilation(dropdown.worldBound);
+
+            });
+            element.Add(dropdown);
+            
         }
 
         internal static void UpdatePackageVersion(string packagePath, string[] filepaths, string commitName) {
