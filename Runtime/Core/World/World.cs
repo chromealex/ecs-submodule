@@ -1648,6 +1648,18 @@ namespace ME.ECS {
 
         }
 
+        public bool IsReverting(out Tick targetTick) {
+
+            targetTick = Tick.Invalid;
+            
+            var module = this.GetModule<ME.ECS.Network.INetworkModuleBase>();
+            if (module == null) return false;
+
+            targetTick = module.GetRevertingTargetTick();
+            return module.IsReverting();
+
+        }
+
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif

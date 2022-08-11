@@ -82,6 +82,8 @@ namespace ME.ECS.Network {
         int GetRPCOrder();
 
         bool IsReverting();
+        Tick GetRevertingTargetTick();
+        Tick GetCurrentTimeTick();
 
         bool UnRegisterRPC(RPCId rpcId);
 
@@ -179,6 +181,7 @@ namespace ME.ECS.Network {
 
         private bool isReverting;
         private Tick revertingTo;
+        private Tick currentTimeTick;
 
         private bool asyncMode;
         private bool replayMode;
@@ -198,6 +201,7 @@ namespace ME.ECS.Network {
             this.syncHash = 0;
             this.syncTickSent = 0;
             this.revertingTo = 0;
+            this.currentTimeTick = 0;
             this.isReverting = false;
 
             this.registry = PoolDictionary<int, System.Reflection.MethodInfo>.Spawn(100);
@@ -237,6 +241,7 @@ namespace ME.ECS.Network {
             this.syncHash = default;
             this.syncTickSent = default;
             this.revertingTo = default;
+            this.currentTimeTick = default;
             this.isReverting = default;
             
             this.currentObjectRegistryId = default;
@@ -490,8 +495,15 @@ namespace ME.ECS.Network {
 
             if (this.objectToKey.TryGetValue(instance, out var key) == true) {
 
+                var targetTick = this.world.GetStateTick();
+                if (this.IsReverting() == true) {
+                    // We are in reverting stage
+                    // so need to return target tick
+                    targetTick = this.GetCurrentTimeTick();
+                }
+                
                 var evt = new ME.ECS.StatesHistory.HistoryEvent();
-                evt.tick = this.world.GetStateTick() + this.statesHistoryModule.GetEventForwardTick(); // Call RPC on next N tick
+                evt.tick = targetTick + this.statesHistoryModule.GetEventForwardTick(); // Call RPC on next N tick
                 evt.parameters = parameters;
                 evt.rpcId = rpcId;
                 evt.objId = key.objId;
@@ -781,6 +793,9 @@ namespace ME.ECS.Network {
 
         }
 
+        public Tick GetRevertingTargetTick() => this.revertingTo;
+        public Tick GetCurrentTimeTick() => this.currentTimeTick;
+
         public void SetAsyncMode(bool state) {
             
             this.asyncMode = state;
@@ -817,11 +832,12 @@ namespace ME.ECS.Network {
 
         protected virtual void ApplyTicksByState() {
 
-            var tick = this.world.GetCurrentTick();
+            var tick = this.world.GetState().tick;
 
             var timeSinceGameStart = (long)(this.world.GetTimeSinceStart() * 1000L);
             var targetTick = (Tick)System.Math.Floor(timeSinceGameStart / (double)((float)this.world.GetTickTime() * 1000d));
             var oldestEventTick = this.statesHistoryModule.GetAndResetOldestTick(tick);
+            this.currentTimeTick = targetTick;
             //UnityEngine.Debug.LogError("Tick: " + tick + ", timeSinceGameStart: " + timeSinceGameStart + ", targetTick: " + targetTick + ", oldestEventTick: " + oldestEventTick);
             if (oldestEventTick == Tick.Invalid || oldestEventTick >= tick) {
 
