@@ -25,14 +25,19 @@ namespace ME.ECS.Tests.MemoryAllocator.V3 {
 
     public class Base {
 
-        public static MemoryAllocator GetAllocator(long size, long maxSize = -1) {
+        private static MemoryAllocator allocator;
+        
+        public static ref MemoryAllocator GetAllocator(long size, long maxSize = -1) {
             var allocator = new MemoryAllocator();
-            return allocator.Initialize(10, -1);
+            allocator.Initialize(size, maxSize);
+            Base.allocator = allocator;
+            return ref Base.allocator;
         }
 
         [Test]
         public void AllocLarge() {
-            using (var allocator = Base.GetAllocator(10)) {
+            ref var allocator = ref Base.GetAllocator(10);
+            {
                 UnityEngine.Random.InitState(10);
 
                 for (int i = 0; i < 10; ++i) {
@@ -47,11 +52,13 @@ namespace ME.ECS.Tests.MemoryAllocator.V3 {
 
                 }
             }
+            allocator.Dispose();
         }
 
         [Test]
         public void AllocSteps() {
-            using (var allocator = Base.GetAllocator(10)) {
+            ref var allocator = ref Base.GetAllocator(10);
+            {
                 for (int i = 2; i < 100; ++i) {
 
                     var typeId = i;
@@ -60,6 +67,7 @@ namespace ME.ECS.Tests.MemoryAllocator.V3 {
 
                 }
             }
+            allocator.Dispose();
         }
 
         [Test]
@@ -115,7 +123,8 @@ namespace ME.ECS.Tests.MemoryAllocator.V3 {
 
         [Test]
         public void AllocResize() {
-            using (var allocator = Base.GetAllocator(10, 2000)) {
+            ref var allocator = ref Base.GetAllocator(10, 2000);
+            {
                 for (int i = 2; i < 100; ++i) {
 
                     var bytes100 = allocator.Alloc(100);
@@ -128,11 +137,13 @@ namespace ME.ECS.Tests.MemoryAllocator.V3 {
 
                 var bytes100_2 = allocator.Alloc(150);
             }
+            allocator.Dispose();
         }
 
         [Test]
         public void AllocResizeCache() {
-            using (var allocator = Base.GetAllocator(10, 2000)) {
+            ref var allocator = ref Base.GetAllocator(10, 2000);
+            {
                 var list = new System.Collections.Generic.List<MemPtr>();
                 for (int i = 2; i < 10; ++i) {
 
@@ -150,12 +161,14 @@ namespace ME.ECS.Tests.MemoryAllocator.V3 {
 
                 var bytes100_2 = allocator.Alloc(150);
             }
+            allocator.Dispose();
         }
 
         [Test]
         public void Alloc() {
 
-            using (var allocator = Base.GetAllocator(1000, 2000)) {
+            ref var allocator = ref Base.GetAllocator(1000, 2000);
+            {
 
                 var bytes100 = allocator.Alloc(100);
                 var bytes50_1 = allocator.Alloc(50);
@@ -172,13 +185,15 @@ namespace ME.ECS.Tests.MemoryAllocator.V3 {
                 Assert.IsTrue(allocator.Free(bytes50_4));
 
             }
+            allocator.Dispose();
 
         }
 
         [Test]
         public void Free() {
 
-            using (var allocator = Base.GetAllocator(1000, 2000)) {
+            ref var allocator = ref Base.GetAllocator(1000, 2000);
+            {
 
                 var bytes100 = allocator.Alloc(100);
 
@@ -186,13 +201,15 @@ namespace ME.ECS.Tests.MemoryAllocator.V3 {
                 Assert.IsFalse(allocator.Free(new MemPtr()));
 
             }
+            allocator.Dispose();
 
         }
 
         [Test]
         public void ReAlloc() {
 
-            using (var allocator = Base.GetAllocator(100, 2000)) {
+            ref var allocator = ref Base.GetAllocator(100, 2000);
+            {
 
                 var bytes100 = allocator.Alloc(100);
                 var bytes100_2 = allocator.Alloc(150);
@@ -201,6 +218,7 @@ namespace ME.ECS.Tests.MemoryAllocator.V3 {
                 allocator.ReAlloc(bytes100, 200);
 
             }
+            allocator.Dispose();
 
         }
 
@@ -237,7 +255,8 @@ namespace ME.ECS.Tests.MemoryAllocator.V3 {
         [Test]
         public void LargeAlloc() {
 
-            using (var allocator = Base.GetAllocator(10)) {
+            ref var allocator = ref Base.GetAllocator(10);
+            {
 
                 for (int i = 0; i < 10_000; ++i) {
 
@@ -247,13 +266,15 @@ namespace ME.ECS.Tests.MemoryAllocator.V3 {
                 }
 
             }
+            allocator.Dispose();
 
         }
 
         [Test]
         public void LargeAllocNoRealloc() {
             
-            using (var allocator = Base.GetAllocator(10_000 * 10_000)) {
+            ref var allocator = ref Base.GetAllocator(10_000 * 10_000);
+            {
 
                 for (int i = 0; i < 10_000; ++i) {
 
@@ -263,6 +284,7 @@ namespace ME.ECS.Tests.MemoryAllocator.V3 {
                 }
 
             }
+            allocator.Dispose();
 
         }
 

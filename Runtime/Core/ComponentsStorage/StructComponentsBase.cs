@@ -13,6 +13,7 @@ using tfloat = System.Single;
 namespace ME.ECS {
 
     using ME.ECS.Collections;
+    using Collections.MemoryAllocator;
 
     public interface IStructRegistryBase {
 

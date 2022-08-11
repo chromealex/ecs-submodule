@@ -1,3 +1,4 @@
+using ME.ECS.Collections.V3;
 using Unity.Collections.LowLevel.Unsafe;
 
 namespace ME.ECS {
@@ -17,7 +18,7 @@ namespace ME.ECS {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
-        public UnsafeData Set<T>(ref ME.ECS.Collections.V3.MemoryAllocator allocator, T data) where T : unmanaged {
+        public UnsafeData Set<T>(ref MemoryAllocator allocator, T data) where T : unmanaged {
 
             return this.SetAsUnmanaged(ref allocator, data);
 
@@ -26,7 +27,7 @@ namespace ME.ECS {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
-        internal UnsafeData SetAsUnmanaged<T>(ref ME.ECS.Collections.V3.MemoryAllocator allocator, T data) where T : struct {
+        internal UnsafeData SetAsUnmanaged<T>(ref MemoryAllocator allocator, T data) where T : struct {
 
             this.typeId = AllComponentTypes<T>.typeId;
 
@@ -34,8 +35,8 @@ namespace ME.ECS {
             
             this.sizeOf = UnsafeUtility.SizeOf<T>();
             this.alignOf = UnsafeUtility.AlignOf<T>();
-            this.data = allocator.AllocUnmanaged<T>();
-            allocator.RefUnmanaged<T>(this.data) = data;
+            this.data = allocator.Alloc<T>();
+            allocator.Ref<T>(this.data) = data;
             
             return this;
 
@@ -44,39 +45,39 @@ namespace ME.ECS {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
-        public ref T Get<T>(ref ME.ECS.Collections.V3.MemoryAllocator allocator) where T : struct {
+        public ref T Get<T>(ref MemoryAllocator allocator) where T : struct {
 
-            return ref allocator.RefUnmanaged<T>(this.data);
+            return ref allocator.Ref<T>(this.data);
             
         }
 
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
-        public T Read<T>(in ME.ECS.Collections.V3.MemoryAllocator allocator) where T : struct {
+        public T Read<T>(in MemoryAllocator allocator) where T : struct {
 
-            return allocator.RefUnmanaged<T>(this.data);
+            return allocator.Ref<T>(this.data);
             
         }
 
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
-        public void Dispose(ref ME.ECS.Collections.V3.MemoryAllocator allocator) {
+        public void Dispose(ref MemoryAllocator allocator) {
 
             if (this.data != 0) allocator.Free(this.data);
             this = default;
             
         }
 
-        public bool Equals(in ME.ECS.Collections.V3.MemoryAllocator allocator, UnsafeData other) {
+        public bool Equals(in MemoryAllocator allocator, UnsafeData other) {
             return this.sizeOf == other.sizeOf &&
                    this.alignOf == other.alignOf &&
                    this.typeId == other.typeId &&
                    this.EqualsData(in allocator, this.data, other.data);
         }
 
-        private bool EqualsData(in ME.ECS.Collections.V3.MemoryAllocator allocator, MemPtr ptr1, MemPtr ptr2) {
+        private bool EqualsData(in MemoryAllocator allocator, MemPtr ptr1, MemPtr ptr2) {
 
             for (int i = 0; i < this.sizeOf; ++i) {
                 if (allocator.GetUnsafePtr(ptr1 + i) != allocator.GetUnsafePtr(ptr2 + i)) {
@@ -87,7 +88,7 @@ namespace ME.ECS {
 
         }
 
-        public int GetHash(in ME.ECS.Collections.V3.MemoryAllocator allocator) {
+        public int GetHash(in MemoryAllocator allocator) {
             unchecked {
                 var hashCode = this.data.GetHashCode();
                 hashCode = (hashCode * 397) ^ this.sizeOf;

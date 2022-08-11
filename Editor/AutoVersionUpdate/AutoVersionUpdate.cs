@@ -219,6 +219,7 @@ namespace ME.ECSEditor {
 			}
 		}
         
+        #if UNITY_2021_OR_NEWER
         private static void DrawButton(VisualElement element) {
             
             var uss = EditorUtilities.Load<StyleSheet>("Editor/AutoVersionUpdate/styles.uss");
@@ -237,6 +238,7 @@ namespace ME.ECSEditor {
             element.Add(dropdown);
             
         }
+        #endif
 
         internal static void UpdatePackageVersion(string packagePath, string[] filepaths, string commitName) {
 

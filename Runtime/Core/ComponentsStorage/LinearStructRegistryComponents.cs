@@ -14,6 +14,7 @@ namespace ME.ECS {
 
     using ME.ECS.Collections;
     using ME.ECS.Collections.V3;
+    using Collections.MemoryAllocator;
 
     public struct Component<TComponent> where TComponent : struct, IComponentBase {
 

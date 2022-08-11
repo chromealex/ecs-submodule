@@ -83,7 +83,7 @@ namespace ME.ECS.Collections.V3 {
         [INLINE(256)]
         public MemArrayAllocator(ref MemoryAllocator allocator, int length, ClearOptions clearOptions = ClearOptions.ClearMemory, int growFactor = 1) {
 
-            this.arrPtr = length > 0 ? allocator.AllocArrayUnmanaged<T>(length) : 0;
+            this.arrPtr = length > 0 ? allocator.AllocArray<T>(length) : 0;
             this.Length = length;
             this.growFactor = growFactor;
 
@@ -148,7 +148,7 @@ namespace ME.ECS.Collections.V3 {
         [INLINE(256)]
         public readonly ref U As<U>(in MemoryAllocator allocator, int index) where U : struct {
             E.RANGE(index, 0, this.Length);
-            return ref allocator.RefArrayUnmanaged<U>(this.arrPtr, index);
+            return ref allocator.RefArray<U>(this.arrPtr, index);
         }
         
         [INLINE(256)]
@@ -252,7 +252,7 @@ namespace ME.ECS.Collections.V3 {
             [INLINE(256)]
             get {
                 E.RANGE(index, 0, this.Length);
-                return ref allocator.RefArrayUnmanaged<T>(this.arrPtr, index);
+                return ref allocator.RefArray<T>(this.arrPtr, index);
             }
         }
 
@@ -260,7 +260,7 @@ namespace ME.ECS.Collections.V3 {
             [INLINE(256)]
             get {
                 E.RANGE(index, 0, this.Length);
-                return ref allocator.RefArrayUnmanaged<T>(this.arrPtr, index);
+                return ref allocator.RefArray<T>(this.arrPtr, index);
             }
         }
 
@@ -283,7 +283,7 @@ namespace ME.ECS.Collections.V3 {
             newLength *= this.growFactor;
 
             var prevLength = this.Length;
-            this.arrPtr = allocator.ReAllocArrayUnmanaged<T>(this.arrPtr, newLength);
+            this.arrPtr = allocator.ReAllocArray<T>(this.arrPtr, newLength);
             if (options == ClearOptions.ClearMemory) {
                 this.Clear(in allocator, prevLength, newLength - prevLength);
             }

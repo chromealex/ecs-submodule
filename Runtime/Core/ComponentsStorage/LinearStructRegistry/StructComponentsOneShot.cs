@@ -1,4 +1,6 @@
 namespace ME.ECS {
+    
+    using Collections.MemoryAllocator;
 
     public static partial class EntityExtensionsV2 {
 

@@ -7,6 +7,7 @@ namespace ME.ECS {
     using Filters;
     using Buffers;
     using ME.ECS.Collections;
+    using ME.ECS.Collections.V3;
     
     using Unity.Burst;
     using Unity.Jobs;

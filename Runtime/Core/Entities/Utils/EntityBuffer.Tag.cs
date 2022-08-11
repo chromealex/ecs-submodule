@@ -9,7 +9,8 @@ namespace ME.ECS {
 
     using Unity.Burst;
     using Unity.Collections.LowLevel.Unsafe;
-    
+    using Collections.MemoryAllocator;
+
     public static class DataTagBufferUtils {
 
         //[System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
