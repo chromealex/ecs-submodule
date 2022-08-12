@@ -15,14 +15,14 @@ namespace ME.ECS {
     public struct EntitiesIndexer {
 
         [ME.ECS.Serializer.SerializeField]
-        private ME.ECS.Collections.V3.MemArrayAllocator<ME.ECS.Collections.MemoryAllocator.HashSet<int>> data;
+        private ME.ECS.Collections.V3.MemArrayAllocator<ME.ECS.Collections.MemoryAllocator.EquatableHashSet<int>> data;
 
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
         internal void Initialize(ref MemoryAllocator allocator, int capacity) {
 
-            if (this.data.isCreated == false) this.data = new ME.ECS.Collections.V3.MemArrayAllocator<ME.ECS.Collections.MemoryAllocator.HashSet<int>>(ref allocator, capacity);
+            if (this.data.isCreated == false) this.data = new ME.ECS.Collections.V3.MemArrayAllocator<ME.ECS.Collections.MemoryAllocator.EquatableHashSet<int>>(ref allocator, capacity);
 
         }
 
@@ -62,7 +62,7 @@ namespace ME.ECS {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
-        public readonly ref HashSet<int> Get(in MemoryAllocator allocator, int entityId) {
+        public readonly ref EquatableHashSet<int> Get(in MemoryAllocator allocator, int entityId) {
 
             return ref this.data[in allocator, entityId];
 
@@ -74,7 +74,7 @@ namespace ME.ECS {
         internal void Set(ref MemoryAllocator allocator, int entityId, int componentId) {
 
             ref var item = ref this.data[in allocator, entityId];
-            if (item.isCreated == false) item = new HashSet<int>(ref allocator, 1);
+            if (item.isCreated == false) item = new EquatableHashSet<int>(ref allocator, 1);
             item.Add(ref allocator, componentId);
 
         }

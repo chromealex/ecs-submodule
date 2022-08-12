@@ -1,3 +1,5 @@
+#if UNITY_2021_OR_NEWER
+#elif UNITY_2020_1_OR_NEWER
 using System.Reflection;
 using ME.ECSEditor;
 using UnityEngine;
@@ -148,3 +150,4 @@ public class DefaultEditor : UnityEditor.Editor {
     }
 
 }
+#endif

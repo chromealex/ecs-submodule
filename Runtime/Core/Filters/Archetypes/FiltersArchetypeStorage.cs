@@ -6,6 +6,7 @@ using System.Runtime.CompilerServices;
 using ME.ECS.Collections;
 using Unity.Collections.LowLevel.Unsafe;
 using Unity.IL2CPP.CompilerServices;
+using System.Runtime.InteropServices;
 using Il2Cpp = Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute;
 using BURST = Unity.Burst.BurstCompileAttribute;
 
@@ -493,11 +494,13 @@ namespace ME.ECS.FiltersArchetype {
         [ME.ECS.Serializer.SerializeField]
         internal int nextEntityId;
         [ME.ECS.Serializer.SerializeField]
+        [MarshalAs(UnmanagedType.U1)]
         internal bool isCreated;
 
         [ME.ECS.Serializer.SerializeField]
         private List<Request> requests;
         [ME.ECS.Serializer.SerializeField]
+        [MarshalAs(UnmanagedType.U1)]
         private bool isArchetypesDirty;
 
         #if INLINE_METHODS
