@@ -26,13 +26,6 @@ namespace ME.ECS {
 
         internal void OnRecycleFilters() {
 
-            for (int i = 0; i < this.filtersStaticData.Length; ++i) {
-                
-                this.filtersStaticData[in this.tempAllocator, i].data.Recycle(ref this.tempAllocator);
-                
-            }
-            this.filtersStaticData.Dispose(ref this.tempAllocator);
-
             for (int i = 0; i < this.filtersStaticDataLambdas.Length; ++i) {
                 
                 if (this.filtersStaticDataLambdas.arr[i] != null) PoolListCopyable<ConnectInfoLambda>.Recycle(ref this.filtersStaticDataLambdas.arr[i]);
