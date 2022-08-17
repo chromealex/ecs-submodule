@@ -37,9 +37,7 @@ namespace ME.ECS {
             WorldUtilities.InitComponentTypeId<IsEntityEmptyOneShot>(true, isOneShot: true);
             
             ViewComponentsInitializer.InitTypeId();
-            TransformComponentsInitializer.InitTypeId();
             NameComponentsInitializer.InitTypeId();
-            CameraComponentsInitializer.InitTypeId();
             
             initTypeIdStaticCallback?.Invoke();
 
@@ -51,9 +49,7 @@ namespace ME.ECS {
             noState.storage.ValidateOneShot<IsEntityEmptyOneShot>(true);
 
             ViewComponentsInitializer.Init(state);
-            TransformComponentsInitializer.Init(state);
             NameComponentsInitializer.Init(state);
-            CameraComponentsInitializer.Init(state);
 
             initStaticCallback?.Invoke(state, ref noState);
             
@@ -65,9 +61,7 @@ namespace ME.ECS {
             entity.ValidateDataOneShot<IsEntityEmptyOneShot>(true);
 
             ViewComponentsInitializer.Init(in entity);
-            TransformComponentsInitializer.Init(in entity);
             NameComponentsInitializer.Init(in entity);
-            CameraComponentsInitializer.Init(in entity);
             
             initEntityStaticCallback?.Invoke(in entity);
 

@@ -1057,13 +1057,6 @@ namespace ME.ECS {
         }
         #endif
 
-        public FilterBuilder Parent(InnerFilterBuilderDelegate parentFilter) {
-
-            this.Connect<ME.ECS.Transform.Container>(parentFilter);
-            return this;
-
-        }
-
         public FilterBuilder Connect(InnerFilterBuilderDelegate innerFilter, ConnectCustomGetEntityDelegate customGetEntity) {
 
             var filterBuilder = Filter.Create(this.data.name.Value);

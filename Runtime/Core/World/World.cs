@@ -1204,25 +1204,9 @@ namespace ME.ECS {
                 // Copy data
                 this.currentState.structComponents.CopyFrom(in from, in to);
                 this.UpdateFilters(in to);
+
+                WorldStaticCallbacks.RaiseCallbackEntityCopyFrom(this, in from, in to, copyHierarchy);
                 
-                // Copy hierarchy data
-                to.Remove<ME.ECS.Transform.Container>();
-                if (from.TryRead(out ME.ECS.Transform.Container container) == true) {
-                    to.SetParent(container.entity);
-                }
-
-                if (copyHierarchy == true) {
-
-                    var nodes = from.Read<ME.ECS.Transform.Nodes>();
-                    var e = nodes.items.GetEnumerator(in Worlds.current.currentState.allocator);
-                    while (e.MoveNext() == true) {
-                        var newChild = new Entity(EntityFlag.None);
-                        newChild.CopyFrom(e.Current);
-                        newChild.SetParent(to);
-                    }
-                    e.Dispose();
-
-                }
             }
 
         }
@@ -1340,26 +1324,16 @@ namespace ME.ECS {
 
         }
 
-        #if INLINE_METHODS
-        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-        #endif
-        public void OnEntityVersionChanged(in Entity entity) {
-            
-            ECSTransformHierarchy.OnEntityVersionChanged(ref this.currentState.allocator, in entity);
-            
-        }
-
         public bool RemoveEntity(in Entity entity, bool cleanUpHierarchy = true) {
 
             E.IS_ALIVE(in entity);
 
             if (this.currentState.storage.Dealloc(ref this.currentState.allocator, in entity) == true) {
 
-                if (cleanUpHierarchy == true) ECSTransformHierarchy.OnEntityDestroy(ref this.currentState.allocator, in entity);
                 this.RemoveFromAllFilters(ref this.currentState.allocator, entity);
                 this.DestroyEntityPlugins(in entity);
 
-                WorldStaticCallbacks.RaiseCallbackEntityDestroy(this.currentState, in entity);
+                WorldStaticCallbacks.RaiseCallbackEntityDestroy(this.currentState, in entity, cleanUpHierarchy);
                 
                 this.currentState.storage.IncrementGeneration(in this.currentState.allocator, in entity);
 
