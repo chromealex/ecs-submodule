@@ -1,3 +1,2 @@
-ref var regT#INDEX# = ref memAllocator.Ref<UnmanagedComponentsStorage.Item<T#INDEX#>>(allRegs.items[in memAllocator, AllComponentTypes<T#INDEX#>.typeId]);
-regT#INDEX#.Merge(ref memAllocator);
-this.regs[#INDEX#] = new Ptr() { value = regT#INDEX#.components.GetData(in memAllocator) };
+ref var regs#INDEX# = ref memAllocator.Ref<UnmanagedComponentsStorage.Item<T#INDEX#>>(allRegs.items[in memAllocator, AllComponentTypes<T#INDEX#>.typeId]);
+regs#INDEX#.Merge(ref memAllocator);

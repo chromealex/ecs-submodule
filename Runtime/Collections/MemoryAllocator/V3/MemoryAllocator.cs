@@ -393,8 +393,20 @@ namespace ME.ECS.Collections.V3 {
         }
 
         [INLINE(256)]
+        public MemPtr ReAllocArray(int sizeOf, MemPtr ptr, int newLength) {
+            var size = sizeOf;
+            return this.ReAlloc(ptr, size * newLength);
+        }
+
+        [INLINE(256)]
         public MemPtr AllocArray<T>(int length) where T : struct {
             var size = TSize<T>.size;
+            return this.Alloc(size * length);
+        }
+
+        [INLINE(256)]
+        public MemPtr AllocArray(int length, int sizeOf) {
+            var size = sizeOf;
             return this.Alloc(size * length);
         }
 

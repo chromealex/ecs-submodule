@@ -43,7 +43,7 @@ namespace ME.ECS.Collections.MemoryAllocator {
         }
 
     }
-    
+
     public struct SparseSet<T> where T : struct {
 
         [ME.ECS.Serializer.SerializeField]
@@ -163,6 +163,57 @@ namespace ME.ECS.Collections.MemoryAllocator {
                 this.Remove(ref allocator, i);
             }
             
+        }
+
+        public T Has(ref MemoryAllocator allocator, int entityId) {
+
+            return this.Get(ref allocator, entityId);
+
+        }
+
+        public unsafe int SetPtr(MemoryAllocator* allocator, int entityId, in T data) {
+            
+            ref var alloc = ref UnsafeUtility.AsRef<MemoryAllocator>(allocator);
+            return this.Set(ref alloc, entityId, in data);
+
+        }
+
+        public unsafe T ReadPtr(MemoryAllocator* allocator, int entityId) {
+
+            ref var alloc = ref UnsafeUtility.AsRef<MemoryAllocator>(allocator);
+            var idx = this.sparse[in alloc, entityId];
+            if (idx == 0) return default;
+            return this.Get(ref alloc, entityId);
+
+        }
+
+        public unsafe bool HasDataPtr(MemoryAllocator* allocator, int entityId) {
+
+            ref var alloc = ref UnsafeUtility.AsRef<MemoryAllocator>(allocator);
+            var idx = this.sparse[in alloc, entityId];
+            if (idx == 0) return false;
+            return true;
+
+        }
+
+        public unsafe T HasPtr(MemoryAllocator* allocator, int entityId) {
+
+            return this.ReadPtr(allocator, entityId);
+
+        }
+
+        public unsafe ref T GetPtr(MemoryAllocator* allocator, int entityId) {
+
+            ref var alloc = ref UnsafeUtility.AsRef<MemoryAllocator>(allocator);
+            return ref this.Get(ref alloc, entityId);
+
+        }
+
+        public unsafe void RemovePtr(MemoryAllocator* allocator, int entityId, int length) {
+
+            ref var alloc = ref UnsafeUtility.AsRef<MemoryAllocator>(allocator);
+            this.Remove(ref alloc, entityId, length);
+
         }
 
     }

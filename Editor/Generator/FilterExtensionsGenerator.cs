@@ -165,6 +165,16 @@ namespace ME.ECSEditor {
 
                         }
 
+                        var regsInitPost = EditorUtilities.Load<UnityEngine.TextAsset>("Editor/Templates/EditorResources/00-FilterExtensionsBufferRegsInitPost.txt", isRequired: true).text;
+                        var regsInitPostOutput = string.Empty;
+                        for (int i = 0; i < j; ++i) {
+
+                            var text = regsInitPost;
+                            text = text.Replace("#INDEX#", i.ToString());
+                            regsInitPostOutput += text;
+
+                        }
+
                         var regsInitFill = EditorUtilities.Load<UnityEngine.TextAsset>("Editor/Templates/EditorResources/00-FilterExtensionsBufferRegsInitFill.txt", isRequired: true).text;
                         var regsInitFillOutput = string.Empty;
                         for (int i = 0; i < j; ++i) {
@@ -195,6 +205,16 @@ namespace ME.ECSEditor {
 
                         }
 
+                        var regsValidate = EditorUtilities.Load<UnityEngine.TextAsset>("Editor/Templates/EditorResources/00-FilterExtensionsBufferRegsValidate.txt", isRequired: true).text;
+                        var regsValidateOutput = string.Empty;
+                        for (int i = 0; i < j; ++i) {
+
+                            var text = regsValidate;
+                            text = text.Replace("#INDEX#", i.ToString());
+                            regsValidateOutput += text;
+
+                        }
+
                         var regsDispose = EditorUtilities.Load<UnityEngine.TextAsset>("Editor/Templates/EditorResources/00-FilterExtensionsBufferRegsDispose.txt", isRequired: true).text;
                         var regsDisposeOutput = string.Empty;
                         for (int i = 0; i < j; ++i) {
@@ -202,16 +222,6 @@ namespace ME.ECSEditor {
                             var text = regsDispose;
                             text = text.Replace("#INDEX#", i.ToString());
                             regsDisposeOutput += text;
-
-                        }
-
-                        var regsJobInit = EditorUtilities.Load<UnityEngine.TextAsset>("Editor/Templates/EditorResources/00-FilterExtensionsBufferRegsJobInit.txt", isRequired: true).text;
-                        var regsJobInitOutput = string.Empty;
-                        for (int i = 0; i < j; ++i) {
-
-                            var text = regsJobInit;
-                            text = text.Replace("#INDEX#", i.ToString());
-                            regsJobInitOutput += text;
 
                         }
 
@@ -233,8 +243,12 @@ namespace ME.ECSEditor {
                         res = res.Replace("#DATABUFFER_CONTAINS#", dataBufferContainsOutput);
                         res = res.Replace("#DATABUFFER_OPS#", dataBufferOpsOutput);
                         res = res.Replace("#DATABUFFER_DATA#", dataBufferDataOutput);
+                        res = res.Replace("#REGS_INIT_FILL#", regsInitFillOutput);
                         res = res.Replace("#REGS_INIT#", regsInitOutput);
+                        res = res.Replace("#REGS_INIT_POST#", regsInitPostOutput);
+                        res = res.Replace("#REGS_VALIDATE#", regsValidateOutput);
                         res = res.Replace("#PUSH_OPS#", pushOpsOutput);
+                        res = res.Replace("#DISPOSE_OPS#", regsDisposeOutput);
                         
                         res = res.Replace("#INDEX#", j.ToString());
                         buffers += $"{res}\n";

@@ -5,12 +5,12 @@
 #endif
 public unsafe struct FilterBag<#ITEMS_TYPE#> : IFilterBag #ITEMS_WHERE# {
     public readonly int Length;
-    [Unity.Collections.NativeDisableParallelForRestriction][Unity.Collections.ReadOnlyAttribute]  private Unity.Collections.NativeArray<Ptr> regs;
-    [Unity.Collections.NativeDisableParallelForRestriction][Unity.Collections.ReadOnlyAttribute]  private ME.ECS.Collections.V3.MemArrayAllocator<Entity> entities;
-    [Unity.Collections.NativeDisableParallelForRestriction][Unity.Collections.ReadOnlyAttribute]  private Unity.Collections.NativeList<int> indexes;
-    [Unity.Collections.NativeDisableParallelForRestriction][Unity.Collections.ReadOnlyAttribute]  private Unity.Collections.NativeArray<int> entityToIndex;
-    [Unity.Collections.NativeDisableParallelForRestriction] private Ops componentOps;
-    [Unity.Collections.NativeDisableParallelForRestriction] private ME.ECS.Collections.V3.MemoryAllocator allocator;
+    #REGS_INIT_FILL#
+    [Unity.Collections.NativeDisableParallelForRestriction][Unity.Collections.ReadOnlyAttribute] private ME.ECS.Collections.V3.MemArrayAllocator<Entity> entities;
+    [Unity.Collections.NativeDisableParallelForRestriction][Unity.Collections.ReadOnlyAttribute] private Unity.Collections.NativeList<int> indexes;
+    [Unity.Collections.NativeDisableParallelForRestriction][Unity.Collections.ReadOnlyAttribute] private Unity.Collections.NativeArray<int> entityToIndex;
+    [NativeDisableUnsafePtrRestriction][Unity.Collections.NativeDisableParallelForRestriction] private ME.ECS.Collections.V3.MemoryAllocator* allocator;
+    [Unity.Collections.NativeDisableParallelForRestriction] private Ops entityOps;
     public int Count => this.Length;
     public Tick tick;
     private EntityVersions entityVersions;
@@ -18,6 +18,7 @@ public unsafe struct FilterBag<#ITEMS_TYPE#> : IFilterBag #ITEMS_WHERE# {
         #if UNITY_EDITOR
         UnityEngine.Profiling.Profiler.BeginSample("FilterBag::Create()");
         #endif
+        this = default;
         var mode = Unity.Collections.NativeLeakDetection.Mode;
         Unity.Collections.NativeLeakDetection.Mode = Unity.Collections.NativeLeakDetectionMode.Disabled;
         var world = filter.world;
@@ -27,23 +28,27 @@ public unsafe struct FilterBag<#ITEMS_TYPE#> : IFilterBag #ITEMS_WHERE# {
         var filterArr = filter.ToList(allocator, out this.entityToIndex);
         this.indexes = filterArr;
         this.Length = filterArr.Length;
-        this.regs = default;
-        this.componentOps = default;
-        this.allocator = world.currentState.allocator;
         if (this.Length > 0) {
-            this.regs = new Unity.Collections.NativeArray<Ptr>(#INDEX#, allocator);
-            this.componentOps = new Ops(this.Length);
+            this.entityOps = new Ops(this.Length);
             ref var allRegs = ref world.currentState.structComponents.unmanagedComponentsStorage;
             ref var memAllocator = ref world.currentState.allocator;
             #REGS_INIT#
+            for (int i = 0; i < this.indexes.Length; ++i) {
+                var entityId = this.indexes[i];
+                #REGS_VALIDATE#
+            }
+            #REGS_INIT_POST#
+        }
+        fixed (MemoryAllocator* f = &world.currentState.allocator) {
+            this.allocator = f;
         }
         Unity.Collections.NativeLeakDetection.Mode = mode;
         #if UNITY_EDITOR
         UnityEngine.Profiling.Profiler.EndSample();
         #endif
     }
-    public void BeginForEachIndex(int chunkIndex) => this.componentOps.BeginForEachIndex(chunkIndex);
-    public void EndForEachIndex() => this.componentOps.EndForEachIndex();
+    public void BeginForEachIndex(int chunkIndex) => this.entityOps.BeginForEachIndex(chunkIndex);
+    public void EndForEachIndex() => this.entityOps.EndForEachIndex();
     public void Push() {
         if (this.Length == 0) return;
         #if UNITY_EDITOR
@@ -52,14 +57,12 @@ public unsafe struct FilterBag<#ITEMS_TYPE#> : IFilterBag #ITEMS_WHERE# {
         var world = Worlds.currentWorld;
         ref var allRegs = ref world.currentState.structComponents.unmanagedComponentsStorage;
         ref var memAllocator = ref world.currentState.allocator;
-        var ops = this.componentOps;
-        for (int i = 0; i < ops.Length; ++i) {
-            if (ops.Read(i, out var op) == true) {
+        #PUSH_OPS#
+        for (int i = 0; i < this.entityOps.Length; ++i) {
+            if (this.entityOps.Read(i, out var op) == true) {
                 var entity = this.entities[in memAllocator, this.indexes[op.entityIndex]];
                 if (op.code == 2 && op.componentId == -1) {
                     world.RemoveEntity(in entity);
-                } else {
-                    #PUSH_OPS#
                 }
             }
         }
@@ -70,18 +73,18 @@ public unsafe struct FilterBag<#ITEMS_TYPE#> : IFilterBag #ITEMS_WHERE# {
     }
     
     public int GetIndexByEntityId(int id) => this.entityToIndex[id];
-    public void DestroyEntity(int index) => this.componentOps.Write(new Op() { entityIndex = index, componentId = -1, code = 2, });
+    public void DestroyEntity(int index) => this.entityOps.Write(new Op() { entityIndex = index, componentId = -1, code = 2, });
     public int GetEntityId(int index) => this.indexes[index];
-    public ref readonly Entity GetEntity(int index) => ref this.entities[this.allocator, this.indexes[index]];
+    public ref readonly Entity GetEntity(int index) => ref this.entities[*this.allocator, this.indexes[index]];
     public void Revert() => this.Dispose();
     private void Dispose() {
         if (this.Length > 0) {
-            this.regs.Dispose();
-            this.componentOps.Dispose();
+            this.entityOps.Dispose();
+            #DISPOSE_OPS#
         }
         this.indexes.Dispose();
         this.entityToIndex.Dispose();
-        this.entities = default;
+        this = default;
     }
     #region API
     #ITEMS_METHODS#

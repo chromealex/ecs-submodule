@@ -1,9 +1,16 @@
-if (op.componentId == AllComponentTypes<T#INDEX#>.typeId) {
-    if (op.code == 1) {
-        ref var reg = ref memAllocator.Ref<UnmanagedComponentsStorage.Item<T#INDEX#>>(allRegs.items[in memAllocator, AllComponentTypes<T#INDEX#>.typeId]);
-        DataUnmanagedBufferUtils.PushSet_INTERNAL(world, in entity, ref memAllocator, ref reg, this.ReadT#INDEX#(op.entityIndex));
-    } else if (op.code == 2) {
-        ref var reg = ref memAllocator.Ref<UnmanagedComponentsStorage.Item<T#INDEX#>>(allRegs.items[in memAllocator, AllComponentTypes<T#INDEX#>.typeId]);
-        DataUnmanagedBufferUtils.PushRemove_INTERNAL(world, in entity, ref memAllocator, ref reg);
+for (int i = 0; i < this.ops#INDEX#.Length; ++i) {
+    if (this.ops#INDEX#.Read(i, out var op) == true) {
+        var entity = this.entities[in memAllocator, this.indexes[op.entityIndex]];
+        if (op.code == 2 && op.componentId == -1) {
+            world.RemoveEntity(in entity);
+        } else {
+            if (op.componentId == AllComponentTypes<T#INDEX#>.typeId) {
+                if (op.code == 1) {
+                    DataUnmanagedBufferUtils.PushSet_INTERNAL(world, in entity, ref memAllocator, ref *this.regs#INDEX#, this.ReadT#INDEX#(op.entityIndex));
+                } else if (op.code == 2) {
+                    DataUnmanagedBufferUtils.PushRemove_INTERNAL(world, in entity, ref memAllocator, ref *this.regs#INDEX#);
+                }
+            }
+        }
     }
 }

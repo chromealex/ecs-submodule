@@ -1,6 +1,7 @@
 # Version 2.8
 * Runtime.Modules: RegisterViewSource now provide optional customId
 * Runtime.Core: 
+  * FilterBag refactoring
   * StatesHistory refactoring
   * ME.ECS.Collab minor fixes for Unity 2020
 * Runtime.Essentials: All essential packages has been moved out from the main repo

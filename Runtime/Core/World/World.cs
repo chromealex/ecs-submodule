@@ -257,7 +257,6 @@ namespace ME.ECS {
 
             this.OnSpawnStructComponents();
             this.OnSpawnComponents();
-            this.OnSpawnMarkers();
             this.OnSpawnFilters();
 
             WorldStaticCallbacks.RaiseCallbackInit(this);
@@ -303,10 +302,14 @@ namespace ME.ECS {
             this.currentSystemContextFiltersUsedAnyChanged = default;
 
             this.OnRecycleFilters();
-            this.OnRecycleMarkers();
             this.OnRecycleComponents();
             this.OnRecycleStructComponents();
-        
+
+            // We don't need to remove features
+            /*foreach (var feature in this.features) {
+                var instance = feature.Value;
+                if (instance != null) ((FeatureBase)instance).DoDeconstruct();
+            }*/
             PoolDictionary<System.Type, IFeatureBase>.Recycle(ref this.features);
 
             for (int i = this.systemGroupsLength - 1; i >= 0; --i) {
@@ -1024,9 +1027,6 @@ namespace ME.ECS {
             this.isPaused = false;
             
         }
-
-        partial void OnSpawnMarkers();
-        partial void OnRecycleMarkers();
 
         partial void OnSpawnComponents();
         partial void OnRecycleComponents();

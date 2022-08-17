@@ -22,12 +22,17 @@ namespace ME.ECS.Tests {
         public struct FilterBagJobTest : IJobParallelForFilterBag<ME.ECS.Buffers.FilterBag<TestData, TestData2>> {
 
             public void Execute(ref ME.ECS.Buffers.FilterBag<TestData, TestData2> bag, int index) {
-                
-                ref var comp = ref bag.GetT0(index);
-                comp.a += 1;
-                
-                bag.RemoveT1(index);
-                
+
+                var has = bag.HasT1(index);
+                if (has == false) {
+                    
+                    ref var comp = ref bag.GetT0(index);
+                    comp.a += 1;
+
+                    bag.RemoveT1(index);
+
+                }
+
             }
 
         }
@@ -113,7 +118,7 @@ namespace ME.ECS.Tests {
 
                 testEntity.Set(new TestData());
 
-                var cap = 1000;
+                var cap = 1;
                 w.SetEntitiesCapacity(cap);
                 for (int i = 0; i < cap; ++i) {
                 

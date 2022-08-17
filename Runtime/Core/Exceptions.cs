@@ -9,6 +9,13 @@ namespace ME.ECS {
         }
 
         [System.Diagnostics.Conditional("WORLD_STATE_CHECK")]
+        public static void THROW_FILTER_BAG_COMPONENT_NOT_EXISTS() {
+            
+            throw new System.NotSupportedException("Component doesn't exist on entity, all components must be on entity to call FilterBag::Get/Set.");
+            
+        }
+
+        [System.Diagnostics.Conditional("WORLD_STATE_CHECK")]
         public static void IS_NOT_LOGIC_STEP(World world) {
             
             if (world.isActive == true && world.HasStep(WorldStep.LogicTick) == true) {

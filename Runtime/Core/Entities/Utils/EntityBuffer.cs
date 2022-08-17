@@ -116,6 +116,7 @@ namespace ME.ECS {
             }
 
             entityVersions.Increment(in allocator, entityId);
+            bucket.state = 1;
             bucket.data = data;
             bucket.version = tick;
             

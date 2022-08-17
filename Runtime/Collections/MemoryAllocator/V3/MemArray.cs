@@ -3,6 +3,101 @@ namespace ME.ECS.Collections.V3 {
     using MemPtr = System.Int64;
     using INLINE = System.Runtime.CompilerServices.MethodImplAttribute;
 
+    public struct UnsafeMemArrayAllocator {
+        
+        [ME.ECS.Serializer.SerializeField]
+        public MemPtr arrPtr;
+        [ME.ECS.Serializer.SerializeField]
+        public int Length;
+        [ME.ECS.Serializer.SerializeField]
+        public int growFactor;
+
+        public readonly bool isCreated {
+            [INLINE(256)]
+            get => this.arrPtr != 0L;
+        }
+
+        [INLINE(256)]
+        public UnsafeMemArrayAllocator(int sizeOf, ref MemoryAllocator allocator, int length, ClearOptions clearOptions = ClearOptions.ClearMemory, int growFactor = 1) {
+
+            this.arrPtr = length > 0 ? allocator.AllocArray(length, sizeOf) : 0;
+            this.Length = length;
+            this.growFactor = growFactor;
+
+            if (clearOptions == ClearOptions.ClearMemory) {
+                this.Clear(sizeOf, in allocator);
+            }
+
+        }
+
+        [INLINE(256)]
+        public ref T Get<T>(in MemoryAllocator allocator, int index) where T : unmanaged {
+            E.RANGE(index, 0, this.Length);
+            return ref allocator.RefArray<T>(this.arrPtr, index);
+        }
+
+        [INLINE(256)]
+        public void Dispose(ref MemoryAllocator allocator) {
+
+            if (this.arrPtr != 0) {
+                allocator.Free(this.arrPtr);
+            }
+            this = default;
+
+        }
+
+        [INLINE(256)]
+        public readonly unsafe void* GetUnsafePtr(in MemoryAllocator allocator) {
+
+            return allocator.GetUnsafePtr(this.arrPtr);
+
+        }
+
+        [INLINE(256)]
+        public void Clear(int sizeOf, in MemoryAllocator allocator) {
+
+            this.Clear(sizeOf, in allocator, 0, this.Length);
+
+        }
+
+        [INLINE(256)]
+        public void Clear(int sizeOf, in MemoryAllocator allocator, int index, int length) {
+
+            var size = sizeOf;
+            allocator.MemClear(this.arrPtr, index * size, length * size);
+            
+        }
+
+        [INLINE(256)]
+        public bool Resize(int sizeOf, ref MemoryAllocator allocator, int newLength, ClearOptions options = ClearOptions.ClearMemory, int growFactor = 1) {
+
+            if (this.isCreated == false) {
+
+                this = new UnsafeMemArrayAllocator(sizeOf, ref allocator, newLength, options, growFactor);
+                return true;
+
+            }
+            
+            if (newLength <= this.Length) {
+
+                return false;
+                
+            }
+
+            newLength *= this.growFactor;
+
+            var prevLength = this.Length;
+            this.arrPtr = allocator.ReAllocArray(sizeOf, this.arrPtr, newLength);
+            if (options == ClearOptions.ClearMemory) {
+                this.Clear(sizeOf, in allocator, prevLength, newLength - prevLength);
+            }
+            this.Length = newLength;
+            return true;
+
+        }
+
+    }
+
     [System.Diagnostics.DebuggerTypeProxyAttribute(typeof(MemArrayAllocatorProxy<>))]
     public struct MemArrayAllocator<T> where T : struct {
 
