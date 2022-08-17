@@ -253,11 +253,17 @@ public class AddonsWindow : EditorWindow {
                 }
 
                 {
+                    var licenseContainer = new VisualElement();
+                    licenseContainer.AddToClassList("license-container");
+                    var vLabel = new Label("license");
+                    vLabel.AddToClassList("license-label");
+                    licenseContainer.Add(vLabel);
                     var v = new Label();
                     v.AddToClassList("license");
                     v.text = string.Empty;
-                    c.Add(v);
+                    licenseContainer.Add(v);
                     license = v;
+                    c.Add(licenseContainer);
                 }
 
             } else if (container != null) {

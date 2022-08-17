@@ -380,6 +380,37 @@ TemplateContainer .content {
     padding: 5px;
 }
 
+.license-container {
+    flex-direction: row;
+    align-items: center;
+    margin-left: 4px;
+    font-size: 10px;
+    flex-shrink: 0;
+}
+
+.license-container .license-label {
+    border-width: 0px;
+    border-radius: 8px;
+    border-bottom-right-radius: 0px;
+    border-top-right-radius: 0px;
+    background-color: rgba(30, 30, 30, 0.5);
+    padding: 2px;
+    padding-left: 6px;
+}
+
+.license-container .license {
+    border-width: 2px;
+    border-color: rgba(30, 30, 30, 0.5);
+    border-radius: 8px;
+    border-bottom-left-radius: 0px;
+    border-top-left-radius: 0px;
+    background-color: rgba(76, 76, 76, 0.5);
+    padding: 0px;
+    padding-left: 4px;
+    border-left-width: 0px;
+    padding-right: 6px;
+}
+
 .version-container {
     flex-direction: row;
     align-items: center;
