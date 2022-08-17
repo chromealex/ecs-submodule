@@ -103,7 +103,7 @@ namespace ME.ECSEditor {
 
         private static Texture2D scriptIcon = EditorGUIUtility.IconContent("cs Script Icon").image as Texture2D;
 
-        internal static void Create(string fileName, string templateName, System.Collections.Generic.Dictionary<string, string> customDefines = null, bool allowRename = true, System.Action<Object> onCreated = null) {
+        public static void Create(string fileName, string templateName, System.Collections.Generic.Dictionary<string, string> customDefines = null, bool allowRename = true, System.Action<Object> onCreated = null) {
 
             var obj = ScriptTemplates.GetSelectedDirectory();
             var path = AssetDatabase.GetAssetPath(obj);
@@ -119,7 +119,7 @@ namespace ME.ECSEditor {
             
         }
         
-        internal static bool Create(string path, string fileName, string templateName, System.Collections.Generic.Dictionary<string, string> customDefines = null, bool allowRename = true, System.Action<Object> onCreated = null) {
+        public static bool Create(string path, string fileName, string templateName, System.Collections.Generic.Dictionary<string, string> customDefines, bool allowRename = true, System.Action<Object> onCreated = null) {
 
             var templateAsset = EditorUtilities.Load<TextAsset>($"Editor/Templates/EditorResources/{templateName}.txt", true);
             var content = templateAsset.text;

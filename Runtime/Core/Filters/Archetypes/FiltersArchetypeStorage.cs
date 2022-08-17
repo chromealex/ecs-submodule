@@ -469,7 +469,7 @@ namespace ME.ECS.FiltersArchetype {
         [ME.ECS.Serializer.SerializeField]
         internal List<FilterData> filters;
         [ME.ECS.Serializer.SerializeField]
-        internal ME.ECS.EntityVersions versions;
+        public ME.ECS.EntityVersions versions;
         [ME.ECS.Serializer.SerializeField]
         internal ME.ECS.EntityFlags flags;
         [ME.ECS.Serializer.SerializeField]
@@ -482,7 +482,7 @@ namespace ME.ECS.FiltersArchetype {
         public int DeadCount(in MemoryAllocator allocator) => this.dead.Count;
 
         [ME.ECS.Serializer.SerializeField]
-        internal MemArrayAllocator<Entity> cache;
+        public MemArrayAllocator<Entity> cache;
         [ME.ECS.Serializer.SerializeField]
         internal List<int> dead;
         [ME.ECS.Serializer.SerializeField]

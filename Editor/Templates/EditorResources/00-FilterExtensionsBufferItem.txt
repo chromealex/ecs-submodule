@@ -23,15 +23,15 @@ public unsafe struct FilterBag<#ITEMS_TYPE#> : IFilterBag #ITEMS_WHERE# {
         Unity.Collections.NativeLeakDetection.Mode = Unity.Collections.NativeLeakDetectionMode.Disabled;
         var world = filter.world;
         this.tick = world.GetCurrentTick();
-        this.entityVersions = world.currentState.storage.versions;
-        this.entities = world.currentState.storage.cache;
+        this.entityVersions = world.GetState().storage.versions;
+        this.entities = world.GetState().storage.cache;
         var filterArr = filter.ToList(allocator, out this.entityToIndex);
         this.indexes = filterArr;
         this.Length = filterArr.Length;
         if (this.Length > 0) {
             this.entityOps = new Ops(this.Length);
-            ref var allRegs = ref world.currentState.structComponents.unmanagedComponentsStorage;
-            ref var memAllocator = ref world.currentState.allocator;
+            ref var allRegs = ref world.GetState().structComponents.unmanagedComponentsStorage;
+            ref var memAllocator = ref world.GetState().allocator;
             #REGS_INIT#
             for (int i = 0; i < this.indexes.Length; ++i) {
                 var entityId = this.indexes[i];
@@ -39,7 +39,7 @@ public unsafe struct FilterBag<#ITEMS_TYPE#> : IFilterBag #ITEMS_WHERE# {
             }
             #REGS_INIT_POST#
         }
-        fixed (MemoryAllocator* f = &world.currentState.allocator) {
+        fixed (MemoryAllocator* f = &world.GetState().allocator) {
             this.allocator = f;
         }
         Unity.Collections.NativeLeakDetection.Mode = mode;
@@ -55,8 +55,8 @@ public unsafe struct FilterBag<#ITEMS_TYPE#> : IFilterBag #ITEMS_WHERE# {
         UnityEngine.Profiling.Profiler.BeginSample("Push");
         #endif
         var world = Worlds.currentWorld;
-        ref var allRegs = ref world.currentState.structComponents.unmanagedComponentsStorage;
-        ref var memAllocator = ref world.currentState.allocator;
+        ref var allRegs = ref world.GetState().structComponents.unmanagedComponentsStorage;
+        ref var memAllocator = ref world.GetState().allocator;
         #PUSH_OPS#
         for (int i = 0; i < this.entityOps.Length; ++i) {
             if (this.entityOps.Read(i, out var op) == true) {
