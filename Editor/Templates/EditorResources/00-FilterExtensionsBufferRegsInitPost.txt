@@ -1,2 +1,0 @@
-this.regs#INDEX# = (UnmanagedComponentsStorage.Item<T#INDEX#>*)UnsafeUtility.AddressOf(ref regs#INDEX#);
-this.ops#INDEX# = new Ops(this.Length);

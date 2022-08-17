@@ -104,8 +104,15 @@ namespace ME.ECSEditor {
             return UnityEditor.EditorGUI.GetPropertyHeight(property, label, includeChildren);
 
         }
-        
-        public static T Load<T>(string path, bool isRequired = false) where T : Object {
+
+        public static T Load<T>(string rootDir, string path, bool isRequired = false) where T : Object {
+            
+            if (string.IsNullOrEmpty(rootDir) == false) {
+                
+                var data = UnityEditor.AssetDatabase.LoadAssetAtPath<T>($"{rootDir}/{path}");
+                if (data != null) return data;
+                
+            }
 
             foreach (var searchPath in EditorUtilities.searchPaths) {
 
@@ -114,7 +121,7 @@ namespace ME.ECSEditor {
                 if (data != null) return data;
 
             }
-            
+
             if (isRequired == true) {
 
                 throw new System.IO.FileNotFoundException($"Could not find editor resource {path} of type {typeof(T)}");
@@ -122,6 +129,12 @@ namespace ME.ECSEditor {
             }
             
             return null;
+
+        }
+
+        public static T Load<T>(string path, bool isRequired = false) where T : Object {
+
+            return Load<T>(string.Empty, path, isRequired);
 
         }
 

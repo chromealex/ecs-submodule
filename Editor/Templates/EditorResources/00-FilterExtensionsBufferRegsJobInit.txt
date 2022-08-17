@@ -1,2 +1,0 @@
-tempT#INDEX# = tempT#INDEX#,
-tagT#INDEX# = AllComponentTypes<T#INDEX#>.isTag == false ? (byte)0 : (byte)1,

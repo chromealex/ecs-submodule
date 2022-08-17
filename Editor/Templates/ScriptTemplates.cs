@@ -119,9 +119,14 @@ namespace ME.ECSEditor {
             
         }
         
-        public static bool Create(string path, string fileName, string templateName, System.Collections.Generic.Dictionary<string, string> customDefines, bool allowRename = true, System.Action<Object> onCreated = null) {
+        public static bool Create(string path, string fileName, string templateName, System.Collections.Generic.Dictionary<string, string> customDefines, bool allowRename = true, System.Action<Object> onCreated = null, string customRoot = null) {
 
-            var templateAsset = EditorUtilities.Load<TextAsset>($"Editor/Templates/EditorResources/{templateName}.txt", true);
+            var customRootDir = "Editor/";
+            if (string.IsNullOrEmpty(customRoot) == false) {
+                customRootDir = string.Empty;
+            }
+            
+            var templateAsset = EditorUtilities.Load<TextAsset>(customRoot, $"{customRootDir}Templates/EditorResources/{templateName}.txt", true);
             var content = templateAsset.text;
             if (customDefines != null) {
 

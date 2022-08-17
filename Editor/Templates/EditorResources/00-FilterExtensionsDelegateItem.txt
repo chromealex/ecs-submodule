@@ -1,1 +1,0 @@
-﻿public delegate void FD#FORMS#<#ITEMS_TYPE#>(in Entity e, #ITEMS#);

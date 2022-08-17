@@ -1,3 +1,0 @@
-[Unity.Collections.NativeDisableParallelForRestriction]
-public Unity.Collections.NativeArray<Component<T#INDEX#>> tempT#INDEX#;
-public byte tagT#INDEX#;

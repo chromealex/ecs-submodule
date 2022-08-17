@@ -1,2 +1,0 @@
-ref var regs#INDEX# = ref memAllocator.Ref<UnmanagedComponentsStorage.Item<T#INDEX#>>(allRegs.items[in memAllocator, AllComponentTypes<T#INDEX#>.typeId]);
-regs#INDEX#.Merge(ref memAllocator);

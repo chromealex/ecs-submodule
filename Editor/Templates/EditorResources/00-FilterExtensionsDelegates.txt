@@ -1,8 +1,0 @@
-﻿
-namespace ME.ECS.Filters {
-
-    public delegate void FD(in Entity e);
-    
-    #CONTENT#
-
-}
