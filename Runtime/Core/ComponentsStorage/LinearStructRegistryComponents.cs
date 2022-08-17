@@ -1746,7 +1746,9 @@ namespace ME.ECS {
 
                 this.currentState.storage.versions.Increment(in this.currentState.allocator, in entity);
                 reg.UpdateVersion(in entity);
+                #if !COMPONENTS_VERSION_NO_STATE_DISABLED
                 reg.UpdateVersionNoState(in entity);
+                #endif
 
             }
             

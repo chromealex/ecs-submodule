@@ -22,7 +22,15 @@ namespace ME.ECS {
             CoreComponentsInitializer.initEntityStaticCallback += initEntity;
             
         }
-        
+
+        public static void UnRegisterInitCallback(InitTypeIdStaticCallback initTypeId, InitStaticCallback init, InitEntityStaticCallback initEntity) {
+            
+            CoreComponentsInitializer.initTypeIdStaticCallback -= initTypeId;
+            CoreComponentsInitializer.initStaticCallback -= init;
+            CoreComponentsInitializer.initEntityStaticCallback -= initEntity;
+            
+        }
+
         public static void InitTypeId() {
             
             WorldUtilities.InitComponentTypeId<IsEntityOneShot>(true, isOneShot: true);
