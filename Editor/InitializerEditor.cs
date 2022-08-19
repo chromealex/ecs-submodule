@@ -51,7 +51,9 @@ namespace ME.ECSEditor {
             if (InitializerEditor.getAdditionalDefines != null) {
                 var list = new System.Collections.Generic.List<InitializerBase.DefineInfo>();
                 list.AddRange(InitializerEditor.defines);
-                list.AddRange(InitializerEditor.getAdditionalDefines.Invoke());
+                foreach (var item in InitializerEditor.getAdditionalDefines.GetInvocationList()) {
+                    list.AddRange((InitializerBase.DefineInfo[])item.DynamicInvoke());
+                }
                 return list.ToArray();
             }
 
