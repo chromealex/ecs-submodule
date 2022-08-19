@@ -70,9 +70,11 @@
     padding-right: 5px;
     margin: 2px;
     margin-left: 10px;
+    color: rgba(255, 255, 255, 0.7);
 }
 
 .dependencies-caption {
+    color: rgba(255, 255, 255, 0.7);
     -unity-font-style: bold;
     align-self: center;
     margin-left: 4px;
@@ -422,6 +424,7 @@ TemplateContainer .content {
     border-radius: 8px;
     border-bottom-right-radius: 0px;
     border-top-right-radius: 0px;
+    color: rgba(255, 255, 255, 0.7);
     background-color: rgb(30, 30, 30);
     padding: 2px;
     padding-left: 6px;
@@ -432,6 +435,7 @@ TemplateContainer .content {
     border-radius: 8px;
     border-bottom-left-radius: 0px;
     border-top-left-radius: 0px;
+    color: rgba(255, 255, 255, 0.7);
     background-color: rgb(0, 80, 120);
     padding: 0px;
     padding-left: 4px;
