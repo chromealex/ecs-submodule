@@ -309,7 +309,8 @@ namespace ME.ECSEditor {
 
                     if (conf.Contains(define) == false) {
                         
-                        conf.Remove(define);
+                        //conf.Remove(define);
+                        conf.Add(define);
                         changed = true;
                         
                     } else {
