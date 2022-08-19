@@ -189,7 +189,7 @@ namespace ME.ECS {
         private const int SYSTEMS_CAPACITY = 100;
         private const int MODULES_CAPACITY = 100;
         private const int ENTITIES_CACHE_CAPACITY = 500;
-        private const int WORLDS_CAPACITY = 4;
+        public const int WORLDS_CAPACITY = 4;
         private const int FILTERS_CACHE_CAPACITY = 10;
         
         private static int registryWorldId = 0;
