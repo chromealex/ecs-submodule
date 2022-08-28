@@ -119,11 +119,10 @@ namespace ME.ECS.Collections {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
-        public static IBufferArray Resize<T>(this in BufferArray<T> src, int newSize) {
+        public static BufferArray<T> Resize<T>(this ref BufferArray<T> src, int newSize) {
 
-            var newArr = new T[newSize];
-            if (src.arr != null) System.Array.Copy(src.arr, newArr, newSize > src.Length ? src.Length : newSize);
-            return new BufferArray<T>(newArr, newSize);
+			ArrayUtils.Resize(newSize - 1, ref src);
+            return src;
 
         }
 
