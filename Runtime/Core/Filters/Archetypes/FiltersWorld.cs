@@ -190,7 +190,7 @@ namespace ME.ECS {
 
         internal ListCopyable<ConnectInfoLambda> GetFilterStaticDataLambdas(int id) {
             
-            this.filtersStaticDataLambdas.Resize(id + 1);
+            ArrayUtils.Resize(id, ref this.filtersStaticDataLambdas, true);
             return this.filtersStaticDataLambdas.arr[id];
 
         }
