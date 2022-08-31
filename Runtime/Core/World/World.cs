@@ -1330,11 +1330,11 @@ namespace ME.ECS {
 
             if (this.currentState.storage.Dealloc(ref this.currentState.allocator, in entity) == true) {
 
+                WorldStaticCallbacks.RaiseCallbackEntityDestroy(this.currentState, in entity, cleanUpHierarchy);
+                
                 this.RemoveFromAllFilters(ref this.currentState.allocator, entity);
                 this.DestroyEntityPlugins(in entity);
 
-                WorldStaticCallbacks.RaiseCallbackEntityDestroy(this.currentState, in entity, cleanUpHierarchy);
-                
                 this.currentState.storage.IncrementGeneration(in this.currentState.allocator, in entity);
 
                 return true;
