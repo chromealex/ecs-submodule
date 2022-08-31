@@ -9,13 +9,13 @@ namespace ME.ECS {
      Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.ArrayBoundsChecks, false),
      Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.DivideByZeroChecks, false)]
     #endif
-    public readonly struct EntitiesGroup : System.IDisposable {
+    public struct EntitiesGroup : System.IDisposable {
 
         public readonly bool copyMode;
         public readonly int Length;
         public readonly int fromId;
         public readonly int toId;
-        public readonly Unity.Collections.NativeArray<Entity> slice;
+        public Unity.Collections.NativeArray<Entity> slice;
 
         public EntitiesGroup(int fromId, int toId, Unity.Collections.NativeArray<Entity> slice, bool copyMode) {
 
@@ -33,13 +33,14 @@ namespace ME.ECS {
         public void Dispose() {
 
             if (this.slice.IsCreated == true) this.slice.Dispose();
+            this = default;
 
         }
 
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
-        public void InstantiateView(ViewId viewId) {
+        public readonly void InstantiateView(ViewId viewId) {
             
             var world = Worlds.current;
             var viewsModule = world.GetModule<ME.ECS.Views.ViewsModule>();
@@ -50,7 +51,7 @@ namespace ME.ECS {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
-        public void UpdateFilters() {
+        public readonly void UpdateFilters() {
 
             var maxEntity = this.slice[this.slice.Length - 1];
             var world = Worlds.current;
@@ -62,7 +63,7 @@ namespace ME.ECS {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
-        public void Set(IComponentBase component, int dataIndex) {
+        public readonly void Set(IComponentBase component, int dataIndex) {
 
             var typeId = dataIndex;
             var world = Worlds.current;
@@ -73,7 +74,7 @@ namespace ME.ECS {
 
         }
 
-        public void Remove(int dataIndex) {
+        public readonly void Remove(int dataIndex) {
 
             var typeId = dataIndex;
             var world = Worlds.current;
@@ -87,7 +88,7 @@ namespace ME.ECS {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
-        public BufferArray<Component<T>> Read<T>() where T : struct, IComponentBase {
+        public readonly BufferArray<Component<T>> Read<T>() where T : struct, IComponentBase {
 
             return this.Get<T>();
 
@@ -96,7 +97,7 @@ namespace ME.ECS {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
-        public BufferArray<Component<T>> Get<T>() where T : struct, IComponentBase {
+        public readonly BufferArray<Component<T>> Get<T>() where T : struct, IComponentBase {
             
             var typeId = WorldUtilities.GetAllComponentTypeId<T>();
             var world = Worlds.current;
@@ -116,7 +117,7 @@ namespace ME.ECS {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
-        public void Set<T>(T component, bool updateFilters = true) where T : struct, IComponentBase {
+        public readonly void Set<T>(T component, bool updateFilters = true) where T : struct, IComponentBase {
 
             var typeId = WorldUtilities.GetAllComponentTypeId<T>();
             var world = Worlds.current;
@@ -136,7 +137,7 @@ namespace ME.ECS {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
-        public void Remove<T>(bool updateFilters = true) where T : struct, IComponentBase {
+        public readonly void Remove<T>(bool updateFilters = true) where T : struct, IComponentBase {
 
             var typeId = WorldUtilities.GetAllComponentTypeId<T>();
             var world = Worlds.current;
@@ -418,11 +419,13 @@ namespace ME.ECS {
 
         /// <summary>
         /// Create EntitiesGroup.
+        /// New entities will be created to be sure entities store in line.
         /// </summary>
         /// <param name="count"></param>
+        /// <param name="allocator"></param>
         /// <param name="copyMode">
         /// If true all entities would be copied with the same behaviour and you should never use entities from this group outside of the group.
-        /// if false some optimizations will be skipped.
+        /// If false some optimizations will be skipped.
         /// </param>
         /// <returns></returns>
         public EntitiesGroup AddEntities(int count, Unity.Collections.Allocator allocator, bool copyMode) {
