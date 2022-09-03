@@ -24,6 +24,16 @@ namespace ME.ECS {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
+        public static Entity Remove<TComponent>(this in Entity entity, tfloat customLifetime) where TComponent : unmanaged, IStructComponent {
+
+            Worlds.currentWorld.RemoveData<TComponent>(in entity, customLifetime);
+            return entity;
+
+        }
+
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
         public static Entity Remove<TComponent>(this in Entity entity) where TComponent : struct, IStructComponent {
 
             Worlds.currentWorld.RemoveData<TComponent>(in entity);

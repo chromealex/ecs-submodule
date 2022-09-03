@@ -266,10 +266,10 @@ namespace ME.ECS {
             
             public void NextStep() {
 
+                if (this.lifetime == ComponentLifetime.NotifyAllSystemsBelow) return;
+
                 if (this.entity.IsAlive() == true) {
                     
-                    if (this.lifetime == ComponentLifetime.NotifyAllSystemsBelow) return;
-
                     if (this.dataIndex >= 0) Worlds.currentWorld.SetData(this.entity, this.data, this.dataIndex, this.storageType);
                     
                     if (this.lifetime == ComponentLifetime.NotifyAllSystems) {
@@ -2004,6 +2004,16 @@ namespace ME.ECS {
 
         }
 
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
+        public void RemoveData<TComponent>(in Entity entity, tfloat secondsLifetime) where TComponent : unmanaged, IStructComponent {
+
+            if (this.HasData<TComponent>(in entity) == false) return;
+            this.SetData<TComponent>(ref this.currentState.allocator, ref this.currentState.structComponents, in entity, default, ComponentLifetime.NotifyAllSystemsBelow, secondsLifetime, addTaskOnly: true);
+
+        }
+        
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
