@@ -1,16 +1,16 @@
 # Version 2.8
 * Runtime.Modules: RegisterViewSource now provide optional customId
 * Runtime.Core: 
+  * Entity::Remove<TComponent>(lifetime) method added
   * FilterBag refactoring
   * StatesHistory refactoring
   * ME.ECS.Collab minor fixes for Unity 2020
-* Runtime.Essentials: All essential packages has been moved out from the main repo
-* Runtime.Core:
   * Add-ons window added
   * Initializer Settings: Fixed Behaviour type added
   * Plugins storage in state implemented
   * World Static Callbacks added
   * World simulation steps refactoring
+* Runtime.Essentials: All essential packages has been moved out from the main repo
 
 05/08/2022
 # Version 2.7
