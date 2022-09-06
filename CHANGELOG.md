@@ -1,6 +1,7 @@
 # Version 2.8
 * Runtime.Modules: RegisterViewSource now provide optional customId
-* Runtime.Core: 
+* Serializer: Threaded option added
+* Runtime.Core:
   * Entity::Remove<TComponent>(lifetime) method added
   * FilterBag refactoring
   * StatesHistory refactoring

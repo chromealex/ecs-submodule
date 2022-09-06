@@ -406,14 +406,14 @@ namespace ME.ECS.Serializer {
         }
 
         [INLINE(256)]
-        public static byte[] PackStatic<T>(T obj, Serializers staticSerializers) {
+        public static byte[] PackStatic<T>(T obj, Serializers staticSerializers, bool threaded = false) {
 
-            var packer = new Packer(staticSerializers, new SerializerStream(Serializer.BUFFER_CAPACITY));
+            var packer = new Packer(staticSerializers, new SerializerStream(Serializer.BUFFER_CAPACITY), threaded);
 
             packer.PackInternal(obj, typeof(T));
 
             var result = packer.ToArray();
-            packer.Dispose();
+            packer.Dispose(threaded);
             return result;
 
         }
@@ -728,22 +728,41 @@ namespace ME.ECS.Serializer {
             internal Dictionary<int, System.Type> typeById;
             internal Dictionary<System.Type, int> idByType;
 
-            public static Meta Create() {
+            public static Meta Create(bool threaded) {
+
+                if (threaded == false) {
+
+                    return new Meta() {
+                        metaTypeId = 0,
+                        meta = PoolDictionary<System.Type, MetaType>.Spawn(8),
+                        typeById = PoolDictionary<int, System.Type>.Spawn(8),
+                        idByType = PoolDictionary<System.Type, int>.Spawn(8),
+                    };
+
+                }
 
                 return new Meta() {
                     metaTypeId = 0,
-                    meta = PoolDictionary<System.Type, MetaType>.Spawn(8),
-                    typeById = PoolDictionary<int, System.Type>.Spawn(8),
-                    idByType = PoolDictionary<System.Type, int>.Spawn(8),
+                    meta = new Dictionary<System.Type, MetaType>(),
+                    typeById = new Dictionary<int, System.Type>(),
+                    idByType = new Dictionary<System.Type, int>(),
                 };
 
             }
 
-            public void Dispose() {
+            public void Dispose(bool threaded) {
 
-                PoolDictionary<int, System.Type>.Recycle(ref this.typeById);
-                PoolDictionary<System.Type, MetaType>.Recycle(ref this.meta);
-                PoolDictionary<System.Type, int>.Recycle(ref this.idByType);
+                if (threaded == false) {
+
+                    PoolDictionary<int, System.Type>.Recycle(ref this.typeById);
+                    PoolDictionary<System.Type, MetaType>.Recycle(ref this.meta);
+                    PoolDictionary<System.Type, int>.Recycle(ref this.idByType);
+
+                } else {
+
+                    this = default;
+
+                }
 
             }
 
@@ -852,9 +871,9 @@ namespace ME.ECS.Serializer {
 
         }
 
-        public static Packer FromStream(Serializers serializers, SerializerStream stream) {
+        public static Packer FromStream(Serializers serializers, SerializerStream stream, bool threaded = false) {
 
-            var packer = new Packer(serializers, stream);
+            var packer = new Packer(serializers, stream, threaded);
             var packerObject = PackerObjectSerializer.UnpackDirect(packer);
             packer.meta = packerObject.meta;
             packer.stream = new SerializerStream(packerObject.data);
@@ -865,9 +884,9 @@ namespace ME.ECS.Serializer {
 
         }
 
-        public Packer(Serializers serializers, SerializerStream stream) {
+        public Packer(Serializers serializers, SerializerStream stream, bool threaded = false) {
 
-            this.meta = Meta.Create();
+            this.meta = Meta.Create(threaded);
             this.serializers = serializers;
             this.stream = stream;
 
@@ -876,9 +895,9 @@ namespace ME.ECS.Serializer {
         }
 
         [INLINE(256)]
-        public void Dispose() {
+        public void Dispose(bool threaded = false) {
 
-            this.meta.Dispose();
+            this.meta.Dispose(threaded);
 
         }
 
