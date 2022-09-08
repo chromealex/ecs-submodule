@@ -291,6 +291,7 @@ namespace ME.ECS.Serializer {
                 return;
             }
 
+            packer.WriteByte((byte)TypeValue.ObjectArray);
             Int32Serializer.PackDirect(packer, arr.Length);
             for (int i = 0; i < arr.Length; ++i) {
 
