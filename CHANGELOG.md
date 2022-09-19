@@ -1,3 +1,15 @@
+# Version 2.9
+* Stable release version
+* Runtime.Core:
+  * Memory Allocator stable version released
+  * Modules support and Static API added
+  * ConfigId<>, ViewId<> structs added to use with blittable components
+  * Deprecated methods and modules removed
+* Tests:
+  * New memory allocator collections tests implemented
+  * Major refactoring iteration
+
+19/09/2022
 # Version 2.8
 * Runtime.Modules: RegisterViewSource now provide optional customId
 * Serializer: Threaded option added
