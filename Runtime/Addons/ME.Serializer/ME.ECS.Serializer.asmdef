@@ -1,0 +1,18 @@
+{
+    "name": "ME.ECS.Serializer",
+    "rootNamespace": "",
+    "references": [
+        "ME.Pools",
+        "ME.ECS.FPMath",
+        "Unity.Mathematics"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": true,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

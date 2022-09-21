@@ -1,5 +1,129 @@
 namespace ME.ECS {
 
+    public static class E {
+
+        public static void FILE_NOT_FOUND(string message) {
+            
+            throw new System.IO.FileNotFoundException(message);
+            
+        }
+
+        [System.Diagnostics.Conditional("WORLD_STATE_CHECK")]
+        public static void THROW_FILTER_BAG_COMPONENT_NOT_EXISTS() {
+            
+            throw new System.NotSupportedException("Component doesn't exist on entity, all components must be on entity to call FilterBag::Get/Set.");
+            
+        }
+
+        [System.Diagnostics.Conditional("WORLD_STATE_CHECK")]
+        public static void IS_NOT_LOGIC_STEP(World world) {
+            
+            if (world.isActive == true && world.HasStep(WorldStep.LogicTick) == true) {
+                
+                OutOfStateException.ThrowWorldStateCheckVisual();
+                
+            }
+            
+        }
+
+        [System.Diagnostics.Conditional("WORLD_STATE_CHECK")]
+        public static void IS_LOGIC_STEP(World world) {
+            
+            if (world.isActive == true && world.HasStep(WorldStep.LogicTick) == false && world.HasResetState() == true) {
+
+                OutOfStateException.ThrowWorldStateCheck();
+                
+            }
+            
+        }
+
+        [System.Diagnostics.Conditional("WORLD_EXCEPTIONS")]
+        public static void IS_TAG<TComponent>(in Entity entity) {
+            
+            if (AllComponentTypes<TComponent>.isTag == true) {
+
+                TagComponentException.Throw(entity);
+
+            }
+
+        }
+
+        [System.Diagnostics.Conditional("WORLD_EXCEPTIONS")]
+        public static void IS_DISPOSABLE<TComponent>(in Entity entity) {
+            
+            if (AllComponentTypes<TComponent>.isDisposable == true) {
+
+                DisposableComponentException.Throw(entity);
+
+            }
+
+        }
+
+        [System.Diagnostics.Conditional("WORLD_EXCEPTIONS")]
+        public static void IS_ALIVE(in Entity entity) {
+            
+            if (entity.IsAlive() == false) {
+                
+                EmptyEntityException.Throw(entity);
+                
+            }
+            
+        }
+
+        [System.Diagnostics.Conditional("WORLD_THREAD_CHECK")]
+        public static void IS_WORLD_THREAD([System.Runtime.CompilerServices.CallerMemberName] string methodName = "") {
+            
+            if (WorldUtilities.IsWorldThread() == false) {
+
+                WrongThreadException.Throw(methodName);
+                
+            }
+            
+        }
+
+        [System.Diagnostics.Conditional("WORLD_EXCEPTIONS")]
+        public static void RANGE(int index, int lowBound, int highBound) {
+            
+            if (index < lowBound || index >= highBound) {
+                
+                throw new OutOfBoundsException($"index {index} must be in range {lowBound}..{highBound}");
+                
+            }
+            
+        }
+
+        [System.Diagnostics.Conditional("WORLD_EXCEPTIONS")]
+        public static void IS_CREATED<T>(T collection) where T : ME.ECS.Collections.MemoryAllocator.IIsCreated {
+
+            if (collection.isCreated == false) {
+
+                IS_CREATED_BURST_DISCARD(collection);
+                throw new CollectionNotCreated("Collection not created");
+                
+            }
+
+        }
+
+        [Unity.Burst.BurstDiscardAttribute]
+        private static void IS_CREATED_BURST_DISCARD<T>(T collection) where T : ME.ECS.Collections.MemoryAllocator.IIsCreated {
+
+            if (collection.isCreated == false) {
+                
+                throw new CollectionNotCreated($"{collection.GetType()} not created");
+                
+            }
+
+        }
+
+    }
+    
+    public class CollectionNotCreated : System.Exception {
+
+        public CollectionNotCreated() : base("ME.ECS Exception") { }
+        public CollectionNotCreated(string message) : base(message) { }
+
+    }
+
     public class OutOfBoundsException : System.Exception {
 
         public OutOfBoundsException() : base("ME.ECS Exception") { }
@@ -104,6 +228,28 @@ namespace ME.ECS {
             if (entity.generation == 0) TagComponentException.Throw();
             
             throw new TagComponentException(entity);
+
+        }
+
+    }
+
+    public class DisposableComponentException : System.Exception {
+
+        private DisposableComponentException() : base("[ME.ECS] You are trying to get disposable component.") {}
+
+        private DisposableComponentException(Entity entity) : base("[ME.ECS] You are trying to get disposable component: " + entity) {}
+
+        public static void Throw() {
+
+            throw new DisposableComponentException();
+
+        }
+
+        public static void Throw(Entity entity) {
+
+            if (entity.generation == 0) DisposableComponentException.Throw();
+            
+            throw new DisposableComponentException(entity);
 
         }
 

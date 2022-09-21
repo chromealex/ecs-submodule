@@ -1116,7 +1116,7 @@ namespace ME.ECSEditor {
         private double prevTime;
         private int selectedWorldIndex = 0;
 
-        [MenuItem("ME.ECS/Nodes Viewer...")]
+        [MenuItem("ME.ECS/☉ Nodes Viewer...", priority = 10001)]
         public static void ShowInstance() {
 
             var instance = EditorWindow.GetWindow(typeof(NodesViewerEditor));

@@ -1,4 +1,6 @@
 namespace ME.ECS {
+    
+    using Collections.MemoryAllocator;
 
     public static partial class EntityExtensionsV2 {
 
@@ -16,7 +18,8 @@ namespace ME.ECS {
         #endif
         public static Entity SetOneShot<TComponent>(this in Entity entity) where TComponent : struct, IComponentOneShot {
 
-            Worlds.currentWorld.SetDataOneShot(in entity, new TComponent());
+            TComponent data = default;
+            Worlds.currentWorld.SetDataOneShot(in entity, data);
             return entity;
 
         }
@@ -68,43 +71,56 @@ namespace ME.ECS {
         #endif
         public void RemoveDataOneShot<TComponent>(in Entity entity) where TComponent : struct, IComponentOneShot {
 
-            #if WORLD_STATE_CHECK
-            if (this.isActive == true && this.HasStep(WorldStep.LogicTick) == false && this.HasResetState() == true) {
-                
-                OutOfStateException.ThrowWorldStateCheck();
-                
-            }
-            #endif
-
-            #if WORLD_EXCEPTIONS
-            if (entity.IsAlive() == false) {
-                
-                EmptyEntityException.Throw(entity);
-                
-            }
-            #endif
-
-            var reg = (StructComponents<TComponent>)this.structComponentsNoState.list.arr[AllComponentTypes<TComponent>.typeId];
-            ref var storage = ref this.currentState.storage;
-            ref var bucket = ref reg.components[entity.id];
-            if (bucket.state == 0) return;
-            bucket.state = 0;
+            E.IS_LOGIC_STEP(this);
+            E.IS_ALIVE(in entity);
             
-            storage.versions.Increment(in entity);
-            if (ComponentTypes<TComponent>.isFilterVersioned == true) this.UpdateFilterByStructComponentVersioned<TComponent>(in entity);
-            reg.RemoveData(in entity, ref bucket);
+            var reg = (StructComponents<TComponent>)this.noStateData.storage.list.arr[OneShotComponentTypes<TComponent>.typeId];
+            DataBufferUtils.PushRemove_INTERNAL(this, in entity, reg, StorageType.NoState);
             
-            if (ComponentTypes<TComponent>.typeId >= 0) {
+        }
 
-                storage.archetypes.Remove<TComponent>(in entity);
-                this.RemoveFilterByStructComponent<TComponent>(in entity);
-                this.UpdateFilterByStructComponent<TComponent>(in entity);
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
+        public bool SetSharedDataOneShot<TComponent>(in TComponent data) where TComponent : struct, IComponentOneShot {
 
-            }
+            return this.SetDataOneShot(in this.sharedEntity, in data);
 
-            #if ENTITY_ACTIONS
-            this.RaiseEntityActionOnRemove<TComponent>(in entity);
-            #endif
+        }
+
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
+        public void RemoveSharedDataOneShot<TComponent>() where TComponent : struct, IComponentOneShot {
+
+            this.RemoveDataOneShot<TComponent>(in this.sharedEntity);
+
+        }
+
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
+        public bool HasSharedDataOneShot<TComponent>() where TComponent : struct, IComponentOneShot {
+
+            return this.HasDataOneShot<TComponent>(in this.sharedEntity);
+
+        }
+
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
+        public ref readonly TComponent ReadSharedDataOneShot<TComponent>() where TComponent : struct, IComponentOneShot {
+
+            return ref this.ReadDataOneShot<TComponent>(in this.sharedEntity);
+
+        }
+
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
+        public ref TComponent GetSharedDataOneShot<TComponent>() where TComponent : struct, IComponentOneShot {
+
+            return ref this.GetDataOneShot<TComponent>(in this.sharedEntity);
 
         }
 
@@ -113,15 +129,9 @@ namespace ME.ECS {
         #endif
         public bool HasDataOneShot<TComponent>(in Entity entity) where TComponent : struct, IComponentOneShot {
 
-            #if WORLD_EXCEPTIONS
-            if (entity.IsAlive() == false) {
-                
-                EmptyEntityException.Throw(entity);
-                
-            }
-            #endif
+            E.IS_ALIVE(in entity);
 
-            return this.structComponentsNoState.list.arr[AllComponentTypes<TComponent>.typeId].Has(in entity);
+            return this.noStateData.storage.list.arr[OneShotComponentTypes<TComponent>.typeId].Has(in entity);
 
         }
         
@@ -130,22 +140,11 @@ namespace ME.ECS {
         #endif
         public ref readonly TComponent ReadDataOneShot<TComponent>(in Entity entity) where TComponent : struct, IComponentOneShot {
 
-            #if WORLD_EXCEPTIONS
-            if (entity.IsAlive() == false) {
-                
-                EmptyEntityException.Throw(entity);
-                
-            }
-            
-            if (AllComponentTypes<TComponent>.isTag == true) {
-
-                TagComponentException.Throw(entity);
-
-            }
-            #endif
+            E.IS_TAG<TComponent>(in entity);
+            E.IS_ALIVE(in entity);
 
             // Inline all manually
-            var reg = (StructComponents<TComponent>)this.structComponentsNoState.list.arr[AllComponentTypes<TComponent>.typeId];
+            var reg = (StructComponents<TComponent>)this.noStateData.storage.list.arr[OneShotComponentTypes<TComponent>.typeId];
             return ref reg.components[entity.id].data;
 
         }
@@ -153,156 +152,53 @@ namespace ME.ECS {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
-        public ref TComponent GetDataOneShot<TComponent>(in Entity entity, bool createIfNotExists = true) where TComponent : struct, IComponentOneShot {
+        public ref TComponent GetDataOneShot<TComponent>(in Entity entity) where TComponent : struct, IComponentOneShot {
 
-            #if WORLD_EXCEPTIONS
-            if (entity.IsAlive() == false) {
-                
-                EmptyEntityException.Throw(entity);
-                
-            }
-            
-            if (AllComponentTypes<TComponent>.isTag == true) {
+            E.IS_LOGIC_STEP(this);
+            E.IS_ALIVE(in entity);
+            E.IS_TAG<TComponent>(in entity);
 
-                TagComponentException.Throw(entity);
-
-            }
-            #endif
-
-            // Inline all manually
-            var incrementVersion = (this.HasResetState() == false || this.HasStep(WorldStep.LogicTick) == true);
-            var reg = (StructComponents<TComponent>)this.structComponentsNoState.list.arr[AllComponentTypes<TComponent>.typeId];
-            ref var storage = ref this.currentState.storage;
-            ref var bucket = ref reg.components[entity.id];
-            if (createIfNotExists == true && bucket.state == 0) {
-
-                #if WORLD_EXCEPTIONS
-                if (this.HasStep(WorldStep.LogicTick) == false && this.HasResetState() == true) {
-
-                    OutOfStateException.ThrowWorldStateCheck();
-
-                }
-                #endif
-
-                incrementVersion = true;
-                bucket.state = 1;
-                if (ComponentTypes<TComponent>.typeId >= 0) {
-
-                    storage.archetypes.Set<TComponent>(in entity);
-                    this.AddFilterByStructComponent<TComponent>(in entity);
-                    this.UpdateFilterByStructComponent<TComponent>(in entity);
-
-                }
-
-                #if ENTITY_ACTIONS
-                this.RaiseEntityActionOnAdd<TComponent>(in entity);
-                #endif
-
-            }
-
-            if (ComponentTypes<TComponent>.typeId >= 0) {
-
-                this.ValidateFilterByStructComponent<TComponent>(in entity);
-                
-            }
-            
-            if (incrementVersion == true) {
-
-                reg.UpdateVersion(ref bucket);
-                storage.versions.Increment(in entity);
-                if (AllComponentTypes<TComponent>.isVersionedNoState == true) ++reg.versionsNoState.arr[entity.id];
-                if (ComponentTypes<TComponent>.isFilterVersioned == true) this.UpdateFilterByStructComponentVersioned<TComponent>(in entity);
-
-                var task = new StructComponentsContainer.NextTickTask {
-                    lifetime = ComponentLifetime.NotifyAllSystemsBelow,
-                    storageType = StorageType.NoState,
-                    secondsLifetime = 0f,
-                    entity = entity,
-                    dataIndex = AllComponentTypes<TComponent>.typeId,
-                };
-
-                if (this.structComponentsNoState.nextTickTasks.Add(task) == false) {
-
-                    task.Recycle();
-
-                }
-
-            }
-
-            return ref bucket.data;
+            var reg = (StructComponents<TComponent>)this.noStateData.storage.list.arr[OneShotComponentTypes<TComponent>.typeId];
+            return ref DataBufferUtils.PushGet_INTERNAL(this, in entity, reg, StorageType.NoState);
 
         }
 
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
-        public ref byte SetDataOneShot<TComponent>(in Entity entity, in TComponent data) where TComponent : struct, IComponentOneShot {
+        public bool SetDataOneShot<TComponent>(in Entity entity, in TComponent data) where TComponent : struct, IComponentOneShot {
             
-            #if WORLD_STATE_CHECK
-            if (this.HasStep(WorldStep.LogicTick) == false && this.HasResetState() == true) {
+            E.IS_LOGIC_STEP(this);
+            E.IS_ALIVE(in entity);
 
-                OutOfStateException.ThrowWorldStateCheck();
-                
-            }
-            #endif
+            var reg = (StructComponents<TComponent>)this.noStateData.storage.list.arr[OneShotComponentTypes<TComponent>.typeId];
+            return DataBufferUtils.PushSet_INTERNAL(this, in entity, reg, in data, StorageType.NoState);
 
-            #if WORLD_EXCEPTIONS
-            if (entity.IsAlive() == false) {
-                
-                EmptyEntityException.Throw(entity);
-                
-            }
-            #endif
+        }
 
-            var reg = (StructComponents<TComponent>)this.structComponentsNoState.list.arr[AllComponentTypes<TComponent>.typeId];
-            ref var storage = ref this.currentState.storage;
-            ref var bucket = ref reg.components[entity.id];
-            ref var state = ref bucket.state;
-            reg.Replace(ref bucket, in data);
-            reg.UpdateVersion(ref bucket);
-            if (state == 0) {
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
+        public void SetEntityOneShot(in Entity entity) {
 
-                state = 1;
-                
-                if (ComponentTypes<TComponent>.typeId >= 0) {
-
-                    storage.archetypes.Set<TComponent>(in entity);
-                    this.AddFilterByStructComponent<TComponent>(in entity);
-                    this.UpdateFilterByStructComponent<TComponent>(in entity);
-
-                }
-
-            }
+            E.IS_LOGIC_STEP(this);
+            E.IS_ALIVE(in entity);
             
-            if (ComponentTypes<TComponent>.typeId >= 0) {
-
-                this.ValidateFilterByStructComponent<TComponent>(in entity);
-                
-            }
-            
-            #if ENTITY_ACTIONS
-            this.RaiseEntityActionOnAdd<TComponent>(in entity);
-            #endif
-            storage.versions.Increment(in entity);
-            if (AllComponentTypes<TComponent>.isVersionedNoState == true) ++reg.versionsNoState.arr[entity.id];
-            if (ComponentTypes<TComponent>.isFilterVersioned == true) this.UpdateFilterByStructComponentVersioned<TComponent>(in entity);
-
             var task = new StructComponentsContainer.NextTickTask {
                 lifetime = ComponentLifetime.NotifyAllSystemsBelow,
                 storageType = StorageType.NoState,
                 secondsLifetime = 0f,
                 entity = entity,
-                dataIndex = AllComponentTypes<TComponent>.typeId,
+                dataIndex = -1,
+                destroyEntity = true,
             };
 
-            if (this.structComponentsNoState.nextTickTasks.Add(task) == false) {
+            if (this.noStateData.storage.nextTickTasks.Add(ref this.noStateData.allocator, task) == false) {
 
-                task.Recycle();
+                task.Dispose(ref this.noStateData.allocator);
 
             }
 
-            return ref state;
-            
         }
 
     }
@@ -312,7 +208,13 @@ namespace ME.ECS {
      Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.ArrayBoundsChecks, false),
      Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.DivideByZeroChecks, false)]
     #endif
-    public sealed class StructComponentsOneShot<TComponent> : StructComponents<TComponent> where TComponent : struct, IStructComponentBase, IComponentOneShot {
+    public sealed class StructComponentsOneShot<TComponent> : StructComponents<TComponent> where TComponent : struct, IComponentOneShot {
+
+        public override void Recycle() {
+            
+            PoolRegistries.Recycle(this);
+
+        }
 
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]

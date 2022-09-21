@@ -38,7 +38,7 @@ namespace ME.ECSEditor {
 
             if (found == false) {
 
-                var objects = GameObject.FindObjectsOfType<ME.ECS.Debug.EntityDebugComponent>();
+                var objects = GameObject.FindObjectsOfType<ME.ECS.DebugUtils.EntityDebugComponent>();
                 foreach (var obj in objects) {
 
                     if (obj.entity == entity) {
@@ -61,8 +61,8 @@ namespace ME.ECSEditor {
 
                 } else {
 
-                    var debug = new GameObject("Debug-" + entity.ToString(), typeof(ME.ECS.Debug.EntityDebugComponent));
-                    var info = debug.GetComponent<ME.ECS.Debug.EntityDebugComponent>();
+                    var debug = new GameObject("Debug-" + entity.ToString(), typeof(ME.ECS.DebugUtils.EntityDebugComponent));
+                    var info = debug.GetComponent<ME.ECS.DebugUtils.EntityDebugComponent>();
                     info.entity = entity;
                     info.world = Worlds.currentWorld;
                     info.hasName = false;
@@ -104,8 +104,15 @@ namespace ME.ECSEditor {
             return UnityEditor.EditorGUI.GetPropertyHeight(property, label, includeChildren);
 
         }
-        
-        public static T Load<T>(string path, bool isRequired = false) where T : Object {
+
+        public static T Load<T>(string rootDir, string path, bool isRequired = false) where T : Object {
+            
+            if (string.IsNullOrEmpty(rootDir) == false) {
+                
+                var data = UnityEditor.AssetDatabase.LoadAssetAtPath<T>($"{rootDir}/{path}");
+                if (data != null) return data;
+                
+            }
 
             foreach (var searchPath in EditorUtilities.searchPaths) {
 
@@ -114,13 +121,37 @@ namespace ME.ECSEditor {
                 if (data != null) return data;
 
             }
-            
+
             if (isRequired == true) {
 
                 throw new System.IO.FileNotFoundException($"Could not find editor resource {path} of type {typeof(T)}");
 
             }
             
+            return null;
+
+        }
+
+        public static T Load<T>(string path, bool isRequired = false) where T : Object {
+
+            return Load<T>(string.Empty, path, isRequired);
+
+        }
+
+        public static T Load<T>(string path, out string filePath) where T : Object {
+
+            foreach (var searchPath in EditorUtilities.searchPaths) {
+
+                var data = UnityEditor.AssetDatabase.LoadAssetAtPath<T>($"{searchPath}{path}");
+                //var data = UnityEditor.Experimental.EditorResources.Load<T>($"{searchPath}{path}", false);
+                if (data != null) {
+                    filePath = $"{searchPath}{path}";
+                    return data;
+                }
+
+            }
+            
+            filePath = default;
             return null;
 
         }
@@ -142,7 +173,13 @@ namespace ME.ECSEditor {
             return (T)property.GetValue();
             
         }
-        
+
+        public static T GetSerializedValue<T>(this UnityEditor.SerializedProperty property, string fieldName) {
+
+            return (T)property.GetValue(fieldName);
+            
+        }
+
         public static void SetSerializedValue<T>(this UnityEditor.SerializedProperty property, T value) {
 
             property.SetValue(value);
@@ -155,6 +192,17 @@ namespace ME.ECSEditor {
     // any data types and with arbitrarily deeply-pathed properties.
     public static class SerializedPropertyExtensionsValueGetSet
     {
+        public static FieldInfo GetField(this UnityEditor.SerializedProperty property)
+        {
+            string propertyPath = property.propertyPath;
+            object value = property.serializedObject.targetObject;
+            int i = 0;
+            MemberInfo memberInfo = null;
+            while (NextPathComponent(propertyPath, ref i, out var token))
+                value = GetPathComponentValue(value, token, out memberInfo);
+            return memberInfo as FieldInfo;
+        }
+        
         /// (Extension) Get the value of the serialized property.
         public static object GetValue(this UnityEditor.SerializedProperty property)
         {
@@ -162,10 +210,24 @@ namespace ME.ECSEditor {
             object value = property.serializedObject.targetObject;
             int i = 0;
             while (NextPathComponent(propertyPath, ref i, out var token))
-                value = GetPathComponentValue(value, token);
+                value = GetPathComponentValue(value, token, out _);
             return value;
         }
-        
+
+        public static object GetValue(this UnityEditor.SerializedProperty property, string fieldName)
+        {
+            string propertyPath = property.propertyPath;
+            object value = property.serializedObject.targetObject;
+            int i = 0;
+            object container = null;
+            while (NextPathComponent(propertyPath, ref i, out var token)) {
+                container = value;
+                value = GetPathComponentValue(value, token, out _);
+            }
+            var field = container.GetType().GetField(fieldName);
+            return field.GetValue(container);
+        }
+
         /// (Extension) Set the value of the serialized property.
         public static void SetValue(this UnityEditor.SerializedProperty property, object value)
         {
@@ -188,7 +250,7 @@ namespace ME.ECSEditor {
             NextPathComponent(propertyPath, ref i, out var deferredToken);
             while (NextPathComponent(propertyPath, ref i, out var token))
             {
-                container = GetPathComponentValue(container, deferredToken);
+                container = GetPathComponentValue(container, deferredToken, out _);
                 deferredToken = token;
             }
             Debug.Assert(!container.GetType().IsValueType, $"Cannot use SerializedObject.SetValue on a struct object, as the result will be set on a temporary.  Either change {container.GetType().Name} to a class, or use SetValue with a parent member.");
@@ -251,12 +313,12 @@ namespace ME.ECSEditor {
             return true;
         }
 
-        static object GetPathComponentValue(object container, PropertyPathComponent component)
-        {
+        static object GetPathComponentValue(object container, PropertyPathComponent component, out MemberInfo memberInfo) {
+            memberInfo = null;
             if (component.propertyName == null)
                 return ((IList)container)[component.elementIndex];
             else
-                return GetMemberValue(container, component.propertyName);
+                return GetMemberValue(container, component.propertyName, out memberInfo);
         }
         
         static void SetPathComponentValue(object container, PropertyPathComponent component, object value)
@@ -267,14 +329,14 @@ namespace ME.ECSEditor {
                 SetMemberValue(container, component.propertyName, value);
         }
 
-        static object GetMemberValue(object container, string name)
-        {
+        static object GetMemberValue(object container, string name, out MemberInfo memberInfo) {
+            memberInfo = default;
             if (container == null)
                 return null;
             var type = container.GetType();
             var members = type.GetMember(name, BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance);
-            for (int i = 0; i < members.Length; ++i)
-            {
+            for (int i = 0; i < members.Length; ++i) {
+                memberInfo = members[i];
                 if (members[i] is FieldInfo field)
                     return field.GetValue(container);
                 else if (members[i] is PropertyInfo property)

@@ -12,7 +12,7 @@ namespace #NAMESPACE# {
      Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.ArrayBoundsChecks, false),
      Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.DivideByZeroChecks, false)]
     #endif
-    public sealed class #SCRIPTNAME# : ISystem, IAdvanceTick, IUpdate {
+    public sealed class #SCRIPTNAME# : ISystem, IAdvanceTick {
         
         public World world { get; set; }
         
@@ -21,8 +21,6 @@ namespace #NAMESPACE# {
         void ISystemBase.OnDeconstruct() {}
         
         void IAdvanceTick.AdvanceTick(in float deltaTime) {}
-        
-        void IUpdate.Update(in float deltaTime) {}
         
     }
     

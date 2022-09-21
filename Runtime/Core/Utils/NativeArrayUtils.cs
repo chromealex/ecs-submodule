@@ -44,11 +44,11 @@ namespace ME.ECS {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
-        public static void RecycleWithIndex<T, TCopy>(ref Unity.Collections.NativeArray<T> item, TCopy copy) where TCopy : IArrayElementCopyWithIndex<T> where T : struct {
+        public static void Recycle<T, TCopy>(ref Unity.Collections.NativeArray<T> item, TCopy copy) where TCopy : IArrayElementCopy<T> where T : struct {
 
             for (int i = 0; i < item.Length; ++i) {
 
-                copy.Recycle(i, ref item.GetRef(i));
+                copy.Recycle(ref item.GetRef(i));
 
             }
 
@@ -60,11 +60,11 @@ namespace ME.ECS {
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
         public static void CopyWithIndex<T, TCopy>(Unity.Collections.NativeArray<T> fromArr, ref Unity.Collections.NativeArray<T> arr, TCopy copy)
-            where TCopy : IArrayElementCopyWithIndex<T> where T : struct {
+            where TCopy : IArrayElementCopy<T> where T : struct {
 
             if (fromArr.IsCreated == false) {
 
-                if (arr.IsCreated == true) NativeArrayUtils.RecycleWithIndex(ref arr, copy);
+                if (arr.IsCreated == true) NativeArrayUtils.Recycle(ref arr, copy);
                 arr = default;
                 return;
 
@@ -72,14 +72,14 @@ namespace ME.ECS {
 
             if (arr.IsCreated == false || fromArr.Length != arr.Length) {
 
-                if (arr.IsCreated == true) NativeArrayUtils.RecycleWithIndex(ref arr, copy);
+                if (arr.IsCreated == true) NativeArrayUtils.Recycle(ref arr, copy);
                 arr = new Unity.Collections.NativeArray<T>(fromArr.Length, Unity.Collections.Allocator.Persistent);
 
             }
 
             for (int i = 0; i < fromArr.Length; ++i) {
 
-                copy.Copy(i, fromArr[i], ref arr.GetRef(i));
+                copy.Copy(fromArr[i], ref arr.GetRef(i));
 
             }
 
@@ -119,13 +119,13 @@ namespace ME.ECS {
 
             }
 
-            if (arr.IsCreated == false) arr = new Unity.Collections.NativeArray<T>(index * offset + 1, allocator);
+            if (arr.IsCreated == false) arr = new Unity.Collections.NativeArray<T>(index * offset + 1, allocator, Unity.Collections.NativeArrayOptions.UninitializedMemory);
             if (index < arr.Length) return false;
 
             var newLength = arr.Length * offset + 1;
             if (newLength == 0 || newLength <= index) newLength = index * offset + 1;
 
-            var newArr = new Unity.Collections.NativeArray<T>(newLength, allocator);
+            var newArr = new Unity.Collections.NativeArray<T>(newLength, allocator, Unity.Collections.NativeArrayOptions.UninitializedMemory);
             Unity.Collections.NativeArray<T>.Copy(arr, 0, newArr, 0, arr.Length);
             arr.Dispose();
             arr = newArr;
@@ -205,6 +205,32 @@ namespace ME.ECS {
             }
 
             Unity.Collections.NativeArray<T>.Copy(fromArr, arr);
+            
+        }
+
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
+        public static void Copy<T>(in NativeBufferArraySliced<T> fromArr, ref NativeBufferArraySliced<T> arr) where T : struct {
+
+            switch (fromArr.isCreated) {
+                case false when arr.isCreated == false:
+                    return;
+
+                case false when arr.isCreated == true:
+                    arr.Dispose();
+                    arr = default;
+                    return;
+            }
+
+            if (arr.isCreated == false || arr.Length != fromArr.Length) {
+
+                if (arr.isCreated == true) arr.Dispose();
+                arr = new NativeBufferArraySliced<T>();
+                
+            }
+
+            arr.CopyFrom(fromArr);
             
         }
 
@@ -325,6 +351,58 @@ namespace ME.ECS {
 
         }
         
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
+        public static unsafe void Copy(System.IntPtr from, ref System.IntPtr to, int sizeOf, int alignOf) {
+            
+            switch (from != System.IntPtr.Zero) {
+                case false when to == System.IntPtr.Zero:
+                    return;
+
+                case false when to != System.IntPtr.Zero:
+                    NativeArrayUtils.Dispose(ref to);
+                    return;
+            }
+
+            if (to == System.IntPtr.Zero) {
+
+                to = (System.IntPtr)UnsafeUtility.Malloc(sizeOf, alignOf, Unity.Collections.Allocator.Persistent);
+                
+            }
+
+            UnsafeUtility.MemCpy((void*)to, (void*)from, sizeOf);
+
+        }
+
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
+        public static unsafe void Dispose(ref System.IntPtr data) {
+
+            if (data == System.IntPtr.Zero) {
+                return;
+            }
+            
+            UnsafeUtility.Free((void*)data, Unity.Collections.Allocator.Persistent);
+            data = default;
+
+        }
+
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
+        public static unsafe void Dispose(ref void* data) {
+
+            if (data == null) {
+                return;
+            }
+            
+            UnsafeUtility.Free(data, Unity.Collections.Allocator.Persistent);
+            data = default;
+
+        }
+
         #if NATIVE_ARRAY_BURST
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
@@ -561,44 +639,6 @@ namespace ME.ECS {
             
         }
         #endif
-
-        #if INLINE_METHODS
-        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-        #endif
-        public static unsafe void Copy(System.IntPtr from, ref System.IntPtr to, int sizeOf, int alignOf) {
-            
-            switch (from != System.IntPtr.Zero) {
-                case false when to == System.IntPtr.Zero:
-                    return;
-
-                case false when to != System.IntPtr.Zero:
-                    NativeArrayUtils.Dispose(ref to);
-                    return;
-            }
-
-            if (to == System.IntPtr.Zero) {
-
-                to = (System.IntPtr)UnsafeUtility.Malloc(sizeOf, alignOf, Unity.Collections.Allocator.Persistent);
-                
-            }
-
-            UnsafeUtility.MemCpy((void*)to, (void*)from, sizeOf);
-
-        }
-
-        #if INLINE_METHODS
-        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-        #endif
-        public static unsafe void Dispose(ref System.IntPtr data) {
-
-            if (data == System.IntPtr.Zero) {
-                return;
-            }
-            
-            UnsafeUtility.Free((void*)data, Unity.Collections.Allocator.Persistent);
-            data = default;
-
-        }
 
     }
 

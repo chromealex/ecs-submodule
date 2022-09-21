@@ -1,0 +1,444 @@
+#unity-content-viewport {
+    background-color: #202328;
+}
+
+#content {
+    padding-top: 10px;
+    margin-left: 5px;
+    margin-right: 5px;
+    margin-bottom: 5px;
+    background-color: rgba(40, 50, 50, 0.5);
+    border-radius: 10px;
+}
+
+.item {
+    border-width: 1px;
+    border-color: rgba(255, 255, 255, 0.1);
+    background-color: rgba(128, 128, 128, 0.1);
+    border-radius: 5px;
+    padding: 0px;
+    margin: 10px;
+    margin-top: 2px;
+    margin-bottom: 8px;
+}
+
+.header {
+    flex-direction: row;
+    justify-content: space-between;
+    background-color: rgba(128, 128, 128, 0.4);
+    border-bottom-color: rgba(30, 30, 30, 0.4);
+    border-bottom-width: 1px;
+    padding: 4px;
+    margin-bottom: 4px;
+    color: rgba(255, 255, 255, 0.5);
+    font-size: 14px;
+}
+
+.license {
+    background-color: rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+    font-size: 10px;
+    align-self: center;
+    padding: 5px;
+    padding-bottom: 1px;
+    padding-top: 1px;
+    margin-right: 4px;
+}
+
+.package-name {
+    background-color: rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+    font-size: 10px;
+    align-self: center;
+    padding: 5px;
+    padding-bottom: 1px;
+    padding-top: 1px;
+    margin-right: 4px;
+}
+
+.dependencies {
+    flex-direction: row;
+    background-color: rgba(0, 0, 0, 0.1);
+    padding: 2px;
+}
+
+.dependency {
+    border-radius: 6px;
+    background-color: rgba(0, 0, 0, 0.2);
+    padding: 2px;
+    padding-left: 5px;
+    padding-right: 5px;
+    margin: 2px;
+    margin-left: 10px;
+    color: rgba(255, 255, 255, 0.7);
+}
+
+.dependencies-caption {
+    color: rgba(255, 255, 255, 0.7);
+    -unity-font-style: bold;
+    align-self: center;
+    margin-left: 4px;
+}
+
+.cursor-hand, .cursor-hand * {
+    cursor: link;
+}
+
+.cursor-action-add, .cursor-action-add * {
+    cursor: arrow-plus;
+}
+
+.cursor-action-remove, .cursor-action-remove * {
+    cursor: arrow-minus;
+}
+
+.cursor-action-update, .cursor-action-update * {
+    cursor: link;
+}
+
+.button Label {
+    color: rgba(255, 255, 255, 0.7);
+}
+
+.flex {
+    width: 100%;
+    flex-shrink: 1;
+}
+
+.buttons {
+    flex-direction: row;
+    flex-shrink: 0;
+}
+
+.item .caption {
+    color: rgba(255, 255, 255, 0.5);
+    font-size: 14px;
+}
+.item.new-version-available .header {
+    background-color: rgba(255, 255, 0, 0.3);
+}
+.item.up-to-date .header {
+    background-color: rgba(0, 255, 0, 0.1);
+}
+.item.not-installed .header {
+    background-color: rgba(255, 255, 255, 0.05);
+}
+.item .bottom {
+    flex-direction: row;
+    align-items: center;
+    margin-bottom: 4px;
+    margin-right: 4px;
+}
+.item .version {
+    font-size: 12px;
+    -unity-font-style: bold;
+    padding: 4px;
+}
+.item .current-version {
+    padding: 4px;
+    font-size: 10px;
+}
+.item .new-version-available {
+    color: rgba(255, 255, 0, 0.7);
+}
+.item .up-to-date {
+    color: rgba(0, 255, 0, 0.7);
+}
+.item .not-installed {
+    color: rgba(255, 255, 255, 0.7);
+}
+.item .description {
+    color: rgba(255, 255, 255, 0.7);
+    padding: 4px;
+}
+.item .button {
+    background-color: rgba(0, 0, 0, 0.2);
+    border-radius: 10px;
+    margin: 0px;
+    margin-left: 4px;
+    flex-direction: row;
+    align-items: center;
+}
+.item .button Image {
+    margin-right: 2px;
+    width: 10px;
+    height: 10px;
+}
+
+.item .button.cursor-action-add {
+    background-color: rgba(255, 255, 255, 0.2);
+}
+.item .button.cursor-action-update {
+    background-color: rgba(0, 255, 0, 0.2);
+}
+.item .button.cursor-action-remove {
+    background-color: rgba(255, 0, 0, 0.2);
+}
+.item .button:hover {
+    opacity: 0.9;
+    border-color: olivedrab;
+}
+.item .button:active {
+    opacity: 0.6;
+    border-color: #666677;
+}
+.item .button.cursor-hand {
+    background-color: rgba(0, 0, 0, 0);
+    border-radius: 0px;
+    padding-left: 0px;
+    padding-right: 0px;
+    margin-left: 2px;
+    margin-right: 8px;
+    border-width: 0px;
+    border-bottom-width: 1px;
+    border-color: #558ed9;
+}
+.item .button.cursor-hand * {
+    color: #558ED9;
+}
+
+.main-scroll-view.dark {
+    background-color: #333;
+}
+
+.main-scroll-view.dark Button {
+    color: #eee;
+}
+
+.main-scroll-view.dark .block {
+    color: #ddd;
+}
+
+.main-scroll-view.dark .block {
+    border-color: rgba(245, 245, 245, 0.1);
+    background-color: rgba(245, 245, 245, 0.05);
+}
+
+.main-scroll-view.dark .block .header {
+    background-color: rgba(245, 245, 245, 0.1);
+}
+
+.main-scroll-view.dark .separator {
+    background-color: rgba(245, 245, 245, 0.1);
+}
+
+.main-scroll-view.dark .block.inactive Button {
+    border-color: #5c705a;
+    background-color: #354334;
+    color: #858585;
+}
+
+.main-scroll-view.dark .block.complete .header {
+    background-color: rgba(105, 165, 91, 0.3) !important;
+}
+
+
+
+.main-scroll-view.light {
+    background-color: #eee;
+}
+
+.main-scroll-view.light Button {
+    color: #222;
+}
+
+.main-scroll-view.light .block {
+    color: #111;
+}
+
+.main-scroll-view.light .block .header {
+    background-color: #ddd;
+}
+
+.main-scroll-view.light .block.complete .header {
+    background-color: rgba(105, 165, 91, 0.3) !important;
+}
+
+.main-scroll-view.light .separator {
+    background-color: #dfdfdf;
+}
+
+.main-scroll-view.light .block.inactive Button {
+    border-color: #5c705a;
+    background-color: #757e75;
+    color: #d2d2d2;
+}
+
+
+.main-scroll-view .block .content Label {
+    padding-bottom: 10px;
+}
+
+.main-scroll-view {
+    width: auto;
+    flex-grow: 1;
+    height: 100%;
+}
+
+TemplateContainer {
+    flex-grow: 1;
+}
+
+TemplateContainer .content {
+    flex-grow: 1;
+}
+
+.main-scroll-view Foldout {
+    min-height: 30px;
+    border-radius: 10px;
+    -unity-font-style: bold;
+    background-color: rgba(255, 255, 255, 0.1);
+    border-color: #97cd92;
+    margin: 10px 50px;
+    padding: 5px;
+    font-size: 14px;
+}
+
+.main-scroll-view Foldout Label {
+    white-space: normal;
+    margin-right: 20px;
+    margin-top: 1px;
+    margin-bottom: 1px;
+}
+
+.main-scroll-view Foldout .unity-toggle__checkmark {
+    margin-top: 4px !important;
+    height: 16px;
+}
+
+.main-scroll-view Foldout .answer {
+    -unity-font-style: normal;
+    padding: 10px;
+    background-color: rgba(0, 0, 0, 0.2);
+    border-radius: 10px;
+}
+
+.main-scroll-view Foldout:hover {
+    background-color: rgba(255, 255, 255, 0.2);
+    color: #fff;
+}
+
+.main-scroll-view Foldout:active {
+    background-color: #588352;
+    color: #a2a2a2;
+}
+
+.main-scroll-view .loader {
+    align-self: center;
+    align-content: center;
+    flex-direction: row;
+}
+
+.visible {
+    visibility: visible;
+}
+
+.invisible {
+    display: none;
+}
+
+.main-scroll-view .loader VisualElement {
+    align-self: center;
+    background-color: #69a55b;
+    margin: 1px;
+    width: 10px;
+    height: 10px;
+}
+
+.main-scroll-view .main-header {
+    flex-direction: row;
+    align-items: center;
+    align-self: center;
+    justify-content: center;
+    width: 100%;
+}
+
+.main-scroll-view .main-header .left {
+    font-size: 24px;
+    align-self: center;
+    margin-bottom: 20px;
+    margin-top: 20px;
+    background-color: #2a475a;
+    border-color: #38586b;
+    border-width: 1px;
+    border-radius: 10px;
+    border-bottom-right-radius: 0px;
+    border-top-right-radius: 0px;
+    border-right-width: 0px;
+    padding: 5px;
+}
+.main-scroll-view .main-header .right {
+    font-size: 24px;
+    align-self: center;
+    margin-bottom: 20px;
+    margin-top: 20px;
+    background-color: #5a8850;
+    border-color: #5d9250;
+    border-width: 1px;
+    border-radius: 10px;
+    border-bottom-left-radius: 0px;
+    border-top-left-radius: 0px;
+    border-left-width: 0px;
+    padding: 5px;
+}
+
+.license-container {
+    flex-direction: row;
+    align-items: center;
+    margin-left: 4px;
+    font-size: 10px;
+    flex-shrink: 0;
+}
+
+.license-container .license-label {
+    border-width: 0px;
+    border-radius: 8px;
+    border-bottom-right-radius: 0px;
+    border-top-right-radius: 0px;
+    background-color: rgba(30, 30, 30, 0.5);
+    padding: 2px;
+    padding-left: 6px;
+}
+
+.license-container .license {
+    border-width: 2px;
+    border-color: rgba(30, 30, 30, 0.5);
+    border-radius: 8px;
+    border-bottom-left-radius: 0px;
+    border-top-left-radius: 0px;
+    background-color: rgba(76, 76, 76, 0.5);
+    padding: 0px;
+    padding-left: 4px;
+    border-left-width: 0px;
+    padding-right: 6px;
+}
+
+.version-container {
+    flex-direction: row;
+    align-items: center;
+    margin-left: 4px;
+    flex-shrink: 0;
+}
+.version-container .version-caption {
+    border-width: 0px;
+    border-radius: 8px;
+    border-bottom-right-radius: 0px;
+    border-top-right-radius: 0px;
+    color: rgba(255, 255, 255, 0.7);
+    background-color: rgb(30, 30, 30);
+    padding: 2px;
+    padding-left: 6px;
+}
+.version-container .version {
+    border-width: 2px;
+    border-color: rgb(30, 30, 30);
+    border-radius: 8px;
+    border-bottom-left-radius: 0px;
+    border-top-left-radius: 0px;
+    color: rgba(255, 255, 255, 0.7);
+    background-color: rgb(0, 80, 120);
+    padding: 0px;
+    padding-left: 4px;
+    border-left-width: 0px;
+    padding-right: 6px;
+}

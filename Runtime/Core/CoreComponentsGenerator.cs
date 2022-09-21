@@ -1,47 +1,69 @@
 ﻿
 namespace ME.ECS {
 
+    public struct IsEntityOneShot : IComponentOneShot {}
+    public struct IsEntityEmptyOneShot : IComponentOneShot {}
+    
     public static class CoreComponentsInitializer {
+
+        public delegate void InitTypeIdStaticCallback();
+        private static InitTypeIdStaticCallback initTypeIdStaticCallback;
+
+        public delegate void InitStaticCallback(State state, ref World.NoState noState);
+        private static InitStaticCallback initStaticCallback;
+        
+        public delegate void InitEntityStaticCallback(in Entity entity);
+        private static InitEntityStaticCallback initEntityStaticCallback;
+
+        public static void RegisterInitCallback(InitTypeIdStaticCallback initTypeId, InitStaticCallback init, InitEntityStaticCallback initEntity) {
+            
+            CoreComponentsInitializer.initTypeIdStaticCallback += initTypeId;
+            CoreComponentsInitializer.initStaticCallback += init;
+            CoreComponentsInitializer.initEntityStaticCallback += initEntity;
+            
+        }
+
+        public static void UnRegisterInitCallback(InitTypeIdStaticCallback initTypeId, InitStaticCallback init, InitEntityStaticCallback initEntity) {
+            
+            CoreComponentsInitializer.initTypeIdStaticCallback -= initTypeId;
+            CoreComponentsInitializer.initStaticCallback -= init;
+            CoreComponentsInitializer.initEntityStaticCallback -= initEntity;
+            
+        }
 
         public static void InitTypeId() {
             
-            WorldUtilities.InitComponentTypeId<ME.ECS.Views.ViewComponent>(false);
-            WorldUtilities.InitComponentTypeId<ME.ECS.Collections.IntrusiveListNode>(false);
-            WorldUtilities.InitComponentTypeId<ME.ECS.Collections.IntrusiveHashSetBucket>(false);
+            WorldUtilities.InitComponentTypeId<IsEntityOneShot>(true, isOneShot: true);
+            WorldUtilities.InitComponentTypeId<IsEntityEmptyOneShot>(true, isOneShot: true);
             
-            ME.ECS.DataConfigs.DataConfig.InitTypeId();
-            TransformComponentsInitializer.InitTypeId();
+            ViewComponentsInitializer.InitTypeId();
             NameComponentsInitializer.InitTypeId();
-            CameraComponentsInitializer.InitTypeId();
-            ME.ECS.DataConfigs.DataConfigComponentsInitializer.InitTypeId();
+            
+            initTypeIdStaticCallback?.Invoke();
 
         }
         
-        public static void Init(ref ME.ECS.StructComponentsContainer structComponentsContainer) {
+        public static void Init(State state, ref World.NoState noState) {
             
-            structComponentsContainer.Validate<ME.ECS.Views.ViewComponent>(false);
-            structComponentsContainer.Validate<ME.ECS.Collections.IntrusiveListNode>(false);
-            structComponentsContainer.Validate<ME.ECS.Collections.IntrusiveHashSetBucket>(false);
+            noState.storage.ValidateOneShot<IsEntityOneShot>(true);
+            noState.storage.ValidateOneShot<IsEntityEmptyOneShot>(true);
 
-            ME.ECS.DataConfigs.DataConfig.Init(ref structComponentsContainer);
-            TransformComponentsInitializer.Init(ref structComponentsContainer);
-            NameComponentsInitializer.Init(ref structComponentsContainer);
-            CameraComponentsInitializer.Init(ref structComponentsContainer);
-            ME.ECS.DataConfigs.DataConfigComponentsInitializer.Init(ref structComponentsContainer);
+            ViewComponentsInitializer.Init(state);
+            NameComponentsInitializer.Init(state);
+
+            initStaticCallback?.Invoke(state, ref noState);
             
         }
 
         public static void Init(in Entity entity) {
             
-            entity.ValidateData<ME.ECS.Views.ViewComponent>(false);
-            entity.ValidateData<ME.ECS.Collections.IntrusiveListNode>(false);
-            entity.ValidateData<ME.ECS.Collections.IntrusiveHashSetBucket>(false);
+            entity.ValidateDataOneShot<IsEntityOneShot>(true);
+            entity.ValidateDataOneShot<IsEntityEmptyOneShot>(true);
 
-            ME.ECS.DataConfigs.DataConfig.Init(in entity);
-            TransformComponentsInitializer.Init(in entity);
+            ViewComponentsInitializer.Init(in entity);
             NameComponentsInitializer.Init(in entity);
-            CameraComponentsInitializer.Init(in entity);
-            ME.ECS.DataConfigs.DataConfigComponentsInitializer.Init(in entity);
+            
+            initEntityStaticCallback?.Invoke(in entity);
 
         }
 
@@ -71,6 +93,7 @@ namespace ME.ECS {
 
         public static void Init(in Entity entity) {
             
+            CoreComponentsInitializer.InitTypeId();
             CoreComponentsInitializer.Init(in entity);
             
             if (ComponentsInitializerWorld.onEntity != null) ComponentsInitializerWorld.onEntity.Invoke(entity);

@@ -6,6 +6,8 @@ namespace ME.ECSEditor {
 
     public class Generator : AssetPostprocessor {
 
+        public static System.Action<string> onGenerate;
+        
         private static string MENU_ITEM_AUTO;
         private static string CONTENT_ITEM;
         private static string CONTENT_ITEM2;
@@ -364,7 +366,7 @@ namespace ME.ECSEditor {
 
                 }
 
-                listEntities = listEntities.OrderBy(x => {
+                /*listEntities = listEntities.OrderBy(x => {
                     
                     var attrs = x.GetCustomAttributes(typeof(ME.ECS.ComponentOrderAttribute), false);
                     if (attrs.Length > 0) {
@@ -375,7 +377,42 @@ namespace ME.ECSEditor {
                     
                     return 0;
                     
-                }).ThenBy(x => x.FullName).ToList();
+                }).ThenBy(x => x.FullName).ToList();*/
+                int GetOrder(System.Type type) {
+                
+                    var hasFields = type.GetFields(System.Reflection.BindingFlags.Default | System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.Public).Length > 0;
+                    var isCopyable = typeof(ME.ECS.ICopyableBase).IsAssignableFrom(type);
+                    var isDisposable = typeof(ME.ECS.IComponentDisposableBase).IsAssignableFrom(type);
+                    var isStatic = typeof(ME.ECS.IComponentStatic).IsAssignableFrom(type);
+                    var isOneShot = typeof(ME.ECS.IComponentOneShot).IsAssignableFrom(type);
+                    var isBlittable = isOneShot == false && Generator.IsUnmanaged(type) == true;
+                    var isBlittableForced = typeof(ME.ECS.IComponentBlittable).IsAssignableFrom(type);
+
+                    var isTag = false;
+                    if (isBlittableForced == false && hasFields == false && isStatic == false) {
+
+                        isBlittable = false;
+                        isCopyable = false;
+                        if (isOneShot == true) {
+                            isTag = false;
+                        } else {
+                            isTag = true;
+                        }
+
+                    }
+
+					if (isStatic == true) return 0;
+                    if (isBlittable == true) return 1;
+                    if (isTag == true) return 2;
+                    if (isCopyable == true) return 5;
+                    if (isDisposable == true) return 6;
+                    if (isOneShot == true) return 10;
+
+                    return 100;
+
+                }
+                
+                listEntities = listEntities.OrderBy(GetOrder).ThenBy(x => x.FullName).ToList();
 
                 var linesOutput = new List<string>(100);
                 var linesOutput2 = new List<string>(100);
@@ -387,66 +424,133 @@ namespace ME.ECSEditor {
                     
                     var entityType = type.FullName.Replace("+", ".");
                     var hasFields = type.GetFields(System.Reflection.BindingFlags.Default | System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.Public).Length > 0;
-                    var isCopyable = typeof(ME.ECS.IStructCopyableBase).IsAssignableFrom(type);
+                    var isCopyable = typeof(ME.ECS.ICopyableBase).IsAssignableFrom(type);
+                    var isDisposable = typeof(ME.ECS.IComponentDisposableBase).IsAssignableFrom(type);
                     var isStatic = typeof(ME.ECS.IComponentStatic).IsAssignableFrom(type);
-                    var isDisposable = typeof(ME.ECS.IComponentDisposable).IsAssignableFrom(type);
                     var isOneShot = typeof(ME.ECS.IComponentOneShot).IsAssignableFrom(type);
+                    var isBlittableForced = typeof(ME.ECS.IComponentBlittable).IsAssignableFrom(type);
+                    #if !SHARED_COMPONENTS_DISABLED
                     var isShared = typeof(ME.ECS.IComponentShared).IsAssignableFrom(type);
+                    #else
+                    var isShared = false;
+                    #endif
                     var isVersioned = typeof(ME.ECS.IVersioned).IsAssignableFrom(type);
+                    #if !COMPONENTS_VERSION_NO_STATE_DISABLED
                     var isVersionedNoState = typeof(ME.ECS.IVersionedNoState).IsAssignableFrom(type);
+                    #else
+                    var isVersionedNoState = false;
+                    #endif
+                    var isBlittable = isOneShot == false && Generator.IsUnmanaged(type) == true;
+                    var isSimple = true;
+                    if (isCopyable == true ||
+                        isOneShot == true) {
 
-                    if (isCopyable == false && hasFields == true && isStatic == false) {
+                        isSimple = false;
+
+                    }
+
+                    var isUnmanaged = isBlittable;
+                    if (isCopyable == true && isBlittable == true) {
+
+                        isUnmanaged = false;
+
+                    }
+
+                    var isTag = false;
+                    if (isBlittableForced == false && hasFields == false && isStatic == false) {
+
+                        isBlittable = false;
+                        isCopyable = false;
+                        if (isOneShot == true) {
+                            isTag = false;
+                        } else {
+                            isTag = true;
+                        }
+
+                    }
+                    
+                    if (isUnmanaged == true) {
+
+                        isBlittable = false;
+                        isTag = false;
+
+                    } else {
+
+                        isDisposable = false;
+
+                    }
+
+                    if (isCopyable == false && hasFields == true && isStatic == false && isOneShot == false) {
                         
                         // Check for managed types
-                        if (Generator.HasManagedTypes(type, out var failedFieldInfo) == true) {
+                        if (Generator.HasManagedTypes(type, false, out var failedFieldInfo) == true) {
                             
                             UnityEngine.Debug.LogError($"[ME.ECS] Generator for type `{type}` failed because it is not blittable (field `{failedFieldInfo.Name}`). Use IStructCopyable to create manual copy.");
                             
                         }
 
                     }
-                    
-                    var resItem = itemStr;
-                    resItem = resItem.Replace("#ISTAG#", hasFields == true ? "false" : "true");
-                    resItem = resItem.Replace("#ISSHARED#", isShared == true ? "true" : "false");
-                    resItem = resItem.Replace("#TYPENAME#", entityType);
-                    resItem = resItem.Replace("#COPYABLE#", isCopyable == true ? "Copyable" : "");
-                    resItem = resItem.Replace("#DISPOSABLE#", isDisposable == true ? "Disposable" : "");
-                    resItem = resItem.Replace("#ONESHOT#", isOneShot == true ? "OneShot" : "");
-                    resItem = resItem.Replace("\r\n", "\n");
-                    
-                    /*
-                    resItem = resItem.Replace("#PROJECTNAME#", asmName);
-                    resItem = resItem.Replace("#STATENAME#", asmName + "State");
-                    resItem = resItem.Replace("#ISVERSIONED#", isVersioned == true ? "true" : "false");
-                    resItem = resItem.Replace("#ISVERSIONED_NOSTATE#", isVersionedNoState == true ? "true" : "false");
-                    resItem = resItem.Replace("#ISCOPYABLE#", isCopyable == true ? "true" : "false");
-                    resItem = resItem.Replace("#ISDISPOSABLE#", isDisposable == true ? "true" : "false");
-                    */
-                    
-                    linesOutput.Add(resItem);
 
-                    if (itemStr2 != null) {
+                    if (isStatic == false) {
 
-                        var resItem2 = itemStr2;
-                        resItem2 = resItem2.Replace("#TYPENAME#", entityType);
-                        resItem2 = resItem2.Replace("#ISTAG#", hasFields == true ? "false" : "true");
-                        resItem2 = resItem2.Replace("#ISSHARED#", isShared == true ? "true" : "false");
-                        resItem2 = resItem2.Replace("#COPYABLE#", isCopyable == true ? "Copyable" : "");
-                        resItem2 = resItem2.Replace("#DISPOSABLE#", isDisposable == true ? "Disposable" : "");
-                        resItem2 = resItem2.Replace("#ONESHOT#", isOneShot == true ? "OneShot" : "");
-                        resItem2 = resItem2.Replace("\r\n", "\n");
-                        
+                        var resItem = itemStr;
+                        resItem = resItem.Replace("#TYPENAME#", entityType);
+                        resItem = resItem.Replace("#ISTAG#", hasFields == true ? "false" : "true");
+                        resItem = resItem.Replace("#ISSHARED#", isShared == true ? "true" : "false");
+                        resItem = resItem.Replace("#ISSIMPLE#", isSimple == true ? "true" : "false");
+                        resItem = resItem.Replace("#ISDISPOSABLE#", isDisposable == true ? "true" : "false");
+                        resItem = resItem.Replace("#ISBLITTABLE#", isUnmanaged == true || isBlittable == true ? "true" : "false");
+                        resItem = resItem.Replace("#TAG#", isTag == true ? "Tag" : "");
+                        resItem = resItem.Replace("#COPYABLE#", isCopyable == true ? "Copyable" : "");
+                        resItem = resItem.Replace("#UNMANAGED#", isUnmanaged == true ? "Unmanaged" : "");
+                        resItem = resItem.Replace("#BLITTABLE#", isBlittable == true ? "Blittable" : "");
+                        resItem = resItem.Replace("#DISPOSABLE#", isDisposable == true ? "Disposable" : "");
+                        resItem = resItem.Replace("#ONESHOT#", isOneShot == true ? "OneShot" : "");
+                        resItem = resItem.Replace("#CONTAINER#", isOneShot == true ? "noState.storage" : "state.structComponents");
+                        resItem = resItem.Replace("#ALLOCATOR_FIRST_TYPE#", isUnmanaged == true ? "ref state.allocator, " : "");
+                        resItem = resItem.Replace("\r\n", "\n");
+
                         /*
-                        resItem2 = resItem2.Replace("#PROJECTNAME#", asmName);
-                        resItem2 = resItem2.Replace("#STATENAME#", asmName + "State");
-                        resItem2 = resItem2.Replace("#ISVERSIONED#", isVersioned == true ? "true" : "false");
-                        resItem2 = resItem2.Replace("#ISVERSIONED_NOSTATE#", isVersionedNoState == true ? "true" : "false");
-                        resItem2 = resItem2.Replace("#ISCOPYABLE#", isCopyable == true ? "true" : "false");
-                        resItem2 = resItem2.Replace("#ISDISPOSABLE#", isDisposable == true ? "true" : "false");
+                        resItem = resItem.Replace("#PROJECTNAME#", asmName);
+                        resItem = resItem.Replace("#STATENAME#", asmName + "State");
+                        resItem = resItem.Replace("#ISVERSIONED#", isVersioned == true ? "true" : "false");
+                        resItem = resItem.Replace("#ISVERSIONED_NOSTATE#", isVersionedNoState == true ? "true" : "false");
+                        resItem = resItem.Replace("#ISCOPYABLE#", isCopyable == true ? "true" : "false");
+                        resItem = resItem.Replace("#ISDISPOSABLE#", isDisposable == true ? "true" : "false");
                         */
-                        
-                        linesOutput2.Add(resItem2);
+
+                        linesOutput.Add(resItem);
+
+                        if (itemStr2 != null) {
+
+                            var resItem2 = itemStr2;
+                            resItem2 = resItem2.Replace("#TYPENAME#", entityType);
+                            resItem2 = resItem2.Replace("#ISTAG#", hasFields == true ? "false" : "true");
+                            resItem2 = resItem2.Replace("#ISSHARED#", isShared == true ? "true" : "false");
+                            resItem2 = resItem2.Replace("#ISSIMPLE#", isSimple == true ? "true" : "false");
+                            resItem2 = resItem2.Replace("#ISDISPOSABLE#", isDisposable == true ? "true" : "false");
+                            resItem2 = resItem2.Replace("#ISBLITTABLE#", isUnmanaged == true || isBlittable == true ? "true" : "false");
+                            resItem2 = resItem2.Replace("#TAG#", isTag == true ? "Tag" : "");
+                            resItem2 = resItem2.Replace("#COPYABLE#", isCopyable == true ? "Copyable" : "");
+                            resItem2 = resItem2.Replace("#UNMANAGED#", isUnmanaged == true ? "Unmanaged" : "");
+                            resItem2 = resItem2.Replace("#BLITTABLE#", isBlittable == true ? "Blittable" : "");
+                            resItem2 = resItem2.Replace("#DISPOSABLE#", isDisposable == true ? "Disposable" : "");
+                            resItem2 = resItem2.Replace("#ONESHOT#", isOneShot == true ? "OneShot" : "");
+                            resItem2 = resItem2.Replace("#CONTAINER#", isOneShot == true ? "noState.storage" : "state.structComponents");
+                            resItem2 = resItem2.Replace("\r\n", "\n");
+
+                            /*
+                            resItem2 = resItem2.Replace("#PROJECTNAME#", asmName);
+                            resItem2 = resItem2.Replace("#STATENAME#", asmName + "State");
+                            resItem2 = resItem2.Replace("#ISVERSIONED#", isVersioned == true ? "true" : "false");
+                            resItem2 = resItem2.Replace("#ISVERSIONED_NOSTATE#", isVersionedNoState == true ? "true" : "false");
+                            resItem2 = resItem2.Replace("#ISCOPYABLE#", isCopyable == true ? "true" : "false");
+                            resItem2 = resItem2.Replace("#ISDISPOSABLE#", isDisposable == true ? "true" : "false");
+                            */
+
+                            linesOutput2.Add(resItem2);
+
+                        }
 
                     }
 
@@ -456,8 +560,10 @@ namespace ME.ECSEditor {
                         resItem3 = resItem3.Replace("#TYPENAME#", entityType);
                         resItem3 = resItem3.Replace("#ISTAG#", hasFields == true ? "false" : "true");
                         resItem3 = resItem3.Replace("#ISSHARED#", isShared == true ? "true" : "false");
-                        resItem3 = resItem3.Replace("#ISCOPYABLE#", isCopyable == true ? "true" : "false");
+                        resItem3 = resItem3.Replace("#ISSIMPLE#", isSimple == true ? "true" : "false");
                         resItem3 = resItem3.Replace("#ISDISPOSABLE#", isDisposable == true ? "true" : "false");
+                        resItem3 = resItem3.Replace("#ISBLITTABLE#", isUnmanaged == true || isBlittable == true ? "true" : "false");
+                        resItem3 = resItem3.Replace("#ISCOPYABLE#", isCopyable == true ? "true" : "false");
                         resItem3 = resItem3.Replace("#ISONESHOT#", isOneShot == true ? "true" : "false");
                         resItem3 = resItem3.Replace("#ISVERSIONED#", isVersioned == true ? "true" : "false");
                         resItem3 = resItem3.Replace("#ISVERSIONED_NOSTATE#", isVersionedNoState == true ? "true" : "false");
@@ -473,7 +579,7 @@ namespace ME.ECSEditor {
                         linesOutput3.Add(resItem3);
 
                     }
-                    
+
                 }
 
                 output = string.Join(string.Empty, linesOutput);
@@ -484,6 +590,8 @@ namespace ME.ECSEditor {
                                                         new Dictionary<string, string>() { { "CONTENT", output }, { "CONTENT2", output2 }, { "CONTENT3", output3 } }, false) == true) {
 
                     UnityEngine.Debug.Log($"{Generator.FILE_NAME} successfully refreshed at path {asmNamePath}");
+                    onGenerate?.Invoke(asmNamePath);
+                    ViewGenerator.Generate(asmNamePath);
 
                 }
 
@@ -493,35 +601,60 @@ namespace ME.ECSEditor {
 
         }
 
-        private static bool HasManagedTypes(System.Type type, out System.Reflection.FieldInfo failedFieldInfo) {
+        public static bool IsUnmanaged(System.Type type) {
+            
+            bool answer;
+
+            if (type.IsPointer == false && !type.IsValueType) {
+                // not a struct -> false
+                answer = false;
+            } else if (type.IsPrimitive || type.IsPointer || type.IsEnum) {
+                // primitive, pointer or enum -> true
+                answer = true;
+            } else {
+                // otherwise check recursively
+                answer = type
+                         .GetFields(System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Public)
+                         .All(f => IsUnmanaged(f.FieldType));
+            }
+
+            return answer;
+            
+        }
+        
+        private static bool HasManagedTypes(System.Type type, bool checkForBlittable, out System.Reflection.FieldInfo failedFieldInfo) {
 
             failedFieldInfo = null;
+            if (type.IsPointer == true) return false;
+            if (type.IsPrimitive == true) return false;
             //if (Unity.Collections.LowLevel.Unsafe.UnsafeUtility.IsBlittable(type) == true) return false;
 
-            var fields = type.GetFields(System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.Public);
+            var fields = type.GetFields(System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.NonPublic);
             foreach (var field in fields) {
 
                 var attrs = field.GetCustomAttributes(typeof(ME.ECS.GeneratorIgnoreManagedType), true);
-                if (attrs.Length > 0) continue;
+                if (checkForBlittable == false && attrs.Length > 0) continue;
 
                 var itemType = field.FieldType;
-                if (itemType == typeof(string)) continue;
-                
+                if (checkForBlittable == false && itemType == typeof(string)) continue;
+                if (itemType.IsPointer == true) continue;
+                if (itemType.IsPrimitive == true) continue;
+
                 attrs = itemType.GetCustomAttributes(typeof(ME.ECS.GeneratorIgnoreManagedType), true);
-                if (attrs.Length > 0) continue;
+                if (checkForBlittable == false && attrs.Length > 0) continue;
                 
                 if (itemType.IsClass == true ||
                     itemType.IsInterface == true ||
                     itemType.IsArrayOrList() == true) {
                     
-                    if (typeof(UnityEngine.Object).IsAssignableFrom(itemType) == true) continue;
+                    if (checkForBlittable == false && typeof(UnityEngine.Object).IsAssignableFrom(itemType) == true) continue;
 
                     failedFieldInfo = field;
                     return true;
                     
                 } else {
 
-                    if (Generator.HasManagedTypes(itemType, out failedFieldInfo) == true) return true;
+                    if (Generator.HasManagedTypes(itemType, checkForBlittable, out failedFieldInfo) == true) return true;
 
                 }
 

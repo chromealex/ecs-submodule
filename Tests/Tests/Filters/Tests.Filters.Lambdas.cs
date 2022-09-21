@@ -1,10 +1,9 @@
-
+#if !FILTERS_LAMBDA_DISABLED
 namespace ME.ECS.Tests {
 
-    #if FILTERS_STORAGE_ARCHETYPES
     public class Tests_Filters_Lambdas {
 
-        public struct TestComponent : IStructComponent {
+        public struct TestComponent : IComponent {
 
             public int value;
 
@@ -197,10 +196,10 @@ namespace ME.ECS.Tests {
 
             TestsHelper.Do((w) => {
                 
-                WorldUtilities.InitComponentTypeId<TestComponent>(false);
+                WorldUtilities.InitComponentTypeId<TestComponent>(false, isBlittable: true);
                 ComponentsInitializerWorld.Setup((e) => {
                             
-                    e.ValidateData<TestComponent>();
+                    e.ValidateDataUnmanaged<TestComponent>();
                             
                 });
                 
@@ -218,10 +217,10 @@ namespace ME.ECS.Tests {
 
             TestsHelper.Do((w) => {
                 
-                WorldUtilities.InitComponentTypeId<TestComponent>(false);
+                WorldUtilities.InitComponentTypeId<TestComponent>(false, isBlittable: true);
                 ComponentsInitializerWorld.Setup((e) => {
                             
-                    e.ValidateData<TestComponent>();
+                    e.ValidateDataUnmanaged<TestComponent>();
                             
                 });
                 
@@ -239,10 +238,10 @@ namespace ME.ECS.Tests {
 
             TestsHelper.Do((w) => {
                 
-                WorldUtilities.InitComponentTypeId<TestComponent>(false);
+                WorldUtilities.InitComponentTypeId<TestComponent>(false, isBlittable: true);
                 ComponentsInitializerWorld.Setup((e) => {
                             
-                    e.ValidateData<TestComponent>();
+                    e.ValidateDataUnmanaged<TestComponent>();
                             
                 });
                 
@@ -260,10 +259,10 @@ namespace ME.ECS.Tests {
 
             TestsHelper.Do((w) => {
                 
-                WorldUtilities.InitComponentTypeId<TestComponent>(false);
+                WorldUtilities.InitComponentTypeId<TestComponent>(false, isBlittable: true);
                 ComponentsInitializerWorld.Setup((e) => {
                             
-                    e.ValidateData<TestComponent>();
+                    e.ValidateDataUnmanaged<TestComponent>();
                             
                 });
                 
@@ -277,6 +276,6 @@ namespace ME.ECS.Tests {
         }
 
     }
-    #endif
 
 }
+#endif

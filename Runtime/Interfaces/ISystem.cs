@@ -1,71 +1,11 @@
 namespace ME.ECS {
 
-    public interface IContext {}
-    
-    public interface ILoadableSystem : IContext {
-
-        void Load(System.Action onComplete);
-
-    }
-    
-    public interface ILoadableSync {}
-    
     public interface ISystemBase : IContext {
         
         World world { get; set; }
         
         void OnConstruct();
         void OnDeconstruct();
-
-    }
-
-    public interface IAdvanceTickBase : IContext { }
-    
-    public interface IAdvanceTickStep : IContext {
-
-        Tick step { get; }
-
-    }
-
-    public interface IAdvanceTick : IAdvanceTickBase {
-
-        void AdvanceTick(in float deltaTime);
-
-    }
-
-    public interface IAdvanceTickPost : IContext {
-
-        void AdvanceTickPost(in float deltaTime);
-
-    }
-
-    public interface IAdvanceTickPre : IContext {
-
-        void AdvanceTickPre(in float deltaTime);
-
-    }
-
-    public interface IUpdate : IContext {
-
-        void Update(in float deltaTime);
-
-    }
-
-    public interface IUpdatePreLate : IContext {
-
-        void UpdatePreLate(in float deltaTime);
-
-    }
-
-    public interface IDrawGizmos {
-
-        void OnDrawGizmos();
-
-    }
-
-    public interface IUpdatePost : IContext {
-
-        void UpdatePost(in float deltaTime);
 
     }
 

@@ -18,6 +18,42 @@ namespace ME.ECS {
             DebugAndRelease,
         }
 
+        public enum CodeSize {
+
+            Unknown = 0,
+            /// <summary>
+            /// Has static size without generics
+            /// </summary>
+            Light,
+            /// <summary>
+            /// Depends on components count, but contains not heavy/doesn't contains any generic instructions
+            /// </summary>
+            Normal,
+            /// <summary>
+            /// Depends on components count and contains heavy generic instructions
+            /// </summary>
+            Heavy,
+
+        }
+
+        public enum RuntimeSpeed {
+
+            Unknown = 0,
+            /// <summary>
+            /// Has no additional instructions at all at runtime 
+            /// </summary>
+            Light,
+            /// <summary>
+            /// Has additional light-weight instructions at runtime
+            /// </summary>
+            Normal,
+            /// <summary>
+            /// Has heavy instructions every tick
+            /// </summary>
+            Heavy,
+
+        }
+
         public struct DefineInfo {
 
             public string define;
@@ -25,14 +61,22 @@ namespace ME.ECS {
             public System.Func<bool> isActive;
             public bool showInList;
             public ConfigurationType configurationType;
+            public CodeSize codeSize;
+            public RuntimeSpeed runtimeSpeed;
+            public bool actualValue;
+            public string deprecatedVersion;
 
-            public DefineInfo(string define, string description, System.Func<bool> isActive, bool showInList, ConfigurationType configurationType) {
+            public DefineInfo(bool actualValue, string define, string description, System.Func<bool> isActive, bool showInList, ConfigurationType configurationType, CodeSize codeSize, RuntimeSpeed runtimeSpeed, string deprecatedVersion = null) {
 
+                this.actualValue = actualValue;
                 this.define = define;
                 this.description = description;
                 this.isActive = isActive;
                 this.showInList = showInList;
                 this.configurationType = configurationType;
+                this.codeSize = codeSize;
+                this.runtimeSpeed = runtimeSpeed;
+                this.deprecatedVersion = deprecatedVersion;
 
             }
 
@@ -46,7 +90,13 @@ namespace ME.ECS {
 
                 public bool enabled;
                 public string name;
-                
+
+                public bool IsActualEnabled(DefineInfo defineInfo) {
+
+                    return this.enabled == defineInfo.actualValue;
+
+                }
+
             }
 
             public string name;
@@ -54,6 +104,31 @@ namespace ME.ECS {
             public ConfigurationType configurationType;
             public System.Collections.Generic.List<Define> defines;
 
+            public bool Contains(DefineInfo info) {
+
+                foreach (var item in this.defines) {
+                    if (item.name == info.define) {
+                        return true;
+                    }
+                }
+
+                return false;
+
+            }
+
+            public void Remove(DefineInfo info) {
+
+                for (int i = 0; i < this.defines.Count; ++i) {
+
+                    if (this.defines[i].name == info.define) {
+                        this.defines.RemoveAt(i);
+                        return;
+                    }
+                    
+                }
+                
+            }
+            
             public bool Add(DefineInfo info) {
 
                 if (this.configurationType == ConfigurationType.DebugOnly &&
@@ -137,44 +212,37 @@ namespace ME.ECS {
         public System.Collections.Generic.List<Configuration> configurations = new System.Collections.Generic.List<Configuration>();
         public string selectedConfiguration;
 
-        public FeaturesList featuresList = new FeaturesList();
         public FeaturesListCategories featuresListCategories = new FeaturesListCategories();
         public WorldSettings worldSettings = WorldSettings.Default;
         public WorldDebugSettings worldDebugSettings = WorldDebugSettings.Default;
         public EndOfBaseClass endOfBaseClass;
 
-        protected virtual void OnValidate() {
-
-            if (this.featuresList.features.Count > 0 && this.featuresListCategories.items.Count == 0) {
-
-                this.ConvertVersionFrom1To2();
-
-            }
-
-        }
-
-        public void ConvertVersionFrom1To2() {
-            
-            this.featuresListCategories.items = new List<FeaturesListCategory>() {
-                new FeaturesListCategory() {
-                    features = new FeaturesList() { features = this.featuresList.features.ToList() }
-                }
-            };
-            this.featuresList = new FeaturesList();
-
-        }
+        public delegate void InitializeSceneCallback(World world, bool callLateInitialization);
+        private static InitializeSceneCallback initializeSceneCallback;
         
-        protected void Initialize(World world) {
+        public static void RegisterSceneCallback(InitializeSceneCallback initializeSceneCallback) {
+
+            InitializerBase.initializeSceneCallback += initializeSceneCallback;
+
+        }
+
+        protected void Initialize(World world, bool callLateInitialization = true) {
 
             world.SetSettings(this.worldSettings);
             world.SetDebugSettings(this.worldDebugSettings);
-            this.InitializeFeatures(world);
+            world.TryInitializeDefaults();
+
+            // Initialize features
+            this.InitializeFeatures(world, callLateInitialization);
             
+            // Initialize scene
+            InitializerBase.initializeSceneCallback?.Invoke(world, callLateInitialization);
+
         }
 
-        protected void InitializeFeatures(World world) {
+        protected void InitializeFeatures(World world, bool callLateInitialization) {
 
-            this.featuresListCategories.Initialize(world);
+            this.featuresListCategories.Initialize(world, callLateInitialization);
 
         }
 

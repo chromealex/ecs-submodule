@@ -9,7 +9,7 @@ public class FAQWindow : EditorWindow {
 
     private bool isUpdated;
     
-    [MenuItem("ME.ECS/F.A.Q.")]
+    [MenuItem("ME.ECS/ℚ F.A.Q.", priority = 10004)]
     public static void Open() {
 
         var win = QuickStartWindow.CreateInstance<FAQWindow>();

@@ -16,6 +16,7 @@
 
         internal ListCopyable<ISystemBase> allSystems;
         internal ListCopyable<IUpdate> systemUpdates;
+        internal ListCopyable<IUpdateLate> systemUpdatesLate;
         internal ListCopyable<IUpdatePost> systemUpdatesPost;
         internal ListCopyable<ILoadableSystem> systemLoadable;
         internal ListCopyable<IAdvanceTickBase> systemAdvanceTick;
@@ -42,6 +43,13 @@
 
             {
                 var arr = this.systemUpdates;
+                if ((state & RuntimeSystemFlag.Visual) != 0 && arr != null) {
+                    for (int i = 0; i < arr.Count; ++i) if (arr[i] == system) return true;
+                }
+            }
+
+            {
+                var arr = this.systemUpdatesLate;
                 if ((state & RuntimeSystemFlag.Visual) != 0 && arr != null) {
                     for (int i = 0; i < arr.Count; ++i) if (arr[i] == system) return true;
                 }
@@ -90,6 +98,13 @@
 
             {
                 var arr = this.systemUpdates;
+                if ((state & RuntimeSystemFlag.Visual) != 0 && arr != null) {
+                    for (int i = 0; i < arr.Count; ++i) if (arr[i] is T) return true;
+                }
+            }
+
+            {
+                var arr = this.systemUpdatesLate;
                 if ((state & RuntimeSystemFlag.Visual) != 0 && arr != null) {
                     for (int i = 0; i < arr.Count; ++i) if (arr[i] is T) return true;
                 }
@@ -147,6 +162,12 @@
                 }
             }
             {
+                if ((state & RuntimeSystemFlag.Visual) != 0 && system is IUpdateLate systemTyped) {
+                    if (this.systemUpdatesLate == null) this.systemUpdatesLate = PoolListCopyable<IUpdateLate>.Spawn(4);
+                    this.systemUpdatesLate.Add(systemTyped);
+                }
+            }
+            {
                 if ((state & RuntimeSystemFlag.Visual) != 0 && system is IUpdatePost systemTyped) {
                     if (this.systemUpdatesPost == null) this.systemUpdatesPost = PoolListCopyable<IUpdatePost>.Spawn(4);
                     this.systemUpdatesPost.Add(systemTyped);
@@ -190,6 +211,12 @@
                 if ((state & RuntimeSystemFlag.Visual) != 0 && system is IUpdate systemTyped) {
                     if (this.systemUpdates == null) this.systemUpdates = PoolListCopyable<IUpdate>.Spawn(4);
                     this.systemUpdates.Remove(systemTyped);
+                }
+            }
+            {
+                if ((state & RuntimeSystemFlag.Visual) != 0 && system is IUpdateLate systemTyped) {
+                    if (this.systemUpdatesLate == null) this.systemUpdatesLate = PoolListCopyable<IUpdateLate>.Spawn(4);
+                    this.systemUpdatesLate.Remove(systemTyped);
                 }
             }
             {
@@ -251,6 +278,7 @@
             
             if (this.allSystems != null) PoolListCopyable<ISystemBase>.Recycle(ref this.allSystems);
             if (this.systemUpdates != null) PoolListCopyable<IUpdate>.Recycle(ref this.systemUpdates);
+            if (this.systemUpdatesLate != null) PoolListCopyable<IUpdateLate>.Recycle(ref this.systemUpdatesLate);
             if (this.systemUpdatesPost != null) PoolListCopyable<IUpdatePost>.Recycle(ref this.systemUpdatesPost);
             if (this.systemLoadable != null) PoolListCopyable<ILoadableSystem>.Recycle(ref this.systemLoadable);
             if (this.systemAdvanceTick != null) PoolListCopyable<IAdvanceTickBase>.Recycle(ref this.systemAdvanceTick);

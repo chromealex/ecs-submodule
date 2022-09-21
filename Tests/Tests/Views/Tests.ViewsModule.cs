@@ -5,7 +5,7 @@ namespace ME.ECS.Tests {
 
         private class TestState : State {}
 
-        public struct HasView : IStructComponentBase {} 
+        public struct HasView : IComponentBase {} 
 
         private class TestSystem : ISystem, IAdvanceTick {
 
@@ -53,8 +53,9 @@ namespace ME.ECS.Tests {
                 world.SetSeed(1u);
                 {
                     ref var str = ref world.GetStructComponents();
+                    ref var str2 = ref world.GetNoStateData();
                     CoreComponentsInitializer.InitTypeId();
-                    CoreComponentsInitializer.Init(ref str);
+                    CoreComponentsInitializer.Init(world.GetState(), ref str2);
                     WorldUtilities.InitComponentTypeId<HasView>();
                     str.Validate<HasView>();
                     testEntity = new Entity("Test");

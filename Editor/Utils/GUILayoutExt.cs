@@ -1,9 +1,17 @@
+#if FIXED_POINT_MATH
+using ME.ECS.Mathematics;
+using tfloat = sfloat;
+#else
+using Unity.Mathematics;
+using tfloat = System.Single;
+#endif
 using UnityEngine;
 using UnityEditor;
 using System;
 using System.IO;
 using System.Linq;
 using System.CodeDom.Compiler;
+using System.Text.RegularExpressions;
 
 namespace ME.ECSEditor {
     
@@ -123,6 +131,27 @@ namespace ME.ECSEditor {
 
 	    }
 
+        public struct GUIAlphaMulUsing : IDisposable {
+
+            private Color oldColor;
+
+            public GUIAlphaMulUsing(float alpha) {
+
+                this.oldColor = GUI.color;
+                var c = this.oldColor;
+                c.a *= alpha;
+                GUI.color = c;
+
+            }
+		    
+            public void Dispose() {
+
+                GUI.color = this.oldColor;
+
+            }
+
+        }
+
 	    public struct GUIBackgroundAlphaUsing : IDisposable {
 
 		    private Color oldColor;
@@ -192,24 +221,44 @@ namespace ME.ECSEditor {
 		    
 	    }
 
-	    public static void ProgressBar(float value, float max, Color back, Color fill, bool drawLabel = false) {
+        public static void ProgressBar(float value, float max, Color back, Color fill, bool drawLabel = false) {
 
-		    var progress = value / max;
-		    var lineHeight = (drawLabel == true ? 8f : 4f);
-		    Rect rect = EditorGUILayout.GetControlRect(false, lineHeight);
-		    rect.height = lineHeight;
-		    var fillRect = rect;
-		    fillRect.width = progress * rect.width;
-		    EditorGUI.DrawRect(rect, back);
-		    EditorGUI.DrawRect(fillRect, fill);
+            var progress = value / max;
+            var lineHeight = (drawLabel == true ? 8f : 4f);
+            Rect rect = EditorGUILayout.GetControlRect(false, lineHeight);
+            rect.height = lineHeight;
+            var fillRect = rect;
+            fillRect.width = progress * rect.width;
+            EditorGUI.DrawRect(rect, back);
+            EditorGUI.DrawRect(fillRect, fill);
 
-		    if (drawLabel == true) {
+            if (drawLabel == true) {
 			    
-			    EditorGUI.LabelField(rect, string.Format("{0}/{1}", value, max), EditorStyles.centeredGreyMiniLabel);
+                EditorGUI.LabelField(rect, string.Format("{0}/{1}", value, max), EditorStyles.centeredGreyMiniLabel);
 			    
-		    }
+            }
 
-	    }
+        }
+
+        public static void ProgressBar(float value, float max, Color back, Color fill, Color fillTo, GUIContent label) {
+
+            var progress = value / max;
+            var lineHeight = 2f;
+            Rect rect = EditorGUILayout.GetControlRect(false, lineHeight);
+            rect.height = lineHeight;
+            var fillRect = rect;
+            fillRect.width = progress * rect.width;
+            EditorGUI.DrawRect(rect, back);
+            EditorGUI.DrawRect(fillRect, Color.Lerp(fill, fillTo, value / max));
+
+            var labelRect = rect;
+            labelRect.height = 12f;
+            labelRect.y += lineHeight;
+            var style = new GUIStyle(EditorStyles.miniLabel);
+            style.fontSize = 6;
+            EditorGUI.LabelField(labelRect, label, style);
+
+        }
 
 	    public static Entity DrawEntitySelection(World world, in Entity entity, bool checkAlive, bool drawSelectButton = true) {
 		    
@@ -247,7 +296,7 @@ namespace ME.ECSEditor {
 
 	    }
 	    
-	    public static void DrawAddEntityMenu(ME.ECS.Debug.EntityDebugComponent entityDebugComponent) {
+	    public static void DrawAddEntityMenu(ME.ECS.DebugUtils.EntityDebugComponent entityDebugComponent) {
             
             EditorGUILayout.BeginHorizontal();
             GUILayout.FlexibleSpace();
@@ -315,79 +364,20 @@ namespace ME.ECSEditor {
 	    private static System.Type[] allStructComponentsWithoutRuntime;
 	    private static System.Type[] allStructComponents;
 
-	    public static void DrawManageDataConfigTemplateMenu(System.Collections.Generic.HashSet<ME.ECS.DataConfigs.DataConfigTemplate> usedComponents, System.Action<ME.ECS.DataConfigs.DataConfigTemplate, bool> onAdd) {
-		    
-            EditorGUILayout.BeginHorizontal();
-            GUILayout.FlexibleSpace();
-            GUIStyle style = new GUIStyle(GUI.skin.button);
-            style.fontSize = 12;
-            style.fixedWidth = 230;
-            style.fixedHeight = 23;
- 
-            var rect = GUILayoutUtility.GetLastRect();
- 
-            if (GUILayout.Button("Manage Templates", style)) {
-                
-                rect.y += 26f;
-                rect.x += rect.width;
-                rect.width = style.fixedWidth;
-                
-                var v2 = GUIUtility.GUIToScreenPoint(new Vector2(rect.x, rect.y));
-                rect.x = v2.x;
-                rect.y = v2.y;
-                rect.height = 320f;
-                
-                var popup = new Popup() {
-	                title = "Components",
-	                autoHeight = false,
-	                screenRect = rect,
-	                searchText = string.Empty,
-	                separator = '.',
-	                
-                };
-                var arr = AssetDatabase.FindAssets("t:DataConfigTemplate");
-                foreach (var guid in arr) {
-
-	                var path = AssetDatabase.GUIDToAssetPath(guid);
-	                var template = AssetDatabase.LoadAssetAtPath<ME.ECS.DataConfigs.DataConfigTemplate>(path);
-	                var isUsed = usedComponents.Contains(template);
-	                var caption = template.name;
-
-	                System.Action<PopupWindowAnim.PopupItem> onItemSelect = (item) => {
-		                
-		                isUsed = usedComponents.Contains(template);
-		                onAdd.Invoke(template, isUsed);
-		                
-		                isUsed = usedComponents.Contains(template);
-		                var tex = isUsed == true ? EditorStyles.toggle.onNormal.scaledBackgrounds[0] : EditorStyles.toggle.normal.scaledBackgrounds[0];
-		                item.image = tex;
-		                
-	                };
-	                
-	                if (isUsed == true) popup.Item("Used." + caption, isUsed == true ? EditorStyles.toggle.onNormal.scaledBackgrounds[0] : EditorStyles.toggle.normal.scaledBackgrounds[0], onItemSelect, searchable: false);
-	                popup.Item(caption, isUsed == true ? EditorStyles.toggle.onNormal.scaledBackgrounds[0] : EditorStyles.toggle.normal.scaledBackgrounds[0], onItemSelect);
-
-                }
-                popup.Show();
-
-            }
-            GUILayout.FlexibleSpace();
-            EditorGUILayout.EndHorizontal();
- 
-	    }
-
-	    public static void DrawAddComponentMenu(Rect rect, System.Collections.Generic.HashSet<System.Type> usedComponents, System.Action<System.Type, bool> onAdd, bool showRuntime) {
+	    public static void DrawAddComponentMenu(Rect rect, System.Collections.Generic.HashSet<System.Type> usedComponents, System.Action<System.Type, bool> onAdd, bool showRuntime, string caption = "Edit Components", System.Predicate<System.Type> where = null) {
 		    
             GUIStyle style = new GUIStyle(GUI.skin.button);
             style.fontSize = 12;
-            style.fixedWidth = 130f;
-            style.fixedHeight = 23f;
+            style.fixedWidth = 180f;
+            style.fixedHeight = 28f;
 
             var offset = (rect.width - style.fixedWidth) * 0.5f;
+            var h = rect.height;
             rect.width = style.fixedWidth;
             rect.height = style.fixedHeight;
             rect.x += offset;
-            if (GUI.Button(rect, "Edit Components", style)) {
+            rect.y += (h - rect.height) * 0.5f;
+            if (GUI.Button(rect, caption, style)) {
                 
                 rect.y += 26f;
                 rect.x += rect.width;
@@ -400,7 +390,7 @@ namespace ME.ECSEditor {
 	                                                            .SelectMany(x => x.GetTypes())
 	                                                            .Where(x => 
 		                                                                   x.IsValueType == true &&
-		                                                                   typeof(IStructComponentBase).IsAssignableFrom(x) == true
+		                                                                   typeof(IComponentBase).IsAssignableFrom(x) == true
 	                                                            )
 	                                                            .ToArray();
 
@@ -412,7 +402,7 @@ namespace ME.ECSEditor {
 	                                                                          .SelectMany(x => x.GetTypes())
 	                                                                          .Where(x => 
 		                                                                                 x.IsValueType == true &&
-		                                                                                 typeof(IStructComponentBase).IsAssignableFrom(x) == true &&
+		                                                                                 typeof(IComponentBase).IsAssignableFrom(x) == true &&
 		                                                                                 typeof(IComponentRuntime).IsAssignableFrom(x) == false
 	                                                                          )
 	                                                                          .ToArray();
@@ -426,16 +416,17 @@ namespace ME.ECSEditor {
                 rect.y = v2.y;
                 rect.width = 230f;
                 rect.height = 320f;
-                
+
+                var count = 0;
                 var popup = new Popup() {
 	                title = "Components",
 	                autoHeight = false,
 	                screenRect = rect,
 	                searchText = string.Empty,
 	                separator = '.',
-	                
                 };
                 var arr = showRuntime == true ? GUILayoutExt.allStructComponents : GUILayoutExt.allStructComponentsWithoutRuntime;
+                if (where != null) arr = arr.Where(x => where.Invoke(x)).ToArray();
                 foreach (var type in arr) {
 
 	                var isUsed = usedComponents.Contains(type);
@@ -486,26 +477,34 @@ namespace ME.ECSEditor {
 	                
 	                if (isUsed == true) popup.Item("Used." + type.Name, isUsed == true ? EditorStyles.toggle.onNormal.scaledBackgrounds[0] : EditorStyles.toggle.normal.scaledBackgrounds[0], onItemSelect, searchable: false);
 	                popup.Item(fixName, isUsed == true ? EditorStyles.toggle.onNormal.scaledBackgrounds[0] : EditorStyles.toggle.normal.scaledBackgrounds[0], onItemSelect);
+	                ++count;
 
                 }
-                popup.Show();
+
+                if (count == 0) {
+
+	                EditorWindow.focusedWindow.ShowNotification(new GUIContent("There are no components of this type"), 1f);
+
+                } else {
+	                popup.Show();
+                }
 
             }
  
 	    }
 
-	    public static void DrawAddComponentMenu(System.Collections.Generic.HashSet<System.Type> usedComponents, System.Action<System.Type, bool> onAdd, bool showRuntime) {
+	    public static void DrawAddComponentMenu(System.Collections.Generic.HashSet<System.Type> usedComponents, System.Action<System.Type, bool> onAdd, bool showRuntime, string caption = "Edit Components", System.Predicate<System.Type> where = null) {
 		    
             EditorGUILayout.BeginHorizontal();
             GUILayout.FlexibleSpace();
             GUIStyle style = new GUIStyle(GUI.skin.button);
             style.fontSize = 12;
             style.fixedWidth = 230;
-            style.fixedHeight = 23;
+            style.fixedHeight = 28;
  
             var rect = GUILayoutUtility.GetLastRect();
  
-            if (GUILayout.Button("Edit Components", style)) {
+            if (GUILayout.Button(caption, style)) {
                 
                 rect.y += 26f;
                 rect.x += rect.width;
@@ -518,7 +517,7 @@ namespace ME.ECSEditor {
 	                                                            .SelectMany(x => x.GetTypes())
 	                                                            .Where(x => 
 		                                                                   x.IsValueType == true &&
-		                                                                   typeof(IStructComponentBase).IsAssignableFrom(x) == true
+		                                                                   typeof(IComponentBase).IsAssignableFrom(x) == true
 	                                                            )
 	                                                            .ToArray();
 
@@ -530,7 +529,7 @@ namespace ME.ECSEditor {
 	                                                                          .SelectMany(x => x.GetTypes())
 	                                                                          .Where(x => 
 		                                                                                 x.IsValueType == true &&
-		                                                                                 typeof(IStructComponentBase).IsAssignableFrom(x) == true &&
+		                                                                                 typeof(IComponentBase).IsAssignableFrom(x) == true &&
 		                                                                                 typeof(IComponentRuntime).IsAssignableFrom(x) == false
 	                                                                          )
 	                                                                          .ToArray();
@@ -553,6 +552,8 @@ namespace ME.ECSEditor {
 	                
                 };
                 var arr = showRuntime == true ? GUILayoutExt.allStructComponents : GUILayoutExt.allStructComponentsWithoutRuntime;
+                if (where != null) arr = arr.Where(x => where.Invoke(x)).ToArray();
+                var count = 0;
                 foreach (var type in arr) {
 
 	                var isUsed = usedComponents.Contains(type);
@@ -603,14 +604,143 @@ namespace ME.ECSEditor {
 	                
 	                if (isUsed == true) popup.Item("Used." + type.Name, isUsed == true ? EditorStyles.toggle.onNormal.scaledBackgrounds[0] : EditorStyles.toggle.normal.scaledBackgrounds[0], onItemSelect, searchable: false);
 	                popup.Item(fixName, isUsed == true ? EditorStyles.toggle.onNormal.scaledBackgrounds[0] : EditorStyles.toggle.normal.scaledBackgrounds[0], onItemSelect);
+	                ++count;
 
                 }
-                popup.Show();
+                
+                if (count == 0) {
+
+	                EditorWindow.focusedWindow.ShowNotification(new GUIContent("There are no components of this type"), 1f);
+
+                } else {
+	                popup.Show();
+                }
+
 
             }
             GUILayout.FlexibleSpace();
             EditorGUILayout.EndHorizontal();
  
+	    }
+	    
+	    public static UnityEngine.UIElements.Button DrawAddComponentMenu(UnityEngine.UIElements.VisualElement container, System.Collections.Generic.HashSet<System.Type> usedComponents, System.Action<System.Type, bool> onAdd, bool showRuntime, string caption = "Edit Components", System.Predicate<System.Type> where = null) {
+		    
+		    var button = new UnityEngine.UIElements.Button();
+		    button.text = caption;
+		    button.RegisterCallback<UnityEngine.UIElements.ClickEvent>(evt => {
+			    
+			    if (GUILayoutExt.allStructComponents == null) {
+
+	                GUILayoutExt.allStructComponents = AppDomain.CurrentDomain.GetAssemblies()
+	                                                            .SelectMany(x => x.GetTypes())
+	                                                            .Where(x => 
+		                                                                   x.IsValueType == true &&
+		                                                                   typeof(IComponentBase).IsAssignableFrom(x) == true
+	                                                            )
+	                                                            .ToArray();
+
+                }
+
+                if (GUILayoutExt.allStructComponentsWithoutRuntime == null) {
+
+	                GUILayoutExt.allStructComponentsWithoutRuntime = AppDomain.CurrentDomain.GetAssemblies()
+	                                                                          .SelectMany(x => x.GetTypes())
+	                                                                          .Where(x => 
+		                                                                                 x.IsValueType == true &&
+		                                                                                 typeof(IComponentBase).IsAssignableFrom(x) == true &&
+		                                                                                 typeof(IComponentRuntime).IsAssignableFrom(x) == false
+	                                                                          )
+	                                                                          .ToArray();
+
+                }
+
+                var rect = button.worldBound;
+                rect.y += button.resolvedStyle.height;
+                var v2 = GUIUtility.GUIToScreenPoint(new Vector2(rect.x, rect.y));
+                rect.x = v2.x;
+                rect.y = v2.y;
+                rect.height = 320f;
+                
+                var popup = new Popup() {
+	                title = "Components",
+	                autoHeight = false,
+	                screenRect = rect,
+	                searchText = string.Empty,
+	                separator = '.',
+	                
+                };
+                var arr = showRuntime == true ? GUILayoutExt.allStructComponents : GUILayoutExt.allStructComponentsWithoutRuntime;
+                if (where != null) arr = arr.Where(x => where.Invoke(x)).ToArray();
+                var count = 0;
+                foreach (var type in arr) {
+
+	                var isUsed = usedComponents.Contains(type);
+
+	                var addType = type;
+	                var name = type.FullName;
+	                var fixName = string.Empty;
+
+	                if (name.StartsWith("ME.ECS") == true) {
+		                
+		                var spName = name.Split('.');
+		                var p1 = spName[spName.Length - 2];
+		                var p2 = spName[spName.Length - 1];
+		                if (p1 == p2) {
+			                
+			                fixName = "ECS." + p2;
+
+		                } else {
+
+			                fixName = "ECS." + p1 + "." + p2;
+
+		                }
+
+	                } else {
+
+		                //var spName = name.Split('.');
+		                //var component = spName[spName.Length - 1];
+		                var spName = name.Split(new[] { ".Features." }, StringSplitOptions.RemoveEmptyEntries);
+		                //var rootName = spName[0];
+		                name = spName[spName.Length - 1];
+		                /*spName = name.Split(new[] { ".Components." }, StringSplitOptions.RemoveEmptyEntries);
+		                var feature = spName[0];
+						fixName = rootName + "." + feature + "." + component;*/
+		                fixName = name;
+
+	                }
+	                
+	                System.Action<PopupWindowAnim.PopupItem> onItemSelect = (item) => {
+		                
+		                isUsed = usedComponents.Contains(type);
+		                onAdd.Invoke(addType, isUsed);
+		                
+		                isUsed = usedComponents.Contains(type);
+		                var tex = isUsed == true ? EditorStyles.toggle.onNormal.scaledBackgrounds[0] : EditorStyles.toggle.normal.scaledBackgrounds[0];
+		                item.image = tex;
+		                
+	                };
+	                
+	                if (isUsed == true) popup.Item("Used." + type.Name, isUsed == true ? EditorStyles.toggle.onNormal.scaledBackgrounds[0] : EditorStyles.toggle.normal.scaledBackgrounds[0], onItemSelect, searchable: false);
+	                popup.Item(fixName, isUsed == true ? EditorStyles.toggle.onNormal.scaledBackgrounds[0] : EditorStyles.toggle.normal.scaledBackgrounds[0], onItemSelect);
+	                ++count;
+
+                }
+                
+                if (count == 0) {
+
+	                EditorWindow.focusedWindow.ShowNotification(new GUIContent("There are no components of this type"), 1f);
+
+                } else {
+	                
+	                popup.Show();
+	                
+                }
+			    
+		    });
+		    button.AddToClassList("add-component-button");
+
+		    return button;
+
 	    }
 
 	    public static void DrawAddComponentMenu(Entity entity, System.Collections.Generic.HashSet<System.Type> usedComponents, IStructComponentsContainer componentsStructStorage) {
@@ -628,15 +758,14 @@ namespace ME.ECSEditor {
 
 						    usedComponents.Remove(addType);
 						    registry.RemoveObject(entity, StorageType.Default);
-						    Worlds.currentWorld.RemoveComponentFromFilter(entity);
+						    Worlds.currentWorld.RemoveComponentFromFilter(ref Worlds.currentWorld.currentState.allocator, entity);
 
 					    } else {
 				                
 						    usedComponents.Add(addType);
-						    registry.SetObject(entity, (IStructComponentBase)System.Activator.CreateInstance(addType), StorageType.Default);
-						    Worlds.currentWorld.AddComponentToFilter(entity);
+						    registry.SetObject(entity, (IComponentBase)System.Activator.CreateInstance(addType), StorageType.Default);
 
-					    }
+                        }
 
 					    break;
 
@@ -726,29 +855,56 @@ namespace ME.ECSEditor {
 
 	    }
 
-	    public static bool IntFieldLeft(ref int state, ref bool isDirty, string caption, string text) {
+        public static bool IntFieldLeft(ref int state, ref bool isDirty, string caption, string text, int minValue = int.MinValue, int maxValue = int.MaxValue) {
 
-		    var labelRich = new GUIStyle(EditorStyles.label);
-		    labelRich.richText = true;
+            var labelRich = new GUIStyle(EditorStyles.numberField);
+            labelRich.richText = true;
 
-		    var isLocalDirty = false;
-		    GUILayout.BeginHorizontal();
-		    var flag = EditorGUILayout.IntField(state, labelRich);
-		    EditorGUILayout.LabelField(caption);
-		    GUILayout.EndHorizontal();
-		    if (flag != state) {
+            var isLocalDirty = false;
+            GUILayout.BeginHorizontal();
+            var flag = EditorGUILayout.IntField(state, labelRich);
+            EditorGUILayout.LabelField(caption);
+            GUILayout.EndHorizontal();
+            if (flag < minValue) flag = minValue;
+            if (flag > maxValue) flag = maxValue;
 
-			    isLocalDirty = true;
-			    isDirty = true;
-			    state = flag;
+            if (flag != state) {
+
+                isLocalDirty = true;
+                isDirty = true;
+                state = flag;
                         
-		    }
-		    if (string.IsNullOrEmpty(text) == false) GUILayoutExt.SmallLabel(text);
-		    EditorGUILayout.Space();
+            }
+            if (string.IsNullOrEmpty(text) == false) GUILayoutExt.SmallLabel(text);
+            EditorGUILayout.Space();
 
-		    return isLocalDirty;
+            return isLocalDirty;
 
-	    }
+        }
+
+        public static bool EnumField<T>(ref T state, ref bool isDirty, string caption, string text) where T : struct, System.Enum {
+
+            var labelRich = new GUIStyle(EditorStyles.popup);
+            labelRich.richText = true;
+
+            var isLocalDirty = false;
+            GUILayout.BeginHorizontal();
+            EditorGUILayout.LabelField(caption);
+            var newState = (T)EditorGUILayout.EnumPopup(state, labelRich);
+            GUILayout.EndHorizontal();
+            if (System.Collections.Generic.EqualityComparer<T>.Default.Equals(newState, state) == false) {
+
+                isLocalDirty = true;
+                isDirty = true;
+                state = newState;
+                        
+            }
+            if (string.IsNullOrEmpty(text) == false) GUILayoutExt.SmallLabel(text);
+            EditorGUILayout.Space();
+
+            return isLocalDirty;
+
+        }
 
         public static LayerMask DrawLayerMaskField(string label, LayerMask layerMask) {
 
@@ -935,7 +1091,7 @@ namespace ME.ECSEditor {
         }
         private static readonly System.Collections.Generic.Dictionary<int, FieldsSingleCache> fieldsSingleCache = new System.Collections.Generic.Dictionary<int, FieldsSingleCache>();
 
-        private static int GetFieldSingleCacheKey(object cacheKey, IStructComponentBase[] instances) {
+        private static int GetFieldSingleCacheKey(object cacheKey, IComponentBase[] instances) {
 	        
 	        var key = cacheKey.GetHashCode();
 	        key ^= instances.Length;
@@ -1028,7 +1184,7 @@ namespace ME.ECSEditor {
 
         }
 
-        public static bool IsSearchValid(IStructComponentBase component, string search) {
+        public static bool IsSearchValid(IComponentBase component, string search) {
 
 	        if (string.IsNullOrEmpty(search) == false) {
 
@@ -1060,7 +1216,7 @@ namespace ME.ECSEditor {
 	        
         }
 
-        public static bool DrawFieldsSingle(string search, object cacheKey, WorldEditor world, IStructComponentBase[] instances, System.Action<int, IStructComponentBase, SerializedProperty> onPropertyBegin, System.Action<int, IStructComponentBase, SerializedProperty> onPropertyEnd, System.Action<int, IStructComponentBase> onPropertyChanged = null) {
+        public static bool DrawFieldsSingle(string search, object cacheKey, WorldEditor world, IComponentBase[] instances, System.Action<int, IComponentBase, SerializedProperty> onPropertyBegin, System.Action<int, IComponentBase, SerializedProperty> onPropertyEnd, System.Action<int, IComponentBase> onPropertyChanged = null) {
 
 	        SerializedObject[] objs = null;
 	        var key = GUILayoutExt.GetFieldSingleCacheKey(cacheKey, instances);
@@ -1224,7 +1380,7 @@ namespace ME.ECSEditor {
 
 			        for (var index = 0; index < objs.Length; index++) {
 
-				        instances[index] = (IStructComponentBase)((TempObject)objs[index].targetObject).data;
+				        instances[index] = (IComponentBase)((TempObject)objs[index].targetObject).data;
 
 			        }
 
@@ -1460,7 +1616,15 @@ namespace ME.ECSEditor {
         public static string GetStringCamelCaseSpace(string caption) {
 
 	        if (string.IsNullOrEmpty(caption) == true) return string.Empty;
-	        var str = System.Text.RegularExpressions.Regex.Replace(caption, "[A-Z]", " $0").Trim();
+	        var str = Regex.Replace( 
+		        Regex.Replace( 
+			        caption, 
+			        @"(\P{Ll})(\P{Ll}\p{Ll})", 
+			        "$1 $2" 
+		        ), 
+		        @"(\p{Ll})(\P{Ll})", 
+		        "$1 $2" 
+	        ).Trim();
 	        return char.ToUpper(str[0]) + str.Substring(1);
 
         }
@@ -1488,10 +1652,13 @@ namespace ME.ECSEditor {
 	        if (type == typeof(Vector3)) return true;
 	        if (type == typeof(Vector4)) return true;
 	        if (type == typeof(Quaternion)) return true;
-            if (type == typeof(fp)) return true;
-            if (type == typeof(fp3)) return true;
-	        if (type == typeof(fp4)) return true;
-	        if (type == typeof(fp2)) return true;
+            #if FIXED_POINT_MATH
+            if (type == typeof(sfloat)) return true;
+            if (type == typeof(ME.ECS.Mathematics.quaternion)) return true;
+            if (type == typeof(ME.ECS.Mathematics.float2)) return true;
+            if (type == typeof(ME.ECS.Mathematics.float3)) return true;
+	        if (type == typeof(ME.ECS.Mathematics.float4)) return true;
+            #endif
 	        return false;
 
         }
@@ -1639,7 +1806,7 @@ namespace ME.ECSEditor {
 			            
 			            var customName = (entity.IsAlive() == true ? entity.Read<ME.ECS.Name.Name>().value : string.Empty);
 			            GUILayout.BeginVertical();
-			            GUILayout.Label(string.IsNullOrEmpty(customName) == false ? customName : "Unnamed");
+			            GUILayout.Label(string.IsNullOrEmpty(customName.Value) == false ? customName.Value : "Unnamed");
 			            GUILayout.Label(entity.ToSmallString(), EditorStyles.miniLabel);
 			            GUILayout.EndVertical();
 			            
@@ -1710,31 +1877,48 @@ namespace ME.ECSEditor {
 		            value = EditorGUILayout.Vector3Field(caption, (Vector3)value);
 
 	            }
+                
+            #if FIXED_POINT_MATH
+            } else if (type == typeof(ME.ECS.Mathematics.quaternion)) {
 
-            }  else if (type == typeof(fp2)) {
+                if (typeCheckOnly == false) {
+
+                    value = (ME.ECS.Mathematics.quaternion)Quaternion.Euler(EditorGUILayout.Vector3Field(caption, (Vector3)((ME.ECS.Mathematics.quaternion)value).ToEuler()));
+
+                }
+
+            } else if (type == typeof(sfloat)) {
+
+                if (typeCheckOnly == false) {
+
+                    value = (sfloat)EditorGUILayout.FloatField(caption, (float)(sfloat)value);
+
+                }
+
+            } else if (type == typeof(ME.ECS.Mathematics.float2)) {
 
 	            if (typeCheckOnly == false) {
 
-		            value = (fp2)EditorGUILayout.Vector2Field(caption, (fp2)value);
+		            value = (ME.ECS.Mathematics.float2)EditorGUILayout.Vector2Field(caption, (Vector2)(ME.ECS.Mathematics.float2)value);
 
 	            }
 
-            } else if (type == typeof(fp3)) {
+            } else if (type == typeof(ME.ECS.Mathematics.float3)) {
 
                 if (typeCheckOnly == false) {
 
-                    value = (fp3)EditorGUILayout.Vector3Field(caption, (fp3)value);
+                    value = (ME.ECS.Mathematics.float3)EditorGUILayout.Vector3Field(caption, (Vector3)(ME.ECS.Mathematics.float3)value);
 
                 }
 
-            } else if (type == typeof(fp4)) {
+            } else if (type == typeof(ME.ECS.Mathematics.float4)) {
 
                 if (typeCheckOnly == false) {
 
-                    value = (fp4)EditorGUILayout.Vector4Field(caption, (fp4)value);
+                    value = (ME.ECS.Mathematics.float4)EditorGUILayout.Vector4Field(caption, (Vector4)(ME.ECS.Mathematics.float4)value);
 
                 }
-
+            #endif
             } else if (type == typeof(Vector4)) {
 
                 if (typeCheckOnly == false) {
@@ -1748,22 +1932,6 @@ namespace ME.ECSEditor {
 	            if (typeCheckOnly == false) {
 
 		            value = Quaternion.Euler(EditorGUILayout.Vector3Field(caption, ((Quaternion)value).eulerAngles));
-
-	            }
-
-            } else if (type == typeof(fpquaternion)) {
-
-	            if (typeCheckOnly == false) {
-
-		            value = (fpquaternion)Quaternion.Euler(EditorGUILayout.Vector3Field(caption, ((fpquaternion)value).eulerAngles));
-
-	            }
-
-            } else if (type == typeof(fp)) {
-
-	            if (typeCheckOnly == false) {
-
-		            value = (fp)EditorGUILayout.FloatField(caption, (float)(fp)value);
 
 	            }
 

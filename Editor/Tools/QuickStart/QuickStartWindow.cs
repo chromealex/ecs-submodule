@@ -7,7 +7,7 @@ using UnityEngine.UIElements;
 
 public class QuickStartWindow : EditorWindow {
 
-    [MenuItem("ME.ECS/Quick Start")]
+    [MenuItem("ME.ECS/✪ Quick Start", priority = 10003)]
     public static void Open() {
 
         var win = QuickStartWindow.CreateInstance<QuickStartWindow>();

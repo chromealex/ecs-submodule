@@ -17,6 +17,7 @@ namespace ME.ECS.Views {
             RestoreHard,
             RestoreSoft,
             NoRestore,
+            Disabled,
 
         }
 
@@ -69,8 +70,11 @@ namespace ME.ECS.Views {
 
         }
 
-        public void SimulateParticles(float time, uint seed, ParticleSimulationSettings settings) {
+        public void SimulateParticles(float time, uint seed, in ParticleSimulationSettings settings) {
 
+            if (this.particleSystem == null) return;
+            if (settings.simulationType == ParticleSimulationSettings.SimulationType.Disabled) return;
+            
             this.particleSystem.Stop(true, UnityEngine.ParticleSystemStopBehavior.StopEmittingAndClear);
             if (this.particleSystem.useAutoRandomSeed == true) this.particleSystem.useAutoRandomSeed = false;
             if (this.particleSystem.randomSeed != seed) this.particleSystem.randomSeed = seed;
@@ -120,8 +124,10 @@ namespace ME.ECS.Views {
 
         }
 
-        public bool Update(float deltaTime, ParticleSimulationSettings settings) {
+        public bool Update(float deltaTime, in ParticleSimulationSettings settings) {
 
+            if (settings.simulationType == ParticleSimulationSettings.SimulationType.Disabled) return false;
+            
             if (settings.simulationType == ParticleSimulationSettings.SimulationType.RestoreSoft && this.simulateToTimeDuration > 0f) {
 
                 this.currentTime += deltaTime / this.simulateToTimeDuration;
@@ -349,9 +355,9 @@ namespace ME.ECS.Views {
         World world { get; set; }
 
         IView Spawn(IView prefab, ViewId prefabSourceId, in Entity targetEntity);
-        void Destroy(ref IView instance);
+        bool Destroy(ref IView instance);
 
-        void Update(ME.ECS.Collections.BufferArray<Views> list, float deltaTime, bool hasChanged);
+        void Update(ViewsModule module, ME.ECS.Collections.BufferArray<Views> list, float deltaTime, bool hasChanged);
 
     }
 
@@ -374,9 +380,9 @@ namespace ME.ECS.Views {
         public abstract void OnDeconstruct();
 
         public abstract IView Spawn(IView prefab, ViewId prefabSourceId, in Entity targetEntity);
-        public abstract void Destroy(ref IView instance);
+        public abstract bool Destroy(ref IView instance);
 
-        public abstract void Update(ME.ECS.Collections.BufferArray<Views> list, float deltaTime, bool hasChanged);
+        public abstract void Update(ViewsModule module, ME.ECS.Collections.BufferArray<Views> list, float deltaTime, bool hasChanged);
 
     }
 

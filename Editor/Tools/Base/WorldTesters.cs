@@ -36,24 +36,13 @@ namespace ME.ECSEditor.Tools {
 
         public class BufferArrayStructRegistryBase : ITestGenerator {
 
-            public struct TestComponent : ME.ECS.IStructComponentBase {
+            public struct TestComponent : ME.ECS.IComponentBase {
 
                 public int data;
 
             }
 
-            public struct TestDisposableComponent : ME.ECS.IComponentDisposable {
-
-                public int data;
-
-                public void OnDispose() {
-
-                    this.data = default;
-
-                }
-
-            }
-
+            #if COMPONENTS_COPYABLE
             public struct TestCopyableComponent : ME.ECS.IStructCopyable<TestCopyableComponent> {
 
                 public int data;
@@ -71,6 +60,7 @@ namespace ME.ECSEditor.Tools {
                 }
 
             }
+            #endif
 
             public int priority => 0;
             
@@ -82,36 +72,26 @@ namespace ME.ECSEditor.Tools {
 
             public object Fill(ITester tester, object instance, System.Type type) {
 
+                #if !SHARED_COMPONENTS_DISABLED
                 ME.ECS.AllComponentTypes<TestComponent>.isShared = true;
+                #endif
+                #if COMPONENTS_COPYABLE
                 ME.ECS.AllComponentTypes<TestCopyableComponent>.isCopyable = true;
-                ME.ECS.AllComponentTypes<TestDisposableComponent>.isDisposable = true;
+                #endif
                 
                 var arr = new [] {
                     CreateDefault(),
+                    #if COMPONENTS_COPYABLE
                     CreateCopyable(),
-                    CreateDisposable(),
+                    #endif
                 };
                 return new ME.ECS.Collections.BufferArray<ME.ECS.StructRegistryBase>(arr, arr.Length);
                 
             }
 
-            private ME.ECS.StructRegistryBase CreateDisposable() {
-                
-                var components = new Component<TestDisposableComponent>[3] {
-                    new Component<TestDisposableComponent>() { data = new TestDisposableComponent() { data = 1 }, state = 1 },
-                    new Component<TestDisposableComponent>() { data = new TestDisposableComponent() { data = 2 }, state = 1 },
-                    new Component<TestDisposableComponent>() { data = new TestDisposableComponent() { data = 3 }, state = 1 }, 
-                };
-                var baseComponentsReg = new ME.ECS.StructComponentsDisposable<TestDisposableComponent>() {
-                    components = new ME.ECS.Collections.BufferArraySliced<Component<TestDisposableComponent>>(new ME.ECS.Collections.BufferArray<Component<TestDisposableComponent>>(components, components.Length)),
-                };
-
-                return baseComponentsReg;
-
-            }
-
+            #if COMPONENTS_COPYABLE
             private ME.ECS.StructRegistryBase CreateCopyable() {
-                
+            
                 var components = new Component<TestCopyableComponent>[3] {
                     new Component<TestCopyableComponent>() { data = new TestCopyableComponent() { data = 1 }, state = 1 },
                     new Component<TestCopyableComponent>() { data = new TestCopyableComponent() { data = 2 }, state = 1 },
@@ -124,6 +104,7 @@ namespace ME.ECSEditor.Tools {
                 return baseComponentsReg;
 
             }
+            #endif
 
             private ME.ECS.StructRegistryBase CreateDefault() {
                 
@@ -133,17 +114,21 @@ namespace ME.ECSEditor.Tools {
                     new Component<TestComponent>() { data = new TestComponent() { data = 3 }, state = 1 },
                 };
 
-                var shared = new ME.ECS.Collections.DictionaryCopyable<uint, ME.ECS.StructComponents<TestComponent>.SharedGroupData>();
-                shared.Add(10, new ME.ECS.StructComponents<TestComponent>.SharedGroupData() {
+                #if !SHARED_COMPONENTS_DISABLED
+                var shared = new ME.ECS.Collections.DictionaryCopyable<uint, SharedDataStorage<TestComponent>>();
+                shared.Add(10, new SharedDataStorage<TestComponent>() {
                     data = new TestComponent() { data = 4, },
                     states = new ME.ECS.Collections.BufferArray<bool>(new bool[] { true, true, false }, 3),
                 });
+                #endif
                 
                 var baseComponentsReg = new ME.ECS.StructComponents<TestComponent>() {
                     components = new ME.ECS.Collections.BufferArraySliced<Component<TestComponent>>(new ME.ECS.Collections.BufferArray<Component<TestComponent>>(components, components.Length)),
-                    sharedGroups = new ME.ECS.StructComponents<TestComponent>.SharedGroups() {
+                    #if !SHARED_COMPONENTS_DISABLED
+                    sharedStorage = new SharedDataStorageGroup<TestComponent>() {
                         sharedGroups = shared,
                     },
+                    #endif
                 };
 
                 return baseComponentsReg;

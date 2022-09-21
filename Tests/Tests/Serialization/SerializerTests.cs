@@ -1,4 +1,9 @@
-﻿
+﻿#if FIXED_POINT_MATH
+using ME.ECS.Mathematics;
+#else
+using Unity.Mathematics;
+#endif
+
 namespace ME.ECS.Tests {
 
     using Serializer;
@@ -31,6 +36,8 @@ namespace ME.ECS.Tests {
         [NUnit.Framework.TestAttribute]
         public void PerformanceTest() {
 
+            Pools.current = new PoolImplementation(true);
+            
             var l = System.Linq.Enumerable.Range(1, 100).Select(x => new Person { age = x, firstName = "Windows", lastName = "Server", sex = Person.Sex.Female }).ToArray();
             var test = new PerfStruct() {
                 data = l,
@@ -71,15 +78,16 @@ namespace ME.ECS.Tests {
 
         [NUnit.Framework.TestAttribute]
         public void BufferArraySerialization() {
+            Pools.current = new PoolImplementation(true);
             var test = new TestDataBufferArray {
-                viewInfo = new ME.ECS.Views.ViewInfo(Entity.Empty, 12, 23),
+                viewInfo = new ME.ECS.Views.ViewInfo(Entity.Empty, 12, 23, DestroyViewBehaviour.DestroyWithEntity),
                 bufferComponents = new ME.ECS.Collections.BufferArray<object>(new object[] {
-                    new ME.ECS.Views.ViewComponent { seed = 123u, viewInfo = new ME.ECS.Views.ViewInfo(Entity.Empty, 12, 23) }, 
+                    new ME.ECS.Views.ViewComponent { seed = 123u, viewInfo = new ME.ECS.Views.ViewInfo(Entity.Empty, 12, 23, DestroyViewBehaviour.DestroyWithEntity) }, 
                     default,
                     default,
                     default,
                     default,
-                    new ME.ECS.Views.ViewComponent { seed = 123u, viewInfo = new ME.ECS.Views.ViewInfo(Entity.Empty, 12, 23) },
+                    new ME.ECS.Views.ViewComponent { seed = 123u, viewInfo = new ME.ECS.Views.ViewInfo(Entity.Empty, 12, 23, DestroyViewBehaviour.DestroyWithEntity) },
                     default,
                     default,
                 }, 6),
@@ -116,17 +124,65 @@ namespace ME.ECS.Tests {
 
         }
 
+        public struct TestUnmanagedData {
+
+            public int a;
+            public float b;
+            public byte c;
+
+        }
+
+        [NUnit.Framework.TestAttribute]
+        public void UnsafeData() {
+            Pools.current = new PoolImplementation(true);
+            var allocator = new ME.ECS.Collections.V3.MemoryAllocator();
+            allocator.Initialize(10);
+            var source = new TestUnmanagedData() {
+                a = 123,
+                b = 234.567f,
+                c = 125,
+            };
+            var test = new UnsafeData().Set(ref allocator, source);
+
+            byte[] bytes;
+            {
+                var ser = new Serializers();
+                ser.Add(new UnsafeDataSerializer());
+
+                bytes = Serializer.Pack(test, ser);
+                ser.Dispose();
+            }
+            
+            {
+                var ser = new Serializers();
+                ser.Add(new UnsafeDataSerializer());
+
+                var dest = Serializer.Unpack<UnsafeData>(bytes, ser);
+                var comp = dest.Read<TestUnmanagedData>(in allocator);
+
+                NUnit.Framework.Assert.AreEqual(source.a, comp.a);
+                NUnit.Framework.Assert.AreEqual(source.b, comp.b);
+                NUnit.Framework.Assert.AreEqual(source.c, comp.c);
+
+            }
+            
+            allocator.Dispose();
+
+        }
+
         [NUnit.Framework.TestAttribute]
         public void NativeBufferArraySerialization() {
+            Pools.current = new PoolImplementation(true);
+            
             var test = new TestDataNativeBufferArray {
-                viewInfo = new ME.ECS.Views.ViewInfo(Entity.Empty, 12, 23),
+                viewInfo = new ME.ECS.Views.ViewInfo(Entity.Empty, 12, 23, DestroyViewBehaviour.DestroyWithEntity),
                 buffer = new ME.ECS.Collections.NativeBufferArray<MyStruct>(new[] {
                     new MyStruct { bar = 1, foo = 2 },
                     new MyStruct { bar = 2, foo = 3 },
                     new MyStruct { bar = 4, foo = 5 },
                     new MyStruct { bar = 6, foo = 7 },
                     new MyStruct { bar = 8, foo = 9 }
-                }, 5)
+                }, 5, 5)
             };
 
             byte[] bytes;
@@ -155,6 +211,8 @@ namespace ME.ECS.Tests {
 
 		void DictionarySerializationTest1()
 		{
+            Pools.current = new PoolImplementation(true);
+            
 			var test = new TestDataDictionary
 			{
 				someDict = new System.Collections.Generic.Dictionary<object, object>
@@ -172,6 +230,8 @@ namespace ME.ECS.Tests {
 
 		void DictionarySerializationTest2()
 		{
+            Pools.current = new PoolImplementation(true);
+            
 			var dic1 = new System.Collections.Generic.Dictionary<ETestEnum, string>();
 
 			dic1.Add(ETestEnum.Second, "Second");
@@ -190,6 +250,8 @@ namespace ME.ECS.Tests {
 
 		void DictionarySerializationTest3()
 		{
+            Pools.current = new PoolImplementation(true);
+            
 			var test_dic = new System.Collections.Generic.Dictionary<ETestEnum, string>();
 
 			test_dic.Add(ETestEnum.Second, "Second");
@@ -210,6 +272,8 @@ namespace ME.ECS.Tests {
 
         [NUnit.Framework.TestAttribute]
         public void ArraysSerialization() {
+            Pools.current = new PoolImplementation(true);
+            
             var test = new TestDataArray {
                 buffer = new object[] { 1, 3, 5, 7, 9 },
                 buffer2 = new object[] {
@@ -224,8 +288,7 @@ namespace ME.ECS.Tests {
                 },
                 buffer4 = new object[,] { { 1, 2 }, { 3, 4 }, { 5, 6 }, { 7, 8 } }
             };
-
-
+            
             var bytes   = Serializer.Pack(test);
             var testRes = Serializer.Unpack<TestDataArray>(bytes);
 
@@ -237,6 +300,8 @@ namespace ME.ECS.Tests {
 
         [NUnit.Framework.TestAttribute]
         public void WorldSerialization() {
+            
+            Pools.current = new PoolImplementation(true);
             
             World CreateWorld() {
 
@@ -252,8 +317,10 @@ namespace ME.ECS.Tests {
                     //components
                     {
                         ref var sc = ref world.GetStructComponents();
+                        ref var sc2 = ref world.GetNoStateData();
                         ComponentsInitializerWorld.Setup(e => e.ValidateData<TestStructComponent>());
-                        CoreComponentsInitializer.Init(ref sc);
+                        CoreComponentsInitializer.InitTypeId();
+                        CoreComponentsInitializer.Init(world.GetState(), ref sc2);
                         sc.Validate<TestStructComponent>();
                     }
                     //settings
@@ -272,7 +339,6 @@ namespace ME.ECS.Tests {
                 }
             
                 var ent = new Entity("Test Entity");
-                ent.SetPosition(UnityEngine.Vector3.zero);
                 ent.Set(new TestStructComponent());
             
                 world.SaveResetState<TestState>();
@@ -353,10 +419,6 @@ namespace ME.ECS.Tests {
                 ref var data = ref entity.Get<TestStructComponent>();
                 ++data.f;
                 
-                var pos = entity.GetPosition();
-                pos += UnityEngine.Vector3.one;
-                entity.SetPosition(pos);
-                
                 if (entity.Has<ME.ECS.Views.ViewComponent>() == false) entity.InstantiateView(this.viewId);
                 
             }
@@ -365,7 +427,7 @@ namespace ME.ECS.Tests {
         
         public class TestState : State { }
 
-        public struct TestStructComponent : IStructComponent {
+        public struct TestStructComponent : IComponent {
 
             public int f;
 
@@ -525,14 +587,12 @@ namespace ME.ECS.Tests {
             public class FakeSerializer : ME.ECS.Network.ISerializer {
                 
                 public byte[] SerializeWorld(World.WorldState data) {
-                    var ser = new Serializers();
-                    ser.Add(new BufferArraySerializer());
+                    var ser = ME.ECS.Serializer.ECSSerializers.GetSerializers();
                     return ME.ECS.Serializer.Serializer.Pack(data, ser);
                 }
 
                 public World.WorldState DeserializeWorld(byte[] bytes) {
-                    var ser = new Serializers();
-                    ser.Add(new BufferArraySerializer());
+                    var ser = ME.ECS.Serializer.ECSSerializers.GetSerializers();
                     return ME.ECS.Serializer.Serializer.Unpack<World.WorldState>(bytes, ser);
                 }
 

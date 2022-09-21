@@ -15,7 +15,7 @@ namespace ME.ECSEditor {
         private Vector2 scrollPosition;
         private Vector2 scrollEntitiesPosition;
 
-        [MenuItem("ME.ECS/Worlds Viewer...")]
+        [MenuItem("ME.ECS/\u2630 Worlds Viewer...", priority = 10000)]
         public static void ShowInstance() {
 
             var instance = EditorWindow.GetWindow(typeof(WorldsViewerEditor));
@@ -380,6 +380,7 @@ namespace ME.ECSEditor {
 
                     var componentsStructStorage = world.GetStructComponentsStorage();
                     var storage = (IStorage)world.GetEntitiesStorage();
+                    var allocator = world.GetAllocator();
                     
                     GUILayout.BeginVertical();
                     {
@@ -393,7 +394,7 @@ namespace ME.ECSEditor {
                             var searchList = search.Split(new [] { ' ' }, System.StringSplitOptions.RemoveEmptyEntries);
                             
                             var allEntities = PoolListCopyable<Entity>.Spawn(storage.AliveCount);
-                            if (storage.ForEach(allEntities) == true) {
+                            if (storage.ForEach(in allocator, allEntities) == true) {
 
                                 for (int i = 0; i < allEntities.Count; ++i) {
 
@@ -402,7 +403,7 @@ namespace ME.ECSEditor {
 
                                         paramsList.Clear();
                                     
-                                        var name = entity.Read<ME.ECS.Name.Name>().value;
+                                        var name = entity.Read<ME.ECS.Name.Name>().value.Value;
                                         if (name != null) paramsList.Add(name.ToLower());
                                     
                                         var registries = componentsStructStorage.GetAllRegistries();
@@ -522,7 +523,7 @@ namespace ME.ECSEditor {
         struct SharedRegistryData {
 
             public uint groupId;
-            public IStructComponentBase component;
+            public IComponentBase component;
             public IStructRegistryBase registry;
 
         }
@@ -532,6 +533,8 @@ namespace ME.ECSEditor {
             const float padding = 8f;
 
             EditorGUIUtility.wideMode = true;
+
+            var allocator = world.GetAllocator();
             
             var name = (entityData.Has<ME.ECS.Name.Name>() == true ? entityData.Read<ME.ECS.Name.Name>().value : "Unnamed");
             GUILayoutExt.DrawHeader("Entity " + entityData.id.ToString() + " (" + entityData.generation.ToString() + ") " + name);
@@ -575,7 +578,7 @@ namespace ME.ECSEditor {
                         {
                             var registries = componentsStructStorage.GetAllRegistries();
                             var sortedRegistries = new List<IStructRegistryBase>();
-                            var components = new List<IStructComponentBase>();
+                            var components = new List<IComponentBase>();
                             for (int i = 0; i < registries.Length; ++i) {
 
                                 var registry = registries.arr[i];
@@ -627,7 +630,7 @@ namespace ME.ECSEditor {
                         
                             var registries = componentsStructStorage.GetAllRegistries();
                             var sortedRegistries = new List<SharedRegistryData>();
-                            var components = new List<IStructComponentBase>();
+                            var components = new List<IComponentBase>();
                             for (int i = 0; i < registries.Length; ++i) {
 
                                 var registry = registries.arr[i];
@@ -639,6 +642,7 @@ namespace ME.ECSEditor {
                                 if (registry is StructComponents<ME.ECS.Views.ViewComponent>) continue;
                                 #endif
                                 
+                                #if !SHARED_COMPONENTS_DISABLED
                                 var groupIds = registry.GetSharedGroups(entityData);
                                 if (groupIds != null) {
 
@@ -664,9 +668,11 @@ namespace ME.ECSEditor {
                                     }
 
                                 }
+                                #endif
 
                             }
 
+                            #if !SHARED_COMPONENTS_DISABLED
                             var isFoldoutShared = world.IsFoldOutViews("Shared", entityData.id);
                             GUILayoutExt.FoldOut(ref isFoldoutShared, $"Shared Components ({sortedRegistries.Count})", () => {
 
@@ -693,6 +699,7 @@ namespace ME.ECSEditor {
 
                             });
                             world.SetFoldOutViews("Shared", entityData.id, isFoldoutShared);
+                            #endif
                             
                         }
                         #endregion
@@ -702,35 +709,19 @@ namespace ME.ECSEditor {
                             var filtersCnt = 0;
                             var containsFilters = PoolListCopyable<FilterData>.Spawn(1);
                             var filters = world.GetFilters();
-                            #if !FILTERS_STORAGE_ARCHETYPES
-                            for (int i = 0; i < filters.filters.Length; ++i) {
-
-                                var filter = filters.filters.arr[i];
-                                if (filter == null) continue;
-                                
-                                if (filter.Contains(entityData) == true) {
-
-                                    containsFilters.Add(filter);
-                                    ++filtersCnt;
-
-                                }
-
-                            }
-                            #else
                             for (int i = 0; i < filters.filters.Count; ++i) {
 
-                                var filter = filters.filters[i];
+                                var filter = filters.filters[allocator, i];
                                 if (filter.isAlive == false) continue;
                                 
-                                if (filter.Contains(entityData) == true) {
+                                if (filter.Contains(allocator, entityData) == true) {
 
                                     containsFilters.Add(filter);
                                     ++filtersCnt;
 
                                 }
 
-                            }
-                            #endif                            
+                            }                          
 
                             var foldoutFilters = world.IsFoldOutFilters("Filters", entityData.id);
                             GUILayoutExt.FoldOut(ref foldoutFilters, "Filters (" + filtersCnt.ToString() + ")", () => {
@@ -788,7 +779,7 @@ namespace ME.ECSEditor {
                                     for (var j = 0; j < activeViews.Count; ++j) {
 
                                         var view = activeViews[j];
-                                        var provider = activeViewProviders[j].GetViewSourceProvider(view.prefabSourceId);
+                                        var provider = activeViewProviders[j].GetViewSourceProvider(view.info.prefabSourceId);
                                         GUILayout.Label("Provider: " + GUILayoutExt.GetTypeLabel(provider.GetType()), EditorStyles.miniBoldLabel);
                                         if (view is Object obj) {
 
@@ -1185,23 +1176,28 @@ namespace ME.ECSEditor {
                                         
                                         GUILayout.BeginVertical();
                                         {
+                                            var allocator = world.currentState.allocator;
                                             GUILayoutExt.DrawHeader("Current");
-                                            foreach (var ent in storage.cache) {
+                                            for (int i = 0; i < storage.cache.Length; ++i) {
+                                                var ent = storage.cache[allocator, i];
                                                 GUILayoutExt.DataLabel(ent == Entity.Empty ? Entity.Empty.ToString() : ent.ToString());
                                             }
                                             
                                             GUILayoutExt.DrawHeader("Dead");
-                                            foreach (var ent in storage.dead) {
+                                            for (int i = 0; i < storage.dead.Count; ++i) {
+                                                var ent = storage.dead[allocator, i];
                                                 GUILayoutExt.DataLabel(ent.ToString());
                                             }
                                             
                                             GUILayoutExt.DrawHeader("Dead (Prepared)");
-                                            foreach (var ent in storage.deadPrepared) {
+                                            for (int i = 0; i < storage.deadPrepared.Count; ++i) {
+                                                var ent = storage.deadPrepared[allocator, i];
                                                 GUILayoutExt.DataLabel(ent.ToString());
                                             }
                                             
                                             GUILayoutExt.DrawHeader("Alive");
-                                            foreach (var ent in storage.alive) {
+                                            for (int i = 0; i < storage.alive.Count; ++i) {
+                                                var ent = storage.alive[allocator, i];
                                                 GUILayoutExt.DataLabel(ent.ToString());
                                             }
                                         }
@@ -1210,32 +1206,6 @@ namespace ME.ECSEditor {
                                     });
 
                                 });
-
-                                #if !FILTERS_STORAGE_ARCHETYPES
-                                var filtersCount = 0;
-                                var filtersArr = filters.GetData();
-                                for (int f = 0; f < filtersArr.Length; ++f) {
-                                    if (filtersArr.arr[f] != null) ++filtersCount;
-                                }
-                                GUILayoutExt.FoldOut(ref worldEditor.foldoutFilters, $"Filters ({filtersCount})", () => {
-                                    
-                                    GUILayoutExt.Padding(4f, () => {
-
-                                        GUILayout.BeginVertical();
-                                        for (int f = 0; f < filtersArr.Length; ++f) {
-
-                                            var filter = filtersArr.arr[f];
-                                            if (filter == null) continue;
-
-                                            WorldsViewerEditor.DrawFilter(filters, filter);
-                                            
-                                        }
-                                        GUILayout.EndVertical();
-
-                                    });
-                                    
-                                });
-                                #endif
 
                             });
 
@@ -1267,56 +1237,6 @@ namespace ME.ECSEditor {
 
         }
 
-        #if !FILTERS_STORAGE_ARCHETYPES
-        public static void DrawFilter(FiltersStorage filters, FilterData filter) {
-            
-            var cellHeight = 25f;
-            var padding = 2f;
-            var margin = 1f;
-            var tableStyle = (GUIStyle)"Box";
-            var dataStyle = new GUIStyle(EditorStyles.label);
-            dataStyle.richText = true;
-            GUILayout.BeginHorizontal();
-            {
-                GUILayoutExt.Box(
-                    padding,
-                    margin,
-                    () => {
-
-                        var names = filter.GetAllNames();
-                        for (int i = 0; i < names.Length; ++i) {
-
-                            GUILayout.BeginHorizontal();
-                            {
-                                if (GUILayout.Button("Open", EditorStyles.toolbarButton, GUILayout.Width(38f)) == true) {
-
-                                    var file = filter.GetEditorStackTraceFilename(i);
-                                    var line = filter.GetEditorStackTraceLineNumber(i);
-                                    AssetDatabase.OpenAsset(AssetDatabase.LoadAssetAtPath<MonoScript>(file), line);
-
-                                }
-                                GUILayoutExt.DataLabel(string.Format("<b>{0}</b>", names.arr[i]), GUILayout.ExpandWidth(false));
-                            }
-                            GUILayout.EndHorizontal();
-                            
-                        }
-
-                        var style = new GUIStyle(EditorStyles.miniLabel);
-                        style.wordWrap = true;
-                        GUILayout.Label(filter.ToEditorTypesString(), style);
-                        GUILayout.Label("Objects count: " + filter.Count.ToString(), dataStyle);
-                        var inUseCount = filter.GetArchetypeContains().Count + filter.GetArchetypeNotContains().Count;
-                        var max = filters.GetAllFiltersArchetypeCount();
-                        GUILayoutExt.ProgressBar(inUseCount, max, drawLabel: true);
-                        
-                    },
-                    tableStyle,
-                    GUILayout.ExpandWidth(true), GUILayout.Height(cellHeight));
-            }
-            GUILayout.EndHorizontal();
-
-        }
-        #else
         public static void DrawFilter(ME.ECS.FiltersArchetype.FiltersArchetypeStorage filters, FilterData filter) {
             
             var cellHeight = 25f;
@@ -1350,10 +1270,13 @@ namespace ME.ECSEditor {
                             
                         }
 
+                        var state = Worlds.current.currentState;
+                        var allocator = state.allocator;
+                        
                         var style = new GUIStyle(EditorStyles.miniLabel);
                         style.wordWrap = true;
                         GUILayout.Label(filter.ToEditorTypesString(), style);
-                        GUILayout.Label("Objects count: " + filter.Count.ToString(), dataStyle);
+                        GUILayout.Label("Objects count: " + filter.Count(state, ref allocator).ToString(), dataStyle);
                         
                     },
                     tableStyle,
@@ -1362,7 +1285,6 @@ namespace ME.ECSEditor {
             GUILayout.EndHorizontal();
 
         }
-        #endif
 
         private bool ToggleMethod(WorldEditor worldEditor, object instance, string methodName, ref bool state) {
 

@@ -2,7 +2,7 @@
 
 namespace #NAMESPACE# {
 
-    public struct #SCRIPTNAME# : IStructCopyable<#SCRIPTNAME#> {
+    public struct #SCRIPTNAME# : ICopyable<#SCRIPTNAME#> {
         
         void IStructCopyable<#SCRIPTNAME#>.CopyFrom(in #SCRIPTNAME# other) {
         }

@@ -1,0 +1,268 @@
+
+/* ENTITY */
+
+.entity-container {
+    flex-direction: row;
+    padding: 10px;
+    justify-content: center;
+    margin-top: 4px;
+    margin-left: -15px;
+}
+
+.entity-changed-warning {
+    background-color: #ab4e37;
+    color: white;
+    padding: 20px;
+    margin-left: -15px;
+    margin-right: -4px;
+    white-space: normal;
+    justify-content: center;
+    align-content: center;
+    -unity-text-align: middle-center;
+}
+
+.hidden {
+    display: none;
+}
+
+.entity-current {
+    background-color: rgba(0, 255, 38, 0.1);
+}
+
+.entity-changed {
+    background-color: rgba(255, 0, 38, 0.1);
+}
+
+.entity-container-item {
+    align-self: center;
+}
+
+.entity-container-item-label {
+
+}
+
+.entity-container-item-value {
+    -unity-font-style: bold;
+    margin-right: 10px;
+}
+
+.world-not-found {
+    background-color: #ab4e37;
+    color: white;
+    padding: 20px;
+    margin-left: -15px;
+    margin-right: -4px;
+    white-space: normal;
+    justify-content: center;
+    align-content: center;
+    -unity-text-align: middle-center;
+}
+
+/* MAIN */
+
+.element {
+    display: initial;
+    border-bottom-color: rgba(255, 255, 255, 0.1);
+    border-bottom-width: 1px;
+    border-top-width: 1px;
+    border-left-width: 1px;
+    border-radius: 5px;
+    min-height: 32px;
+    margin-top: 2px;
+    justify-content: center;
+}
+
+.even {
+    background-color: rgba(255, 255, 255, 0.05);
+}
+
+.odd {
+    background-color: rgba(255, 255, 255, 0.02);
+    border-bottom-color: rgba(255, 255, 255, 0.05);
+}
+
+.element.has-static-component {
+    border-left-color: rgba(105, 165, 91, 0.5);
+    border-left-width: 1px;
+    border-radius: 5px;
+}
+
+.element.has-shared-component {
+    border-left-color: rgba(26, 189, 232, 0.5);
+    border-left-width: 1px;
+    border-radius: 5px;
+}
+
+.unity-property-field IMGUIContainer {
+    margin-left: 1px;
+}
+
+.shared-component {
+    color: rgba(26, 189, 232, 0.5);
+    font-size: 10px;
+    margin-top: 0px;
+    align-self: flex-start;
+}
+
+.static-component {
+    color: rgba(105, 165, 91, 0.5);
+    font-size: 10px;
+    margin-top: 0px;
+    align-self: flex-start;
+}
+
+.header {
+    padding: 10px 16px 10px 16px;
+    margin: 4px 0px 4px -16px;
+    -unity-font-style: bold;
+    border-bottom-color: rgba(0, 0, 0, 0.5);
+    border-top-color: rgba(0, 0, 0, 0.5);
+    border-top-width: 1px;
+    border-bottom-width: 1px;
+    background-color: rgba(0, 0, 0, 0.1);
+}
+
+.header-group {
+    padding: 2px 16px 2px 16px;
+    margin: 4px -16px 4px -6px;
+    -unity-font-style: bold;
+    border-bottom-color: rgba(0, 0, 0, 0.5);
+    border-top-color: rgba(0, 0, 0, 0.5);
+    border-top-width: 1px;
+    border-radius: 5px;
+    border-bottom-width: 1px;
+    background-color: rgba(0, 0, 0, 0.1);
+}
+
+.comment-field {
+}
+
+.templates-container {
+    flex-direction: row;
+    flex-wrap: wrap;
+}
+
+.template-button {
+    border-radius: 5px;
+    font-size: 10px;
+    background-color: #157cc6;
+    color: white;
+    margin: 2px 2px 2px 2px;
+}
+
+.search-field {
+    width: auto;
+    max-width: 250px;
+    align-self: center;
+}
+
+.drag-handler {
+    background-color: #1a73e8;
+    width: 10px;
+    height: 10px;
+}
+
+.search-not-found {
+    display: none;
+}
+
+.search-found {
+    display: flex;
+}
+
+.missing-label {
+    color: rgba(255, 100, 100, 1);
+    -unity-font-style: italic;
+}
+
+.no-fields-container {
+    flex-direction: row;
+    margin-left: -6px;
+}
+
+.no-fields-toggle {
+    align-self: flex-start;
+    border-radius: 6px;
+    margin-right: 1px;
+    margin-left: 3px;
+}
+
+.no-fields-label {
+    align-self: flex-start;
+    color: rgba(255, 255, 255, 0.4);
+}
+
+.property-field {
+    /*-unity-font-style: bold;*/
+    align-self: stretch;
+    min-height: 30px;
+    justify-content: center;
+}
+
+.element .inner-element {
+    padding-left: 4px;
+}
+
+.inner-element .unity-foldout__content {
+    margin-top: -6px;
+    padding-bottom: 6px;
+}
+
+.element .inner-element.property-field .unity-foldout__toggle {
+    padding-top: 6px;
+    padding-bottom: 6px;
+    margin: 2px;
+    margin-left: -4px;
+    border-radius: 5px;
+}
+
+.element .inner-element.property-field .unity-foldout__toggle:hover {
+    background-color: rgba(255, 255, 255, 0.05);
+}
+
+.element .inner-element.property-field .unity-foldout .unity-foldout {
+    border-color: rgba(0, 0, 0, 0.2);
+    border-radius: 5px;
+    border-width: 1px;
+    border-top-width: 0px;
+}
+
+.element .inner-element.property-field .unity-foldout .unity-foldout .unity-foldout__toggle {
+    margin: 0px;
+    padding: 4px;
+}
+
+.element .inner-element.property-field .unity-foldout .unity-foldout .unity-foldout__content {
+    padding-top: 6px;
+    margin-left: 16px;
+}
+
+.comment {
+    font-size: 10px;
+    padding-right: 4px;
+    padding-left: 7px;
+    margin-top: -4px;
+    margin-bottom: 4px;
+    white-space: normal;
+    color: rgba(255, 255, 255, 0.4);
+}
+
+.add-component-menu-button-imgui {
+    margin-top: 10px;
+    margin-bottom: 10px;
+    align-self: center;
+}
+
+.add-template-menu-button-imgui {
+    margin-top: 10px;
+    margin-bottom: 10px;
+    align-self: center;
+}
+
+.element .inner-element.property-field .unity-imgui-container {
+    margin-top: 6px;
+    padding-bottom: 6px;
+    border-color: rgba(0, 0, 0, 0.2);
+    border-radius: 5px;
+    border-bottom-width: 1px;
+}

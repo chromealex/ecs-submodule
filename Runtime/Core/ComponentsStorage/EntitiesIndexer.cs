@@ -1,77 +1,121 @@
+#if ENABLE_IL2CPP
+#define INLINE_METHODS
+#endif
+
 namespace ME.ECS {
     
-    using Collections;
+    using Collections.V3;
+    using Collections.MemoryAllocator;
 
+    #if ECS_COMPILE_IL2CPP_OPTIONS
+    [Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.NullChecks, false),
+     Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.ArrayBoundsChecks, false),
+     Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.DivideByZeroChecks, false)]
+    #endif
     public struct EntitiesIndexer {
 
         [ME.ECS.Serializer.SerializeField]
-        private BufferArray<HashSetCopyable<int>> data;
+        private ME.ECS.Collections.V3.MemArrayAllocator<ME.ECS.Collections.MemoryAllocator.EquatableHashSet<int>> data;
 
-        public void Initialize(int capacity) {
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
+        internal void Initialize(ref MemoryAllocator allocator, int capacity) {
 
-            if (this.data.isCreated == false) this.data = PoolArray<HashSetCopyable<int>>.Spawn(capacity);
-
-        }
-
-        public void Validate(int capacity) {
-
-            ArrayUtils.Resize(capacity + 1, ref this.data);
+            if (this.data.isCreated == false) this.data = new ME.ECS.Collections.V3.MemArrayAllocator<ME.ECS.Collections.MemoryAllocator.EquatableHashSet<int>>(ref allocator, capacity);
 
         }
 
-        public HashSetCopyable<int> Get(int entityId) {
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
+        internal void Validate(ref MemoryAllocator allocator, int entityId) {
 
-            return this.data[entityId];
-
-        }
-
-        public void Set(int entityId, int componentId) {
-
-            ref var item = ref this.data[entityId];
-            if (item == null) item = PoolHashSetCopyable<int>.Spawn(64);
-            item.Add(componentId);
+            this.data.Resize(ref allocator, entityId + 1);
 
         }
 
-        public void Remove(int entityId, int componentId) {
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
+        public readonly int GetCount(in MemoryAllocator allocator, int entityId) {
+
+            var arr = this.data[in allocator, entityId];
+            if (arr.isCreated == false) return 0;
             
-            ref var item = ref this.data[entityId];
-            if (item != null) item.Remove(componentId);
-            
+            return arr.Count;
+
         }
 
-        public void RemoveAll(int entityId) {
-            
-            ref var item = ref this.data[entityId];
-            if (item != null) item.Clear();
-            
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
+        public readonly bool Has(in MemoryAllocator allocator, int entityId, int componentId) {
+
+            var arr = this.data[in allocator, entityId];
+            if (arr.isCreated == false) return false;
+
+            return arr.Contains(in allocator, componentId);
+
         }
-
-        public void CopyFrom(in EntitiesIndexer other) {
-            
-            ArrayUtils.Copy(other.data, ref this.data, new CopyItem());
-            
-        }
-
-        public void Recycle() {
-            
-            ArrayUtils.Recycle(ref this.data, new CopyItem());
-            
-        }
-
-    }
-
-    public struct CopyItem : IArrayElementCopy<HashSetCopyable<int>> {
         
-        public void Copy(HashSetCopyable<int> @from, ref HashSetCopyable<int> to) {
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
+        public readonly ref EquatableHashSet<int> Get(in MemoryAllocator allocator, int entityId) {
+
+            return ref this.data[in allocator, entityId];
+
+        }
+
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
+        internal void Set(ref MemoryAllocator allocator, int entityId, int componentId) {
+
+            ref var item = ref this.data[in allocator, entityId];
+            if (item.isCreated == false) item = new EquatableHashSet<int>(ref allocator, 1);
+            item.Add(ref allocator, componentId);
+
+        }
+
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
+        internal void Remove(ref MemoryAllocator allocator, int entityId, int componentId) {
             
-            ArrayUtils.Copy(from, ref to);
+            ref var item = ref this.data[in allocator, entityId];
+            if (item.isCreated == true) item.Remove(ref allocator, componentId);
             
         }
 
-        public void Recycle(HashSetCopyable<int> item) {
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
+        internal void RemoveAll(ref MemoryAllocator allocator, int entityId) {
             
-            PoolHashSetCopyable<int>.Recycle(ref item);
+            ref var item = ref this.data[in allocator, entityId];
+            if (item.isCreated == true) item.Clear(in allocator);
+            
+        }
+
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
+        internal void Dispose(ref MemoryAllocator allocator) {
+
+            for (int i = 0; i < this.data.Length; ++i) {
+
+                ref var set = ref this.data[in allocator, i];
+                if (set.isCreated == true) {
+                    
+                    set.Dispose(ref allocator);
+                    
+                }
+
+            }
+            
+            this.data.Dispose(ref allocator);
             
         }
 

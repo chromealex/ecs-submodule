@@ -3,8 +3,8 @@ namespace ME.ECS.Tests {
 
     public class Tests_Filters_FilterInFilter {
 
-        private struct TestComponent : IStructComponent {}
-        private struct TestComponent2 : IStructComponent {}
+        private struct TestComponent : IComponent {}
+        private struct TestComponent2 : IComponent {}
         
         private class TestSystem_FilterInFilter : ISystem, IAdvanceTick {
 
@@ -67,12 +67,12 @@ namespace ME.ECS.Tests {
 
             TestsHelper.Do((w) => {
                 
-                WorldUtilities.InitComponentTypeId<TestComponent>(false);
-                WorldUtilities.InitComponentTypeId<TestComponent2>(false);
+                WorldUtilities.InitComponentTypeId<TestComponent>(false, isBlittable: true);
+                WorldUtilities.InitComponentTypeId<TestComponent2>(false, isBlittable: true);
                 ComponentsInitializerWorld.Setup((e) => {
                             
-                    e.ValidateData<TestComponent>();
-                    e.ValidateData<TestComponent2>();
+                    e.ValidateDataUnmanaged<TestComponent>();
+                    e.ValidateDataUnmanaged<TestComponent2>();
                             
                 });
                 

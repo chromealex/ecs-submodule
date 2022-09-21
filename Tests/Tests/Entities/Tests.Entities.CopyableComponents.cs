@@ -1,6 +1,7 @@
 ﻿
 namespace ME.ECS.Tests {
-
+    
+    #if COMPONENTS_COPYABLE
     public class Tests_Entities_CopyableComponents {
         
         private class TestState : State {}
@@ -140,5 +141,6 @@ namespace ME.ECS.Tests {
         }
 
     }
+    #endif
 
 }

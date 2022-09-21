@@ -16,16 +16,26 @@ namespace ME.ECSEditor {
     [UnityEditor.CustomEditor(typeof(InitializerBase), true)]
     public class InitializerEditor : Editor {
 
-        private const float ONE_LINE_HEIGHT = 22f;
-        
-        private static UnityEditorInternal.ReorderableList list;
-        private static UnityEditorInternal.ReorderableList listCategories;
+        public static System.Func<InitializerBase.Configuration, InitializerBase.Configuration> buildConfiguration;
+        public static System.Func<InitializerBase.DefineInfo[]> getAdditionalDefines;
+
         private static System.Collections.Generic.Dictionary<object, bool> systemFoldouts = new System.Collections.Generic.Dictionary<object, bool>();
         private static System.Collections.Generic.Dictionary<object, bool> moduleFoldouts = new System.Collections.Generic.Dictionary<object, bool>();
         private static System.Collections.Generic.Dictionary<object, bool> featureFoldouts = new System.Collections.Generic.Dictionary<object, bool>();
         private static System.Collections.Generic.Dictionary<object, UnityEditorInternal.ReorderableList> subFeatureLists = new System.Collections.Generic.Dictionary<object, UnityEditorInternal.ReorderableList>();
         private static System.Collections.Generic.Dictionary<object, Editor> editorForTarget = new System.Collections.Generic.Dictionary<object, Editor>();
-        private static bool isCompilingManual;
+        
+        private System.Collections.Generic.Dictionary<FeatureBase, System.Collections.Generic.List<ObjectInfo>> cacheSystems = new System.Collections.Generic.Dictionary<FeatureBase, System.Collections.Generic.List<ObjectInfo>>();
+        private System.Collections.Generic.Dictionary<FeatureBase, System.Collections.Generic.List<ObjectInfo>> cacheModules = new System.Collections.Generic.Dictionary<FeatureBase, System.Collections.Generic.List<ObjectInfo>>();
+
+        private System.Collections.Generic.Dictionary<System.Type, IDebugViewGUIEditor<InitializerBase>> viewsDebugEditors;
+        private System.Collections.Generic.Dictionary<System.Type, IJobsViewGUIEditor<InitializerBase>> viewsJobsEditors;
+        public struct ObjectInfo {
+
+            public string typeName;
+            public System.Type type;
+
+        }
 
         private SerializedProperty listCategoriesProp;
         
@@ -37,177 +47,174 @@ namespace ME.ECSEditor {
             }
         }
 
+        public static InitializerBase.DefineInfo[] GetDefines() {
+            if (InitializerEditor.getAdditionalDefines != null) {
+                var list = new System.Collections.Generic.List<InitializerBase.DefineInfo>();
+                list.AddRange(InitializerEditor.defines);
+                foreach (var item in InitializerEditor.getAdditionalDefines.GetInvocationList()) {
+                    list.AddRange((InitializerBase.DefineInfo[])item.DynamicInvoke());
+                }
+                return list.ToArray();
+            }
+
+            return InitializerEditor.defines;
+        }
+        
         private static readonly InitializerBase.DefineInfo[] defines = new[] {
-            new InitializerBase.DefineInfo("GAMEOBJECT_VIEWS_MODULE_SUPPORT", "Turn on/off GameObject View Provider.", () => {
+            new InitializerBase.DefineInfo(true, "GAMEOBJECT_VIEWS_MODULE_SUPPORT", "Turn on/off GameObject View Provider.", () => {
                 #if GAMEOBJECT_VIEWS_MODULE_SUPPORT
                 return true;
                 #else
                 return false;
                 #endif
-            }, true, InitializerBase.ConfigurationType.DebugAndRelease),
-            new InitializerBase.DefineInfo("PARTICLES_VIEWS_MODULE_SUPPORT", "Turn on/off Particles View Provider.", () => {
+            }, true, InitializerBase.ConfigurationType.DebugAndRelease, InitializerBase.CodeSize.Light, InitializerBase.RuntimeSpeed.Light),
+            new InitializerBase.DefineInfo(true, "PARTICLES_VIEWS_MODULE_SUPPORT", "Turn on/off Particles View Provider.", () => {
                 #if PARTICLES_VIEWS_MODULE_SUPPORT
                 return true;
                 #else
                 return false;
                 #endif
-            }, true, InitializerBase.ConfigurationType.DebugAndRelease),
-            new InitializerBase.DefineInfo("DRAWMESH_VIEWS_MODULE_SUPPORT", "Turn on/off Graphics View Provider.", () => {
+            }, true, InitializerBase.ConfigurationType.DebugAndRelease, InitializerBase.CodeSize.Light, InitializerBase.RuntimeSpeed.Light),
+            new InitializerBase.DefineInfo(true, "DRAWMESH_VIEWS_MODULE_SUPPORT", "Turn on/off Graphics View Provider.", () => {
                 #if DRAWMESH_VIEWS_MODULE_SUPPORT
                 return true;
                 #else
                 return false;
                 #endif
-            }, true, InitializerBase.ConfigurationType.DebugAndRelease),
-            new InitializerBase.DefineInfo("UNITY_MATHEMATICS", "Turn on/off Unity.Mathematics for RGN or use UnityEngine.Random.", () => {
-                #if UNITY_MATHEMATICS
-                return true;
-                #else
-                return false;
-                #endif
-            }, true, InitializerBase.ConfigurationType.DebugAndRelease),
-            new InitializerBase.DefineInfo("WORLD_STATE_CHECK", "If turned on, ME.ECS will check that all write data methods are in right state. If you turn off this check, you'll be able to write data in any state, but it could cause out of sync state.", () => {
+            }, true, InitializerBase.ConfigurationType.DebugAndRelease, InitializerBase.CodeSize.Light, InitializerBase.RuntimeSpeed.Light),
+            new InitializerBase.DefineInfo(true, "WORLD_STATE_CHECK", "If turned on, ME.ECS will check that all write data methods are in right state. If you turn off this check, you'll be able to write data in any state, but it could cause out of sync state.", () => {
                 #if WORLD_STATE_CHECK
                 return true;
                 #else
                 return false;
                 #endif
-            }, true, InitializerBase.ConfigurationType.DebugOnly),
-            new InitializerBase.DefineInfo("WORLD_THREAD_CHECK", "If turned on, ME.ECS will check random number usage from non-world thread. If you don't want to synchronize the game, you could turn this check off.", () => {
+            }, true, InitializerBase.ConfigurationType.DebugOnly, InitializerBase.CodeSize.Light, InitializerBase.RuntimeSpeed.Normal),
+            new InitializerBase.DefineInfo(true, "WORLD_THREAD_CHECK", "If turned on, ME.ECS will check random number usage from non-world thread. If you don't want to synchronize the game, you could turn this check off.", () => {
                 #if WORLD_THREAD_CHECK
                 return true;
                 #else
                 return false;
                 #endif
-            }, true, InitializerBase.ConfigurationType.DebugOnly),
-            new InitializerBase.DefineInfo("WORLD_EXCEPTIONS", "If turned on, ME.ECS will throw exceptions on unexpected behaviour. Turn off this check in release builds.", () => {
+            }, true, InitializerBase.ConfigurationType.DebugOnly, InitializerBase.CodeSize.Light, InitializerBase.RuntimeSpeed.Normal),
+            new InitializerBase.DefineInfo(true, "WORLD_EXCEPTIONS", "If turned on, ME.ECS will throw exceptions on unexpected behaviour. Turn off this check in release builds.", () => {
                 #if WORLD_EXCEPTIONS
                 return true;
                 #else
                 return false;
                 #endif
-            }, true, InitializerBase.ConfigurationType.DebugOnly),
-            new InitializerBase.DefineInfo("WORLD_TICK_THREADED", "If turned on, ME.ECS will run logic in another thread.", () => {
+            }, true, InitializerBase.ConfigurationType.DebugOnly, InitializerBase.CodeSize.Light, InitializerBase.RuntimeSpeed.Normal),
+            new InitializerBase.DefineInfo(true, "WORLD_TICK_THREADED", "If turned on, ME.ECS will run logic in another thread.", () => {
                 #if WORLD_TICK_THREADED
                 return true;
                 #else
                 return false;
                 #endif
-            }, true, InitializerBase.ConfigurationType.DebugAndRelease),
-            new InitializerBase.DefineInfo("FPS_MODULE_SUPPORT", "FPS module support.", () => {
+            }, true, InitializerBase.ConfigurationType.DebugAndRelease, InitializerBase.CodeSize.Light, InitializerBase.RuntimeSpeed.Light),
+            new InitializerBase.DefineInfo(true, "FPS_MODULE_SUPPORT", "FPS module support.", () => {
                 #if FPS_MODULE_SUPPORT
                 return true;
                 #else
                 return false;
                 #endif
-            }, true, InitializerBase.ConfigurationType.DebugAndRelease),
-            new InitializerBase.DefineInfo("ECS_COMPILE_IL2CPP_OPTIONS", "If turned on, ME.ECS will use IL2CPP options for the faster runtime, this flag removed unnecessary null-checks and bounds array checks.", () => {
+            }, true, InitializerBase.ConfigurationType.DebugAndRelease, InitializerBase.CodeSize.Light, InitializerBase.RuntimeSpeed.Light),
+            new InitializerBase.DefineInfo(true, "ECS_COMPILE_IL2CPP_OPTIONS", "If turned on, ME.ECS will use IL2CPP options for the faster runtime, this flag removed unnecessary null-checks and bounds array checks.", () => {
                 #if ECS_COMPILE_IL2CPP_OPTIONS
                 return true;
                 #else
                 return false;
                 #endif
-            }, true, InitializerBase.ConfigurationType.DebugAndRelease),
-            new InitializerBase.DefineInfo("ECS_COMPILE_IL2CPP_OPTIONS_FILE_INCLUDE", "Turn off this option if you provide your own Il2CppSetOptionAttribute. Works with ECS_COMPILE_IL2CPP_OPTIONS.", () => {
+            }, true, InitializerBase.ConfigurationType.DebugAndRelease, InitializerBase.CodeSize.Unknown, InitializerBase.RuntimeSpeed.Unknown),
+            new InitializerBase.DefineInfo(true, "ECS_COMPILE_IL2CPP_OPTIONS_FILE_INCLUDE", "Turn off this option if you provide your own Il2CppSetOptionAttribute. Works with ECS_COMPILE_IL2CPP_OPTIONS.", () => {
                 #if ECS_COMPILE_IL2CPP_OPTIONS_FILE_INCLUDE
                 return true;
                 #else
                 return false;
                 #endif
-            }, true, InitializerBase.ConfigurationType.DebugAndRelease),
-            new InitializerBase.DefineInfo("MULTITHREAD_SUPPORT", "Turn on this option if you need to add/remove components inside jobs.", () => {
+            }, true, InitializerBase.ConfigurationType.DebugAndRelease, InitializerBase.CodeSize.Unknown, InitializerBase.RuntimeSpeed.Unknown),
+            new InitializerBase.DefineInfo(true, "MULTITHREAD_SUPPORT", "Turn on this option if you need to add/remove components inside jobs.", () => {
                 #if MULTITHREAD_SUPPORT
                 return true;
                 #else
                 return false;
                 #endif
-            }, true, InitializerBase.ConfigurationType.DebugAndRelease),
-            new InitializerBase.DefineInfo("MESSAGE_PACK_SUPPORT", "MessagePack package support.", () => {
+            }, true, InitializerBase.ConfigurationType.DebugAndRelease, InitializerBase.CodeSize.Unknown, InitializerBase.RuntimeSpeed.Unknown),
+            new InitializerBase.DefineInfo(true, "MESSAGE_PACK_SUPPORT", "MessagePack package support.", () => {
                 #if MESSAGE_PACK_SUPPORT
                 return true;
                 #else
                 return false;
                 #endif
-            }, true, InitializerBase.ConfigurationType.DebugAndRelease),
-            new InitializerBase.DefineInfo("ENTITY_ACTIONS", "Turn on to add Entity Actions support. Entity Actions - raise events on Add/Remove components data on entities.", () => {
-                #if ENTITY_ACTIONS
-                return true;
-                #else
-                return false;
-                #endif
-            }, true, InitializerBase.ConfigurationType.DebugAndRelease),
-            new InitializerBase.DefineInfo("ENTITY_VERSION_INCREMENT_ACTIONS", "Turn on to raise events on entity version increments.", () => {
+            }, true, InitializerBase.ConfigurationType.DebugAndRelease, InitializerBase.CodeSize.Unknown, InitializerBase.RuntimeSpeed.Unknown),
+            new InitializerBase.DefineInfo(true, "ENTITY_VERSION_INCREMENT_ACTIONS", "Turn on to raise events on entity version increments.", () => {
                 #if ENTITY_VERSION_INCREMENT_ACTIONS
                 return true;
                 #else
                 return false;
                 #endif
-            }, true, InitializerBase.ConfigurationType.DebugAndRelease),
-            new InitializerBase.DefineInfo("ENTITY_API_VERSION1_TURN_OFF", "Turn off Entity API with SetData/ReadData/GetData methods.", () => {
-                #if ENTITY_API_VERSION1_TURN_OFF
+            }, true, InitializerBase.ConfigurationType.DebugAndRelease, InitializerBase.CodeSize.Light, InitializerBase.RuntimeSpeed.Heavy),
+            new InitializerBase.DefineInfo(false, "BUFFER_SLICED_DISABLED", "Turn on to use Sliced Buffers which allows to add entities in Get<> API.", () => {
+                #if BUFFER_SLICED_DISABLED
                 return true;
                 #else
                 return false;
                 #endif
-            }, true, InitializerBase.ConfigurationType.DebugAndRelease),
-            new InitializerBase.DefineInfo("ENTITY_API_VERSION2_TURN_OFF", "Turn off Entity API with Set/Read/Get methods.", () => {
-                #if ENTITY_API_VERSION2_TURN_OFF
-                return true;
-                #else
-                return false;
-                #endif
-            }, true, InitializerBase.ConfigurationType.DebugAndRelease),
-            #if !FILTERS_STORAGE_ARCHETYPES
-            new InitializerBase.DefineInfo("ARCHETYPE_SIZE_128", "Set archetype max bits size to 128 (Components in filters).", () => {
-                #if ARCHETYPE_SIZE_128
-                return true;
-                #else
-                return false;
-                #endif
-            }, true, InitializerBase.ConfigurationType.DebugAndRelease),
-            new InitializerBase.DefineInfo("ARCHETYPE_SIZE_192", "Set archetype max bits size to 192 (Components in filters).", () => {
-                #if ARCHETYPE_SIZE_192
-                return true;
-                #else
-                return false;
-                #endif
-            }, true, InitializerBase.ConfigurationType.DebugAndRelease),
-            new InitializerBase.DefineInfo("ARCHETYPE_SIZE_256", "Set archetype max bits size to 256 (Components in filters).", () => {
-                #if ARCHETYPE_SIZE_256
-                return true;
-                #else
-                return false;
-                #endif
-            }, true, InitializerBase.ConfigurationType.DebugAndRelease),
-            #endif
-            new InitializerBase.DefineInfo("VIEWS_REGISTER_VIEW_SOURCE_CHECK_STATE", "Forbid RegisterViewSource after world initialization.", () => {
+            }, true, InitializerBase.ConfigurationType.DebugAndRelease, InitializerBase.CodeSize.Light, InitializerBase.RuntimeSpeed.Light),
+            new InitializerBase.DefineInfo(true, "VIEWS_REGISTER_VIEW_SOURCE_CHECK_STATE", "Forbid RegisterViewSource after world initialization.", () => {
                 #if VIEWS_REGISTER_VIEW_SOURCE_CHECK_STATE
                 return true;
                 #else
                 return false;
                 #endif
-            }, true, InitializerBase.ConfigurationType.DebugAndRelease),
-            new InitializerBase.DefineInfo("ME_ECS_COLLECT_WEAK_REFERENCES", "Collect weak references for ecs modules and provide public api (weak/unweak).", () => {
+            }, true, InitializerBase.ConfigurationType.DebugAndRelease, InitializerBase.CodeSize.Light, InitializerBase.RuntimeSpeed.Light),
+            new InitializerBase.DefineInfo(true, "ME_ECS_COLLECT_WEAK_REFERENCES", "Collect weak references for ecs modules and provide public api (weak/unweak).", () => {
                 #if ME_ECS_COLLECT_WEAK_REFERENCES
                 return true;
                 #else
                 return false;
                 #endif
-            }, true, InitializerBase.ConfigurationType.DebugOnly),
-            new InitializerBase.DefineInfo("FILTERS_STORAGE_ARCHETYPES", "Archetypes storage.", () => {
-                #if FILTERS_STORAGE_ARCHETYPES
+            }, true, InitializerBase.ConfigurationType.DebugOnly, InitializerBase.CodeSize.Light, InitializerBase.RuntimeSpeed.Heavy),
+            new InitializerBase.DefineInfo(false, "SHARED_COMPONENTS_DISABLED", "Disable shared components storage and entity shared API. Use this if you don't use this feature at all to speed up your runtime.", () => {
+                #if SHARED_COMPONENTS_DISABLED
                 return true;
                 #else
                 return false;
                 #endif
-            }, true, InitializerBase.ConfigurationType.DebugAndRelease),
-            new InitializerBase.DefineInfo("FIXED_POINT_MATH", "Fixed-Point Math.", () => {
-                #if FIXED_POINT_MATH
+            }, true, InitializerBase.ConfigurationType.DebugAndRelease, InitializerBase.CodeSize.Heavy, InitializerBase.RuntimeSpeed.Normal),
+            new InitializerBase.DefineInfo(false, "COMPONENTS_VERSION_NO_STATE_DISABLED", "Disable components version no state storage and entity no state API. Use this if you don't use this feature at all to speed up your runtime.", () => {
+                #if COMPONENTS_VERSION_NO_STATE_DISABLED
                 return true;
                 #else
                 return false;
                 #endif
-            }, true, InitializerBase.ConfigurationType.DebugAndRelease),
+            }, true, InitializerBase.ConfigurationType.DebugAndRelease, InitializerBase.CodeSize.Light, InitializerBase.RuntimeSpeed.Normal),
+            new InitializerBase.DefineInfo(false, "ENTITIES_GROUP_DISABLED", "Disable entities group storage and entities group API. Use this if you don't use this feature at all to speed up your runtime.", () => {
+                #if ENTITIES_GROUP_DISABLED
+                return true;
+                #else
+                return false;
+                #endif
+            }, true, InitializerBase.ConfigurationType.DebugAndRelease, InitializerBase.CodeSize.Light, InitializerBase.RuntimeSpeed.Normal),
+            new InitializerBase.DefineInfo(false, "FILTERS_LAMBDA_DISABLED", "Disable lambda in filters. Use this if you don't use this feature at all to speed up your runtime.", () => {
+                #if FILTERS_LAMBDA_DISABLED
+                return true;
+                #else
+                return false;
+                #endif
+            }, true, InitializerBase.ConfigurationType.DebugAndRelease, InitializerBase.CodeSize.Light, InitializerBase.RuntimeSpeed.Normal),
+            new InitializerBase.DefineInfo(false, "STATIC_API_DISABLED", "Disable static API for entities. Use this if you don't use this feature at all to speed up your runtime.", () => {
+                #if STATIC_API_DISABLED
+                return true;
+                #else
+                return false;
+                #endif
+            }, true, InitializerBase.ConfigurationType.DebugAndRelease, InitializerBase.CodeSize.Light, InitializerBase.RuntimeSpeed.Light),
+            new InitializerBase.DefineInfo(true, "COMPONENTS_COPYABLE", "Enable custom Copyable components. Use this if you need to custom copy/recycle components.", () => {
+                #if COMPONENTS_COPYABLE
+                return true;
+                #else
+                return false;
+                #endif
+            }, true, InitializerBase.ConfigurationType.DebugAndRelease, InitializerBase.CodeSize.Normal, InitializerBase.RuntimeSpeed.Normal),
         };
         
         private bool settingsFoldOut {
@@ -294,15 +301,26 @@ namespace ME.ECSEditor {
             var target = this.target as InitializerBase;
 
             var changed = false;
+            var defines = InitializerEditor.GetDefines();
             for (int i = 0; i < target.configurations.Count; ++i) {
 
                 var conf = target.configurations[i];
-                foreach (var define in InitializerEditor.defines) {
+                foreach (var define in defines) {
 
-                    if (conf.Add(define) == true) {
-
+                    if (conf.Contains(define) == false) {
+                        
+                        //conf.Remove(define);
+                        conf.Add(define);
                         changed = true;
+                        
+                    } else {
+                        
+                        if (conf.Add(define) == true) {
 
+                            changed = true;
+
+                        }
+                        
                     }
 
                 }
@@ -318,24 +336,11 @@ namespace ME.ECSEditor {
 
             return Editor.CreateEditor(target);
             
-            /*
-            if (InitializerEditor.editorForTarget.TryGetValue(target, out var res) == true) {
-
-                return res;
-
-            } else {
-
-                var editor = Editor.CreateEditor(target);
-                InitializerEditor.editorForTarget.Add(target, editor);
-                return editor;
-
-            }*/
-            
         }
 
         private InitializerBase.DefineInfo GetDefineInfo(string define) {
 
-            foreach (var defineInfo in InitializerEditor.defines) {
+            foreach (var defineInfo in InitializerEditor.GetDefines()) {
 
                 if (defineInfo.define == define) {
                     
@@ -349,13 +354,9 @@ namespace ME.ECSEditor {
 
         }
 
-        //public Entity entity;
-        private float drawWidth;
-        
-        //private GUIStyle addButtonStyleSaved;
-        private System.Collections.Generic.Dictionary<System.Type, IDebugViewGUIEditor<InitializerBase>> viewsDebugEditors;
-        private System.Collections.Generic.Dictionary<System.Type, IJobsViewGUIEditor<InitializerBase>> viewsJobsEditors;
         public override void OnInspectorGUI() {
+            
+            this.serializedObject.Update();
 
             ((Component)this.target).transform.hideFlags = HideFlags.HideInInspector;
             
@@ -363,32 +364,7 @@ namespace ME.ECSEditor {
             GUILayoutExt.CollectEditors<IJobsViewGUIEditor<InitializerBase>, ViewProviderCustomEditorAttribute>(ref this.viewsJobsEditors);
             
             var target = this.target as InitializerBase;
-            //if (target.featuresList == null) target.featuresList = new FeaturesList();
-            //if (target.featuresList.features == null) target.featuresList.features = new System.Collections.Generic.List<FeaturesList.FeatureData>();
-
-            /*if (this.list == null) {
-                
-                this.list = new UnityEditorInternal.ReorderableList(target.featuresList.features, typeof(FeaturesList.FeatureData), true, true, true, true);
-                this.list.drawElementCallback = this.OnDrawListItem;
-                this.list.drawHeaderCallback = this.OnDrawHeader;
-                this.list.onChangedCallback = this.OnChanged;
-                this.list.elementHeightCallback = this.GetElementHeight;
-                //this.list.onAddDropdownCallback = this.OnAddDropdown;
-
-            }*/
-
-            if (InitializerEditor.listCategories == null) {
-                
-                InitializerEditor.listCategories = new UnityEditorInternal.ReorderableList(target.featuresListCategories.items, typeof(FeaturesListCategory), true, true, true, true);
-                InitializerEditor.listCategories.drawElementCallback = this.OnDrawListCategoryItem;
-                InitializerEditor.listCategories.drawHeaderCallback = this.OnDrawHeader;
-                InitializerEditor.listCategories.onChangedCallback = this.OnChanged;
-                InitializerEditor.listCategories.elementHeightCallback = this.GetElementHeightCategory;
-                InitializerEditor.listCategories.onReorderCallbackWithDetails = this.OnReorderItems;
-                InitializerEditor.listCategories.onRemoveCallback = this.OnRemoveItem;
-
-            }
-
+            
             GUILayoutExt.Box(15f, 0f, () => {
 
                 var isDirty = false;
@@ -460,44 +436,111 @@ namespace ME.ECSEditor {
 
                             }
 
-                            var value = define.enabled;
-                            if (GUILayoutExt.ToggleLeft(
-                                    ref value,
-                                    ref isDirty,
-                                    defineInfo.define,
-                                    defineInfo.description, () => {
+                            GUILayout.BeginHorizontal();
+                            {
+                                var value = define.enabled;
+                                GUILayout.BeginVertical();
+                                {
+                                    if (defineInfo.deprecatedVersion != null) {
+                                        var style = new GUIStyle(EditorStyles.miniBoldLabel);
+                                        style.richText = true;
+                                        GUILayout.Label($"<color=yellow>Deprecated, removed after {defineInfo.deprecatedVersion}</color>", style);
+                                    }
+                                    if (GUILayoutExt.ToggleLeft(
+                                            ref value,
+                                            ref isDirty,
+                                            defineInfo.define,
+                                            defineInfo.description, () => {
 
-                                        if (defineInfo.configurationType == InitializerBase.ConfigurationType.DebugOnly) {
+                                                if (defineInfo.configurationType == InitializerBase.ConfigurationType.DebugOnly) {
 
-                                            using (new GUILayoutExt.GUIColorUsing(new Color(0.9f, 0.7f, 1f, 0.8f))) {
-                                                GUILayout.Label("It is Debug-only define.", EditorStyles.miniLabel);
-                                            }
+                                                    using (new GUILayoutExt.GUIColorUsing(new Color(0.9f, 0.7f, 1f, 0.8f))) {
+                                                        GUILayout.Label("It is Debug-only define.", EditorStyles.miniLabel);
+                                                    }
+
+                                                }
+
+                                                if (defineInfo.configurationType == InitializerBase.ConfigurationType.ReleaseOnly) {
+
+                                                    using (new GUILayoutExt.GUIColorUsing(new Color(0.9f, 0.7f, 1f, 0.8f))) {
+                                                        GUILayout.Label("It is Release-only define.", EditorStyles.miniLabel);
+                                                    }
+
+                                                }
+
+                                            }) == true) {
+
+                                        if (value == true) {
+
+                                            conf.SetEnabled(define.name);
+                                            GUI.changed = true;
+
+                                        } else {
+
+                                            conf.SetDisabled(define.name);
+                                            GUI.changed = true;
 
                                         }
 
-                                        if (defineInfo.configurationType == InitializerBase.ConfigurationType.ReleaseOnly) {
-
-                                            using (new GUILayoutExt.GUIColorUsing(new Color(0.9f, 0.7f, 1f, 0.8f))) {
-                                                GUILayout.Label("It is Release-only define.", EditorStyles.miniLabel);
-                                            }
-
-                                        }
-
-                                    }) == true) {
-
-                                if (value == true) {
-
-                                    conf.SetEnabled(define.name);
-                                    GUI.changed = true;
-
-                                } else {
-
-                                    conf.SetDisabled(define.name);
-                                    GUI.changed = true;
-
+                                    }
                                 }
+                                GUILayout.EndVertical();
 
+                                using (new GUILayoutExt.GUIAlphaUsing(define.IsActualEnabled(defineInfo) == true ? 1f : 0.5f)) {
+
+                                    GUILayout.BeginHorizontal(GUILayout.Width(80f));
+                                    {
+                                        GUILayout.BeginHorizontal(GUILayout.Width(40f));
+                                        {
+                                            var codeSize = defineInfo.codeSize;
+                                            var tooltip = "How much generated IL2CPP code with/without this define will take.\n\n";
+                                            switch (codeSize) {
+                                                case InitializerBase.CodeSize.Light:
+                                                    tooltip += "Light - Has static size without generics";
+                                                    break;
+                                                case InitializerBase.CodeSize.Normal:
+                                                    tooltip += "Normal - Depends on components count, but contains not heavy/doesn't contains any generic instructions";
+                                                    break;
+                                                case InitializerBase.CodeSize.Heavy:
+                                                    tooltip += "Heavy - Depends on components count and contains heavy generic instructions";
+                                                    break;
+                                            }
+    
+                                            if (codeSize != InitializerBase.CodeSize.Unknown) {
+                                                GUILayoutExt.ProgressBar((float)codeSize, (float)InitializerBase.CodeSize.Heavy, Color.black, Color.green, Color.red,
+                                                                         new GUIContent("Code Size", tooltip));
+                                            }
+                                        }
+                                        GUILayout.EndHorizontal();
+                                        GUILayout.BeginHorizontal(GUILayout.Width(40f));
+                                        {
+                                            var runtimeSpeed = defineInfo.runtimeSpeed;
+                                            var tooltip = "How fast this code works.\n\n";
+                                            switch (runtimeSpeed) {
+                                                case InitializerBase.RuntimeSpeed.Light:
+                                                    tooltip += "Light - Has no additional instructions at all at runtime";
+                                                    break;
+                                                case InitializerBase.RuntimeSpeed.Normal:
+                                                    tooltip += "Normal - Has additional light-weight instructions at runtime";
+                                                    break;
+                                                case InitializerBase.RuntimeSpeed.Heavy:
+                                                    tooltip += "Heavy - Has heavy instructions every tick";
+                                                    break;
+                                            }
+    
+                                            if (runtimeSpeed != InitializerBase.RuntimeSpeed.Unknown) {
+                                                GUILayoutExt.ProgressBar((float)runtimeSpeed, (float)InitializerBase.RuntimeSpeed.Heavy, Color.black, Color.green, Color.red,
+                                                                         new GUIContent("Runtime Speed", tooltip));
+                                            }
+                                        }
+                                        GUILayout.EndHorizontal();
+                                    }
+                                    GUILayout.EndHorizontal();
+                                    
+                                }
+                                
                             }
+                            GUILayout.EndHorizontal();
                         }
 
                         if (EditorGUI.EndChangeCheck() == true) {
@@ -538,11 +581,47 @@ namespace ME.ECSEditor {
                             "Create instance copy for Features",
                             "When you add feature into the world, do you need to create copy of feature data at runtime? Turn off this checkbox if you do not want to change features data.");
 
-                        GUILayoutExt.IntFieldLeft(
-                            ref target.worldSettings.maxTicksSimulationCount,
+                        GUILayoutExt.EnumField(
+                            ref target.worldSettings.frameFixType,
                             ref isDirty,
-                            "Max ticks per simulation frame",
-                            "If simulation ticks count will be over this value, exception will be throw. Zero value = ignore this parameter.");
+                            "Simulation limitation type",
+                            "You can choose right behaviour depends on your game.");
+
+                        GUILayout.BeginHorizontal();
+                        {
+                            GUILayout.Space(10);
+                            GUILayout.BeginVertical();
+                            if (target.worldSettings.frameFixType == FrameFixBehaviour.ExceptionOverTicksPreFrame) {
+
+                                GUILayoutExt.IntFieldLeft(
+                                    ref target.worldSettings.frameFixValue,
+                                    ref isDirty,
+                                    "Max ticks per simulation frame",
+                                    "If simulation ticks count will be over this value, exception will be thrown.",
+                                    1);
+
+                            } else if (target.worldSettings.frameFixType == FrameFixBehaviour.AsyncOverMillisecondsPerFrame) {
+
+                                GUILayoutExt.IntFieldLeft(
+                                    ref target.worldSettings.frameFixValue,
+                                    ref isDirty,
+                                    "Max ms per simulation frame",
+                                    "If simulation frame time in milliseconds will be over this value, value will be clamped and simulation continues at the next simulation frame.",
+                                    1);
+
+                            } else if (target.worldSettings.frameFixType == FrameFixBehaviour.AsyncOverTicksPerFrame) {
+
+                                GUILayoutExt.IntFieldLeft(
+                                    ref target.worldSettings.frameFixValue,
+                                    ref isDirty,
+                                    "Max ticks per simulation frame",
+                                    "If simulation frame time in milliseconds will be over this value, value will be clamped and simulation continues at the next simulation frame.",
+                                    1);
+
+                            }
+                            GUILayout.EndVertical();
+                        }
+                        GUILayout.EndHorizontal();
 
                         GUILayoutExt.ToggleLeft(
                             ref target.worldSettings.useJobsForViews,
@@ -604,10 +683,10 @@ namespace ME.ECSEditor {
                                 GUILayout.Space(10f);
                                 {
                                     GUILayout.BeginVertical();
-                                    var statObj = (ME.ECS.Debug.StatisticsObject)EditorGUILayout.ObjectField("Statistic Object",
-                                                                                                            target.worldDebugSettings.statisticsObject,
-                                                                                                            typeof(ME.ECS.Debug.StatisticsObject),
-                                                                                                            allowSceneObjects: false);
+                                    var statObj = (ME.ECS.DebugUtils.StatisticsObject)EditorGUILayout.ObjectField("Statistic Object",
+                                                                                                                  target.worldDebugSettings.statisticsObject,
+                                                                                                                  typeof(ME.ECS.DebugUtils.StatisticsObject),
+                                                                                                                  allowSceneObjects: false);
                                     if (target.worldDebugSettings.statisticsObject != statObj) {
                                         
                                         target.worldDebugSettings.statisticsObject = statObj;
@@ -619,14 +698,14 @@ namespace ME.ECSEditor {
                                         EditorGUILayout.HelpBox("Object is None, create custom statistic object or create default one.", MessageType.Warning);
                                         if (GUILayout.Button("Create Default") == true) {
 
-                                            statObj = ME.ECS.Debug.StatisticsObject.CreateInstance<ME.ECS.Debug.StatisticsObject>();
+                                            statObj = ME.ECS.DebugUtils.StatisticsObject.CreateInstance<ME.ECS.DebugUtils.StatisticsObject>();
                                             var path = AssetDatabase.GetAssetPath(this.target);
                                             var dir = System.IO.Path.GetDirectoryName(path);
                                             path = dir + "/" + this.target.name + "_StatisticObject.asset";
                                             AssetDatabase.CreateAsset(statObj, path);
                                             AssetDatabase.ImportAsset(path);
 
-                                            var so = AssetDatabase.LoadAssetAtPath<ME.ECS.Debug.StatisticsObject>(path);
+                                            var so = AssetDatabase.LoadAssetAtPath<ME.ECS.DebugUtils.StatisticsObject>(path);
                                             target.worldDebugSettings.statisticsObject = so;
                                             isDirty = true;
 
@@ -711,7 +790,9 @@ namespace ME.ECSEditor {
                 if (isDirty == true) {
                     
                     EditorUtility.SetDirty(this.target);
-                    AssetDatabase.ForceReserializeAssets(new string[] { AssetDatabase.GetAssetPath(this.target) });
+                    EditorApplication.delayCall += () => {
+                        AssetDatabase.ForceReserializeAssets(new string[] { AssetDatabase.GetAssetPath(this.target) });
+                    };
 
                 }
 
@@ -721,31 +802,18 @@ namespace ME.ECSEditor {
             
             EditorGUI.BeginDisabledGroup(EditorApplication.isPlaying == true || EditorApplication.isPaused == true);
             //InitializerEditor.listCategories.DoLayoutList();
+            this.listCategoriesProp = this.serializedObject.FindProperty("featuresListCategories");
             EditorGUILayout.PropertyField(this.listCategoriesProp);
             EditorGUI.EndDisabledGroup();
 
-        }
-
-        private void OnRemoveItem(UnityEditorInternal.ReorderableList reorderableList) {
-
-            var idx = InitializerEditor.listCategories.index;
-            InitializerEditor.lists.RemoveAt(idx);
-            InitializerEditor.listCategories.list.RemoveAt(idx);
-
-        }
-
-        private void OnReorderItems(UnityEditorInternal.ReorderableList reorderableList, int oldindex, int newindex) {
-
-            var list = InitializerEditor.lists[oldindex];
-            InitializerEditor.lists[oldindex] = InitializerEditor.lists[newindex];
-            InitializerEditor.lists[newindex] = list;
+            this.serializedObject.ApplyModifiedProperties();
 
         }
 
         private System.Collections.Generic.List<string> CollectAllActiveDefines(bool isRelease) {
 
             var list = new System.Collections.Generic.List<string>();
-            foreach (var define in InitializerEditor.defines) {
+            foreach (var define in InitializerEditor.GetDefines()) {
 
                 if (isRelease == true) {
                     
@@ -764,6 +832,8 @@ namespace ME.ECSEditor {
         
         private void BuildConfiguration(InitializerBase.Configuration configuration) {
 
+            if (InitializerEditor.buildConfiguration != null) configuration = InitializerEditor.buildConfiguration.Invoke(configuration);
+            
             var path = "Assets";
             string file = $"csc-{configuration.name.ToLower()}.gen.rsp";
             
@@ -791,575 +861,6 @@ namespace ME.ECSEditor {
                 ScriptTemplates.Create(path, file, "00-csc-gen.rsp", defines, allowRename: false);
             }
 
-        }
-
-        private bool IsSystemFoldout(object instance) {
-
-            if (InitializerEditor.systemFoldouts.TryGetValue(instance, out var res) == true) {
-
-                return res;
-
-            }
-
-            return false;
-
-        }
-
-        private bool IsModuleFoldout(object instance) {
-
-            if (InitializerEditor.moduleFoldouts.TryGetValue(instance, out var res) == true) {
-
-                return res;
-
-            }
-
-            return false;
-
-        }
-
-        private bool IsSubFeatureFoldout(object instance) {
-
-            if (InitializerEditor.featureFoldouts.TryGetValue(instance, out var res) == true) {
-
-                return res;
-
-            }
-
-            return false;
-
-        }
-
-        private UnityEditorInternal.ReorderableList GetSubFeatureList(FeaturesList.FeatureData featureData) {
-
-            if (InitializerEditor.subFeatureLists.TryGetValue(featureData.feature, out var list) == false) {
-
-                list = new UnityEditorInternal.ReorderableList(featureData.innerFeatures.innerFeatures, typeof(FeaturesList.FeatureData), true, true, true, true);
-                list.drawHeaderCallback = (r) => { GUI.Label(r, "Sub Features"); };
-                list.drawElementCallback = this.OnDrawSubListItem;
-                //list.drawHeaderCallback = this.OnDrawHeaderSubItem;
-                list.onChangedCallback = this.OnChanged;
-                list.elementHeightCallback = this.GetSubElementHeight;//(index) => this.GetSubElementHeight((FeaturesList.FeatureData)featureData.innerFeatures[index]);
-                
-                /*
-                list.drawHeaderCallback = (r) => { GUI.Label(r, "Sub Features"); };
-                list.drawElementCallback = (r, index, isActive, isFocused) => {
-                    this.DrawFeature(ref r, (FeaturesList.FeatureData)featureData.innerFeatures[index], isActive, isFocused);
-                };
-                list.elementHeightCallback = (index) => {
-                    return this.GetElementHeight((FeaturesList.FeatureData)featureData.innerFeatures[index]);
-                };*/
-                InitializerEditor.subFeatureLists.Add(featureData.feature, list);
-
-            }
-
-            return list;
-
-        }
-
-        private void SetSystemFoldout(object instance, bool state) {
-
-            if (InitializerEditor.systemFoldouts.TryGetValue(instance, out var res) == true) {
-
-                InitializerEditor.systemFoldouts[instance] = state;
-
-            } else {
-
-                InitializerEditor.systemFoldouts.Add(instance, state);
-                
-            }
-
-        }
-
-        private void SetModuleFoldout(object instance, bool state) {
-
-            if (InitializerEditor.moduleFoldouts.TryGetValue(instance, out var res) == true) {
-
-                InitializerEditor.moduleFoldouts[instance] = state;
-
-            } else {
-
-                InitializerEditor.moduleFoldouts.Add(instance, state);
-                
-            }
-
-        }
-
-        private void SetSubFeatureFoldout(object instance, bool state) {
-
-            if (InitializerEditor.featureFoldouts.TryGetValue(instance, out var res) == true) {
-
-                InitializerEditor.featureFoldouts[instance] = state;
-
-            } else {
-
-                InitializerEditor.featureFoldouts.Add(instance, state);
-                
-            }
-
-        }
-
-        private System.Collections.Generic.Dictionary<FeatureBase, System.Collections.Generic.List<ObjectInfo>> cacheSystems = new System.Collections.Generic.Dictionary<FeatureBase, System.Collections.Generic.List<ObjectInfo>>();
-        private System.Collections.Generic.Dictionary<FeatureBase, System.Collections.Generic.List<ObjectInfo>> cacheModules = new System.Collections.Generic.Dictionary<FeatureBase, System.Collections.Generic.List<ObjectInfo>>();
-
-        public struct ObjectInfo {
-
-            public string typeName;
-            public System.Type type;
-
-        }
-        
-        private System.Collections.Generic.List<ObjectInfo> GetSystems(FeatureBase feature) {
-
-            if (this.cacheSystems.TryGetValue(feature, out var list) == false) {
-
-                list = new System.Collections.Generic.List<ObjectInfo>();
-                var script = MonoScript.FromScriptableObject(feature);
-                var text = script.text;
-
-                var matches = System.Text.RegularExpressions.Regex.Matches(text, @"AddSystem\s*\<(.*?)\>");
-                foreach (System.Text.RegularExpressions.Match match in matches) {
-
-                    if (match.Groups.Count > 0) {
-
-                        var systemType = match.Groups[1].Value;
-                        var spl = systemType.Split('.');
-                        systemType = spl[spl.Length - 1];
-                        list.Add(new ObjectInfo() { typeName = systemType, type = System.Type.GetType(systemType) });
-
-                    }
-
-                }
-
-                this.cacheSystems.Add(feature, list);
-                
-            }
-
-            return list;
-
-        }
-
-        private int GetSystemsCount(FeatureBase feature) {
-
-            return this.GetSystems(feature).Count;
-
-        }
-
-        private System.Collections.Generic.List<ObjectInfo> GetModules(FeatureBase feature) {
-
-            if (this.cacheModules.TryGetValue(feature, out var list) == false) {
-
-                list = new System.Collections.Generic.List<ObjectInfo>();
-                var script = MonoScript.FromScriptableObject(feature);
-                var text = script.text;
-
-                var matches = System.Text.RegularExpressions.Regex.Matches(text, @"AddModule\s*\<(.*?)\>");
-                foreach (System.Text.RegularExpressions.Match match in matches) {
-
-                    if (match.Groups.Count > 0) {
-
-                        var systemType = match.Groups[1].Value;
-                        var spl = systemType.Split('.');
-                        systemType = spl[spl.Length - 1];
-                        list.Add(new ObjectInfo() { typeName = systemType, type = System.Type.GetType(systemType) });
-
-                    }
-
-                }
-
-                this.cacheModules.Add(feature, list);
-                
-            }
-
-            return list;
-
-        }
-
-        private int GetModulesCount(FeatureBase feature) {
-
-            return this.GetModules(feature).Count;
-
-        }
-
-        private void OnDrawHeader(Rect rect) {
-            
-            GUI.Label(rect, "Features");
-            
-        }
-
-        private void OnChanged(UnityEditorInternal.ReorderableList reorderableList) {
-            
-            EditorUtility.SetDirty(this.target);
-            
-        }
-
-        private float GetElementHeightCategory(int index) {
-            
-            while (index >= InitializerEditor.lists.Count) InitializerEditor.lists.Add(null);
-            var list = InitializerEditor.lists[index];
-            this.FillList(index, ref list);
-
-            /*if (index == this.lists.Count - 1) {
-                
-                return list.GetHeight() + 10f;
-                
-            }*/
-            
-            return list.GetHeight() + 10f;
-
-        }
-
-        private static System.Collections.Generic.List<UnityEditorInternal.ReorderableList> lists = new System.Collections.Generic.List<UnityEditorInternal.ReorderableList>();
-        private static int currentListIndex;
-        private static int currentSubListIndex;
-        private void FillList(int index, ref UnityEditorInternal.ReorderableList list) {
-            
-            InitializerEditor.currentListIndex = index;
-
-            list = InitializerEditor.lists[index];
-            if (list == null) {
-                
-                var featureData = (FeaturesListCategory)InitializerEditor.listCategories.list[index];
-                list = new UnityEditorInternal.ReorderableList(featureData.features.features, typeof(FeaturesList.FeatureData), true, true, true, true);
-                list.drawElementCallback = this.OnDrawListItem;
-                list.drawHeaderCallback = this.OnDrawHeaderSubItem;
-                list.onChangedCallback = this.OnChanged;
-                list.elementHeightCallback = this.GetElementHeight;
-
-            }
-
-            InitializerEditor.lists[index] = list;
-            
-        }
-        
-        private void OnDrawListCategoryItem(Rect rect, int index, bool isActive, bool isFocused) {
-            
-            InitializerEditor.currentListIndex = index;
-
-            //rect.height = InitializerEditor.ONE_LINE_HEIGHT;
-            
-            var rectCheckBox = new Rect(rect);
-            rectCheckBox.width = 20f;
-
-            while (index >= InitializerEditor.lists.Count) InitializerEditor.lists.Add(null);
-            var list = InitializerEditor.lists[index];
-            this.FillList(index, ref list);
-
-            var isDirty = false;
-            {
-
-                rect.y += 1f;
-                rect.height -= 2f;
-                
-            }
-            
-            list.DoList(rect);
-            
-            if (isDirty == true) {
-                
-                EditorUtility.SetDirty(this.target);
-                
-            }
-            
-        }
-
-        private void OnDrawHeaderSubItem(Rect rect) {
-            
-            var featureData = (FeaturesListCategory)InitializerEditor.listCategories.list[InitializerEditor.currentListIndex];
-            var newCaption = EditorGUI.TextField(rect, featureData.folderCaption, EditorStyles.boldLabel);
-            if (string.IsNullOrEmpty(newCaption) == true) newCaption = "Group Name";
-            if (newCaption != featureData.folderCaption) {
-
-                featureData.folderCaption = newCaption;
-                EditorUtility.SetDirty(this.target);
-
-            }
-
-        }
-
-        private float GetElementHeight(int index) {
-
-            var featureData = (FeaturesList.FeatureData)InitializerEditor.lists[InitializerEditor.currentListIndex].list[index];
-            InitializerEditor.currentSubListIndex = index;
-            return this.GetElementHeight(featureData, drawSubFeatures: true);
-
-        }
-
-        private float GetSubElementHeight(int index) {
-
-            var featureData = (FeaturesList.FeatureData)(((FeaturesList.FeatureData)InitializerEditor.lists[InitializerEditor.currentListIndex].list[InitializerEditor.currentSubListIndex])).innerFeatures.innerFeatures[index];
-            return this.GetElementHeight(featureData, drawSubFeatures: false);
-
-        }
-
-        private float GetElementHeight(FeaturesList.FeatureData featureData, bool drawSubFeatures) {
-
-            var height = InitializerEditor.ONE_LINE_HEIGHT;
-
-            if (featureData.feature != null) { // Draw systems
-
-                height -= 2f;
-                
-                var editorComment = featureData.feature.editorComment;
-                if (string.IsNullOrEmpty(editorComment) == false) {
-                    
-                    var rectCheckBoxWidth = 20f;
-                    var w = this.drawWidth;
-                    w -= rectCheckBoxWidth;
-
-                    var style = new GUIStyle(EditorStyles.label);
-                    style.wordWrap = true;
-                    var content = new GUIContent(editorComment);
-                    height += style.CalcHeight(content, w);
-                    
-                }
-                
-                var count = this.GetSystemsCount(featureData.feature);
-                if (count > 0) {
-
-                    height += InitializerEditor.ONE_LINE_HEIGHT;
-                    var isOpen = this.IsSystemFoldout(featureData.feature);
-                    if (isOpen == true) {
-
-                        height += InitializerEditor.ONE_LINE_HEIGHT * count;
-
-                    }
-
-                }
-                
-                count = this.GetModulesCount(featureData.feature);
-                if (count > 0) {
-
-                    height += InitializerEditor.ONE_LINE_HEIGHT;
-                    var isOpen = this.IsModuleFoldout(featureData.feature);
-                    if (isOpen == true) {
-
-                        height += InitializerEditor.ONE_LINE_HEIGHT * count;
-
-                    }
-
-                }
-                
-                if (drawSubFeatures == true) { // Inner features
-
-                    height += InitializerEditor.ONE_LINE_HEIGHT;
-                    var isOpen = this.IsSubFeatureFoldout(featureData.feature);
-                    if (isOpen == true) {
-
-                        var features = featureData.innerFeatures.innerFeatures;
-                        if (features != null) {
-
-                            var list = this.GetSubFeatureList(featureData);
-                            height += list.GetHeight();
-                            /*foreach (var system in features) {
-
-                                height += this.GetElementHeight((FeaturesList.FeatureData)system);
-
-                            }*/
-
-                        }
-
-                    }
-                    
-                }
-                
-            }
-
-            return height;
-
-        }
-
-        private void OnDrawListItem(Rect rect, int index, bool isActive, bool isFocused) {
-
-            var featureData = (FeaturesList.FeatureData)InitializerEditor.lists[InitializerEditor.currentListIndex].list[index];
-            InitializerEditor.currentSubListIndex = index;
-            this.DrawFeature(ref rect, featureData, isActive, isFocused, drawSubFeatures: true);
-
-        }
-
-        private void OnDrawSubListItem(Rect rect, int index, bool isActive, bool isFocused) {
-
-            var featureData = (FeaturesList.FeatureData)((FeaturesList.FeatureData)InitializerEditor.lists[InitializerEditor.currentListIndex].list[InitializerEditor.currentSubListIndex]).innerFeatures.innerFeatures[index];
-            this.DrawFeature(ref rect, featureData, isActive, isFocused, drawSubFeatures: false);
-
-        }
-
-        private void DrawFeature(ref Rect rect, FeaturesList.FeatureData featureData, bool isActive, bool isFocused, bool drawSubFeatures) {
-            
-            if (Event.current.type == EventType.Repaint) this.drawWidth = rect.width;
-            rect.height = InitializerEditor.ONE_LINE_HEIGHT;
-            
-            var rectCheckBox = new Rect(rect);
-            rectCheckBox.width = 20f;
-
-            var isDirty = false;
-            {
-
-                rect.y += 1f;
-                rect.height -= 2f;
-                
-                var rectObjectField = new Rect(rect);
-                rectObjectField.x += rectCheckBox.width;
-                rectObjectField.width -= rectCheckBox.width;
-            
-                var oldColor = GUI.color;
-                if (featureData.enabled == false) {
-
-                    GUI.color = new Color(oldColor.r, oldColor.g, oldColor.b, 0.5f);
-
-                }
-
-                var obj = (FeatureBase)EditorGUI.ObjectField(rectObjectField, featureData.feature, typeof(FeatureBase), allowSceneObjects: false);
-                if (obj != featureData.feature) {
-
-                    featureData.feature = obj;
-
-                    var count = 0;
-                    for (int i = 0; i < InitializerEditor.lists[InitializerEditor.currentListIndex].count; ++i) {
-                        
-                        var data = (FeaturesList.FeatureData)InitializerEditor.lists[InitializerEditor.currentListIndex].list[i];
-                        if (data.feature != null && featureData.feature != null && featureData.feature == data.feature) {
-
-                            ++count;
-
-                        }
-                        
-                    }
-
-                    if (count > 1) {
-
-                        featureData.feature = null;
-
-                    }
-                    
-                    isDirty = true;
-
-                }
-
-                GUI.color = oldColor;
-
-                if (featureData.feature == null) {
-                    
-                    featureData.enabled = false;
-                    
-                }
-                
-                EditorGUI.BeginDisabledGroup(featureData.feature == null);
-                var flag = GUI.Toggle(rectCheckBox, featureData.enabled, string.Empty);
-                if (flag != featureData.enabled) {
-
-                    featureData.enabled = flag;
-                    isDirty = true;
-
-                }
-                EditorGUI.EndDisabledGroup();
-
-            }
-
-            if (featureData.feature != null) { // Draw feature
-
-                rect.x += rectCheckBox.width;// + 14f;
-                rect.width -= rectCheckBox.width;
-
-                var editorComment = featureData.feature.editorComment;
-                if (string.IsNullOrEmpty(editorComment) == false) {
-
-                    var style = new GUIStyle(EditorStyles.label);
-                    style.wordWrap = true;
-                    var content = new GUIContent(editorComment);
-                    var newRect = new Rect(rect);
-                    newRect.height = style.CalcHeight(content, rect.width);
-                    newRect.width = rect.width;
-                    newRect.y += InitializerEditor.ONE_LINE_HEIGHT;
-                    GUI.Label(newRect, content, style);
-                    rect.y += newRect.height;
-
-                }
-                
-                var count = this.GetSystemsCount(featureData.feature);
-                if (count > 0) {
-
-                    rect.y += InitializerEditor.ONE_LINE_HEIGHT;
-                    var isOpen = GUILayoutExt.BeginFoldoutHeaderGroup(rect, this.IsSystemFoldout(featureData.feature), new GUIContent(string.Format("Systems ({0})", count)));
-                    this.SetSystemFoldout(featureData.feature, isOpen);
-                    if (isOpen == true) {
-
-                        var systems = this.GetSystems(featureData.feature);
-                        foreach (var system in systems) {
-
-                            rect.y += InitializerEditor.ONE_LINE_HEIGHT;
-                            GUI.Label(rect, system.typeName, EditorStyles.label);
-
-                        }
-
-                    }
-
-                }
-                
-                count = this.GetModulesCount(featureData.feature);
-                if (count > 0) {
-
-                    rect.y += InitializerEditor.ONE_LINE_HEIGHT;
-                    var isOpen = GUILayoutExt.BeginFoldoutHeaderGroup(rect, this.IsModuleFoldout(featureData.feature), new GUIContent(string.Format("Modules ({0})", count)));
-                    this.SetModuleFoldout(featureData.feature, isOpen);
-                    if (isOpen == true) {
-
-                        var systems = this.GetModules(featureData.feature);
-                        foreach (var system in systems) {
-
-                            rect.y += InitializerEditor.ONE_LINE_HEIGHT;
-                            GUI.Label(rect, system.typeName, EditorStyles.label);
-
-                        }
-
-                    }
-
-                }
-
-                if (drawSubFeatures == true) { // Inner features
-
-                    count = (featureData.innerFeatures.innerFeatures != null ? featureData.innerFeatures.innerFeatures.Count : 0);
-                    rect.y += InitializerEditor.ONE_LINE_HEIGHT;
-                    var isOpen = GUILayoutExt.BeginFoldoutHeaderGroup(rect, this.IsSubFeatureFoldout(featureData.feature), new GUIContent(string.Format("Sub Features ({0})", count)));
-                    this.SetSubFeatureFoldout(featureData.feature, isOpen);
-                    if (isOpen == true) {
-
-                        var features = featureData.innerFeatures.innerFeatures;
-                        if (features == null) {
-                            
-                            featureData.innerFeatures.innerFeatures = new System.Collections.Generic.List<FeaturesList.FeatureData>();
-                            features = featureData.innerFeatures.innerFeatures;
-                            //featureData.innerFeatures[0] = new FeaturesList.FeatureData();
-
-                        }
-                        if (features != null) {
-
-                            rect.y += InitializerEditor.ONE_LINE_HEIGHT;
-                            var list = this.GetSubFeatureList(featureData);
-                            var listRect = new Rect(rect);
-                            list.DoList(listRect);
-                            /*foreach (var feature in features) {
-
-                                var prevRect = rect;
-                                rect.y += InitializerEditor.ONE_LINE_HEIGHT;
-                                this.DrawFeature(ref rect, (FeaturesList.FeatureData)feature, isActive, isFocused);
-                                rect.x = prevRect.x;
-
-                            }*/
-
-                        }
-
-                    }
-                    
-                }
-
-            }
-            
-            if (isDirty == true) {
-                
-                EditorUtility.SetDirty(this.target);
-                
-            }
-            
         }
 
     }

@@ -28,6 +28,8 @@ namespace ME.ECS.Tests {
             int from = 0,
             int to = 2) {
         
+            WorldUtilities.ResetTypeIds();
+            
             ME.ECS.Pools.current = new ME.ECS.PoolImplementation(isNull: false);
             World world = null;
             WorldUtilities.CreateWorld<EmptyState>(ref world, 0.033f);
@@ -37,6 +39,10 @@ namespace ME.ECS.Tests {
                 world.SetState<EmptyState>(WorldUtilities.CreateState<EmptyState>());
                 world.SetSeed(1u);
                 {
+                    ref var str = ref world.GetStructComponents();
+                    ref var str2 = ref world.GetNoStateData();
+                    CoreComponentsInitializer.InitTypeId();
+                    CoreComponentsInitializer.Init(world.GetState(), ref str2);
                     setupWorld?.Invoke(world);
                 }
                 

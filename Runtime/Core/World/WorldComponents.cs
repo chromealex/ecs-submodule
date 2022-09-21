@@ -11,19 +11,17 @@ namespace ME.ECS {
     #endif
     public sealed partial class World {
 
-        private Entity sharedEntity;
+        private ref Entity sharedEntity => ref this.currentState.sharedEntity;
         private bool sharedEntityInitialized;
         
         partial void OnSpawnComponents() {
 
-            this.sharedEntity = default;
             this.sharedEntityInitialized = false;
 
         }
 
         partial void OnRecycleComponents() {
 
-            this.sharedEntity = default;
             this.sharedEntityInitialized = false;
 
         }

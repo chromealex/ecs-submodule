@@ -1,36 +1,26 @@
-#if UNITY_MATHEMATICS
 using RandomState = System.UInt32;
-#else
-using RandomState = UnityEngine.Random.State;
-#endif
 
 namespace ME.ECS {
 
+    using Collections.V3;
+    
     public abstract class State : IPoolableRecycle {
 
         [ME.ECS.Serializer.SerializeField]
         public Tick tick;
         [ME.ECS.Serializer.SerializeField]
         public RandomState randomState;
+        [ME.ECS.Serializer.SerializeField]
+        public Entity sharedEntity;
 
-        #if !FILTERS_STORAGE_ARCHETYPES
-        public FiltersStorage filters;
         [ME.ECS.Serializer.SerializeField]
-        public Storage storage;
-        #endif
+        public ME.ECS.FiltersArchetype.FiltersArchetypeStorage storage;
         
-        #if FILTERS_STORAGE_ARCHETYPES
-        [ME.ECS.Serializer.SerializeField]
-        public ME.ECS.FiltersArchetype.FiltersArchetypeStorage filters;
-        public ref ME.ECS.FiltersArchetype.FiltersArchetypeStorage storage => ref this.filters;
-        #endif
-        
-        [ME.ECS.Serializer.SerializeField]
-        public Timers timers;
+        public MemoryAllocator allocator;
         [ME.ECS.Serializer.SerializeField]
         public StructComponentsContainer structComponents;
-        [ME.ECS.Serializer.SerializeField]
-        public GlobalEventStorage globalEvents;
+
+        public PluginsStorage pluginsStorage;
         
         /// <summary>
         /// Return most unique hash
@@ -38,50 +28,49 @@ namespace ME.ECS {
         /// <returns></returns>
         public virtual int GetHash() {
 
-            return this.tick ^ this.structComponents.GetHash() ^ this.randomState.GetHashCode() ^ this.storage.GetHashCode();
+            return this.tick ^ this.structComponents.GetHash() ^ this.randomState.GetHashCode() ^ this.storage.GetHash(ref this.allocator);
 
         }
 
         public virtual void Initialize(World world, bool freeze, bool restore) {
             
-            world.Register(ref this.filters, freeze, restore);
-            world.Register(ref this.structComponents, freeze, restore);
-            #if !FILTERS_STORAGE_ARCHETYPES
-            world.Register(ref this.storage, freeze, restore);
-            #endif
-            this.globalEvents.Initialize();
-            this.timers.Initialize();
+            // Use 512 KB by default
+            if (this.allocator.isValid == false) this.allocator.Initialize(512 * 1024, -1);
+
+            world.Register(ref this.allocator, ref this.storage, freeze, restore);
+            world.Register(ref this.allocator, ref this.structComponents, freeze, restore);
+            
+            this.pluginsStorage.Initialize(ref this.allocator);
             
         }
 
         public virtual void CopyFrom(State other) {
             
+            this.allocator.CopyFrom(in other.allocator);
+            
             this.tick = other.tick;
             this.randomState = other.randomState;
+            this.sharedEntity = other.sharedEntity;
 
-            this.filters.CopyFrom(other.filters);
+            this.pluginsStorage = other.pluginsStorage;
+
+            this.storage = other.storage;
             this.structComponents.CopyFrom(other.structComponents);
-            #if !FILTERS_STORAGE_ARCHETYPES
-            this.storage.CopyFrom(other.storage);
-            #endif
-            this.globalEvents.CopyFrom(in other.globalEvents);
-            this.timers.CopyFrom(in other.timers);
 
         }
 
         public virtual void OnRecycle() {
-
+            
             this.tick = default;
             this.randomState = default;
+            this.sharedEntity = default;
+
+            this.pluginsStorage = default;
+            this.storage = default;
             
-            this.timers.Dispose();
-            this.globalEvents.DeInitialize();
-            this.globalEvents = default;
-            WorldUtilities.Release(ref this.filters);
-            WorldUtilities.Release(ref this.structComponents);
-            #if !FILTERS_STORAGE_ARCHETYPES
-            WorldUtilities.Release(ref this.storage);
-            #endif
+            this.structComponents.OnRecycle(ref this.allocator, true);
+            
+            this.allocator.Dispose();
 
         }
 
