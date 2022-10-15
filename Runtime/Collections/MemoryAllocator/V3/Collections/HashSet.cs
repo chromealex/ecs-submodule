@@ -147,6 +147,7 @@ namespace ME.ECS.Collections.MemoryAllocator {
 
         [INLINE(256)]
         public readonly MemPtr GetMemPtr(in MemoryAllocator allocator) {
+            
             E.IS_CREATED(this);
             return this.buckets.arrPtr;
 
@@ -155,13 +156,13 @@ namespace ME.ECS.Collections.MemoryAllocator {
         [INLINE(256)]
         public void ReplaceWith(ref MemoryAllocator allocator, in HashSet<T> other) {
 
-            if (this.GetMemPtr(in allocator) == other.GetMemPtr(in allocator))
-            {
+            if (this.GetMemPtr(in allocator) == other.GetMemPtr(in allocator)) {
                 return;
             }
 
             this.Dispose(ref allocator);
             this = other;
+
         }
 
         [INLINE(256)]
