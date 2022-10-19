@@ -1264,7 +1264,7 @@ namespace ME.ECS {
         
         public ref Entity AddEntity(string name = null, EntityFlag flags = EntityFlag.None) {
 
-            var nameBytes = name != null ? new Unity.Collections.FixedString64Bytes(name.Substring(0, 64 / sizeof(char))) : default;
+            var nameBytes = name != null ? new Unity.Collections.FixedString64Bytes(name.Substring(0, Unity.Collections.FixedString64Bytes.UTF8MaxLengthInBytes / sizeof(char))) : default;
             return ref this.AddEntity_INTERNAL(nameBytes, flags: flags);
 
         }
