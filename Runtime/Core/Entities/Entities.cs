@@ -239,6 +239,15 @@ namespace ME.ECS {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
+        public static ref Entity Create(Unity.Collections.FixedString64Bytes name) {
+
+            return ref Worlds.current.AddEntity(name);
+
+        }
+
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
         public Entity(string name) {
 
             ref var entity = ref Worlds.current.AddEntity(name);
