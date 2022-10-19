@@ -11,6 +11,7 @@
 
 19/09/2022
 # Version 2.8
+* Runtime.Core: World::AddEntity() sub string to 64 bytes of length and additional method added
 * Runtime.Modules: RegisterViewSource now provide optional customId
 * Serializer: Threaded option added
 * Runtime.Core:

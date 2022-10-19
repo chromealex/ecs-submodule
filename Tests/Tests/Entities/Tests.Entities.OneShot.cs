@@ -8,6 +8,8 @@ namespace ME.ECS.Tests {
 
         public struct TestOneShotComponent : IComponentOneShot {
 
+            public int a;
+
         }
 
         private class TestOneShotSystem_Set : ISystem, IAdvanceTick {
