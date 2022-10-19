@@ -5,7 +5,7 @@ namespace ME.ECS.Collections.MemoryAllocator {
     using INLINE = System.Runtime.CompilerServices.MethodImplAttribute;
     
     [System.Diagnostics.DebuggerTypeProxyAttribute(typeof(HashSetProxy<>))]
-    public struct HashSet<T> where T : unmanaged {
+    public struct HashSet<T> : IIsCreated where T : unmanaged {
 
         public struct Enumerator : System.Collections.Generic.IEnumerator<T> {
 
@@ -143,6 +143,26 @@ namespace ME.ECS.Collections.MemoryAllocator {
             this.slots.Dispose(ref allocator);
             this = default;
             
+        }
+
+        [INLINE(256)]
+        public readonly MemPtr GetMemPtr(in MemoryAllocator allocator) {
+            
+            E.IS_CREATED(this);
+            return this.buckets.arrPtr;
+
+        }
+
+        [INLINE(256)]
+        public void ReplaceWith(ref MemoryAllocator allocator, in HashSet<T> other) {
+
+            if (this.GetMemPtr(in allocator) == other.GetMemPtr(in allocator)) {
+                return;
+            }
+
+            this.Dispose(ref allocator);
+            this = other;
+
         }
 
         [INLINE(256)]
