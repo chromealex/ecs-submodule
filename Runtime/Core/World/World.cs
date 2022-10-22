@@ -2038,12 +2038,13 @@ namespace ME.ECS {
                 }
                 
             }
+
+            // Pick random number
+            this.GetRandomValue();
+
             ////////////////
             this.currentStep &= ~WorldStep.PluginsLogicTick;
             ////////////////
-
-			// Pick random number
-			this.GetRandomValue();
 
             // modules.AdvanceTickPre
             this.StepElement<IModuleBase, IAdvanceTickPre, Tick>(tick, this.modules, fixedDeltaTime, WorldStep.ModulesLogicTick, (t, module, idx) => {
