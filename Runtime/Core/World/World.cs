@@ -2023,9 +2023,6 @@ namespace ME.ECS {
             this.currentStep |= WorldStep.PluginsLogicTick;
             ////////////////
             {
-                
-                // Pick random number
-                this.GetRandomValue();
 
                 using (new Checkpoint("UseLifetimeStep NotifyAllSystems")) {
 
@@ -2051,6 +2048,9 @@ namespace ME.ECS {
             ////////////////
             this.currentStep &= ~WorldStep.PluginsLogicTick;
             ////////////////
+
+			// Pick random number
+			this.GetRandomValue();
 
             // modules.AdvanceTickPre
             this.StepElement<IModuleBase, IAdvanceTickPre, Tick>(tick, this.modules, fixedDeltaTime, WorldStep.ModulesLogicTick, (t, module, idx) => {
