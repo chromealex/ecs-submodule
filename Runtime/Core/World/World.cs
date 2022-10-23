@@ -2024,9 +2024,6 @@ namespace ME.ECS {
             ////////////////
             {
                 
-                // Pick random number
-                this.GetRandomValue();
-
                 using (new Checkpoint("UseLifetimeStep NotifyAllSystems")) {
 
                     this.UseLifetimeStep(ComponentLifetime.NotifyAllSystems, fixedDeltaTime);
@@ -2047,6 +2044,9 @@ namespace ME.ECS {
 
                 }
                 
+                // Pick random number
+                this.GetRandomValue();
+
             }
             ////////////////
             this.currentStep &= ~WorldStep.PluginsLogicTick;
