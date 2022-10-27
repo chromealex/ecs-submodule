@@ -324,7 +324,7 @@ namespace ME.ECS.Collections.V3 {
             }
             #endif
             
-            UnsafeUtility.MemCpy(this.GetUnsafePtr(dest + destOffset), this.GetUnsafePtr(source + sourceOffset), length);
+            UnsafeUtility.MemMove(this.GetUnsafePtr(dest + destOffset), this.GetUnsafePtr(source + sourceOffset), length);
         }
 
         [INLINE(256)]
