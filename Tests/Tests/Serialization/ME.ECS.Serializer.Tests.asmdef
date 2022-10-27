@@ -10,7 +10,8 @@
         "ME.ECS.Tests",
         "ME.ECS.Tests.Res",
         "ME.ECS.FPMath",
-        "Unity.Mathematics"
+        "Unity.Mathematics",
+        "Unity.Collections"
     ],
     "includePlatforms": [
         "Editor"

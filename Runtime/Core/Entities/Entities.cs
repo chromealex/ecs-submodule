@@ -239,6 +239,15 @@ namespace ME.ECS {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
+        public static ref Entity Create(Unity.Collections.FixedString64Bytes name) {
+
+            return ref Worlds.current.AddEntity(name);
+
+        }
+
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
         public Entity(string name) {
 
             ref var entity = ref Worlds.current.AddEntity(name);
@@ -257,7 +266,29 @@ namespace ME.ECS {
             this.generation = entity.generation;
 
         }
+        
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
+        public Entity(Unity.Collections.FixedString64Bytes name) {
 
+            ref var entity = ref Worlds.current.AddEntity(name);
+            this.id = entity.id;
+            this.generation = entity.generation;
+
+        }
+        
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
+        public Entity(Unity.Collections.FixedString64Bytes name, EntityFlag flags) {
+
+            ref var entity = ref Worlds.current.AddEntity(name, flags);
+            this.id = entity.id;
+            this.generation = entity.generation;
+
+        }
+        
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif

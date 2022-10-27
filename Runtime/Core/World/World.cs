@@ -1242,7 +1242,7 @@ namespace ME.ECS {
             Entity maxEntity = default;
             for (int i = 0; i < capacity - curCap; ++i) {
 
-                var e = this.AddEntity_INTERNAL(validate: false);
+                var e = this.AddEntity_INTERNAL(default, validate: false);
                 this.RemoveEntity(in e, false);
                 if (e.id > maxEntity.id) maxEntity = e;
 
@@ -1256,13 +1256,20 @@ namespace ME.ECS {
 
         }
 
-        public ref Entity AddEntity(string name = null, EntityFlag flags = EntityFlag.None) {
+        public ref Entity AddEntity(Unity.Collections.FixedString64Bytes name, EntityFlag flags = EntityFlag.None) {
 
             return ref this.AddEntity_INTERNAL(name, flags: flags);
 
         }
         
-        private ref Entity AddEntity_INTERNAL(string name = null, bool validate = true, EntityFlag flags = EntityFlag.None) {
+        public ref Entity AddEntity(string name = null, EntityFlag flags = EntityFlag.None) {
+
+            var nameBytes = name != null ? new Unity.Collections.FixedString64Bytes(name.Substring(0, Unity.Collections.FixedString64Bytes.UTF8MaxLengthInBytes / sizeof(char))) : default;
+            return ref this.AddEntity_INTERNAL(nameBytes, flags: flags);
+
+        }
+        
+        private ref Entity AddEntity_INTERNAL(Unity.Collections.FixedString64Bytes name, bool validate = true, EntityFlag flags = EntityFlag.None) {
             
             E.IS_LOGIC_STEP(this);
             E.IS_WORLD_THREAD();
@@ -1271,7 +1278,7 @@ namespace ME.ECS {
             ref var entity = ref this.currentState.storage.Alloc(ref this.currentState.allocator);
             if (validate == true) this.UpdateEntityOnCreate(in entity, isNew);
             
-            if (name != null) {
+            if (name.IsEmpty == false) {
 
                 entity.Set(new ME.ECS.Name.Name() {
                     value = name,
@@ -2208,7 +2215,7 @@ namespace ME.ECS {
         /// <param name="from">Source tick</param>
         /// <param name="to">Target tick</param>
         /// <returns>New target tick</returns>
-        /// <exception cref="Exception">Failed if frame fix behaviour is FrameFixBehaviour.ExceptionOverTicksPreFrame and </exception>
+        /// <exception cref="System.Exception">Failed if frame fix behaviour is FrameFixBehaviour.ExceptionOverTicksPreFrame and </exception>
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
