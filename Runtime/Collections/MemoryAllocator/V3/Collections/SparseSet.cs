@@ -148,6 +148,14 @@ namespace ME.ECS.Collections.MemoryAllocator {
 
         }
 
+        public T Read(ref MemoryAllocator allocator, int entityId) {
+
+            var idx = this.sparse[in allocator, entityId];
+            if (idx == 0) return default;
+            return this.dense[in allocator, idx];
+
+        }
+
         public void Remove(ref MemoryAllocator allocator, int entityId) {
             
             ref var idx = ref this.sparse[in allocator, entityId];
