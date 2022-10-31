@@ -199,7 +199,7 @@ namespace ME.ECS {
         public MemoryAllocator tempAllocator;
         private State resetState;
         private bool hasResetState;
-        internal State currentState;
+        public State currentState;
         private uint seed;
         private int cpf; // CPF = Calculations per frame
         internal int entitiesCapacity;
