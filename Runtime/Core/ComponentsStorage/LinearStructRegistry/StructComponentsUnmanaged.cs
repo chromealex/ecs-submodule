@@ -29,9 +29,8 @@ namespace ME.ECS {
         public override bool TryRead(in Entity entity, out TComponent component) {
             
             ref var storage = ref this.storage;
-            var allocator = this.allocator;
-            ref var reg = ref storage.GetRegistry<TComponent>(in allocator);
-            var item = reg.components.Read(ref allocator, entity.id);
+			ref var reg = ref storage.GetRegistry<TComponent>(in this.allocator);
+			var item = reg.components.Read(ref this.allocator, entity.id);
             component = item.data;
             return item.state > 0;
             
