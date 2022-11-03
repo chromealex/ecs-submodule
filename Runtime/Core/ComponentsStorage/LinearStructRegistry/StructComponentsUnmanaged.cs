@@ -30,7 +30,7 @@ namespace ME.ECS {
             
             ref var storage = ref this.storage;
             ref var reg = ref storage.GetRegistry<TComponent>(in this.allocator);
-            ref var item = ref reg.components.Get(ref this.allocator, entity.id);
+            var item = reg.components.Read(ref this.allocator, entity.id);
             component = item.data;
             return item.state > 0;
             
@@ -210,7 +210,7 @@ namespace ME.ECS {
         #endif
         public override bool Has(in Entity entity) {
 
-            return this.Get(in entity).state > 0;
+            return this.TryRead(in entity, out var _);
 
         }
 

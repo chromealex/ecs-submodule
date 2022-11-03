@@ -199,7 +199,7 @@ namespace ME.ECS {
         public MemoryAllocator tempAllocator;
         private State resetState;
         private bool hasResetState;
-        internal State currentState;
+        public State currentState;
         private uint seed;
         private int cpf; // CPF = Calculations per frame
         internal int entitiesCapacity;
@@ -2023,9 +2023,6 @@ namespace ME.ECS {
             this.currentStep |= WorldStep.PluginsLogicTick;
             ////////////////
             {
-                
-                // Pick random number
-                this.GetRandomValue();
 
                 using (new Checkpoint("UseLifetimeStep NotifyAllSystems")) {
 
@@ -2048,6 +2045,10 @@ namespace ME.ECS {
                 }
                 
             }
+
+            // Pick random number
+            this.GetRandomValue();
+
             ////////////////
             this.currentStep &= ~WorldStep.PluginsLogicTick;
             ////////////////
