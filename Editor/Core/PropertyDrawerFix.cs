@@ -1,4 +1,4 @@
-#if UNITY_2021_1_OR_NEWER
+#if UNITY_2020_3_OR_NEWER
 #elif UNITY_2020_1_OR_NEWER
 using System.Reflection;
 using ME.ECSEditor;
