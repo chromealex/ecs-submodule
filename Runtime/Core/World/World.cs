@@ -199,7 +199,7 @@ namespace ME.ECS {
         public MemoryAllocator tempAllocator;
         private State resetState;
         private bool hasResetState;
-        internal State currentState;
+        public State currentState;
         private uint seed;
         private int cpf; // CPF = Calculations per frame
         internal int entitiesCapacity;
@@ -2024,7 +2024,7 @@ namespace ME.ECS {
             this.currentStep |= WorldStep.PluginsLogicTick;
             ////////////////
             {
-                
+            
                 using (new Checkpoint("UseLifetimeStep NotifyAllSystems")) {
 
                     this.UseLifetimeStep(ComponentLifetime.NotifyAllSystems, fixedDeltaTime);

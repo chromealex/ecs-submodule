@@ -21,7 +21,7 @@ namespace ME.ECS {
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         public override bool TryRead(in Entity entity, out TComponent component) {
             
-            ref var item = ref this.registry.components.Get(ref this.allocator, entity.id);
+            var item = this.registry.components.Read(ref this.allocator, entity.id);
             component = item.data;
             return item.state > 0;
             
@@ -194,7 +194,7 @@ namespace ME.ECS {
         #endif
         public override bool Has(in Entity entity) {
 
-            return this.Get(in entity).state > 0;
+            return this.TryRead(in entity, out var _);
 
         }
 
