@@ -70,7 +70,7 @@ namespace ME.ECS.Collections.V3 {
             }
 
             var size = Unity.Collections.LowLevel.Unsafe.UnsafeUtility.SizeOf<T>();
-            allocator.MemCopy(arr.arrPtr, destIndex * size, fromArr.arrPtr, sourceIndex * size, length * size);
+            allocator.MemMove(arr.arrPtr, destIndex * size, fromArr.arrPtr, sourceIndex * size, length * size);
 
         }
 

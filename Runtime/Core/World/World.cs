@@ -1264,7 +1264,8 @@ namespace ME.ECS {
         
         public ref Entity AddEntity(string name = null, EntityFlag flags = EntityFlag.None) {
 
-            var nameBytes = name != null ? new Unity.Collections.FixedString64Bytes(name.Substring(0, Unity.Collections.FixedString64Bytes.UTF8MaxLengthInBytes / sizeof(char))) : default;
+            var maxLength = Unity.Collections.FixedString64Bytes.UTF8MaxLengthInBytes / sizeof(char);
+            var nameBytes = name != null ? new Unity.Collections.FixedString64Bytes(name.Length > maxLength ? name.Substring(0, maxLength) : name) : default;
             return ref this.AddEntity_INTERNAL(nameBytes, flags: flags);
 
         }
@@ -2023,7 +2024,7 @@ namespace ME.ECS {
             this.currentStep |= WorldStep.PluginsLogicTick;
             ////////////////
             {
-
+            
                 using (new Checkpoint("UseLifetimeStep NotifyAllSystems")) {
 
                     this.UseLifetimeStep(ComponentLifetime.NotifyAllSystems, fixedDeltaTime);
@@ -2044,11 +2045,10 @@ namespace ME.ECS {
 
                 }
                 
+                // Pick random number
+                this.GetRandomValue();
+
             }
-
-            // Pick random number
-            this.GetRandomValue();
-
             ////////////////
             this.currentStep &= ~WorldStep.PluginsLogicTick;
             ////////////////

@@ -262,7 +262,7 @@ namespace ME.ECS.Collections.MemoryAllocator {
             
             var ptr = this.arr.arrPtr;
             var size = sizeof(T);
-            allocator.MemCopy(ptr, size * index, ptr, size * (index + 1), (this.Count - index - 1) * size);
+            allocator.MemMove(ptr, size * index, ptr, size * (index + 1), (this.Count - index - 1) * size);
             
             --this.Count;
             this.arr[in allocator, this.Count] = default;
@@ -334,12 +334,12 @@ namespace ME.ECS.Collections.MemoryAllocator {
                 this.EnsureCapacity(ref allocator, this.Count + count);
                 var size = sizeof(T);
                 if (index < this.Count) {
-                    allocator.MemCopy(this.arr.arrPtr, (index + count) * size, this.arr.arrPtr, index * size, (this.Count - index) * size);
+                    allocator.MemMove(this.arr.arrPtr, (index + count) * size, this.arr.arrPtr, index * size, (this.Count - index) * size);
                 }
 
                 if (this.arr.arrPtr == collection.arr.arrPtr) {
-                    allocator.MemCopy(this.arr.arrPtr, index * size, this.arr.arrPtr, 0, index * size);
-                    allocator.MemCopy(this.arr.arrPtr, (index * 2) * size, this.arr.arrPtr, (index + count) * size, (this.Count - index) * size);
+                    allocator.MemMove(this.arr.arrPtr, index * size, this.arr.arrPtr, 0, index * size);
+                    allocator.MemMove(this.arr.arrPtr, (index * 2) * size, this.arr.arrPtr, (index + count) * size, (this.Count - index) * size);
                 } else {
                     collection.CopyTo(ref allocator, this.arr, index);
                 }

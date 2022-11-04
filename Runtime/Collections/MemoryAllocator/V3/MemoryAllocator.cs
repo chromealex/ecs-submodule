@@ -299,7 +299,7 @@ namespace ME.ECS.Collections.V3 {
             }
 
             var newPtr = this.Alloc(size);
-            this.MemCopy(newPtr, 0, ptr, 0, blockDataSize);
+            this.MemMove(newPtr, 0, ptr, 0, blockDataSize);
             this.Free(ptr);
 
             return newPtr;
@@ -325,6 +325,29 @@ namespace ME.ECS.Collections.V3 {
             #endif
             
             UnsafeUtility.MemCpy(this.GetUnsafePtr(dest + destOffset), this.GetUnsafePtr(source + sourceOffset), length);
+            
+        }
+
+        [INLINE(256)]
+        public readonly void MemMove(MemPtr dest, long destOffset, MemPtr source, long sourceOffset, long length) {
+            
+            #if MEMORY_ALLOCATOR_BOUNDS_CHECK
+            var destZoneIndex = dest >> 32;
+            var sourceZoneIndex = source >> 32;
+            var destMaxOffset = (dest & MemoryAllocator.OFFSET_MASK) + destOffset + length;
+            var sourceMaxOffset = (source & MemoryAllocator.OFFSET_MASK) + sourceOffset + length;
+            
+            if (destZoneIndex >= this.zonesListCount || sourceZoneIndex >= this.zonesListCount) {
+                throw new OutOfBoundsException();
+            }
+            
+            if (this.zonesList[destZoneIndex]->size < destMaxOffset || this.zonesList[sourceZoneIndex]->size < sourceMaxOffset) {
+                throw new OutOfBoundsException();
+            }
+            #endif
+            
+            UnsafeUtility.MemMove(this.GetUnsafePtr(dest + destOffset), this.GetUnsafePtr(source + sourceOffset), length);
+            
         }
 
         [INLINE(256)]
