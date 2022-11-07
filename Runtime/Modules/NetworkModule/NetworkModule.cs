@@ -888,6 +888,10 @@ namespace ME.ECS.Network {
 
             }*/
 
+            if (this.IsReverting() == true) {
+                tick = this.revertingTo;
+            }
+
             #if ENABLE_PROFILER
             var ns = System.Diagnostics.Stopwatch.StartNew();
             #endif
@@ -897,10 +901,10 @@ namespace ME.ECS.Network {
                 this.revertingTo = tick;
                 currentState.CopyFrom(sourceState);
                 currentState.Initialize(this.world, freeze: false, restore: true);
-                if (this.asyncMode == false) {
+                /*if (this.asyncMode == false) {
                     this.world.SetFromToTicks(sourceTick, tick);
                     tick = this.world.Simulate(sourceTick, tick);
-                }
+                }*/
             }
             this.DoRevertingEnd();
             #if ENABLE_PROFILER
@@ -913,7 +917,7 @@ namespace ME.ECS.Network {
                 
             } else {
 
-                this.world.SetFromToTicks(tick, targetTick);
+                this.world.SetFromToTicks(sourceTick, targetTick);
 
             }
 
