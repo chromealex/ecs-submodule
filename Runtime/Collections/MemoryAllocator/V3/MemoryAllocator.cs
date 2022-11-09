@@ -214,10 +214,10 @@ namespace ME.ECS.Collections.V3 {
             } else {
 	    
 		var areEquals = true;
-                if (target.zonesListCount == other.zonesListCount) {
+                if (this.zonesListCount == other.zonesListCount) {
 
                     for (int i = 0; i < other.zonesListCount; ++i) {
-                        ref var curZone = ref target.zonesList[i];
+                        ref var curZone = ref this.zonesList[i];
                         var otherZone = other.zonesList[i];
                         {
                             // resize zone
