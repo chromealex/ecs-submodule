@@ -212,19 +212,41 @@ namespace ME.ECS.Collections.V3 {
             } else if (other.zonesList == null && this.zonesList != null) {
                 this.FreeZones();
             } else {
-                this.FreeZones();
+	    
+		var areEquals = true;
+                if (target.zonesListCount == other.zonesListCount) {
 
-                for (int i = 0; i < other.zonesListCount; i++) {
-                    var otherZone = other.zonesList[i];
-                    var zone = MemoryAllocator.ZmCreateZone(otherZone->size);
-                    UnsafeUtility.MemCpy(zone, otherZone, otherZone->size);
+                    for (int i = 0; i < other.zonesListCount; ++i) {
+                        ref var curZone = ref target.zonesList[i];
+                        var otherZone = other.zonesList[i];
+                        {
+                            // resize zone
+                            curZone = MemoryAllocator.ZmReallocZone(curZone, otherZone->size);
+                            UnsafeUtility.MemCpy(curZone, otherZone, otherZone->size);
+                        }
+                    }
 
-                    this.AddZone(zone);
+                } else {
+                    areEquals = false;
                 }
+
+                if (areEquals == false) {
+		    
+		    this.FreeZones();
+
+		    for (int i = 0; i < other.zonesListCount; i++) {
+		        var otherZone = other.zonesList[i];
+		        var zone = MemoryAllocator.ZmCreateZone(otherZone->size);
+		        UnsafeUtility.MemCpy(zone, otherZone, otherZone->size);
+		        this.AddZone(zone);
+		    }
+		
+		}
 
             }
             
             this.maxSize = other.maxSize;
+	    
         }
 
         private void FreeZones() {
