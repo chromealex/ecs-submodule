@@ -561,6 +561,7 @@ namespace ME.ECS.Views {
         private ViewId viewSourceIdRegistry;
         private bool isRequestsDirty;
         private bool forceUpdateState;
+        private Tick previousTick;
 
         public World world { get; set; }
 
@@ -577,6 +578,8 @@ namespace ME.ECS.Views {
 
             this.registryPrefabToProvider = PoolDictionary<ViewId, IViewsProvider>.Spawn(ViewsModule.REGISTRY_PROVIDERS_CAPACITY);
             this.registryPrefabToProviderInitializer = PoolDictionary<ViewId, IViewsProviderInitializerBase>.Spawn(ViewsModule.REGISTRY_PROVIDERS_CAPACITY);
+            
+            this.previousTick = Tick.Zero;
 
             WorldUtilities.SetAllComponentInHash<ViewComponent>(false);
 
@@ -623,6 +626,8 @@ namespace ME.ECS.Views {
             PoolArray<Views>.Recycle(ref this.list);
 
             this.viewSourceIdRegistry = default;
+            
+            this.previousTick = Tick.Zero;
 
         }
 
@@ -1258,7 +1263,13 @@ namespace ME.ECS.Views {
         public void UpdatePost(in float deltaTime) {
 
             if (this.world.settings.turnOffViews == true) return;
-            if (this.world.IsReverting() == true) return;
+            //if (this.world.IsReverting() == true) return;
+
+            var currentTick = this.world.GetCurrentTick();
+            
+            if (this.previousTick > currentTick) return;
+            
+            this.previousTick = currentTick;
 
             var hasChanged = this.UpdateRequests();
             if (this.world.currentState != null) {
