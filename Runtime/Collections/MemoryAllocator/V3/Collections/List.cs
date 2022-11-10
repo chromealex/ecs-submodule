@@ -247,6 +247,25 @@ namespace ME.ECS.Collections.MemoryAllocator {
         }
 
         [INLINE(256)]
+        public bool RemoveFast<U>(ref MemoryAllocator allocator, U obj) where U : unmanaged, System.IEquatable<T> {
+
+            E.IS_CREATED(this);
+            for (int i = 0, cnt = this.Count; i < cnt; ++i) {
+
+                if (obj.Equals(this.arr[in allocator, i]) == true) {
+
+                    this.RemoveAtFast(ref allocator, i);
+                    return true;
+
+                }
+
+            }
+
+            return false;
+
+        }
+
+        [INLINE(256)]
         public unsafe bool RemoveAt(ref MemoryAllocator allocator, int index) {
             
             E.IS_CREATED(this);
