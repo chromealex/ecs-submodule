@@ -50,6 +50,8 @@ namespace ME.ECSEditor {
         public override void OnGUI(Rect position, SerializedProperty property, GUIContent label) {
             
             var items = property.FindPropertyRelative("features").FindPropertyRelative("features");
+            if (items == null)
+                return;
             var header = property.FindPropertyRelative("folderCaption");
             var headerRect = position;
             headerRect.y += 10f;
