@@ -29,6 +29,9 @@ namespace ME.ECS.Collections.V3 {
                 var list = new System.Collections.Generic.List<Dump>();
                 for (int i = 0; i < this.allocator.zonesListCount; ++i) {
                     var zone = this.allocator.zonesList[i];
+                    
+                    if (zone == null) continue;
+
                     var blocks = new System.Collections.Generic.List<string>();
                     MemoryAllocator.ZmDumpHeap(zone, blocks);
                     var item = new Dump() {
@@ -46,6 +49,9 @@ namespace ME.ECS.Collections.V3 {
                 var list = new System.Collections.Generic.List<Dump>();
                 for (int i = 0; i < this.allocator.zonesListCount; ++i) {
                     var zone = this.allocator.zonesList[i];
+                    
+                    if (zone == null) continue;
+                    
                     var blocks = new System.Collections.Generic.List<string>();
                     MemoryAllocator.ZmCheckHeap(zone, blocks);
                     var item = new Dump() {
@@ -319,6 +325,16 @@ namespace ME.ECS.Collections.V3 {
             zone->rover = @base->next;
 
             return (void*)((byte*)@base + TSize<MemBlock>.size);
+        }
+        
+        [INLINE(256)]
+        public static bool IsEmptyZone(MemZone* zone) {
+
+            for (var block = zone->blocklist.next.Ptr(zone); block != &zone->blocklist; block = block->next.Ptr(zone)) {
+                if (block->state != MemoryAllocator.BLOCK_STATE_FREE) return false;
+            }
+
+            return true;
         }
 
         [INLINE(256)]
