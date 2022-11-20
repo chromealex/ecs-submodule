@@ -369,6 +369,34 @@ namespace ME.ECS.Collections.MemoryAllocator {
         }
 
         [INLINE(256)]
+        public unsafe void AddRange(ref MemoryAllocator allocator, MemArrayAllocator<T> collection) {
+
+            E.IS_CREATED(this);
+            var index = this.Count;
+            if (collection.isCreated == false)
+                ThrowHelper.ThrowArgumentNullException(ExceptionArgument.collection);
+            if ((uint) index > (uint)this.Count)
+                throw new System.IndexOutOfRangeException();
+            int count = collection.Length;
+            if (count > 0) {
+                this.EnsureCapacity(ref allocator, this.Count + count);
+                var size = sizeof(T);
+                if (index < this.Count) {
+                    allocator.MemMove(this.arr.arrPtr, (index + count) * size, this.arr.arrPtr, index * size, (this.Count - index) * size);
+                }
+
+                if (this.arr.arrPtr == collection.arrPtr) {
+                    allocator.MemMove(this.arr.arrPtr, index * size, this.arr.arrPtr, 0, index * size);
+                    allocator.MemMove(this.arr.arrPtr, (index * 2) * size, this.arr.arrPtr, (index + count) * size, (this.Count - index) * size);
+                } else {
+                    CopyFrom(ref allocator, collection, index);
+                }
+
+                this.Count += count;
+            }
+        }
+
+        [INLINE(256)]
         public readonly unsafe void CopyTo(ref MemoryAllocator allocator, MemArrayAllocator<T> arr, int index) {
             
             E.IS_CREATED(this);
