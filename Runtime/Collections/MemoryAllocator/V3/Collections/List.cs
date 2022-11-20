@@ -380,6 +380,19 @@ namespace ME.ECS.Collections.MemoryAllocator {
             allocator.MemCopy(arr.arrPtr, index * size, this.arr.arrPtr, 0, this.Count * size);
             
         }
+
+        [INLINE(256)]
+        public readonly unsafe void CopyFrom(ref MemoryAllocator allocator, MemArrayAllocator<T> arr, int index) {
+
+            E.IS_CREATED(this);
+            if (arr.isCreated == false) {
+                ThrowHelper.ThrowArgumentException(ExceptionResource.Arg_RankMultiDimNotSupported);
+            }
+
+            var size = sizeof(T);
+            allocator.MemCopy(this.arr.arrPtr, index * size, arr.arrPtr, 0, arr.Length * size);
+
+        }
         
     }
 
