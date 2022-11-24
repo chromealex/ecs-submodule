@@ -45,6 +45,7 @@ namespace ME.ECS.Collections.MemoryAllocator {
     }
 
     public struct SparseSet<T> where T : struct {
+        private static T defaultRef;
 
         [ME.ECS.Serializer.SerializeField]
         private MemArraySlicedAllocator<T> dense;
@@ -148,11 +149,11 @@ namespace ME.ECS.Collections.MemoryAllocator {
 
         }
 
-        public T Read(ref MemoryAllocator allocator, int entityId) {
+        public readonly ref T Read(ref MemoryAllocator allocator, int entityId) {
 
             var idx = this.sparse[in allocator, entityId];
-            if (idx == 0) return default;
-            return this.dense[in allocator, idx];
+            if (idx == 0) return ref defaultRef;
+            return ref this.dense[in allocator, idx];
 
         }
 

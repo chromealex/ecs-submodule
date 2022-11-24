@@ -37,6 +37,15 @@ namespace ME.ECS {
         }
 
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        public override ref readonly TComponent Read(in Entity entity) {
+
+            ref var storage = ref this.storage;
+            ref var reg = ref storage.GetRegistry<TComponent>(in this.allocator);
+            ref var item = ref reg.components.Read(ref this.allocator, entity.id);
+            return ref item.data;
+        }
+
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         public override ref Component<TComponent> Get(in Entity entity) {
 
             ref var storage = ref this.storage;

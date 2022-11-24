@@ -29,6 +29,11 @@ namespace ME.ECS {
         }
 
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        public override ref readonly TComponent Read(in Entity entity) {
+            throw new System.NotImplementedException();
+        }
+
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         public override ref Component<TComponent> Get(in Entity entity) {
             throw new System.NotImplementedException();
         }
