@@ -30,6 +30,12 @@ namespace ME.ECS {
         }
 
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        public override ref readonly TComponent Read(in Entity entity) {
+            ref var bucket = ref this.components[entity.id];
+            return ref bucket.data;
+        }
+
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         public override ref Component<TComponent> Get(in Entity entity) {
             return ref this.components[entity.id];
         }
