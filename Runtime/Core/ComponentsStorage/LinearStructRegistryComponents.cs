@@ -1788,7 +1788,7 @@ namespace ME.ECS {
             E.IS_ALIVE(in entity);
             E.IS_TAG<TComponent>(in entity);
 
-            return ref ((StructComponentsBase<TComponent>)this.currentState.structComponents.list.arr[AllComponentTypes<TComponent>.typeId]).Get(in entity).data;
+            return ref ((StructComponentsBase<TComponent>)this.currentState.structComponents.list.arr[AllComponentTypes<TComponent>.typeId]).Read(in entity);
 
             /*
             if (AllComponentTypes<TComponent>.isBlittable == true) {
