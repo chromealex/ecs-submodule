@@ -322,7 +322,7 @@ namespace ME.ECS.Views {
         void DoDestroy();
         void ApplyState(float deltaTime, bool immediately);
         void ApplyPhysicsState(float deltaTime);
-        void OnUpdate(float deltaTime);
+        void DoUpdate(float deltaTime);
 
         void UpdateParticlesSimulation(float deltaTime);
         void SimulateParticles(float time, uint seed);
@@ -1289,7 +1289,7 @@ namespace ME.ECS.Views {
 
                     }
 
-                    currentViewInstance.OnUpdate(deltaTime);
+                    currentViewInstance.DoUpdate(deltaTime);
                     currentViewInstance.UpdateParticlesSimulation(deltaTime);
 
                 }

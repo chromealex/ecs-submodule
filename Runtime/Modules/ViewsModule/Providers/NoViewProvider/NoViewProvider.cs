@@ -111,6 +111,12 @@ namespace ME.ECS.Views.Providers {
 
         }
 
+        void IView.DoUpdate(float dt) {
+            
+            this.OnUpdate(dt);
+
+        }
+
         public virtual void OnInitialize() { }
         public virtual void OnDeInitialize() { }
         public virtual void OnDisconnect() { }
