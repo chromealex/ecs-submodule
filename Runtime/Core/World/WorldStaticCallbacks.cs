@@ -20,6 +20,9 @@ namespace ME.ECS {
         public delegate void InitState(State state);
         public delegate void DisposeState(State state);
         
+        public delegate void ViewCreated(in Entity entity, ME.ECS.Views.IView view, int parentId);
+        public delegate void ViewDestroy(in Entity entity, ME.ECS.Views.IView view);
+        
         public delegate uint EntityGetVersion(in Entity entity);
         public delegate void EntityDestroy(State state, in Entity entity, bool cleanUpHierarchy);
         public delegate void EntityCopyFrom(World world, in Entity from, in Entity to, bool copyHierarchy);
@@ -31,6 +34,9 @@ namespace ME.ECS {
         private static Dispose onDispose;
 
         private static InitState onInitResetState;
+        
+        private static ViewCreated onViewCreated;
+        private static ViewDestroy onViewDestroy;
 
         private static EntityDestroy onEntityDestroy;
         private static EntityCopyFrom onEntityCopyFrom;
@@ -98,6 +104,30 @@ namespace ME.ECS {
         public static void RegisterCallbacks(EntityDestroy onEntityDestroy) {
 
             WorldStaticCallbacks.onEntityDestroy += onEntityDestroy;
+
+        }
+
+        public static void RegisterViewCreatedCallback(ViewCreated onViewCreated) {
+            
+            WorldStaticCallbacks.onViewCreated += onViewCreated;
+
+        }
+
+        public static void RegisterViewDestroyCallback(ViewDestroy onViewDestroy) {
+            
+            WorldStaticCallbacks.onViewDestroy += onViewDestroy;
+
+        }
+
+        public static void UnRegisterViewDestroyCallback(ViewDestroy onViewDestroy) {
+            
+            WorldStaticCallbacks.onViewDestroy -= onViewDestroy;
+
+        }
+
+        public static void UnRegisterViewCreatedCallback(ViewCreated onViewCreated) {
+            
+            WorldStaticCallbacks.onViewCreated -= onViewCreated;
 
         }
 
@@ -177,6 +207,18 @@ namespace ME.ECS {
         public static void RaiseCallbackLifetimeStep(World world, ComponentLifetime step, tfloat deltaTime) {
             
             WorldStaticCallbacks.onWorldLifetimeStep?.Invoke(world, step, deltaTime);
+
+        }
+
+        public static void RaiseCallbackOnViewCreated(in Entity entity, ME.ECS.Views.IView view, int parentId) {
+            
+            WorldStaticCallbacks.onViewCreated?.Invoke(in entity, view, parentId);
+
+        }
+
+        public static void RaiseCallbackOnViewDestroy(in Entity entity, ME.ECS.Views.IView view) {
+            
+            WorldStaticCallbacks.onViewDestroy?.Invoke(in entity, view);
 
         }
 

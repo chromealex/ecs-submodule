@@ -355,6 +355,8 @@ namespace ME.ECS.Views {
         void InstantiateView(ViewId prefabSourceId, in Entity entity);
         void DestroyView(ref IView instance);
 
+        IView GetViewByEntity(in Entity entity);
+
     }
 
     public class ViewRegistryNotFoundException : System.Exception {
@@ -628,6 +630,14 @@ namespace ME.ECS.Views {
             this.viewSourceIdRegistry = default;
             
             this.previousTick = Tick.Zero;
+
+        }
+        
+        IView IViewModule.GetViewByEntity(in Entity entity) {
+
+            var id = entity.id;
+            if (id < 0 || id >= this.list.Length) return null;
+            return this.list.arr[id].mainView;
 
         }
 
@@ -1211,7 +1221,7 @@ namespace ME.ECS.Views {
             }
             
             var allEntities = this.world.GetAliveEntities();
-            ref var allocator = ref this.world.currentState.allocator;
+            //ref var allocator = ref this.world.currentState.allocator;
             if (allEntities.isCreated == true) {
                 
                 for (int j = 0; j < allEntities.Count; ++j) {
@@ -1266,9 +1276,7 @@ namespace ME.ECS.Views {
             //if (this.world.IsReverting() == true) return;
 
             var currentTick = this.world.GetCurrentTick();
-            
             if (this.previousTick > currentTick) return;
-            
             this.previousTick = currentTick;
 
             var hasChanged = this.UpdateRequests();

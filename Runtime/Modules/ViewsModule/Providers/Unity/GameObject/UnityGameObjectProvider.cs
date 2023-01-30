@@ -185,7 +185,7 @@ namespace ME.ECS.Views.Providers {
 
     public struct InterpolatedTransform : System.IEquatable<InterpolatedTransform> {
 
-        public struct Transform {
+        public struct Transform : System.IEquatable<Transform> {
 
             public UnityEngine.Vector3 position;
             public UnityEngine.Quaternion rotation;
@@ -209,13 +209,33 @@ namespace ME.ECS.Views.Providers {
 
             }
 
+            public bool Equals(Transform other) {
+                return this.position.Equals(other.position) && this.rotation.Equals(other.rotation) && this.localScale.Equals(other.localScale) && this.isDirty == other.isDirty;
+            }
+
+            public override bool Equals(object obj) {
+                return obj is Transform other && Equals(other);
+            }
+
+            public override int GetHashCode() {
+                unchecked {
+                    var hashCode = this.position.GetHashCode();
+                    hashCode = (hashCode * 397) ^ this.rotation.GetHashCode();
+                    hashCode = (hashCode * 397) ^ this.localScale.GetHashCode();
+                    hashCode = (hashCode * 397) ^ this.isDirty.GetHashCode();
+                    return hashCode;
+                }
+            }
+
         }
         
         [System.Serializable]
         public struct Settings {
 
             public bool enabled;
+            [UnityEngine.Space(8f)]
             public float movementSpeed;
+            [UnityEngine.Space(8f)]
             public float rotationSpeed;
 
         }
@@ -366,10 +386,41 @@ namespace ME.ECS.Views.Providers {
             public float cacheTimeout;
 
         }
+
+        [System.Serializable]
+        public struct ParentParameters {
+
+            [System.Serializable]
+            public struct Item {
+
+                public UnityEngine.Transform transform;
+                public int parentId;
+
+            }
+
+            public bool enabled;
+            [UnityEngine.Space(8f)]
+            public int parentId;
+            [UnityEngine.Space(8f)]
+            public Item[] roots;
+
+            public UnityEngine.Transform GetRoot(int parentId) {
+
+                for (int i = 0; i < this.roots.Length; ++i) {
+                    if (this.roots[i].parentId == parentId) return this.roots[i].transform;
+                }
+
+                return null;
+
+            }
+
+        }
         
         public ParticleSystemSimulation particleSystemSimulation;
-        public InterpolatedTransform.Settings interpolationParameters;
         public DefaultParameters defaultParameters;
+        public InterpolatedTransform.Settings interpolationParameters;
+        public ParentParameters parentParameters;
+        
         new protected InterpolatedTransform transform;
 
         public virtual bool applyStateJob => true;
@@ -473,6 +524,15 @@ namespace ME.ECS.Views.Providers {
 
         }
 
+        public UnityEngine.Transform GetParentTransform(int parentId) {
+
+            var root = this.parentParameters.GetRoot(parentId);
+            if (root != null) return root;
+            
+            return this.transform;
+
+        }
+
         void IView.DoInitialize() {
 
             this.InitializeTransform();
@@ -549,6 +609,7 @@ namespace ME.ECS.Views.Providers {
 
             var sourceTyped = (MonoBehaviourView)prefab;
             var view = this.pool.Spawn(sourceTyped, prefabSourceId, sourceTyped.customViewId, in targetEntity);
+            if (view.parentParameters.enabled == true) WorldStaticCallbacks.RaiseCallbackOnViewCreated(in targetEntity, view, view.parentParameters.parentId);
             if (this.world.debugSettings.showViewsOnScene == false || this.world.debugSettings.viewsSettings.unityGameObjectProviderShowOnScene == false) {
 
                 view.gameObject.hideFlags = UnityEngine.HideFlags.HideInHierarchy;
@@ -562,6 +623,7 @@ namespace ME.ECS.Views.Providers {
         public override bool Destroy(ref IView instance) {
 
             var instanceTyped = (MonoBehaviourView)instance;
+            if (instanceTyped.parentParameters.enabled == true) WorldStaticCallbacks.RaiseCallbackOnViewDestroy(instanceTyped.entity, instanceTyped);
             var immediately = this.pool.Recycle(ref instanceTyped, instanceTyped.customViewId, instanceTyped.useCache == true ? instanceTyped.cacheTimeout : 0f);
             instance = null;
             return immediately;
