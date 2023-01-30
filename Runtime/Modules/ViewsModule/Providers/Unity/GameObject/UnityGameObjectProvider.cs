@@ -190,12 +190,22 @@ namespace ME.ECS.Views.Providers {
             public UnityEngine.Vector3 position;
             public UnityEngine.Quaternion rotation;
             public UnityEngine.Vector3 localScale;
+            public bool isDirty;
 
             public Transform(UnityEngine.Transform transform) {
 
                 this.position = transform.position;
                 this.rotation = transform.rotation;
                 this.localScale = transform.localScale;
+                this.isDirty = true;
+
+            }
+
+            public bool IsEquals(UnityEngine.Transform transform) {
+
+                return this.position == transform.position &&
+                       this.rotation == transform.rotation &&
+                       this.localScale == transform.localScale;
 
             }
 
@@ -217,14 +227,20 @@ namespace ME.ECS.Views.Providers {
 
         public UnityEngine.Vector3 position {
             get => this.targetTransform.position;
-            set => this.targetTransform.position = value;
+            set {
+                this.targetTransform.position = value;
+                this.targetTransform.isDirty = true;
+            }
         }
 
         public UnityEngine.Quaternion rotation {
             get => this.targetTransform.rotation;
-            set => this.targetTransform.rotation = value;
+            set {
+                this.targetTransform.rotation = value;
+                this.targetTransform.isDirty = true;
+            }
         }
-        
+
         public UnityEngine.Vector3 localPosition {
             get => this.transform.localPosition;
             set => this.transform.localPosition = value;
@@ -237,7 +253,10 @@ namespace ME.ECS.Views.Providers {
 
         public UnityEngine.Vector3 localScale {
             get => this.targetTransform.localScale;
-            set => this.targetTransform.localScale = value;
+            set {
+                this.targetTransform.localScale = value;
+                this.targetTransform.isDirty = true;
+            }
         }
 
         public InterpolatedTransform(MonoBehaviourViewBase view, UnityEngine.Transform transform, InterpolatedTransform.Settings settings) {
@@ -253,11 +272,17 @@ namespace ME.ECS.Views.Providers {
 
             if (this.settings.enabled == false) {
 
+                if (this.targetTransform.isDirty == false) return;
+
                 this.transform.position = this.targetTransform.position;
                 this.transform.rotation = this.targetTransform.rotation;
                 this.transform.localScale = this.targetTransform.localScale;
 
+                this.targetTransform.isDirty = false;
+
             } else {
+
+                if (this.targetTransform.isDirty == false) return;
 
                 var maxMovementDelta = this.view.GetInterpolationMovementSpeed() * Worlds.current.tickTime;
                 this.transform.position = UnityEngine.Vector3.MoveTowards(this.transform.position, this.targetTransform.position, maxMovementDelta);
@@ -266,6 +291,12 @@ namespace ME.ECS.Views.Providers {
                 this.transform.rotation = UnityEngine.Quaternion.RotateTowards(this.transform.rotation, this.targetTransform.rotation, maxRotationDelta);
                 
                 this.transform.localScale = this.targetTransform.localScale;
+
+                if (this.targetTransform.IsEquals(this.transform) == true) {
+                    
+                    this.targetTransform.isDirty = false;
+
+                }
 
             }
 
