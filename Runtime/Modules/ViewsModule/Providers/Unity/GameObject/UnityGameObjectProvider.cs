@@ -360,8 +360,8 @@ namespace ME.ECS.Views.Providers {
 
         }
 
-        public float GetInterpolationMovementSpeed() => this.interpolationParameters.movementSpeed;
-        public float GetInterpolationRotationSpeed() => this.interpolationParameters.rotationSpeed;
+        public virtual float GetInterpolationMovementSpeed() => this.interpolationParameters.movementSpeed;
+        public virtual float GetInterpolationRotationSpeed() => this.interpolationParameters.rotationSpeed;
 
         public void SimulateParticles(float time, uint seed) {
 
