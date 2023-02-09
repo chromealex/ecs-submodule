@@ -343,6 +343,12 @@ namespace ME.ECS.Collections.V3 {
             
         }
 
+        public long GetAllocPtr(in MemoryAllocator allocator, int index) {
+            
+            return allocator.RefArrayPtr<T>(this.arrPtr, index);
+            
+        }
+
         public ref T this[in MemoryAllocator allocator, int index] {
             [INLINE(256)]
             get {

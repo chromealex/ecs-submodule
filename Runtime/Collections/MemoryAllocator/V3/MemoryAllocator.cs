@@ -486,6 +486,11 @@ namespace ME.ECS.Collections.V3 {
         /// 
         /// Arrays
         /// 
+        public readonly MemPtr RefArrayPtr<T>(MemPtr ptr, int index) where T : struct {
+            var size = TSize<T>.size;
+            return ptr + index * size;
+        }
+        
         [INLINE(256)]
         public readonly ref T RefArray<T>(MemPtr ptr, int index) where T : struct {
             var size = TSize<T>.size;

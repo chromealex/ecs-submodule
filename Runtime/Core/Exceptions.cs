@@ -115,6 +115,13 @@ namespace ME.ECS {
 
         }
 
+        [System.Diagnostics.Conditional("WORLD_EXCEPTIONS")]
+        public static void IS_NOT_UNMANAGED<TComponent>() where TComponent : struct, IComponentBase {
+            
+            throw new System.Exception($"Component `{typeof(TComponent)}` must be unmanaged");
+            
+        }
+
     }
     
     public class CollectionNotCreated : System.Exception {

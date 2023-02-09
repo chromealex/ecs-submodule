@@ -1783,6 +1783,18 @@ namespace ME.ECS {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
+        public long ReadDataPtr<TComponent>(in Entity entity) where TComponent : struct, IStructComponent {
+
+            E.IS_ALIVE(in entity);
+            E.IS_TAG<TComponent>(in entity);
+
+            return ((StructComponentsBase<TComponent>)this.currentState.structComponents.list.arr[AllComponentTypes<TComponent>.typeId]).ReadPtr(in entity);
+
+        }
+        
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
         public ref readonly TComponent ReadData<TComponent>(in Entity entity) where TComponent : struct, IStructComponent {
 
             E.IS_ALIVE(in entity);

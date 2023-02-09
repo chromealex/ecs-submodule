@@ -361,7 +361,15 @@ public class AddonsWindow : EditorWindow {
         this.requests.Add(new Item() {
             request = www,
             callback = (data) => {
-                var json = JsonUtility.FromJson<PackageInfo>(data);
+                var malformed = false;
+                PackageInfo json = default;
+                try {
+                    json = JsonUtility.FromJson<PackageInfo>(data);
+                } catch (System.Exception) {
+                    json.name = "<color=red><malformed package></color>";
+                    malformed = true;
+                }
+
                 label.text = json.version;
                 packageName.text = json.name;
                 if (string.IsNullOrEmpty(json.license) == true) {
@@ -370,7 +378,7 @@ public class AddonsWindow : EditorWindow {
                     license.text = json.license;
                 }
                 var isInstalled = false;
-                if (this.HasInstalledPackage(json, out var installedInfo) == true) {
+                if (malformed == false && this.HasInstalledPackage(json, out var installedInfo) == true) {
                     isInstalled = true;
                     if (installedInfo.info.version != json.version) {
                         currentVersion.AddToClassList("new-version-available");
@@ -382,6 +390,7 @@ public class AddonsWindow : EditorWindow {
                         currentVersion.text = $"Installed version: {installedInfo.info.version} (up to date)";
                     }
                 } else {
+                    installedInfo = default;
                     currentVersion.AddToClassList("not-installed");
                     container.AddToClassList("not-installed");
                     currentVersion.text = "Not installed";
@@ -438,20 +447,20 @@ public class AddonsWindow : EditorWindow {
                     buttons.Add(button);
                 }
                 if (isInstalled == false) {
-                    foreach (var item in this.installSources) {
-                        var itemSource = item;
-                        var button = new Button(() => {
-                            this.InstallPackage(json, url, itemSource);
-                        });
-                        button.AddToClassList("button");
-                        button.AddToClassList("cursor-action-add");
-                        var icon = new Image();
-                        icon.image = EditorUtilities.Load<Texture>($"Editor/Tools/Addons/EditorResources/{item.icon}");
-                        button.Add(icon);
-                        var buttonLabel = new Label(item.install.name);
-                        buttonLabel.tooltip = item.install.description;
-                        button.Add(buttonLabel);
-                        buttons.Add(button);
+                    if (malformed == false) {
+                        foreach (var item in this.installSources) {
+                            var itemSource = item;
+                            var button = new Button(() => { this.InstallPackage(json, url, itemSource); });
+                            button.AddToClassList("button");
+                            button.AddToClassList("cursor-action-add");
+                            var icon = new Image();
+                            icon.image = EditorUtilities.Load<Texture>($"Editor/Tools/Addons/EditorResources/{item.icon}");
+                            button.Add(icon);
+                            var buttonLabel = new Label(item.install.name);
+                            buttonLabel.tooltip = item.install.description;
+                            button.Add(buttonLabel);
+                            buttons.Add(button);
+                        }
                     }
                 } else {
                     if (installedInfo.info.version != json.version) {
@@ -471,7 +480,7 @@ public class AddonsWindow : EditorWindow {
                             }
                         }
                     }
-
+                    
                     foreach (var item in this.installSources) {
                         if (item.type == installedInfo.installationSourceType) {
                             var itemSource = item;
@@ -661,7 +670,10 @@ public class AddonsWindow : EditorWindow {
         foreach (var guid in packages) {
             var path = AssetDatabase.GUIDToAssetPath(guid);
             if (System.IO.Path.GetExtension(path) == ".json") {
-                var json = JsonUtility.FromJson<PackageInfo>(System.IO.File.ReadAllText(path));
+                var doc = System.IO.File.ReadAllText(path);
+                if (string.IsNullOrEmpty(doc.Trim()) == true) continue;
+                var json = JsonUtility.FromJson<PackageInfo>(doc);
+                if (json.name == null || json.name.StartsWith("com.me.ecs") == false) continue;
                 var dir = System.IO.Path.GetDirectoryName(path);
                 if (System.IO.File.Exists(dir + "/.git") == true) {
                     this.installedPackages.Add(new InstalledPackageInfo() {

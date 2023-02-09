@@ -37,6 +37,15 @@ namespace ME.ECS {
         }
 
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        public override long ReadPtr(in Entity entity) {
+            
+            ref var storage = ref this.storage;
+            ref var reg = ref storage.GetRegistry<TComponent>(in this.allocator);
+            return reg.components.ReadPtr(in this.allocator, entity.id);
+
+        }
+
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         public override ref readonly TComponent Read(in Entity entity) {
 
             ref var storage = ref this.storage;

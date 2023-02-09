@@ -269,6 +269,29 @@ namespace ME.ECS.Collections.V3 {
             
         }
 
+        public long GetAllocPtr(in MemoryAllocator allocator, int index) {
+            
+            var data = this.data;
+            if (index >= data.Length) {
+
+                // Look into tails
+                var tails = this.tails;
+                index -= data.Length;
+                for (int i = 0, length = tails.Length; i < length; ++i) {
+
+                    ref var tail = ref tails[in allocator, i];
+                    var len = tail.Length;
+                    if (index < len) return tail.GetAllocPtr(in allocator, index);
+                    index -= len;
+
+                }
+
+            }
+
+            return data.GetAllocPtr(in allocator, index);
+            
+        }
+
         public ref T this[in MemoryAllocator allocator, int index] {
             [INLINE(256)]
             get {

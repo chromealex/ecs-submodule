@@ -187,6 +187,15 @@ namespace ME.ECS.Collections.MemoryAllocator {
 
         }
 
+        public long ReadPtr(in MemoryAllocator allocator, int entityId) {
+
+            var idx = this.sparse[in allocator, entityId];
+            if (idx == 0) return default;
+            
+            return this.dense.GetAllocPtr(in allocator, idx);
+
+        }
+
         public unsafe T ReadPtr(MemoryAllocator* allocator, int entityId) {
 
             ref var alloc = ref UnsafeUtility.AsRef<MemoryAllocator>(allocator);
