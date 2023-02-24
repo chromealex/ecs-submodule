@@ -5,6 +5,8 @@
   * Modules support and Static API added
   * ConfigId<>, ViewId<> structs added to use with blittable components
   * Deprecated methods and modules removed
+  * ViewsModule: RegisterViewSource are now with async support
+  * [fix] Collections: ReplaceWith/CopyFrom methods fix with GetMemPtr calls on null collections
 * Tests:
   * New memory allocator collections tests implemented
   * Major refactoring iteration

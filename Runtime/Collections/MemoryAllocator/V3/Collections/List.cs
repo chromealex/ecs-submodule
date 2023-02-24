@@ -98,7 +98,7 @@ namespace ME.ECS.Collections.MemoryAllocator {
         [INLINE(256)]
         public void ReplaceWith(ref MemoryAllocator allocator, in List<T> other) {
             
-            if (other.GetMemPtr(in allocator) == this.GetMemPtr(in allocator)) {
+            if (other.arr.arrPtr == this.arr.arrPtr) {
                 return;
             }
             
@@ -110,7 +110,7 @@ namespace ME.ECS.Collections.MemoryAllocator {
         [INLINE(256)]
         public void CopyFrom(ref MemoryAllocator allocator, in List<T> other) {
 
-            if (other.GetMemPtr(in allocator) == this.GetMemPtr(in allocator)) return;
+            if (other.arr.arrPtr == this.arr.arrPtr) return;
             if (this.arr.arrPtr == 0L && other.arr.arrPtr == 0L) return;
             if (this.arr.arrPtr != 0L && other.arr.arrPtr == 0L) {
                 this.Dispose(ref allocator);
