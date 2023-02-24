@@ -158,6 +158,19 @@ namespace ME.ECS {
         
     }
 
+    public class ViewProviderNotFound : System.Exception {
+
+        public ViewProviderNotFound() : base("ME.ECS Exception") { }
+        public ViewProviderNotFound(string message) : base(message) { }
+
+        public static void Throw(System.Type viewType) {
+
+            throw new ViewProviderNotFound($"Provider you want to use for type {viewType} was not found.");
+
+        }
+        
+    }
+
     public class DeprecatedException : System.Exception {
 
         public DeprecatedException() : base("ME.ECS Exception") { }

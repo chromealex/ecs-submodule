@@ -149,7 +149,7 @@ namespace ME.ECS.Views {
         #endif
         public ViewId RegisterViewSource(UnityEngine.GameObject prefab, ViewId customId = default) {
 
-            return this.RegisterViewSource(new UnityGameObjectProviderInitializer(), prefab.GetComponent<MonoBehaviourView>(), customId);
+            return this.RegisterViewSource(new UnityGameObjectProviderInitializer(), ViewsModule.ViewSourceObject.Create(prefab.GetComponent<MonoBehaviourView>()), customId);
 
         }
 

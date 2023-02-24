@@ -105,7 +105,7 @@ namespace ME.ECS.Views {
 
             }
 
-            return this.RegisterViewSource(new UnityDrawMeshProviderInitializer(), prefab.GetSource(), customId);
+            return this.RegisterViewSource(new UnityDrawMeshProviderInitializer(), ViewSourceObject.Create(prefab.GetSource()), customId);
 
         }
 

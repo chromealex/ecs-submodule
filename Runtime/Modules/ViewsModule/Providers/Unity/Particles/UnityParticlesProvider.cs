@@ -102,7 +102,7 @@ namespace ME.ECS.Views {
 
             }
 
-            return this.RegisterViewSource(new UnityParticlesProviderInitializer(), prefab.GetSource(), customId);
+            return this.RegisterViewSource(new UnityParticlesProviderInitializer(), ViewsModule.ViewSourceObject.Create(prefab.GetSource()), customId);
 
         }
 
