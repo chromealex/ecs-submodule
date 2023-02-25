@@ -68,6 +68,7 @@ namespace ME.ECS {
         public void Validate(ref MemoryAllocator allocator, int capacity) {
 
             this.values.Resize(ref allocator, capacity);
+            ComponentTypesRegistry.burstStateVersionsDirectRef.Data = this.GetMemPtr();
 
         }
 
@@ -77,6 +78,7 @@ namespace ME.ECS {
         public void Validate(ref MemoryAllocator allocator, in Entity entity) {
 
             this.values.Resize(ref allocator, entity.id + 1);
+            ComponentTypesRegistry.burstStateVersionsDirectRef.Data = this.GetMemPtr();
             //NativeArrayUtils.Resize(id, ref this.values, true);
 
         }
