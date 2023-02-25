@@ -107,9 +107,13 @@ namespace ME.ECS {
 
         }
 
-        public void ValidateTypeId<T>(ref MemoryAllocator allocator, int typeId) where T : struct, IComponentBase {
+        public void ValidateTypeId<T>(ref MemoryAllocator allocator) where T : struct, IComponentBase {
 
             this.items.Resize(ref allocator, AllComponentTypesCounter.counter + 1);
+            
+            var typeId = AllComponentTypes<T>.typeId;
+            var ptr = this.items[in allocator, typeId];
+            AllComponentTypes<T>.burstTypeStorageDirectRef.Data = ptr;
 
         }
 
@@ -121,6 +125,7 @@ namespace ME.ECS {
             if (ptr == 0L) {
                 ptr = this.items[in allocator, typeId] = allocator.Alloc<Item<T>>();
             }
+            AllComponentTypes<T>.burstTypeStorageDirectRef.Data = ptr;
             var item = allocator.Ref<Item<T>>(ptr);
             item.Validate(ref allocator, entityId);
             allocator.Ref<Item<T>>(ptr) = item;
@@ -149,6 +154,7 @@ namespace ME.ECS {
             if (ptr == 0L) {
                 ptr = this.items[in allocator, typeId] = allocator.Alloc<ItemDisposable<T>>();
             }
+            AllComponentTypes<T>.burstTypeStorageDirectRef.Data = ptr;
             var item = allocator.Ref<ItemDisposable<T>>(ptr);
             item.Validate(ref allocator, entityId);
             allocator.Ref<ItemDisposable<T>>(ptr) = item;

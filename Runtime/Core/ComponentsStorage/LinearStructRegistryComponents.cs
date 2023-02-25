@@ -724,7 +724,7 @@ namespace ME.ECS {
         #endif
         private void ValidateUnmanaged<TComponent>(ref MemoryAllocator allocator, int code, bool isTag) where TComponent : struct, IComponentBase {
 
-            this.unmanagedComponentsStorage.ValidateTypeId<TComponent>(ref allocator, code);
+            this.unmanagedComponentsStorage.ValidateTypeId<TComponent>(ref allocator);
 
             if (ArrayUtils.WillResize(code, ref this.list) == true) {
 

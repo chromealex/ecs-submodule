@@ -1113,6 +1113,7 @@ namespace ME.ECS.Views {
             if (prefab == null) {
 
                 ViewSourceIsNullException.Throw();
+                return false;
 
             }
 

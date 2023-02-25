@@ -15,7 +15,15 @@ namespace ME.ECS {
 
         protected ref UnmanagedComponentsStorage storage => ref this.world.currentState.structComponents.unmanagedComponentsStorage;
         private ref UnmanagedComponentsStorage.Item<TComponent> registry => ref this.storage.GetRegistry<TComponent>(in this.allocator);
-        
+
+        public override void CopyFrom(StructRegistryBase other) {
+            
+            base.CopyFrom(other);
+            
+            this.storage.ValidateTypeId<TComponent>(ref this.allocator);
+            
+        }
+
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         public override ref byte GetState(in Entity entity) {
 
