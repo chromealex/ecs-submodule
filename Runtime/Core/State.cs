@@ -57,6 +57,8 @@ namespace ME.ECS {
             this.storage = other.storage;
             this.structComponents.CopyFrom(other.structComponents);
 
+            ComponentTypesRegistry.burstStateVersionsDirectRef.Data = this.storage.versions.GetMemPtr();
+
         }
 
         public virtual void OnRecycle() {

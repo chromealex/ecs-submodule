@@ -39,6 +39,10 @@ namespace ME.ECS {
             
         }
 
+        public long GetMemPtr() {
+            return this.values.arrPtr;
+        }
+
         public int GetHash(in MemoryAllocator allocator) {
 
             var hash = 0;

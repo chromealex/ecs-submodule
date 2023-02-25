@@ -427,6 +427,12 @@ namespace ME.ECS {
             state.storage.versions.Increment(in state.allocator, this);
 
         }
+        
+        public void SetDirty(in ME.ECS.Collections.V3.MemoryAllocator allocator) {
+
+            ++allocator.RefArray<ushort>(ComponentTypesRegistry.burstStateVersionsDirectRef.Data, this.id);
+            
+        }
 
         public string ToStringNoVersion() {
 

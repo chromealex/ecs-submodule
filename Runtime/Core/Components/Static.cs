@@ -23,6 +23,7 @@ namespace ME.ECS {
         public static System.Collections.Generic.Dictionary<System.Type, int> allTypeId = new System.Collections.Generic.Dictionary<System.Type, int>();
         public static System.Collections.Generic.Dictionary<System.Type, int> oneShotTypeId = new System.Collections.Generic.Dictionary<System.Type, int>();
         public static System.Collections.Generic.Dictionary<System.Type, int> typeId = new System.Collections.Generic.Dictionary<System.Type, int>();
+        public static readonly Unity.Burst.SharedStatic<long> burstStateVersionsDirectRef = Unity.Burst.SharedStatic<long>.GetOrCreate<ComponentTypesRegistry, long>();
         public static System.Action reset;
 
     }
