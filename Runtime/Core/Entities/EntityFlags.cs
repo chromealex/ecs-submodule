@@ -37,6 +37,8 @@ namespace ME.ECS {
             this.values = new MemArrayAllocator<ushort>(ref allocator, capacity, ME.ECS.Collections.ClearOptions.ClearMemory, growFactor: 2);
             this.Validate(ref allocator, capacity);
             
+            ComponentTypesRegistry.burstStateVersionsDirectRef.Data = this.GetMemPtr();
+            
         }
 
         public long GetMemPtr() {

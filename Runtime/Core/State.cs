@@ -42,6 +42,8 @@ namespace ME.ECS {
             
             this.pluginsStorage.Initialize(ref this.allocator);
             
+            ComponentTypesRegistry.burstStateVersionsDirectRef.Data = this.storage.versions.GetMemPtr();
+            
         }
 
         public virtual void CopyFrom(State other) {
