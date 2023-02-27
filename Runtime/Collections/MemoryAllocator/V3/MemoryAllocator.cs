@@ -105,6 +105,27 @@ namespace ME.ECS.Collections.V3 {
 
     }
 
+    public struct AllocatorContext : IDisposable {
+
+        public static readonly Unity.Burst.SharedStatic<MemoryAllocator> burstAllocator = Unity.Burst.SharedStatic<MemoryAllocator>.GetOrCreate<AllocatorContext, MemoryAllocator>();
+        
+        public MemoryAllocator allocator;
+
+        public AllocatorContext Create() {
+            
+            AllocatorContext.burstAllocator.Data = this.allocator;
+            return this;
+
+        }
+
+        public void Dispose() {
+
+            AllocatorContext.burstAllocator.Data = default;
+
+        }
+
+    }
+
     [Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.NullChecks, false)]
     [Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.ArrayBoundsChecks, false)]
     [Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.DivideByZeroChecks, false)]
@@ -156,6 +177,22 @@ namespace ME.ECS.Collections.V3 {
         internal long maxSize;
         
         public bool isValid => this.zonesList != null;
+
+        public static AllocatorContext CreateContext() {
+
+            return new AllocatorContext() {
+                allocator = Worlds.current.currentState.allocator,
+            }.Create();
+
+        }
+
+        public static AllocatorContext CreateContext(in MemoryAllocator allocator) {
+
+            return new AllocatorContext() {
+                allocator = allocator,
+            }.Create();
+
+        }
 
         public int GetReservedSize() {
 
