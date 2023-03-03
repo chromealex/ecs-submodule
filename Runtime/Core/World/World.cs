@@ -498,21 +498,24 @@ namespace ME.ECS {
             this.isLoaded = false;
             this.loadingProgress = 0f;
 
-            var awaitingCount = 0;
+            var loadableSystems = new System.Collections.Generic.List<ILoadableSystem>();
+
             for (int i = 0; i < this.systemGroupsLength; ++i) {
 
                 var group = this.systemGroups.arr[i];
-                awaitingCount += (group.runtimeSystem.systemLoadable != null ? group.runtimeSystem.systemLoadable.Count : 0);
+                if (group.runtimeSystem.systemLoadable != null) {
+                    loadableSystems.AddRange(group.runtimeSystem.systemLoadable);
+                }
 
             }
 
-            this.LoadSystems(awaitingCount, 0, 0, awaitingCount, onComplete);
+            this.LoadSystems(loadableSystems, loadableSystems.Count, onComplete);
             
         }
 
-        private void LoadSystems(int count, int groupsOffset, int sysOffset, int awaitingCount, System.Action onComplete) {
+        private void LoadSystems(System.Collections.Generic.List<ILoadableSystem> loadableSystems, int loadableSystemsCount, System.Action onComplete) {
 
-            if (awaitingCount == 0) {
+            if (loadableSystems.Count == 0) {
                 
                 this.isLoading = false;
                 this.isLoaded = true;
@@ -520,65 +523,39 @@ namespace ME.ECS {
                 return;
 
             }
-            
-            for (int i = groupsOffset; i < this.systemGroupsLength; ++i) {
 
-                if (this.isActive == false) {
+            foreach (var loadableSystem in loadableSystems) {
+                if (loadableSystem is ILoadableSync) {
+
+                    loadableSystem.Load(() => {
+
+                        loadableSystems.Remove(loadableSystem);
+
+                        this.LoadSystems(loadableSystems, loadableSystemsCount, onComplete);
+                            
+                    });
                     
-                    // Break loading at this point - may be we call Unload world
                     return;
-                    
-                }
-                var group = this.systemGroups.arr[i];
-                if (group.runtimeSystem.systemLoadable == null) continue;
-                for (int j = sysOffset; j < group.runtimeSystem.systemLoadable.Count; ++j) {
 
-                    if (this.isActive == false) {
-                    
-                        // Break loading at this point - may be we call Unload world
-                        return;
-                    
-                    }
-                    
-                    var loadableSystem = group.runtimeSystem.systemLoadable[j];
-                    if (loadableSystem is ILoadableSync) {
+                } else {
 
-                        var groupId = i;
-                        var idx = j + 1;
-                        if (idx >= group.runtimeSystem.systemLoadable.Count) {
+                    loadableSystem.Load(() => {
                             
-                            ++groupId;
-                            idx = 0;
+                        loadableSystems.Remove(loadableSystem);
+                        
+                        this.loadingProgress = 1f - loadableSystems.Count / (float)loadableSystemsCount;
                             
+                        if (loadableSystems.Count == 0) {
+
+                            this.isLoading = false;
+                            this.isLoaded = true;
+                            onComplete.Invoke();
+
                         }
-                        loadableSystem.Load(() => {
-                            
-                            this.LoadSystems(count, groupId, idx, awaitingCount - 1, onComplete);
-                            
-                        });
-                        return;
 
-                    } else {
-
-                        loadableSystem.Load(() => {
-
-                            --awaitingCount;
-                            this.loadingProgress = 1f - awaitingCount / (float)count;
-                            
-                            if (awaitingCount == 0) {
-
-                                this.isLoading = false;
-                                this.isLoaded = true;
-                                onComplete.Invoke();
-
-                            }
-
-                        });
-
-                    }
+                    });
 
                 }
-
             }
 
         }
