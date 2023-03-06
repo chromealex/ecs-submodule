@@ -1482,6 +1482,18 @@ namespace ME.ECS {
             return default;
 
         }
+        
+        public System.Collections.Generic.List<TFeature> GetFeatures<TFeature>(System.Collections.Generic.List<TFeature> output) where TFeature : IFeatureBase {
+
+            output.Clear();
+            
+            foreach (var kv in this.features) {
+                if (kv.Value is TFeature featureBase) output.Add(featureBase);;
+            }
+
+            return output;
+
+        }
 
         /// <summary>
         /// Add feature manually
