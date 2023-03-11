@@ -2014,12 +2014,6 @@ namespace ME.ECS {
             ////////////////
             {
             
-                using (new Checkpoint("UseLifetimeStep NotifyAllSystems")) {
-
-                    this.UseLifetimeStep(ComponentLifetime.NotifyAllSystems, fixedDeltaTime);
-                    
-                }
-
                 try {
 
                     using (new Checkpoint("PlayPluginsForTickPre", "PlayPluginsForTickPre", WorldStep.None)) {
@@ -2034,6 +2028,12 @@ namespace ME.ECS {
 
                 }
                 
+                using (new Checkpoint("UseLifetimeStep NotifyAllSystems")) {
+
+                    this.UseLifetimeStep(ComponentLifetime.NotifyAllSystems, fixedDeltaTime);
+                    
+                }
+
                 // Pick random number
                 this.GetRandomValue();
 
