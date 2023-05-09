@@ -122,6 +122,18 @@ namespace ME.ECS {
             
         }
 
+        [Unity.Burst.BurstDiscardAttribute]
+        [System.Diagnostics.Conditional("WORLD_EXCEPTIONS")]
+        public static void HAS_COMPONENT<TComponent>(in Entity entity) where TComponent : struct, IComponent {
+
+            if (entity.Has<TComponent>() == false) {
+
+                throw new System.Exception($"Component `{typeof(TComponent)}` must exist on entity");
+
+            }
+
+        }
+
     }
     
     public class CollectionNotCreated : System.Exception {
