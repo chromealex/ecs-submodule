@@ -3,7 +3,8 @@ using ME.ECS.Extensions;
 
 namespace ME.ECS {
     
-    using Collections.V3;
+    using Collections.LowLevel;
+    using Collections.LowLevel.Unsafe;
     using MemPtr = System.Int64;
 
     public struct UnmanagedComponentsStorage {
@@ -11,7 +12,7 @@ namespace ME.ECS {
         [System.Runtime.InteropServices.StructLayoutAttribute(System.Runtime.InteropServices.LayoutKind.Sequential)]
         public struct Item<T> where T : struct, IComponentBase {
 
-            public Collections.MemoryAllocator.SparseSet<Component<T>> components;
+            public Collections.LowLevel.SparseSet<Component<T>> components;
             
             public void Merge(ref MemoryAllocator allocator) {
 
@@ -23,7 +24,7 @@ namespace ME.ECS {
 
                 var resized = false;
                 if (this.components.isCreated == false) {
-                    this.components = new ME.ECS.Collections.MemoryAllocator.SparseSet<Component<T>>(ref allocator, entityId + 1);
+                    this.components = new ME.ECS.Collections.LowLevel.SparseSet<Component<T>>(ref allocator, entityId + 1);
                     resized = true;
                 } else {
                     this.components.Validate(ref allocator, entityId + 1);
@@ -57,7 +58,7 @@ namespace ME.ECS {
         [System.Runtime.InteropServices.StructLayoutAttribute(System.Runtime.InteropServices.LayoutKind.Sequential)]
         public struct ItemDisposable<T> where T : struct, IComponentDisposable<T> {
 
-            public Collections.MemoryAllocator.SparseSet<Component<T>> components;
+            public Collections.LowLevel.SparseSet<Component<T>> components;
             
             public void Merge(ref MemoryAllocator allocator) {
 
@@ -69,7 +70,7 @@ namespace ME.ECS {
 
                 var resized = false;
                 if (this.components.isCreated == false) {
-                    this.components = new ME.ECS.Collections.MemoryAllocator.SparseSet<Component<T>>(ref allocator, entityId + 1);
+                    this.components = new ME.ECS.Collections.LowLevel.SparseSet<Component<T>>(ref allocator, entityId + 1);
                     resized = true;
                 } else {
                     this.components.Validate(ref allocator, entityId + 1);

@@ -1,11 +1,11 @@
-using ME.ECS.Collections.V3;
+using ME.ECS.Collections.LowLevel.Unsafe;
 using Unity.Collections.LowLevel.Unsafe;
 
 namespace ME.ECS {
     
     using MemPtr = System.Int64;
 
-    public unsafe struct UnsafeData : ME.ECS.Collections.MemoryAllocator.IEquatableAllocator<UnsafeData> {
+    public unsafe struct UnsafeData : ME.ECS.Collections.LowLevel.IEquatableAllocator<UnsafeData> {
 
         public static System.Reflection.MethodInfo setMethodInfo = typeof(UnsafeData)
                                                                    .GetMethod("Set", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.Public);

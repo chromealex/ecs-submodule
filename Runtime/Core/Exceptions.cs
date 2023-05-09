@@ -93,7 +93,7 @@ namespace ME.ECS {
         }
 
         [System.Diagnostics.Conditional("WORLD_EXCEPTIONS")]
-        public static void IS_CREATED<T>(T collection) where T : ME.ECS.Collections.MemoryAllocator.IIsCreated {
+        public static void IS_CREATED<T>(T collection) where T : ME.ECS.Collections.LowLevel.IIsCreated {
 
             if (collection.isCreated == false) {
 
@@ -105,7 +105,7 @@ namespace ME.ECS {
         }
 
         [Unity.Burst.BurstDiscardAttribute]
-        private static void IS_CREATED_BURST_DISCARD<T>(T collection) where T : ME.ECS.Collections.MemoryAllocator.IIsCreated {
+        private static void IS_CREATED_BURST_DISCARD<T>(T collection) where T : ME.ECS.Collections.LowLevel.IIsCreated {
 
             if (collection.isCreated == false) {
                 

@@ -4,7 +4,8 @@
 
 namespace ME.ECS {
 
-    using Collections.V3;
+    using Collections.LowLevel;
+    using Collections.LowLevel.Unsafe;
 
     [System.Flags]
     public enum EntityFlag : int {
@@ -34,7 +35,7 @@ namespace ME.ECS {
 
         public EntityVersions(ref MemoryAllocator allocator, int capacity) {
 
-            this.values = new MemArrayAllocator<ushort>(ref allocator, capacity, ME.ECS.Collections.ClearOptions.ClearMemory, growFactor: 2);
+            this.values = new MemArrayAllocator<ushort>(ref allocator, capacity, ME.ECS.Collections.LowLevel.ClearOptions.ClearMemory, growFactor: 2);
             this.Validate(ref allocator, capacity);
             
             ComponentTypesRegistry.burstStateVersionsDirectRef.Data = this.GetMemPtr();
@@ -178,7 +179,7 @@ namespace ME.ECS {
 
         public EntityFlags(ref MemoryAllocator allocator, int capacity) {
 
-            this.values = new MemArrayAllocator<byte>(ref allocator, capacity, ME.ECS.Collections.ClearOptions.ClearMemory, growFactor: 2);
+            this.values = new MemArrayAllocator<byte>(ref allocator, capacity, ME.ECS.Collections.LowLevel.ClearOptions.ClearMemory, growFactor: 2);
             this.Validate(ref allocator, capacity);
             
         }

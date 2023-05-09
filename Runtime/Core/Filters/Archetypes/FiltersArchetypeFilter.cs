@@ -11,8 +11,8 @@ using BURST = Unity.Burst.BurstCompileAttribute;
 
 namespace ME.ECS {
     
-    using Collections.V3;
-    using Collections.MemoryAllocator;
+    using Collections.LowLevel.Unsafe;
+    using Collections.LowLevel;
 
     [Il2Cpp(Option.NullChecks, false)]
     [Il2Cpp(Option.ArrayBoundsChecks, false)]

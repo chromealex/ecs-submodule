@@ -428,7 +428,7 @@ namespace ME.ECS {
 
         }
         
-        public void SetDirty(in ME.ECS.Collections.V3.MemoryAllocator allocator) {
+        public void SetDirty(in ME.ECS.Collections.LowLevel.Unsafe.MemoryAllocator allocator) {
 
             ++allocator.RefArray<ushort>(ComponentTypesRegistry.burstStateVersionsDirectRef.Data, this.id);
             

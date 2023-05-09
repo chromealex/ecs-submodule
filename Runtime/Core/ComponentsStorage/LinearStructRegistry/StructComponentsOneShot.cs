@@ -1,6 +1,6 @@
 namespace ME.ECS {
     
-    using Collections.MemoryAllocator;
+    using Collections.LowLevel;
 
     public static partial class EntityExtensionsV2 {
 

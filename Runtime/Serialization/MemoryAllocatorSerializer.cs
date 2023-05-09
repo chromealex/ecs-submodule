@@ -5,7 +5,7 @@ namespace ME.ECS.Serializer {
     
     using System.Runtime.InteropServices;
     
-    using ME.ECS.Collections.V3;
+    using ME.ECS.Collections.LowLevel.Unsafe;
     using Unity.Collections;
     using Unity.Collections.LowLevel.Unsafe;
 
@@ -13,7 +13,7 @@ namespace ME.ECS.Serializer {
 
         [INLINE(256)] public byte GetTypeValue() => (byte)TypeValue.MemoryAllocator;
 
-        [INLINE(256)] public System.Type GetTypeSerialized() => typeof(ME.ECS.Collections.V3.MemoryAllocator);
+        [INLINE(256)] public System.Type GetTypeSerialized() => typeof(ME.ECS.Collections.LowLevel.Unsafe.MemoryAllocator);
 
         [INLINE(256)] public void Pack(Packer packer, object obj) {
 

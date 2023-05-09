@@ -4,8 +4,8 @@
 
 namespace ME.ECS {
     
-    using Collections.V3;
-    using Collections.MemoryAllocator;
+    using Collections.LowLevel.Unsafe;
+    using Collections.LowLevel;
 
     #if ECS_COMPILE_IL2CPP_OPTIONS
     [Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.NullChecks, false),
@@ -15,14 +15,14 @@ namespace ME.ECS {
     public struct EntitiesIndexer {
 
         [ME.ECS.Serializer.SerializeField]
-        private ME.ECS.Collections.V3.MemArrayAllocator<ME.ECS.Collections.MemoryAllocator.EquatableHashSet<int>> data;
+        private ME.ECS.Collections.LowLevel.MemArrayAllocator<ME.ECS.Collections.LowLevel.EquatableHashSet<int>> data;
 
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
         internal void Initialize(ref MemoryAllocator allocator, int capacity) {
 
-            if (this.data.isCreated == false) this.data = new ME.ECS.Collections.V3.MemArrayAllocator<ME.ECS.Collections.MemoryAllocator.EquatableHashSet<int>>(ref allocator, capacity);
+            if (this.data.isCreated == false) this.data = new ME.ECS.Collections.LowLevel.MemArrayAllocator<ME.ECS.Collections.LowLevel.EquatableHashSet<int>>(ref allocator, capacity);
 
         }
 

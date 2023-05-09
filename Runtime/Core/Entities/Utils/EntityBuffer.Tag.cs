@@ -9,7 +9,7 @@ namespace ME.ECS {
 
     using Unity.Burst;
     using Unity.Collections.LowLevel.Unsafe;
-    using Collections.MemoryAllocator;
+    using Collections.LowLevel;
 
     public static class DataTagBufferUtils {
 

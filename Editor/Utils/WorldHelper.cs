@@ -20,7 +20,7 @@ namespace ME.ECSEditor {
 
         }
 
-        public static ME.ECS.Collections.V3.MemoryAllocator GetAllocator(World world) {
+        public static ME.ECS.Collections.LowLevel.Unsafe.MemoryAllocator GetAllocator(World world) {
 
             return world.currentState.allocator;
 

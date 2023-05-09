@@ -12,8 +12,8 @@ using BURST = Unity.Burst.BurstCompileAttribute;
 
 namespace ME.ECS.FiltersArchetype {
     
-    using Collections.V3;
-    using Collections.MemoryAllocator;
+    using Collections.LowLevel.Unsafe;
+    using Collections.LowLevel;
 
     [BURST(CompileSynchronously = true)]
     public static class FiltersArchetypeStorageBurst {

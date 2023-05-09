@@ -13,8 +13,8 @@ using tfloat = System.Single;
 namespace ME.ECS {
 
     using ME.ECS.Collections;
-    using ME.ECS.Collections.V3;
-    using Collections.MemoryAllocator;
+    using ME.ECS.Collections.LowLevel.Unsafe;
+    using Collections.LowLevel;
 
     public struct Component<TComponent> where TComponent : struct, IComponentBase {
 
@@ -341,7 +341,7 @@ namespace ME.ECS {
         }
 
         [ME.ECS.Serializer.SerializeField]
-        internal ME.ECS.Collections.MemoryAllocator.HashSet<NextTickTask> nextTickTasks;
+        internal ME.ECS.Collections.LowLevel.HashSet<NextTickTask> nextTickTasks;
 
         [ME.ECS.Serializer.SerializeField]
         internal BufferArray<StructRegistryBase> list;
@@ -351,7 +351,7 @@ namespace ME.ECS {
         private bool isCreated;
 
         [ME.ECS.Serializer.SerializeField]
-        private ME.ECS.Collections.MemoryAllocator.List<int> dirtyMap;
+        private ME.ECS.Collections.LowLevel.List<int> dirtyMap;
 
         public UnmanagedComponentsStorage unmanagedComponentsStorage;
 
@@ -363,8 +363,8 @@ namespace ME.ECS {
 
         public void Initialize(ref MemoryAllocator allocator, bool freeze) {
 
-            this.nextTickTasks = new ME.ECS.Collections.MemoryAllocator.HashSet<NextTickTask>(ref allocator, 10);
-            this.dirtyMap = new ME.ECS.Collections.MemoryAllocator.List<int>(ref allocator, 10);
+            this.nextTickTasks = new ME.ECS.Collections.LowLevel.HashSet<NextTickTask>(ref allocator, 10);
+            this.dirtyMap = new ME.ECS.Collections.LowLevel.List<int>(ref allocator, 10);
             
             this.entitiesIndexer = new EntitiesIndexer();
             this.entitiesIndexer.Initialize(ref allocator, 100);

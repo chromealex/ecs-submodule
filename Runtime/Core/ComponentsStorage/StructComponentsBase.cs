@@ -13,7 +13,7 @@ using tfloat = System.Single;
 namespace ME.ECS {
 
     using ME.ECS.Collections;
-    using Collections.MemoryAllocator;
+    using Collections.LowLevel;
 
     public interface IStructRegistryBase {
 
@@ -131,7 +131,7 @@ namespace ME.ECS {
     #endif
     public abstract partial class StructComponentsBase<TComponent> : StructRegistryBase where TComponent : struct, IComponentBase {
 
-        protected ref ME.ECS.Collections.V3.MemoryAllocator allocator => ref this.world.currentState.allocator;
+        protected ref ME.ECS.Collections.LowLevel.Unsafe.MemoryAllocator allocator => ref this.world.currentState.allocator;
         
         #if !COMPONENTS_VERSION_NO_STATE_DISABLED
         // We don't need to serialize this field

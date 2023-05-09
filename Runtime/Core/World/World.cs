@@ -20,8 +20,8 @@ using Unity.Jobs;
 namespace ME.ECS {
 
     using ME.ECS.Collections;
-    using Collections.V3;
-    using Collections.MemoryAllocator;
+    using Collections.LowLevel.Unsafe;
+    using Collections.LowLevel;
 
     public enum WorldCallbackStep {
 

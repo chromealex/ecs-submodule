@@ -10,7 +10,7 @@ namespace ME.ECS.Tests {
         public void Add() {
 
             ME.ECS.Pools.current = new ME.ECS.PoolImplementation(isNull: false);
-            var allocator = new ME.ECS.Collections.V3.MemoryAllocator();
+            var allocator = new ME.ECS.Collections.LowLevel.Unsafe.MemoryAllocator();
             allocator.Initialize(100);
             var st = new ME.ECS.FiltersArchetype.FiltersArchetypeStorage();
             st.Initialize(ref allocator, 100);
@@ -28,7 +28,7 @@ namespace ME.ECS.Tests {
         public void Remove() {
 
             ME.ECS.Pools.current = new ME.ECS.PoolImplementation(isNull: false);
-            var allocator = new ME.ECS.Collections.V3.MemoryAllocator();
+            var allocator = new ME.ECS.Collections.LowLevel.Unsafe.MemoryAllocator();
             allocator.Initialize(100);
             var st = new ME.ECS.FiltersArchetype.FiltersArchetypeStorage();
             st.Initialize(ref allocator, 100);
@@ -60,7 +60,7 @@ namespace ME.ECS.Tests {
         public void AddRemoveMulti() {
 
             ME.ECS.Pools.current = new ME.ECS.PoolImplementation(isNull: false);
-            var allocator = new ME.ECS.Collections.V3.MemoryAllocator();
+            var allocator = new ME.ECS.Collections.LowLevel.Unsafe.MemoryAllocator();
             allocator.Initialize(100);
             var st = new ME.ECS.FiltersArchetype.FiltersArchetypeStorage();
             st.Initialize(ref allocator, 20);

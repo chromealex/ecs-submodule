@@ -135,7 +135,7 @@ namespace ME.ECS.Tests {
         [NUnit.Framework.TestAttribute]
         public void UnsafeData() {
             Pools.current = new PoolImplementation(true);
-            var allocator = new ME.ECS.Collections.V3.MemoryAllocator();
+            var allocator = new ME.ECS.Collections.LowLevel.Unsafe.MemoryAllocator();
             allocator.Initialize(10);
             var source = new TestUnmanagedData() {
                 a = 123,

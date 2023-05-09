@@ -12,7 +12,8 @@ using Il2Cpp = Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute;
 namespace ME.ECS {
 
     using FiltersArchetype;
-    using Collections.V3;
+    using Collections.LowLevel;
+    using Collections.LowLevel.Unsafe;
 
     [Il2Cpp(Option.NullChecks, false)]
     [Il2Cpp(Option.ArrayBoundsChecks, false)]

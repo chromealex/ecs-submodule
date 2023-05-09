@@ -1,6 +1,8 @@
 using System;
 using Unity.Collections;
-using Unity.Collections.LowLevel.Unsafe;
+
+using ME.ECS.Collections.LowLevel;
+using ME.ECS.Collections.LowLevel.Unsafe;
 
 #if FIXED_POINT_MATH
 using ME.ECS.Mathematics;
@@ -31,7 +33,7 @@ namespace ME.ECS.Collections {
                 // Get pointer to inner list data for faster writing
                 //this.fastResults = (UnsafeList*)NativeListUnsafeUtility.GetInternalListDataPtrUnchecked(ref results);
 
-                ref var tempAllocator = ref ME.ECS.Collections.V3.StaticAllocators.GetAllocator(AllocatorType.Temp);
+                ref var tempAllocator = ref StaticAllocators.GetAllocator(AllocatorType.Temp);
                 this.RecursiveRangeQuery(ref tempAllocator, results, tree.bounds, false, 1, 1);
                 results.Length = this.count;
 
@@ -50,14 +52,14 @@ namespace ME.ECS.Collections {
                 // Get pointer to inner list data for faster writing
                 //this.fastResults = (UnsafeList*)NativeListUnsafeUtility.GetInternalListDataPtrUnchecked(ref results);
 
-                ref var tempAllocator = ref ME.ECS.Collections.V3.StaticAllocators.GetAllocator(AllocatorType.Temp);
+                ref var tempAllocator = ref StaticAllocators.GetAllocator(AllocatorType.Temp);
                 this.RecursiveRangeQuery(ref tempAllocator, results, tree.bounds, false, 1, 1);
                 results.Length = this.count;
 
                 //this.fastResults->Length = this.count;
             }
 
-            public void RecursiveRangeQuery(ref ME.ECS.Collections.V3.MemoryAllocator tempAllocator, NativeList<QuadElement<T>> results, in AABB2D parentBounds, bool parentContained, int prevOffset, int depth) {
+            public void RecursiveRangeQuery(ref ME.ECS.Collections.LowLevel.Unsafe.MemoryAllocator tempAllocator, NativeList<QuadElement<T>> results, in AABB2D parentBounds, bool parentContained, int prevOffset, int depth) {
                 
                 /*if (this.count + 4 * this.tree.maxLeafElements > results.Length) {
                     results.Resize(math.max(results.Length * 2, this.count + 4 * this.tree.maxLeafElements), NativeArrayOptions.ClearMemory);
@@ -107,7 +109,7 @@ namespace ME.ECS.Collections {
                             for (var k = 0; k < node.count; ++k) {
 
                                 //var element = this.tree.elements[node.firstChildIndex + k];
-                                var element = UnsafeUtility.ReadArrayElement<QuadElement<T>>(this.tree.elements->Ptr, node.firstChildIndex + k);
+                                var element = Unity.Collections.LowLevel.Unsafe.UnsafeUtility.ReadArrayElement<QuadElement<T>>(this.tree.elements->Ptr, node.firstChildIndex + k);
                                 if ((this.checkRadius == false && this.bounds.Contains(element.pos) == true) ||
                                      (this.checkRadius == true && math.distancesq(element.pos, this.bounds.center) <= this.radiusSqr)) {
                                     //UnsafeUtility.WriteArrayElement(this.fastResults->Ptr, this.count++, element);

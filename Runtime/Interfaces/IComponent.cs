@@ -22,8 +22,8 @@ namespace ME.ECS {
 
     public interface IComponentDisposable<T> : IComponentDisposableBase where T : IComponentDisposable<T> {
 
-        void OnDispose(ref ME.ECS.Collections.V3.MemoryAllocator allocator);
-        void ReplaceWith(ref ME.ECS.Collections.V3.MemoryAllocator allocator, in T other);
+        void OnDispose(ref ME.ECS.Collections.LowLevel.Unsafe.MemoryAllocator allocator);
+        void ReplaceWith(ref ME.ECS.Collections.LowLevel.Unsafe.MemoryAllocator allocator, in T other);
 
     }
 

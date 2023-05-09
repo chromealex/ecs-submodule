@@ -358,7 +358,7 @@ namespace ME.ECSEditor {
 
         }
 
-        public ME.ECS.Collections.V3.MemoryAllocator GetAllocator() {
+        public ME.ECS.Collections.LowLevel.Unsafe.MemoryAllocator GetAllocator() {
 
             return WorldHelper.GetAllocator(this.world);
 

@@ -9,7 +9,8 @@ using tfloat = sfloat;
 using Unity.Mathematics;
 using tfloat = System.Single;
 #endif
-using ME.ECS.Collections.V3;
+using ME.ECS.Collections.LowLevel;
+using ME.ECS.Collections.LowLevel.Unsafe;
 
 namespace ME.ECS.Collections {
 
@@ -190,7 +191,7 @@ namespace ME.ECS.Collections {
             return atIndex;
         }
 
-        private void RecursivePrepareLeaves(ref ME.ECS.Collections.V3.MemoryAllocator tempAllocator, int prevOffset, int depth) {
+        private void RecursivePrepareLeaves(ref ME.ECS.Collections.LowLevel.Unsafe.MemoryAllocator tempAllocator, int prevOffset, int depth) {
             for (var l = 0; l < 4; l++) {
                 var at = prevOffset + l * LookupTables.DepthSizeLookup[this.maxDepth - depth + 1];
 
