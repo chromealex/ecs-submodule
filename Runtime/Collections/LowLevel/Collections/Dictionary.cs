@@ -2,7 +2,6 @@ namespace ME.ECS.Collections.LowLevel {
 
     using Unsafe;
     
-    using MemPtr = System.Int64;
     using INLINE = System.Runtime.CompilerServices.MethodImplAttribute;
 
     [System.Diagnostics.DebuggerTypeProxyAttribute(typeof(ME.ECS.DebugUtils.DictionaryProxyDebugger<,>))]
@@ -187,12 +186,12 @@ namespace ME.ECS.Collections.LowLevel {
         public void CopyFrom(ref MemoryAllocator allocator, in Dictionary<TKey, TValue> other) {
 
             if (this.GetMemPtr(in allocator) == other.GetMemPtr(in allocator)) return;
-            if (this.GetMemPtr(in allocator) == 0L && other.GetMemPtr(in allocator) == 0L) return;
-            if (this.GetMemPtr(in allocator) != 0L && other.GetMemPtr(in allocator) == 0L) {
+            if (this.GetMemPtr(in allocator) == MemPtr.Null && other.GetMemPtr(in allocator) == MemPtr.Null) return;
+            if (this.GetMemPtr(in allocator) != MemPtr.Null && other.GetMemPtr(in allocator) == MemPtr.Null) {
                 this.Dispose(ref allocator);
                 return;
             }
-            if (this.GetMemPtr(in allocator) == 0L) this = new Dictionary<TKey, TValue>(ref allocator, other.Count);
+            if (this.GetMemPtr(in allocator) == MemPtr.Null) this = new Dictionary<TKey, TValue>(ref allocator, other.Count);
             
             NativeArrayUtils.CopyExact(ref allocator, other.buckets, ref this.buckets);
             NativeArrayUtils.CopyExact(ref allocator, other.entries, ref this.entries);

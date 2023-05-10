@@ -8,8 +8,7 @@ namespace ME.ECS.Tests.LowLevel.Unsafe {
     using ME.ECS.Collections;
     using ME.ECS.Collections.LowLevel;
     using ME.ECS.Collections.LowLevel.Unsafe;
-    using MemPtr = System.Int64;
-    
+
     public struct TestData {
 
         public byte b;
@@ -43,11 +42,11 @@ namespace ME.ECS.Tests.LowLevel.Unsafe {
 
                 for (int i = 0; i < 10; ++i) {
 
-                    var bytes100 = allocator.Alloc(UnityEngine.Random.Range(1, 5) * 1000000L);
-                    var bytes100_2 = allocator.Alloc(UnityEngine.Random.Range(1, 5) * 1500000L);
-                    var bytes100_3 = allocator.Alloc(UnityEngine.Random.Range(1, 5) * 10000000L);
+                    var bytes100 = allocator.Alloc(UnityEngine.Random.Range(1, 5) * 1000000);
+                    var bytes100_2 = allocator.Alloc(UnityEngine.Random.Range(1, 5) * 1500000);
+                    var bytes100_3 = allocator.Alloc(UnityEngine.Random.Range(1, 5) * 10000000);
                     allocator.Free(bytes100_2);
-                    bytes100 = allocator.ReAlloc(bytes100, UnityEngine.Random.Range(1, 5) * 200000000L);
+                    bytes100 = allocator.ReAlloc(bytes100, UnityEngine.Random.Range(1, 5) * 200000000);
                     allocator.Free(bytes100);
                     allocator.Free(bytes100_3);
 
@@ -340,16 +339,6 @@ namespace ME.ECS.Tests.LowLevel.Unsafe {
             }
             {
                 var ms = System.Diagnostics.Stopwatch.StartNew();
-                var sum = 0L;
-                for (int i = 0; i < count; ++i) {
-                    sum += list.arrPtr;
-                }
-
-                ms.Stop();
-                UnityEngine.Debug.Log("GetMemPtr: " + ms.ElapsedMilliseconds + "ms");
-            }
-            {
-                var ms = System.Diagnostics.Stopwatch.StartNew();
                 for (int i = 0; i < count; ++i) {
                     allocator.GetUnsafePtr(list.arrPtr);
                 }
@@ -378,7 +367,7 @@ namespace ME.ECS.Tests.LowLevel.Unsafe {
                 var arr = new MemArrayAllocator<MemPtr>();
                 arr.Resize(ref allocator, typeId + 1);
                 ref var ptr = ref arr[in allocator, typeId];
-                if (ptr == 0L) {
+                if (ptr == MemPtr.Null) {
                     ptr = arr[in allocator, typeId] = allocator.Alloc<TestData>();
                 }
 
@@ -605,12 +594,12 @@ namespace ME.ECS.Tests.LowLevel.Unsafe {
             for (int i = 0; i < cnt / 2; ++i) {
                 var ptr = remList[i].ptr;
                 allocator.Free(ptr);
-                list[remList[i].a].ptr = 0L;
+                list[remList[i].a].ptr = MemPtr.Null;
             }
 
             for (int i = 0; i < cnt; ++i) {
                 var ptr = list[i];
-                if (ptr.ptr != 0L) {
+                if (ptr.ptr != MemPtr.Null) {
                     Assert.IsTrue(ptr.a >= 0 && ptr.a < cnt);
                     Assert.AreEqual(i, ptr.a);
                     Assert.AreEqual(1.5f * i, ptr.test);

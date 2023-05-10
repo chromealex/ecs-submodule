@@ -1,7 +1,6 @@
 namespace ME.ECS.Collections.LowLevel {
 
     using ME.ECS.Collections.LowLevel.Unsafe;
-    using MemPtr = System.Int64;
     using INLINE = System.Runtime.CompilerServices.MethodImplAttribute;
 
     [System.Diagnostics.DebuggerTypeProxyAttribute(typeof(ME.ECS.DebugUtils.ListProxyDebugger<>))]
@@ -111,12 +110,12 @@ namespace ME.ECS.Collections.LowLevel {
         public void CopyFrom(ref MemoryAllocator allocator, in List<T> other) {
 
             if (other.arr.arrPtr == this.arr.arrPtr) return;
-            if (this.arr.arrPtr == 0L && other.arr.arrPtr == 0L) return;
-            if (this.arr.arrPtr != 0L && other.arr.arrPtr == 0L) {
+            if (this.arr.arrPtr == MemPtr.Null && other.arr.arrPtr == MemPtr.Null) return;
+            if (this.arr.arrPtr != MemPtr.Null && other.arr.arrPtr == MemPtr.Null) {
                 this.Dispose(ref allocator);
                 return;
             }
-            if (this.arr.arrPtr == 0L) this = new List<T>(ref allocator, other.Capacity(in allocator));
+            if (this.arr.arrPtr == MemPtr.Null) this = new List<T>(ref allocator, other.Capacity(in allocator));
             
             NativeArrayUtils.Copy(ref allocator, in other.arr, ref this.arr);
             this.Count = other.Count;

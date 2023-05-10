@@ -5,7 +5,6 @@ namespace ME.ECS {
     
     using Collections.LowLevel;
     using Collections.LowLevel.Unsafe;
-    using MemPtr = System.Int64;
 
     public struct UnmanagedComponentsStorage {
 
@@ -123,7 +122,7 @@ namespace ME.ECS {
             var typeId = AllComponentTypes<T>.typeId;
             this.items.Resize(ref allocator, typeId + 1);
             var ptr = this.items[in allocator, typeId];
-            if (ptr == 0L) {
+            if (ptr == MemPtr.Null) {
                 ptr = this.items[in allocator, typeId] = allocator.Alloc<Item<T>>();
             }
             AllComponentTypes<T>.burstTypeStorageDirectRef.Data = ptr;
@@ -152,7 +151,7 @@ namespace ME.ECS {
             var typeId = AllComponentTypes<T>.typeId;
             this.items.Resize(ref allocator, typeId + 1);
             var ptr = this.items[in allocator, typeId];
-            if (ptr == 0L) {
+            if (ptr == MemPtr.Null) {
                 ptr = this.items[in allocator, typeId] = allocator.Alloc<ItemDisposable<T>>();
             }
             AllComponentTypes<T>.burstTypeStorageDirectRef.Data = ptr;

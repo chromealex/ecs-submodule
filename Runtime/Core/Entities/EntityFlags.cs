@@ -42,7 +42,7 @@ namespace ME.ECS {
             
         }
 
-        public long GetMemPtr() {
+        public MemPtr GetMemPtr() {
             return this.values.arrPtr;
         }
 

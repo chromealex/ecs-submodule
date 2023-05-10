@@ -4,15 +4,13 @@
 using System;
 
 namespace ME.ECS.Collections.LowLevel.Unsafe {
-    
-    using MemPtr = System.Int64;
-    
+
     public static unsafe class MemoryAllocatorExtensions {
 
         #if !MEMORY_ALLOCATOR_LOGS && !MEMORY_ALLOCATOR_BOUNDS_CHECK
         //[BURST(CompileSynchronously = true)]
         #endif
-        public static MemPtr Alloc(this ref MemoryAllocator allocator, long size) {
+        public static MemPtr Alloc(this ref MemoryAllocator allocator, int size) {
 
             void* ptr = null;
 
@@ -52,17 +50,15 @@ namespace ME.ECS.Collections.LowLevel.Unsafe {
         #endif
         public static bool Free(this ref MemoryAllocator allocator, MemPtr ptr) {
 
-            if (ptr == 0) return false;
-            
-            var zoneIndex = ptr >> 32;
-            
+            if (ptr == MemPtr.Null) return false;
+
             #if MEMORY_ALLOCATOR_BOUNDS_CHECK
-            if (zoneIndex >= allocator.zonesListCount || allocator.zonesList[zoneIndex] == null || allocator.zonesList[zoneIndex]->size < (ptr & MemoryAllocator.OFFSET_MASK)) {
+            if (ptr.zoneId >= allocator.zonesListCount || allocator.zonesList[ptr.zoneId] == null || allocator.zonesList[ptr.zoneId]->size < ptr.offset) {
                 throw new OutOfBoundsException();
             }
             #endif
             
-            var zone = allocator.zonesList[zoneIndex];
+            var zone = allocator.zonesList[ptr.zoneId];
 
             #if MEMORY_ALLOCATOR_LOGS
             if (startLog == true) {
@@ -77,7 +73,7 @@ namespace ME.ECS.Collections.LowLevel.Unsafe {
 
                 if (MemoryAllocator.IsEmptyZone(zone) == true) {
                     MemoryAllocator.ZmFreeZone(zone);
-                    allocator.zonesList[zoneIndex] = null;
+                    allocator.zonesList[ptr.zoneId] = null;
                 }
             }
 

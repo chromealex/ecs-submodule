@@ -24,7 +24,7 @@ namespace ME.ECS {
         }
 
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-        public override long ReadPtr(in Entity entity) {
+        public override ME.ECS.Collections.LowLevel.Unsafe.MemPtr ReadPtr(in Entity entity) {
             throw new System.NotImplementedException();
         }
 

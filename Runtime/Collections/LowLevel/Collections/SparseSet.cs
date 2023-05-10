@@ -188,7 +188,7 @@ namespace ME.ECS.Collections.LowLevel {
 
         }
 
-        public long ReadPtr(in MemoryAllocator allocator, int entityId) {
+        public MemPtr ReadPtr(in MemoryAllocator allocator, int entityId) {
 
             var idx = this.sparse[in allocator, entityId];
             if (idx == 0) return default;

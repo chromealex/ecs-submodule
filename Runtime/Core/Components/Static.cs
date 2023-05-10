@@ -1,4 +1,6 @@
 namespace ME.ECS {
+    
+    using MemPtr = ME.ECS.Collections.LowLevel.Unsafe.MemPtr;
 
     public struct ComponentTypesCounter {
 
@@ -23,7 +25,7 @@ namespace ME.ECS {
         public static System.Collections.Generic.Dictionary<System.Type, int> allTypeId = new System.Collections.Generic.Dictionary<System.Type, int>();
         public static System.Collections.Generic.Dictionary<System.Type, int> oneShotTypeId = new System.Collections.Generic.Dictionary<System.Type, int>();
         public static System.Collections.Generic.Dictionary<System.Type, int> typeId = new System.Collections.Generic.Dictionary<System.Type, int>();
-        public static readonly Unity.Burst.SharedStatic<long> burstStateVersionsDirectRef = Unity.Burst.SharedStatic<long>.GetOrCreate<ComponentTypesRegistry, long>();
+        public static readonly Unity.Burst.SharedStatic<MemPtr> burstStateVersionsDirectRef = Unity.Burst.SharedStatic<MemPtr>.GetOrCreate<ComponentTypesRegistry, MemPtr>();
         public static System.Action reset;
 
     }
@@ -55,12 +57,12 @@ namespace ME.ECS {
         public static int typeId = -1;
 
     }
-    
+
     public struct AllComponentTypes<TComponent> {
 
         public static readonly Unity.Burst.SharedStatic<int> burstTypeId = Unity.Burst.SharedStatic<int>.GetOrCreate<AllComponentTypes<TComponent>, int>();
         public static readonly Unity.Burst.SharedStatic<byte> burstIsVersionedNoState = Unity.Burst.SharedStatic<byte>.GetOrCreate<AllComponentTypes<TComponent>, byte>();
-        public static readonly Unity.Burst.SharedStatic<long> burstTypeStorageDirectRef = Unity.Burst.SharedStatic<long>.GetOrCreate<AllComponentTypes<TComponent>, long>();
+        public static readonly Unity.Burst.SharedStatic<MemPtr> burstTypeStorageDirectRef = Unity.Burst.SharedStatic<MemPtr>.GetOrCreate<AllComponentTypes<TComponent>, MemPtr>();
         public static int typeId = -1;
         public static bool isTag = false;
         public static bool isVersioned = false;

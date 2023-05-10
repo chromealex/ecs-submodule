@@ -1,8 +1,7 @@
 namespace ME.ECS.Collections.LowLevel {
     
     using Unsafe;
-
-    using MemPtr = System.Int64;
+    
     using INLINE = System.Runtime.CompilerServices.MethodImplAttribute;
 
     public unsafe struct UnsafeMemArraySlicedAllocator {
@@ -271,7 +270,7 @@ namespace ME.ECS.Collections.LowLevel {
             
         }
 
-        public long GetAllocPtr(in MemoryAllocator allocator, int index) {
+        public MemPtr GetAllocPtr(in MemoryAllocator allocator, int index) {
             
             var data = this.data;
             if (index >= data.Length) {

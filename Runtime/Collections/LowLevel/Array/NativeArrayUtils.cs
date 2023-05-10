@@ -16,7 +16,11 @@ namespace ME.ECS.Collections.LowLevel {
         
             var gcHandle = System.Runtime.InteropServices.GCHandle.Alloc(src, System.Runtime.InteropServices.GCHandleType.Pinned);
             var num = gcHandle.AddrOfPinnedObject();
-            Unity.Collections.LowLevel.Unsafe.UnsafeUtility.MemCpy((void*)((System.IntPtr)dst.arrPtr + dstIndex * Unity.Collections.LowLevel.Unsafe.UnsafeUtility.SizeOf<T>()), (void*)((System.IntPtr)(void*)num + srcIndex * Unity.Collections.LowLevel.Unsafe.UnsafeUtility.SizeOf<T>()), (long)(length * Unity.Collections.LowLevel.Unsafe.UnsafeUtility.SizeOf<T>()));
+            var size = Unity.Collections.LowLevel.Unsafe.UnsafeUtility.SizeOf<T>();
+            var dstPtr = (byte*)dst.GetUnsafePtr(in allocator) + dstIndex * size;
+            var srcPtr = (void*)(num + srcIndex * size);
+            
+            Unity.Collections.LowLevel.Unsafe.UnsafeUtility.MemCpy(dstPtr, srcPtr, length * size);
             gcHandle.Free();
             
         }

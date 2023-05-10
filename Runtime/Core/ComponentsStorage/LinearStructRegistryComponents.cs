@@ -1783,7 +1783,7 @@ namespace ME.ECS {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
-        public long ReadDataPtr<TComponent>(in Entity entity) where TComponent : struct, IStructComponent {
+        public MemPtr ReadDataPtr<TComponent>(in Entity entity) where TComponent : struct, IStructComponent {
 
             E.IS_ALIVE(in entity);
             E.IS_TAG<TComponent>(in entity);

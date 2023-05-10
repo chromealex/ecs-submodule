@@ -2,7 +2,6 @@ namespace ME.ECS.Collections.LowLevel {
 
     using Unsafe;
     
-    using MemPtr = System.Int64;
     using INLINE = System.Runtime.CompilerServices.MethodImplAttribute;
     
     [System.Diagnostics.DebuggerTypeProxyAttribute(typeof(ME.ECS.DebugUtils.HashSetProxyDebugger<>))]

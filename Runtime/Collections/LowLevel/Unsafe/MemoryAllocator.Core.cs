@@ -67,7 +67,7 @@ namespace ME.ECS.Collections.LowLevel.Unsafe {
             }
 
             public override bool Equals(object obj) {
-                return obj is MemBlockOffset other && Equals(other);
+                return obj is MemBlockOffset other && this.Equals(other);
             }
 
             public override int GetHashCode() {

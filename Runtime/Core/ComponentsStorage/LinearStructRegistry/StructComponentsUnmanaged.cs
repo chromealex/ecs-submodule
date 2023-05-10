@@ -45,7 +45,7 @@ namespace ME.ECS {
         }
 
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-        public override long ReadPtr(in Entity entity) {
+        public override ME.ECS.Collections.LowLevel.Unsafe.MemPtr ReadPtr(in Entity entity) {
             
             ref var storage = ref this.storage;
             ref var reg = ref storage.GetRegistry<TComponent>(in this.allocator);

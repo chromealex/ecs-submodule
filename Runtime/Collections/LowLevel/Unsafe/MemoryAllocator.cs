@@ -9,8 +9,6 @@ using BURST = Unity.Burst.BurstCompileAttribute;
 
 namespace ME.ECS.Collections.LowLevel.Unsafe {
 
-    using MemPtr = System.Int64;
-    
     public struct TSize<T> where T : struct {
 
         public static readonly int size = UnsafeUtility.SizeOf<T>();
@@ -62,9 +60,8 @@ namespace ME.ECS.Collections.LowLevel.Unsafe {
             }
         }
         #endif
-
-        private const long OFFSET_MASK = 0xFFFFFFFF;
-        internal const long MIN_ZONE_SIZE = 512 * 1024;
+        
+        internal const int MIN_ZONE_SIZE = 512 * 1024;
         private const int MIN_ZONES_LIST_CAPACITY = 20;
 
         [NativeDisableUnsafePtrRestriction]
@@ -290,9 +287,9 @@ namespace ME.ECS.Collections.LowLevel.Unsafe {
         }
 
         [INLINE(256)]
-        public MemPtr ReAlloc(MemPtr ptr, long size) {
+        public MemPtr ReAlloc(MemPtr ptr, int size) {
             
-            if (ptr == 0L) return this.Alloc(size);
+            if (ptr == MemPtr.Null) return this.Alloc(size);
 
             var blockSize = ((MemBlock*)((byte*)this.GetUnsafePtr(ptr) - TSize<MemBlock>.size))->size;
             var blockDataSize = blockSize - TSize<MemBlock>.size;
@@ -313,19 +310,17 @@ namespace ME.ECS.Collections.LowLevel.Unsafe {
         }
 
         [INLINE(256)]
-        public readonly void MemCopy(MemPtr dest, long destOffset, MemPtr source, long sourceOffset, long length) {
-            
+        public readonly void MemCopy(MemPtr dest, int destOffset, MemPtr source, int sourceOffset, int length) {
+
             #if MEMORY_ALLOCATOR_BOUNDS_CHECK
-            var destZoneIndex = dest >> 32;
-            var sourceZoneIndex = source >> 32;
-            var destMaxOffset = (dest & MemoryAllocator.OFFSET_MASK) + destOffset + length;
-            var sourceMaxOffset = (source & MemoryAllocator.OFFSET_MASK) + sourceOffset + length;
+            var destMaxOffset = dest.offset + destOffset + length;
+            var sourceMaxOffset = source.offset + sourceOffset + length;
             
-            if (destZoneIndex >= this.zonesListCount || sourceZoneIndex >= this.zonesListCount) {
+            if (dest.zoneId >= this.zonesListCount || source.zoneId >= this.zonesListCount) {
                 throw new OutOfBoundsException();
             }
             
-            if (this.zonesList[destZoneIndex]->size < destMaxOffset || this.zonesList[sourceZoneIndex]->size < sourceMaxOffset) {
+            if (this.zonesList[dest.zoneId]->size < destMaxOffset || this.zonesList[source.zoneId]->size < sourceMaxOffset) {
                 throw new OutOfBoundsException();
             }
             #endif
@@ -335,19 +330,17 @@ namespace ME.ECS.Collections.LowLevel.Unsafe {
         }
 
         [INLINE(256)]
-        public readonly void MemMove(MemPtr dest, long destOffset, MemPtr source, long sourceOffset, long length) {
+        public readonly void MemMove(MemPtr dest, int destOffset, MemPtr source, int sourceOffset, int length) {
             
             #if MEMORY_ALLOCATOR_BOUNDS_CHECK
-            var destZoneIndex = dest >> 32;
-            var sourceZoneIndex = source >> 32;
-            var destMaxOffset = (dest & MemoryAllocator.OFFSET_MASK) + destOffset + length;
-            var sourceMaxOffset = (source & MemoryAllocator.OFFSET_MASK) + sourceOffset + length;
+            var destMaxOffset = dest.offset + destOffset + length;
+            var sourceMaxOffset = source.offset + sourceOffset + length;
             
-            if (destZoneIndex >= this.zonesListCount || sourceZoneIndex >= this.zonesListCount) {
+            if (dest.zoneId >= this.zonesListCount || source.zoneId >= this.zonesListCount) {
                 throw new OutOfBoundsException();
             }
             
-            if (this.zonesList[destZoneIndex]->size < destMaxOffset || this.zonesList[sourceZoneIndex]->size < sourceMaxOffset) {
+            if (this.zonesList[dest.zoneId]->size < destMaxOffset || this.zonesList[source.zoneId]->size < sourceMaxOffset) {
                 throw new OutOfBoundsException();
             }
             #endif
@@ -357,12 +350,10 @@ namespace ME.ECS.Collections.LowLevel.Unsafe {
         }
 
         [INLINE(256)]
-        public readonly void MemClear(MemPtr dest, long destOffset, long length) {
+        public readonly void MemClear(MemPtr dest, int destOffset, int length) {
             
             #if MEMORY_ALLOCATOR_BOUNDS_CHECK
-            var zoneIndex = dest >> 32;
-            
-            if (zoneIndex >= this.zonesListCount || this.zonesList[zoneIndex]->size < ((dest & MemoryAllocator.OFFSET_MASK) + destOffset + length)) {
+            if (dest.zoneId >= this.zonesListCount || this.zonesList[dest.zoneId]->size < (dest.offset + destOffset + length)) {
                 throw new OutOfBoundsException();
             }
             #endif
@@ -390,16 +381,13 @@ namespace ME.ECS.Collections.LowLevel.Unsafe {
         [INLINE(256)]
         public readonly void* GetUnsafePtr(in MemPtr ptr) {
 
-            var zoneIndex = ptr >> 32;
-            var offset = (ptr & MemoryAllocator.OFFSET_MASK);
-            
             #if MEMORY_ALLOCATOR_BOUNDS_CHECK
-            if (zoneIndex < this.zonesListCount && this.zonesList[zoneIndex] != null && this.zonesList[zoneIndex]->size < offset) {
+            if (ptr.zoneId < this.zonesListCount && this.zonesList[ptr.zoneId] != null && this.zonesList[ptr.zoneId]->size < ptr.offset) {
                 throw new OutOfBoundsException();
             }
             #endif
 
-            return (byte*)this.zonesList[zoneIndex] + offset;
+            return (byte*)this.zonesList[ptr.zoneId] + ptr.offset;
         }
 
         [INLINE(256)]
@@ -411,10 +399,9 @@ namespace ME.ECS.Collections.LowLevel.Unsafe {
             }
             #endif
             
-            var index = (long)zoneIndex << 32;
             var offset = ((byte*)ptr - (byte*)this.zonesList[zoneIndex]);
 
-            return index | offset;
+            return new MemPtr(zoneIndex, (int)offset);
         }
 
         /// 
