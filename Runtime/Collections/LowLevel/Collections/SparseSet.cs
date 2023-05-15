@@ -1,8 +1,8 @@
 namespace ME.ECS.Collections.LowLevel {
 
     using Unsafe;
-
     using Unity.Collections.LowLevel.Unsafe;
+    using INLINE = System.Runtime.CompilerServices.MethodImplAttribute;
 
     public unsafe struct SparseSetData {
 
@@ -36,7 +36,7 @@ namespace ME.ECS.Collections.LowLevel {
                 UnsafeUtility.ArrayElementAsRef<Component<TComponent>>(this.densePtr, idx) = new Component<TComponent>() {
                     state = 1,
                     data = default,
-                    version = 1L,
+                    version = 1,
                 };
             }
             return ref UnsafeUtility.ArrayElementAsRef<Component<TComponent>>(this.densePtr, idx);
@@ -48,8 +48,13 @@ namespace ME.ECS.Collections.LowLevel {
     public struct SparseSet<T> where T : struct {
         private static T defaultRef;
 
+        #if SPARSESET_DENSE_SLICED
         [ME.ECS.Serializer.SerializeField]
         private MemArraySlicedAllocator<T> dense;
+        #else
+        [ME.ECS.Serializer.SerializeField]
+        private MemArrayAllocator<T> dense;
+        #endif
         [ME.ECS.Serializer.SerializeField]
         private MemArrayAllocator<int> sparse;
         [ME.ECS.Serializer.SerializeField]
@@ -58,6 +63,7 @@ namespace ME.ECS.Collections.LowLevel {
         public bool isCreated => this.sparse.isCreated;
         public int Length => this.sparse.Length;
         
+        [INLINE(256)]
         public SparseSet(ref MemoryAllocator allocator, int length) {
 
             this.dense = default;
@@ -67,6 +73,7 @@ namespace ME.ECS.Collections.LowLevel {
 
         }
 
+        [INLINE(256)]
         public unsafe SparseSetData GetData(in MemoryAllocator allocator) {
 
             return new SparseSetData() {
@@ -76,31 +83,38 @@ namespace ME.ECS.Collections.LowLevel {
 
         }
 
+        [INLINE(256)]
         public T ReadDense(in MemoryAllocator allocator, int sparseIndex) {
 
             return this.dense[in allocator, sparseIndex];
 
         }
         
+        [INLINE(256)]
         public ref T GetDense(in MemoryAllocator allocator, int sparseIndex) {
 
             return ref this.dense[in allocator, sparseIndex];
 
         }
 
+        [INLINE(256)]
         public MemArrayAllocator<int> GetSparse() {
 
             return this.sparse;
 
         }
 
+        [INLINE(256)]
         public SparseSet<T> Merge(ref MemoryAllocator allocator) {
 
+#if SPARSESET_DENSE_SLICED
             this.dense = this.dense.Merge(ref allocator);
+#endif
             return this;
 
         }
         
+        [INLINE(256)]
         public void Validate(ref MemoryAllocator allocator, int capacity) {
 
             if (this.freeIndexes.isCreated == false) this.freeIndexes = new Stack<int>(ref allocator, 10);
@@ -108,6 +122,7 @@ namespace ME.ECS.Collections.LowLevel {
 
         }
 
+        [INLINE(256)]
         public SparseSet<T> Dispose(ref MemoryAllocator allocator) {
             
             this.freeIndexes.Dispose(ref allocator);
@@ -117,6 +132,7 @@ namespace ME.ECS.Collections.LowLevel {
 
         }
 
+        [INLINE(256)]
         public void Set(ref MemoryAllocator allocator, int fromEntityId, int toEntityId, in T data) {
 
             for (int i = fromEntityId; i <= toEntityId; ++i) {
@@ -125,6 +141,7 @@ namespace ME.ECS.Collections.LowLevel {
             
         }
 
+        [INLINE(256)]
         public int Set(ref MemoryAllocator allocator, int entityId, in T data) {
 
             ref var idx = ref this.sparse[in allocator, entityId];
@@ -136,12 +153,17 @@ namespace ME.ECS.Collections.LowLevel {
                 }
             }
 
+#if SPARSESET_DENSE_SLICED
             this.dense.Resize(ref allocator, idx + 1, out _);
+#else
+            this.dense.Resize(ref allocator, idx + 1);
+#endif
             this.dense[in allocator, idx] = data;
             return idx;
 
         }
 
+        [INLINE(256)]
         public ref T Get(ref MemoryAllocator allocator, int entityId) {
             
             var idx = this.sparse[in allocator, entityId];
@@ -150,7 +172,8 @@ namespace ME.ECS.Collections.LowLevel {
 
         }
 
-        public readonly ref T Read(ref MemoryAllocator allocator, int entityId) {
+        [INLINE(256)]
+        public readonly ref T Read(in MemoryAllocator allocator, int entityId) {
 
             var idx = this.sparse[in allocator, entityId];
             if (idx == 0) return ref defaultRef;
@@ -158,6 +181,7 @@ namespace ME.ECS.Collections.LowLevel {
 
         }
 
+        [INLINE(256)]
         public void Remove(ref MemoryAllocator allocator, int entityId) {
             
             ref var idx = ref this.sparse[in allocator, entityId];
@@ -167,6 +191,7 @@ namespace ME.ECS.Collections.LowLevel {
             
         }
 
+        [INLINE(256)]
         public void Remove(ref MemoryAllocator allocator, int entityId, int length) {
 
             for (int i = entityId; i < length; ++i) {
@@ -175,12 +200,14 @@ namespace ME.ECS.Collections.LowLevel {
             
         }
 
+        [INLINE(256)]
         public T Has(ref MemoryAllocator allocator, int entityId) {
 
             return this.Get(ref allocator, entityId);
 
         }
 
+        [INLINE(256)]
         public unsafe int SetPtr(MemoryAllocator* allocator, int entityId, in T data) {
             
             ref var alloc = ref UnsafeUtility.AsRef<MemoryAllocator>(allocator);
@@ -188,6 +215,7 @@ namespace ME.ECS.Collections.LowLevel {
 
         }
 
+        [INLINE(256)]
         public MemPtr ReadPtr(in MemoryAllocator allocator, int entityId) {
 
             var idx = this.sparse[in allocator, entityId];
@@ -197,6 +225,7 @@ namespace ME.ECS.Collections.LowLevel {
 
         }
 
+        [INLINE(256)]
         public unsafe T ReadPtr(MemoryAllocator* allocator, int entityId) {
 
             ref var alloc = ref UnsafeUtility.AsRef<MemoryAllocator>(allocator);
@@ -206,6 +235,7 @@ namespace ME.ECS.Collections.LowLevel {
 
         }
 
+        [INLINE(256)]
         public unsafe bool HasDataPtr(MemoryAllocator* allocator, int entityId) {
 
             ref var alloc = ref UnsafeUtility.AsRef<MemoryAllocator>(allocator);
@@ -215,12 +245,14 @@ namespace ME.ECS.Collections.LowLevel {
 
         }
 
+        [INLINE(256)]
         public unsafe T HasPtr(MemoryAllocator* allocator, int entityId) {
 
             return this.ReadPtr(allocator, entityId);
 
         }
 
+        [INLINE(256)]
         public unsafe ref T GetPtr(MemoryAllocator* allocator, int entityId) {
 
             ref var alloc = ref UnsafeUtility.AsRef<MemoryAllocator>(allocator);
@@ -228,6 +260,7 @@ namespace ME.ECS.Collections.LowLevel {
 
         }
 
+        [INLINE(256)]
         public unsafe void RemovePtr(MemoryAllocator* allocator, int entityId, int length) {
 
             ref var alloc = ref UnsafeUtility.AsRef<MemoryAllocator>(allocator);

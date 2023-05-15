@@ -17,8 +17,7 @@ namespace ME.ECS {
 
             ref var bucket = ref reg.components[entity.id];
             reg.RemoveData(in entity, ref bucket);
-            ref var state = ref bucket.state;
-            return DataBufferUtilsBase.PushRemoveCreate_INTERNAL(ref state, world, in entity, reg, storageType);
+            return DataBufferUtilsBase.PushRemoveCreate_INTERNAL(ref bucket, world, in entity, storageType);
             
         }
 
@@ -27,7 +26,7 @@ namespace ME.ECS {
 
             ref var bucket = ref reg.components[entity.id];
             ref var state = ref bucket.state;
-            DataBufferUtilsBase.PushSetCreate_INTERNAL<T>(ref state, world, reg, in entity, storageType, makeRequest: true);
+            DataBufferUtilsBase.PushSetCreate_INTERNAL<T>(ref state, world, in entity, storageType, makeRequest: true);
             return ref bucket.data;
             
         }
@@ -38,7 +37,7 @@ namespace ME.ECS {
             ref var bucket = ref reg.components[entity.id];
             reg.Replace(ref bucket, in data);
             ref var state = ref bucket.state;
-            return DataBufferUtilsBase.PushSetCreate_INTERNAL<T>(ref state, world, reg, in entity, storageType, makeRequest: false);
+            return DataBufferUtilsBase.PushSetCreate_INTERNAL<T>(ref state, world, in entity, storageType, makeRequest: false);
 
         }
 
@@ -65,7 +64,7 @@ namespace ME.ECS {
             entityVersions.Increment(in allocator, entityId);
             bucket.state = 1;
             bucket.data = data;
-            bucket.version = tick;
+            bucket.version = (ushort)(long)tick;
             
             return false;
 

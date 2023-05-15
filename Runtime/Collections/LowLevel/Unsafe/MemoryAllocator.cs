@@ -134,6 +134,7 @@ namespace ME.ECS.Collections.LowLevel.Unsafe {
         /// 
         /// Constructors
         /// 
+        [INLINE(256)]
         public MemoryAllocator Initialize(long initialSize, long maxSize = -1L) {
 
             if (maxSize < initialSize) maxSize = initialSize;
@@ -145,6 +146,7 @@ namespace ME.ECS.Collections.LowLevel.Unsafe {
             return this;
         }
 
+        [INLINE(256)]
         public void Dispose() {
 
             this.FreeZones();
@@ -159,6 +161,7 @@ namespace ME.ECS.Collections.LowLevel.Unsafe {
 
         }
 
+        [INLINE(256)]
         public void CopyFrom(in MemoryAllocator other) {
 
             if (other.zonesList == null && this.zonesList == null) {
@@ -220,6 +223,7 @@ namespace ME.ECS.Collections.LowLevel.Unsafe {
 	    
         }
 
+        [INLINE(256)]
         private void FreeZones() {
             if (this.zonesListCount > 0 && this.zonesList != null) {
                 for (int i = 0; i < this.zonesListCount; i++) {
@@ -233,6 +237,7 @@ namespace ME.ECS.Collections.LowLevel.Unsafe {
             this.zonesListCount = 0;
         }
 
+        [INLINE(256)]
         internal int AddZone(MemZone* zone) {
             
             for (int i = 0; i < this.zonesListCount; i++) {

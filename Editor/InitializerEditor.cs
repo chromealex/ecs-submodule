@@ -180,13 +180,6 @@ namespace ME.ECSEditor {
                 return false;
                 #endif
             }, true, InitializerBase.ConfigurationType.DebugAndRelease, InitializerBase.CodeSize.Heavy, InitializerBase.RuntimeSpeed.Normal),
-            new InitializerBase.DefineInfo(false, "COMPONENTS_VERSION_NO_STATE_DISABLED", "Disable components version no state storage and entity no state API. Use this if you don't use this feature at all to speed up your runtime.", () => {
-                #if COMPONENTS_VERSION_NO_STATE_DISABLED
-                return true;
-                #else
-                return false;
-                #endif
-            }, true, InitializerBase.ConfigurationType.DebugAndRelease, InitializerBase.CodeSize.Light, InitializerBase.RuntimeSpeed.Normal),
             new InitializerBase.DefineInfo(false, "ENTITIES_GROUP_DISABLED", "Disable entities group storage and entities group API. Use this if you don't use this feature at all to speed up your runtime.", () => {
                 #if ENTITIES_GROUP_DISABLED
                 return true;

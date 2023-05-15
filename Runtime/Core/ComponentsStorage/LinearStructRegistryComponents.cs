@@ -20,7 +20,7 @@ namespace ME.ECS {
 
         public TComponent data;
         public byte state;
-        public long version;
+        public ushort version;
 
     }
 
@@ -1386,21 +1386,6 @@ namespace ME.ECS {
             
         }
 
-        #if !COMPONENTS_VERSION_NO_STATE_DISABLED
-        #if INLINE_METHODS
-        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-        #endif
-        public uint GetDataVersionNoState<TComponent>(in Entity entity) where TComponent : struct, IVersionedNoState {
-            
-            E.IS_ALIVE(in entity);
-
-            if (AllComponentTypes<TComponent>.isVersionedNoState == false) return 0u;
-            var reg = (StructComponentsBase<TComponent>)this.currentState.structComponents.list.arr[AllComponentTypes<TComponent>.typeId];
-            return reg.versionsNoState.arr[entity.id];
-            
-        }
-        #endif
-
         #region COMMON SHARED
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
@@ -1605,10 +1590,6 @@ namespace ME.ECS {
 
                 }
                 
-                #if !COMPONENTS_VERSION_NO_STATE_DISABLED
-                if (AllComponentTypes<TComponent>.isVersionedNoState == true) ++reg.versionsNoState.arr[entity.id];
-                #endif
-                
             }
 
             return ref SharedGroupsAPI<TComponent>.Get(ref reg.sharedStorage, entity.id, groupId);
@@ -1719,10 +1700,6 @@ namespace ME.ECS {
 
             }
 
-            #if !COMPONENTS_VERSION_NO_STATE_DISABLED
-            if (AllComponentTypes<TComponent>.isVersionedNoState == true) ++reg.versionsNoState.arr[entity.id];
-            #endif
-            
         }
         
         #if INLINE_METHODS
@@ -1746,9 +1723,6 @@ namespace ME.ECS {
 
                 this.currentState.storage.versions.Increment(in this.currentState.allocator, in entity);
                 reg.UpdateVersion(in entity);
-                #if !COMPONENTS_VERSION_NO_STATE_DISABLED
-                reg.UpdateVersionNoState(in entity);
-                #endif
 
             }
             
@@ -1776,6 +1750,13 @@ namespace ME.ECS {
 
             E.IS_ALIVE(in entity);
 
+            if (AllComponentTypes<TComponent>.isBlittable == true &&
+                AllComponentTypes<TComponent>.isDisposable == false) {
+                ref var allocator = ref this.currentState.allocator;
+                ref var item = ref this.currentState.structComponents.unmanagedComponentsStorage.GetRegistry<TComponent>(in this.currentState.allocator);
+                return item.components.Read(in allocator, entity.id).state != 0;
+            }
+            
             return this.currentState.structComponents.list.arr[AllComponentTypes<TComponent>.typeId].Has(in entity);
 
         }
@@ -1800,22 +1781,14 @@ namespace ME.ECS {
             E.IS_ALIVE(in entity);
             E.IS_TAG<TComponent>(in entity);
 
+            if (AllComponentTypes<TComponent>.isBlittable == true &&
+                AllComponentTypes<TComponent>.isDisposable == false) {
+                ref var allocator = ref this.currentState.allocator;
+                ref var item = ref this.currentState.structComponents.unmanagedComponentsStorage.GetRegistry<TComponent>(in this.currentState.allocator);
+                return ref item.components.Read(in allocator, entity.id).data;
+            }
+
             return ref ((StructComponentsBase<TComponent>)this.currentState.structComponents.list.arr[AllComponentTypes<TComponent>.typeId]).Read(in entity);
-
-            /*
-            if (AllComponentTypes<TComponent>.isBlittable == true) {
-                
-                // Inline all manually
-                var reg = (StructComponentsBlittable<TComponent>)this.currentState.structComponents.list.arr[AllComponentTypes<TComponent>.typeId];
-                return ref reg.components[entity.id].data;
-
-            } else {
-
-                // Inline all manually
-                var reg = (StructComponents<TComponent>)this.currentState.structComponents.list.arr[AllComponentTypes<TComponent>.typeId];
-                return ref reg.components[entity.id].data;
-
-            }*/
 
         }
 
@@ -1851,11 +1824,21 @@ namespace ME.ECS {
             E.IS_ALIVE(in entity);
             E.IS_TAG<TComponent>(in entity);
             
-            var reg = (StructComponentsBase<TComponent>)this.currentState.structComponents.list.arr[AllComponentTypes<TComponent>.typeId];
-            ref var bucket = ref reg.Get(in entity);
-            DataBufferUtilsBase.PushSetCreate_INTERNAL(ref bucket.state, this, reg, in entity, StorageType.Default, makeRequest: true);
-            return ref bucket.data;
-            
+            if (AllComponentTypes<TComponent>.isBlittable == true &&
+                AllComponentTypes<TComponent>.isDisposable == false) {
+                ref var allocator = ref this.currentState.allocator;
+                ref var item = ref this.currentState.structComponents.unmanagedComponentsStorage.GetRegistry<TComponent>(in this.currentState.allocator);
+                ref var bucket = ref item.components.Get(ref allocator, entity.id);
+                DataBufferUtilsBase.PushSetCreate_INTERNAL(ref bucket, this, in entity, StorageType.Default, makeRequest: true);
+                return ref bucket.data;
+            } else {
+
+                var reg = (StructComponentsBase<TComponent>)this.currentState.structComponents.list.arr[AllComponentTypes<TComponent>.typeId];
+                ref var bucket = ref reg.Get(in entity);
+                DataBufferUtilsBase.PushSetCreate_INTERNAL(ref bucket, this, in entity, StorageType.Default, makeRequest: true);
+                return ref bucket.data;
+            }
+
             /*
             if (AllComponentTypes<TComponent>.isBlittable == true) {
                 
@@ -1902,40 +1885,15 @@ namespace ME.ECS {
             if (AllComponentTypes<TComponent>.isTag == true) {
                 
                 ref var state = ref reg.GetState(in entity);
-                DataBufferUtilsBase.PushSetCreate_INTERNAL(ref state, this, reg, in entity, StorageType.Default, makeRequest: false);
+                DataBufferUtilsBase.PushSetCreate_INTERNAL<TComponent>(ref state, this, in entity, StorageType.Default, makeRequest: false);
                 
             } else {
 
                 ref var bucket = ref reg.Get(in entity);
                 reg.Replace(ref bucket, in data);
-                DataBufferUtilsBase.PushSetCreate_INTERNAL(ref bucket.state, this, reg, in entity, StorageType.Default, makeRequest: false);
+                DataBufferUtilsBase.PushSetCreate_INTERNAL(ref bucket, this, in entity, StorageType.Default, makeRequest: false);
                 
             }
-
-            /*
-            if (AllComponentTypes<TComponent>.isBlittable == true) {
-                
-                // Inline all manually
-                var reg = (StructComponentsBlittable<TComponent>)this.currentState.structComponents.list.arr[AllComponentTypes<TComponent>.typeId];
-                DataBlittableBufferUtils.PushSet_INTERNAL(this, in entity, reg, in data, StorageType.Default);
-
-            } else {
-
-                if (AllComponentTypes<TComponent>.isTag == true) {
-                    
-                    // Inline all manually
-                    var reg = (StructComponentsTag<TComponent>)this.currentState.structComponents.list.arr[AllComponentTypes<TComponent>.typeId];
-                    DataTagBufferUtils.PushSet_INTERNAL(this, in entity, reg, in data, StorageType.Default);
-                    
-                } else {
-
-                    // Inline all manually
-                    var reg = (StructComponents<TComponent>)this.currentState.structComponents.list.arr[AllComponentTypes<TComponent>.typeId];
-                    DataBufferUtils.PushSet_INTERNAL(this, in entity, reg, in data, StorageType.Default);
-
-                }
-
-            }*/
 
         }
         

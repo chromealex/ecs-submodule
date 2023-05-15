@@ -55,10 +55,6 @@ namespace ME.ECS {
 
         public abstract void UpdateVersion(in Entity entity);
         
-        #if !COMPONENTS_VERSION_NO_STATE_DISABLED
-        public abstract void UpdateVersionNoState(in Entity entity);
-        #endif
-        
         public abstract bool HasType(System.Type type);
         public abstract IComponentBase GetObject(Entity entity);
         public abstract bool SetObject(in Entity entity, IComponentBase data, StorageType storageType);
@@ -133,10 +129,6 @@ namespace ME.ECS {
 
         protected ref ME.ECS.Collections.LowLevel.Unsafe.MemoryAllocator allocator => ref this.world.currentState.allocator;
         
-        #if !COMPONENTS_VERSION_NO_STATE_DISABLED
-        // We don't need to serialize this field
-        internal BufferArray<uint> versionsNoState;
-        #endif
         #if !SHARED_COMPONENTS_DISABLED
         // Shared data
         [ME.ECS.Serializer.SerializeField]
@@ -163,19 +155,11 @@ namespace ME.ECS {
         public virtual void UpdateVersion(ref Component<TComponent> bucket) {
             
             if (AllComponentTypes<TComponent>.isVersioned == true) {
-                bucket.version = this.world.GetCurrentTick();
+                bucket.version = (ushort)(long)this.world.GetCurrentTick();
             }
 
         }
         
-        #if !COMPONENTS_VERSION_NO_STATE_DISABLED
-        public uint GetVersionNotStated(in Entity entity) {
-
-            return this.versionsNoState.arr[entity.id];
-
-        }
-        #endif
-
         public override bool IsTag() {
 
             return WorldUtilities.IsComponentAsTag<TComponent>();
@@ -193,17 +177,6 @@ namespace ME.ECS {
             return WorldUtilities.GetAllComponentTypeId<TComponent>();
 
         }
-
-        #if !COMPONENTS_VERSION_NO_STATE_DISABLED
-        #if INLINE_METHODS
-        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-        #endif
-        public override void UpdateVersionNoState(in Entity entity) {
-
-            if (AllComponentTypes<TComponent>.isVersionedNoState == true) ++this.versionsNoState.arr[entity.id];
-
-        }
-        #endif
 
         public override StructRegistryBase Clone() {
 
@@ -223,9 +196,6 @@ namespace ME.ECS {
 
         public override void OnRecycle() {
 
-            #if !COMPONENTS_VERSION_NO_STATE_DISABLED
-            if (AllComponentTypes<TComponent>.isVersionedNoState == true) PoolArray<uint>.Recycle(ref this.versionsNoState);
-            #endif
             #if !SHARED_COMPONENTS_DISABLED
             if (AllComponentTypes<TComponent>.isShared == true) SharedGroupsAPI<TComponent>.OnRecycle(ref this.sharedStorage);
             #endif
@@ -236,9 +206,6 @@ namespace ME.ECS {
             
             #if !SHARED_COMPONENTS_DISABLED
             if (AllComponentTypes<TComponent>.isShared == true) SharedGroupsAPI<TComponent>.Validate(ref this.sharedStorage, capacity);
-            #endif
-            #if !COMPONENTS_VERSION_NO_STATE_DISABLED
-            if (AllComponentTypes<TComponent>.isVersionedNoState == true) ArrayUtils.Resize(capacity, ref this.versionsNoState, true);
             #endif
             
             return false;
@@ -371,9 +338,6 @@ namespace ME.ECS {
         public override void CopyFrom(StructRegistryBase other) {
 
             var _other = (StructComponentsBase<TComponent>)other;
-            #if !COMPONENTS_VERSION_NO_STATE_DISABLED
-            if (AllComponentTypes<TComponent>.isVersionedNoState == true) _other.versionsNoState = this.versionsNoState;
-            #endif
             #if !SHARED_COMPONENTS_DISABLED
             if (AllComponentTypes<TComponent>.isShared == true) SharedGroupsAPI<TComponent>.CopyFrom(ref this.sharedStorage, _other.sharedStorage, new ElementCopy());
             #endif

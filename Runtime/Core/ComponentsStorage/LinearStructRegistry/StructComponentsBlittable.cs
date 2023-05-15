@@ -92,7 +92,7 @@ namespace ME.ECS {
             if (AllComponentTypes<TComponent>.isVersioned == true) {
                 var v = (long)this.world.GetCurrentTick();
                 ref var data = ref this.components[entity.id];
-                data.version = v;
+                data.version = (ushort)v;
             }
 
         }
@@ -103,7 +103,7 @@ namespace ME.ECS {
         public override void UpdateVersion(ref Component<TComponent> bucket) {
 
             if (AllComponentTypes<TComponent>.isVersioned == true) {
-                bucket.version = this.world.GetCurrentTick();
+                bucket.version = (ushort)(long)this.world.GetCurrentTick();
             }
 
         }

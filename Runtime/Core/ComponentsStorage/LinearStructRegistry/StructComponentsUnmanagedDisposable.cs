@@ -21,7 +21,7 @@ namespace ME.ECS {
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         public override bool TryRead(in Entity entity, out TComponent component) {
             
-            var item = this.registry.components.Read(ref this.allocator, entity.id);
+            var item = this.registry.components.Read(in this.allocator, entity.id);
             component = item.data;
             return item.state > 0;
             
@@ -80,7 +80,7 @@ namespace ME.ECS {
 
             if (AllComponentTypes<TComponent>.isVersioned == true) {
                 var v = (long)this.world.GetCurrentTick();
-                this.registry.components.Get(ref this.allocator, entity.id).version = v;
+                this.registry.components.Get(ref this.allocator, entity.id).version = (ushort)v;
             }
 
         }
@@ -91,7 +91,7 @@ namespace ME.ECS {
         public override void UpdateVersion(ref Component<TComponent> bucket) {
 
             if (AllComponentTypes<TComponent>.isVersioned == true) {
-                bucket.version = this.world.GetCurrentTick();
+                bucket.version = (ushort)(long)this.world.GetCurrentTick();
             }
 
         }

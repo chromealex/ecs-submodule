@@ -8,7 +8,6 @@
         "ME.Pools",
         "ME.ECS.IL2CPP",
         "ME.Debug.WeakRef",
-        "ME.ECS.FPMath",
         "Unity.Collections",
         "Unity.Profiling.Core"
     ],

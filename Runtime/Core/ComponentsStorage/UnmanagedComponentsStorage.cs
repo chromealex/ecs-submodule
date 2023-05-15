@@ -59,12 +59,14 @@ namespace ME.ECS {
 
             public Collections.LowLevel.SparseSet<Component<T>> components;
             
+            [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
             public void Merge(ref MemoryAllocator allocator) {
 
                 this.components.Merge(ref allocator);
 
             }
 
+            [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
             public bool Validate(ref MemoryAllocator allocator, int entityId) {
 
                 var resized = false;
@@ -78,12 +80,14 @@ namespace ME.ECS {
 
             }
 
+            [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
             public void Replace(ref MemoryAllocator allocator, ref Component<T> bucket, in T data) {
 
                 bucket.data.ReplaceWith(ref allocator, in data);
 
             }
 
+            [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
             public void RemoveData(ref MemoryAllocator allocator, ref Component<T> bucket) {
 
                 if (bucket.state > 0) bucket.data.OnDispose(ref allocator);
@@ -95,10 +99,12 @@ namespace ME.ECS {
 
         public MemArrayAllocator<MemPtr> items;
 
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         public void Initialize() {
 
         }
 
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         public ref Item<T> GetRegistry<T>(in MemoryAllocator allocator) where T : struct, IComponentBase {
 
             var typeId = AllComponentTypes<T>.typeId;
@@ -107,6 +113,7 @@ namespace ME.ECS {
 
         }
 
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         public void ValidateTypeId<T>(ref MemoryAllocator allocator) where T : struct, IComponentBase {
 
             this.items.Resize(ref allocator, AllComponentTypesCounter.counter + 1);
@@ -117,6 +124,7 @@ namespace ME.ECS {
 
         }
 
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         public void Validate<T>(ref MemoryAllocator allocator, int entityId) where T : struct, IComponentBase {
 
             var typeId = AllComponentTypes<T>.typeId;
@@ -132,6 +140,7 @@ namespace ME.ECS {
 
         }
 
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         public ref ItemDisposable<T> GetRegistryDisposable<T>(in MemoryAllocator allocator) where T : struct, IComponentDisposable<T> {
 
             var typeId = AllComponentTypes<T>.typeId;
@@ -140,12 +149,14 @@ namespace ME.ECS {
 
         }
 
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         public void ValidateTypeIdDisposable<T>(ref MemoryAllocator allocator, int typeId) where T : struct, IComponentDisposable<T> {
 
             this.items.Resize(ref allocator, AllComponentTypesCounter.counter + 1);
 
         }
 
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         public void ValidateDisposable<T>(ref MemoryAllocator allocator, int entityId) where T : struct, IComponentDisposable<T> {
 
             var typeId = AllComponentTypes<T>.typeId;

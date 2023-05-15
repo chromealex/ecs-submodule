@@ -47,6 +47,7 @@ namespace ME.ECS.Collections {
     public static class NativeQuadTreeUtils<T> where T : unmanaged {
 
         private static NativeQuadTree<T> tempTree;
+        private static NativeArray<QuadElement<T>> items;
 
         public static void PrepareTick(in AABB2D mapSize, NativeArray<QuadElement<T>> items, int itemsCount) {
             
@@ -60,13 +61,15 @@ namespace ME.ECS.Collections {
                 NativeQuadTreeUtils<T>.EndTick();
             }
 
-            NativeQuadTreeUtils<T>.tempTree = new NativeQuadTree<T>(mapSize, Unity.Collections.Allocator.TempJob, maxDepth: 4);
+            NativeQuadTreeUtils<T>.items = items;
+
+            /*NativeQuadTreeUtils<T>.tempTree = new NativeQuadTree<T>(mapSize, Unity.Collections.Allocator.TempJob, maxDepth: 4);
 
             new QuadTreeJobs.ClearJob<T>() {
                 quadTree = NativeQuadTreeUtils<T>.tempTree,
                 elements = items,
                 elementsCount = itemsCount,
-            }.Execute();
+            }.Execute();*/
 
         }
 
@@ -78,16 +81,30 @@ namespace ME.ECS.Collections {
 
         public static void GetResults(in float2 position, tfloat radius, Unity.Collections.NativeList<QuadElement<T>> results) {
 
-            if (NativeQuadTreeUtils<T>.tempTree.isCreated == false) {
+            /*if (NativeQuadTreeUtils<T>.tempTree.isCreated == false) {
                 throw new System.Exception("Temp tree collection has been disposed");
-            }
+            }*/
 
+            var marker = new Unity.Profiling.ProfilerMarker("GetNearestUnitTarget");
+            marker.Begin();
+            for (int i = 0; i < NativeQuadTreeUtils<T>.items.Length; ++i) {
+
+                var elem = NativeQuadTreeUtils<T>.items[i];
+                var d = math.distancesq(elem.pos, position);
+                if (d <= radius) {
+                    results.Add(elem);
+                }
+
+            }
+            marker.End();
+            /*
             new QuadTreeJobs.QueryRadiusJob<T>() {
                 quadTree = NativeQuadTreeUtils<T>.tempTree,
                 bounds = new AABB2D(position, new float2(radius, radius)),
                 radius = radius,
                 results = results,
             }.Execute();
+            */
 
         }
 

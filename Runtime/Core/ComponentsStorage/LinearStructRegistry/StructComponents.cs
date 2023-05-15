@@ -90,7 +90,7 @@ namespace ME.ECS {
             if (AllComponentTypes<TComponent>.isVersioned == true) {
                 var v = (long)this.world.GetCurrentTick();
                 ref var data = ref this.components[entity.id];
-                data.version = v;
+                data.version = (ushort)v;
             }
             
         }

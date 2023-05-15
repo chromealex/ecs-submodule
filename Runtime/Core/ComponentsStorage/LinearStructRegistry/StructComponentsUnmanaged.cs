@@ -38,7 +38,7 @@ namespace ME.ECS {
             
             ref var storage = ref this.storage;
             ref var reg = ref storage.GetRegistry<TComponent>(in this.allocator);
-            var item = reg.components.Read(ref this.allocator, entity.id);
+            var item = reg.components.Read(in this.allocator, entity.id);
             component = item.data;
             return item.state > 0;
             
@@ -58,7 +58,7 @@ namespace ME.ECS {
 
             ref var storage = ref this.storage;
             ref var reg = ref storage.GetRegistry<TComponent>(in this.allocator);
-            ref var item = ref reg.components.Read(ref this.allocator, entity.id);
+            ref var item = ref reg.components.Read(in this.allocator, entity.id);
             return ref item.data;
         }
 
@@ -123,7 +123,7 @@ namespace ME.ECS {
                 var v = (long)this.world.GetCurrentTick();
                 ref var storage = ref this.storage;
                 ref var reg = ref storage.GetRegistry<TComponent>(in this.allocator);
-                reg.components.Get(ref this.allocator, entity.id).version = v;
+                reg.components.Get(ref this.allocator, entity.id).version = (ushort)v;
             }
 
         }
@@ -134,7 +134,7 @@ namespace ME.ECS {
         public override void UpdateVersion(ref Component<TComponent> bucket) {
 
             if (AllComponentTypes<TComponent>.isVersioned == true) {
-                bucket.version = this.world.GetCurrentTick();
+                bucket.version = (ushort)(long)this.world.GetCurrentTick();
             }
 
         }

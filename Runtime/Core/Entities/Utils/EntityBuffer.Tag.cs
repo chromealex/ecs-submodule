@@ -35,10 +35,6 @@ namespace ME.ECS {
                 }
 
                 world.currentState.storage.versions.Increment(in world.currentState.allocator, in entity);
-                //reg.UpdateVersion(in entity);
-                #if !COMPONENTS_VERSION_NO_STATE_DISABLED
-                if (AllComponentTypes<T>.isVersionedNoState == true) ++reg.versionsNoState.arr[entity.id];
-                #endif
                 
                 if (world.currentState.structComponents.entitiesIndexer.GetCount(in world.currentState.allocator, entity.id) == 0 &&
                     (world.currentState.storage.flags.Get(in world.currentState.allocator, entity.id) & (byte)EntityFlag.DestroyWithoutComponents) != 0) {
@@ -101,19 +97,7 @@ namespace ME.ECS {
 
             }
 
-            // Don't need lambda when use tag components
-            /*
-            if (ComponentTypes<T>.isFilterLambda == true && ComponentTypes<T>.typeId >= 0) {
-
-                world.ValidateFilterByStructComponent<T>(in entity);
-                
-            }*/
-            
             world.currentState.storage.versions.Increment(in world.currentState.allocator, in entity);
-            //reg.UpdateVersion(in entity);
-            #if !COMPONENTS_VERSION_NO_STATE_DISABLED
-            if (AllComponentTypes<T>.isVersionedNoState == true) ++reg.versionsNoState.arr[entity.id];
-            #endif
             
             return result;
 

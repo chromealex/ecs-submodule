@@ -17,8 +17,7 @@ namespace ME.ECS {
 
             ref var bucket = ref reg.components[entity.id];
             reg.RemoveData(in entity, ref bucket);
-            ref var state = ref bucket.state;
-            return DataBufferUtilsBase.PushRemoveCreate_INTERNAL(ref state, world, in entity, reg, storageType);
+            return DataBufferUtilsBase.PushRemoveCreate_INTERNAL(ref bucket, world, in entity, storageType);
 
         }
 
@@ -27,8 +26,7 @@ namespace ME.ECS {
 
             ref var bucket = ref reg.components[entity.id];
             reg.Replace(ref bucket, in data);
-            ref var state = ref bucket.state;
-            return DataBufferUtilsBase.PushSetCreate_INTERNAL(ref state, world, reg, in entity, storageType, makeRequest: false);
+            return DataBufferUtilsBase.PushSetCreate_INTERNAL<T>(ref bucket, world, in entity, storageType, makeRequest: false);
             
         }
 
@@ -41,8 +39,7 @@ namespace ME.ECS {
 
             ref var bucket = ref reg.Get(in entity);
             reg.RemoveData(in entity, ref bucket);
-            ref var state = ref bucket.state;
-            return DataBufferUtilsBase.PushRemoveCreate_INTERNAL(ref state, world, in entity, reg, storageType);
+            return DataBufferUtilsBase.PushRemoveCreate_INTERNAL(ref bucket, world, in entity, storageType);
 
         }
 
@@ -51,8 +48,7 @@ namespace ME.ECS {
 
             ref var bucket = ref reg.Get(in entity);
             reg.Replace(ref bucket, in data);
-            ref var state = ref bucket.state;
-            return DataBufferUtilsBase.PushSetCreate_INTERNAL(ref state, world, reg, in entity, storageType, makeRequest: false);
+            return DataBufferUtilsBase.PushSetCreate_INTERNAL<T>(ref bucket, world, in entity, storageType, makeRequest: false);
             
         }
 
@@ -61,9 +57,7 @@ namespace ME.ECS {
 
             ref var bucket = ref reg.components.Get(ref allocator, entity.id);
             reg.RemoveData(ref bucket);
-            ref var state = ref bucket.state;
-            var stReg = (StructComponentsBase<T>)world.currentState.structComponents.list[AllComponentTypes<T>.typeId];
-            var result = DataBufferUtilsBase.PushRemoveCreate_INTERNAL(ref state, world, in entity, stReg, StorageType.Default);
+            var result = DataBufferUtilsBase.PushRemoveCreate_INTERNAL(ref bucket, world, in entity, StorageType.Default);
             reg.components.Remove(ref allocator, entity.id);
             return result;
 
@@ -74,9 +68,7 @@ namespace ME.ECS {
 
             ref var bucket = ref reg.components.Get(ref allocator, entity.id);
             reg.Replace(ref bucket, in data);
-            ref var state = ref bucket.state;
-            var stReg = (StructComponentsBase<T>)world.currentState.structComponents.list[AllComponentTypes<T>.typeId];
-            DataBufferUtilsBase.PushSetCreate_INTERNAL(ref state, world, stReg, in entity, StorageType.Default, makeRequest: false);
+            DataBufferUtilsBase.PushSetCreate_INTERNAL(ref bucket, world, in entity, StorageType.Default, makeRequest: false);
 
         }
 
@@ -89,8 +81,7 @@ namespace ME.ECS {
 
             ref var bucket = ref reg.Get(in entity);
             reg.RemoveData(in entity, ref bucket);
-            ref var state = ref bucket.state;
-            return DataBufferUtilsBase.PushRemoveCreate_INTERNAL(ref state, world, in entity, reg, storageType);
+            return DataBufferUtilsBase.PushRemoveCreate_INTERNAL(ref bucket, world, in entity, storageType);
 
         }
 
@@ -99,8 +90,7 @@ namespace ME.ECS {
 
             ref var bucket = ref reg.Get(in entity);
             reg.Replace(ref bucket, in data);
-            ref var state = ref bucket.state;
-            return DataBufferUtilsBase.PushSetCreate_INTERNAL(ref state, world, reg, in entity, storageType, makeRequest: false);
+            return DataBufferUtilsBase.PushSetCreate_INTERNAL(ref bucket, world, in entity, storageType, makeRequest: false);
             
         }
 
@@ -109,9 +99,7 @@ namespace ME.ECS {
 
             ref var bucket = ref reg.components.Get(ref allocator, entity.id);
             reg.RemoveData(ref allocator, ref bucket);
-            ref var state = ref bucket.state;
-            var stReg = (StructComponentsBase<T>)world.currentState.structComponents.list[AllComponentTypes<T>.typeId];
-            var result = DataBufferUtilsBase.PushRemoveCreate_INTERNAL(ref state, world, in entity, stReg, StorageType.Default);
+            var result = DataBufferUtilsBase.PushRemoveCreate_INTERNAL(ref bucket, world, in entity, StorageType.Default);
             reg.components.Remove(ref allocator, entity.id);
             return result;
 
@@ -122,9 +110,7 @@ namespace ME.ECS {
 
             ref var bucket = ref reg.components.Get(ref allocator, entity.id);
             reg.Replace(ref allocator, ref bucket, in data);
-            ref var state = ref bucket.state;
-            var stReg = (StructComponentsBase<T>)world.currentState.structComponents.list[AllComponentTypes<T>.typeId];
-            DataBufferUtilsBase.PushSetCreate_INTERNAL(ref state, world, stReg, in entity, StorageType.Default, makeRequest: false);
+            DataBufferUtilsBase.PushSetCreate_INTERNAL(ref bucket, world, in entity, StorageType.Default, makeRequest: false);
 
         }
 

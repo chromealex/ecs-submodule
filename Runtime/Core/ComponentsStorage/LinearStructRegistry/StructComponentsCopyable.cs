@@ -137,9 +137,6 @@ namespace ME.ECS {
         public override void CopyFrom(StructRegistryBase other) {
 
             var _other = (StructComponents<TComponent>)other;
-            #if !COMPONENTS_VERSION_NO_STATE_DISABLED
-            if (AllComponentTypes<TComponent>.isVersionedNoState == true) _other.versionsNoState = this.versionsNoState;
-            #endif
             ArrayUtils.Copy(_other.components, ref this.components, new CopyItem());
 
             #if !SHARED_COMPONENTS_DISABLED

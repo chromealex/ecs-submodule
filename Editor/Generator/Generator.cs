@@ -435,11 +435,7 @@ namespace ME.ECSEditor {
                     var isShared = false;
                     #endif
                     var isVersioned = typeof(ME.ECS.IVersioned).IsAssignableFrom(type);
-                    #if !COMPONENTS_VERSION_NO_STATE_DISABLED
-                    var isVersionedNoState = typeof(ME.ECS.IVersionedNoState).IsAssignableFrom(type);
-                    #else
                     var isVersionedNoState = false;
-                    #endif
                     var isBlittable = isOneShot == false && Generator.IsUnmanaged(type) == true;
                     var isSimple = true;
                     if (isCopyable == true ||

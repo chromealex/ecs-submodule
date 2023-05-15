@@ -82,9 +82,6 @@ namespace ME.ECS {
         public override void CopyFrom(StructRegistryBase other) {
 
             var _other = (StructComponentsBlittable<TComponent>)other;
-            #if !COMPONENTS_VERSION_NO_STATE_DISABLED
-            if (AllComponentTypes<TComponent>.isVersionedNoState == true) _other.versionsNoState = this.versionsNoState;
-            #endif
             NativeArrayUtils.Copy(_other.components, ref this.components, new StructComponentsCopyable<TComponent>.CopyItem());
 
             #if !SHARED_COMPONENTS_DISABLED
