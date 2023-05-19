@@ -30,6 +30,14 @@ namespace ME.ECS.Collections.LowLevel.Unsafe {
 
         public override string ToString() => $"(zone id {this.zoneId}; offset {this.offset})";
 
+        public bool Equals(MemPtr other) {
+            return this.zoneId == other.zoneId && this.offset == other.offset;
+        }
+
+        public override bool Equals(object obj) {
+            return obj is MemPtr other && Equals(other);
+        }
+
         public override int GetHashCode() {
             var value = (long)this.zoneId << 32;
             value |= (long)this.offset;

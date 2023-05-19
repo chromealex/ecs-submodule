@@ -244,6 +244,7 @@ namespace ME.ECS.Views.Providers {
         private readonly UnityEngine.Transform transform;
         private readonly Settings settings;
         private Transform targetTransform;
+        private bool isInitialized;
 
         public UnityEngine.Vector3 position {
             get => this.targetTransform.position;
@@ -285,12 +286,13 @@ namespace ME.ECS.Views.Providers {
             this.transform = transform;
             this.settings = settings;
             this.targetTransform = new Transform(transform);
+            this.isInitialized = false;
 
         }
         
         public void Update(float dt) {
 
-            if (this.settings.enabled == false) {
+            if (this.settings.enabled == false || this.isInitialized == false) {
 
                 if (this.targetTransform.isDirty == false) return;
 
@@ -299,15 +301,16 @@ namespace ME.ECS.Views.Providers {
                 this.transform.localScale = this.targetTransform.localScale;
 
                 this.targetTransform.isDirty = false;
+                this.isInitialized = true;
 
             } else {
 
                 if (this.targetTransform.isDirty == false) return;
 
-                var maxMovementDelta = this.view.GetInterpolationMovementSpeed() * Worlds.current.tickTime;
+                var maxMovementDelta = this.view.GetInterpolationMovementSpeed() * dt;
                 this.transform.position = UnityEngine.Vector3.MoveTowards(this.transform.position, this.targetTransform.position, maxMovementDelta);
                 
-                var maxRotationDelta = this.view.GetInterpolationRotationSpeed() * Worlds.current.tickTime;
+                var maxRotationDelta = this.view.GetInterpolationRotationSpeed() * dt;
                 this.transform.rotation = UnityEngine.Quaternion.RotateTowards(this.transform.rotation, this.targetTransform.rotation, maxRotationDelta);
                 
                 this.transform.localScale = this.targetTransform.localScale;
