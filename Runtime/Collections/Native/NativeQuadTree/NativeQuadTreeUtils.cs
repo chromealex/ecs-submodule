@@ -48,6 +48,7 @@ namespace ME.ECS.Collections {
 
         private static NativeQuadTree<T> tempTree;
         private static NativeArray<QuadElement<T>> items;
+        private static int itemsCount;
 
         public static void PrepareTick(in AABB2D mapSize, NativeArray<QuadElement<T>> items, int itemsCount) {
             
@@ -62,6 +63,7 @@ namespace ME.ECS.Collections {
             }
 
             NativeQuadTreeUtils<T>.items = items;
+            NativeQuadTreeUtils<T>.itemsCount = itemsCount;
 
             /*NativeQuadTreeUtils<T>.tempTree = new NativeQuadTree<T>(mapSize, Unity.Collections.Allocator.TempJob, maxDepth: 4);
 
@@ -85,13 +87,14 @@ namespace ME.ECS.Collections {
                 throw new System.Exception("Temp tree collection has been disposed");
             }*/
 
+            var sqRadius = radius * radius;
             var marker = new Unity.Profiling.ProfilerMarker("GetNearestUnitTarget");
             marker.Begin();
-            for (int i = 0; i < NativeQuadTreeUtils<T>.items.Length; ++i) {
+            for (int i = 0; i < NativeQuadTreeUtils<T>.itemsCount; ++i) {
 
                 var elem = NativeQuadTreeUtils<T>.items[i];
                 var d = math.distancesq(elem.pos, position);
-                if (d <= radius) {
+                if (d <= sqRadius) {
                     results.Add(elem);
                 }
 
