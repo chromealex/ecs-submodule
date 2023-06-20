@@ -308,11 +308,19 @@ namespace ME.ECS.Views.Providers {
                 if (this.targetTransform.isDirty == false) return;
 
                 var maxMovementDelta = this.view.GetInterpolationMovementSpeed() * dt;
-                this.transform.position = UnityEngine.Vector3.MoveTowards(this.transform.position, this.targetTransform.position, maxMovementDelta);
-                
+                if (maxMovementDelta > 0f) {
+                    this.transform.position = UnityEngine.Vector3.MoveTowards(this.transform.position, this.targetTransform.position, maxMovementDelta);
+                } else {
+                    this.transform.position = this.targetTransform.position;
+                }
+
                 var maxRotationDelta = this.view.GetInterpolationRotationSpeed() * dt;
-                this.transform.rotation = UnityEngine.Quaternion.RotateTowards(this.transform.rotation, this.targetTransform.rotation, maxRotationDelta);
-                
+                if (maxRotationDelta > 0f) {
+                    this.transform.rotation = UnityEngine.Quaternion.RotateTowards(this.transform.rotation, this.targetTransform.rotation, maxRotationDelta);
+                } else {
+                    this.transform.rotation = this.targetTransform.rotation;
+                }
+
                 this.transform.localScale = this.targetTransform.localScale;
 
                 if (this.targetTransform.IsEquals(this.transform) == true) {
