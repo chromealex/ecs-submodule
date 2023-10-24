@@ -557,7 +557,7 @@ namespace ME.ECS.Views.Providers {
 
         }
 
-        void IView.DoDestroy() {
+        public virtual void DoDestroy() {
 
             this.OnDisconnect();
 
