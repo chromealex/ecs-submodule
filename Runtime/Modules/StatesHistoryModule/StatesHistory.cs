@@ -240,7 +240,7 @@
 
                     }
                     
-                    if (entry.tick <= maxTick) {
+                    if (entry.tick < maxTick) {
 
                         state = entry.state;
                         tick = entry.tick;
