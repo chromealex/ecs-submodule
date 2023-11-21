@@ -300,6 +300,8 @@ namespace ME.ECS.StatesHistory {
         
         private IEventRunner eventRunner;
         public World world { get; set; }
+
+        public System.Action OnRemoteHashFail;
         
         public virtual void OnConstruct() {
 
@@ -843,6 +845,8 @@ namespace ME.ECS.StatesHistory {
                     
                             var orderId = kv.Key;
                             using (NoStackTrace.All) {
+                                
+                                this.OnRemoteHashFail?.Invoke();
                             
                                 UnityEngine.Debug.LogError($"[World #{this.world.id}] Remote Hash (Client Id: {orderId}): {tick}:{remoteHash}, Local Hash: {tick}:{hash}");
                                 this.CleanUpHashTable(currentTick);

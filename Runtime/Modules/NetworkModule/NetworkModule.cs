@@ -186,6 +186,8 @@ namespace ME.ECS.Network {
         private bool asyncMode;
         private bool replayMode;
 
+        public System.Action<bool, long, ME.ECS.StatesHistory.HistoryEvent> OnReceivedEvent;
+
         void IModuleBase.OnConstruct() {
 
             this.replayMode = false;
@@ -356,6 +358,13 @@ namespace ME.ECS.Network {
         public int GetRegistryCount() {
 
             return this.registry.Count;
+
+        }
+        
+        public System.Reflection.MethodInfo GetRegisteredRPCMethodInfo(int rpcId) {
+
+            this.registry.TryGetValue(rpcId, out var result);
+            return result;
 
         }
 
@@ -546,6 +555,8 @@ namespace ME.ECS.Network {
                 // Set up other event data
                 evt.localOrder = ++this.localOrderIndex;
                 evt.storeInHistory = storeInHistory;
+                
+                this.OnReceivedEvent?.Invoke(true, this.GetCurrentTimeTick(), evt);
 
                 var storedInHistory = false;
                 if (this.GetNetworkType() == NetworkType.RunLocal && storeInHistory == true) {
@@ -776,6 +787,7 @@ namespace ME.ECS.Network {
                     if (bytes.Length == 0) continue;
 
                     var evt = this.serializer.Deserialize(bytes);
+                    this.OnReceivedEvent?.Invoke(false,this.GetCurrentTimeTick(), evt);
                     this.ApplyEvent(evt);
 
                 } while (true);
