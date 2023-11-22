@@ -565,6 +565,7 @@ namespace ME.ECS.Views {
         private ViewId viewSourceIdRegistry;
         private bool isRequestsDirty;
         private bool forceUpdateState;
+        private bool updateImmediately;
         private Tick previousTick;
 
         public World world { get; set; }
@@ -634,6 +635,13 @@ namespace ME.ECS.Views {
             this.viewSourceIdRegistry = default;
             
             this.previousTick = Tick.Zero;
+
+        }
+
+        public void ImmediatelyUpdateToTick(Tick tick) {
+
+            this.previousTick = tick;
+            this.updateImmediately = true;
 
         }
         
@@ -1397,7 +1405,7 @@ namespace ME.ECS.Views {
                     if (this.forceUpdateState == true || version != currentViewInstance.entityVersion) {
 
                         currentViewInstance.entityVersion = version;
-                        currentViewInstance.ApplyState(deltaTime, immediately: false);
+                        currentViewInstance.ApplyState(deltaTime, immediately: this.updateImmediately);
 
                     }
 
@@ -1406,6 +1414,7 @@ namespace ME.ECS.Views {
 
                 }
 
+                this.updateImmediately = false;
                 this.forceUpdateState = false;
 
             }

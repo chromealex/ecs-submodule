@@ -280,6 +280,8 @@ namespace ME.ECS.Views.Providers {
             }
         }
 
+        public bool interpolateNextImmediately { get; set; }
+
         public InterpolatedTransform(MonoBehaviourViewBase view, UnityEngine.Transform transform, InterpolatedTransform.Settings settings) {
 
             this.view = view;
@@ -287,6 +289,7 @@ namespace ME.ECS.Views.Providers {
             this.settings = settings;
             this.targetTransform = new Transform(transform);
             this.isInitialized = false;
+            this.interpolateNextImmediately = true;
 
         }
         
@@ -308,14 +311,14 @@ namespace ME.ECS.Views.Providers {
                 if (this.targetTransform.isDirty == false) return;
 
                 var maxMovementDelta = this.view.GetInterpolationMovementSpeed() * dt;
-                if (maxMovementDelta > 0f) {
+                if (maxMovementDelta > 0f && interpolateNextImmediately == false) {
                     this.transform.position = UnityEngine.Vector3.MoveTowards(this.transform.position, this.targetTransform.position, maxMovementDelta);
                 } else {
                     this.transform.position = this.targetTransform.position;
                 }
 
                 var maxRotationDelta = this.view.GetInterpolationRotationSpeed() * dt;
-                if (maxRotationDelta > 0f) {
+                if (maxRotationDelta > 0f && interpolateNextImmediately == false) {
                     this.transform.rotation = UnityEngine.Quaternion.RotateTowards(this.transform.rotation, this.targetTransform.rotation, maxRotationDelta);
                 } else {
                     this.transform.rotation = this.targetTransform.rotation;
@@ -328,6 +331,8 @@ namespace ME.ECS.Views.Providers {
                     this.targetTransform.isDirty = false;
 
                 }
+
+                this.interpolateNextImmediately = false;
 
             }
 
