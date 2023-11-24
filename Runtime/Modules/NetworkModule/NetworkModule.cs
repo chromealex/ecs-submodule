@@ -186,7 +186,7 @@ namespace ME.ECS.Network {
         private bool asyncMode;
         private bool replayMode;
 
-        public System.Action<bool, long, ME.ECS.StatesHistory.HistoryEvent> OnReceivedEvent;
+        public System.Action<bool, ME.ECS.StatesHistory.HistoryEvent> OnReceivedEvent;
 
         void IModuleBase.OnConstruct() {
 
@@ -556,7 +556,7 @@ namespace ME.ECS.Network {
                 evt.localOrder = ++this.localOrderIndex;
                 evt.storeInHistory = storeInHistory;
                 
-                this.OnReceivedEvent?.Invoke(true, this.GetCurrentTimeTick(), evt);
+                this.OnReceivedEvent?.Invoke(true, evt);
 
                 var storedInHistory = false;
                 if (this.GetNetworkType() == NetworkType.RunLocal && storeInHistory == true) {
@@ -787,7 +787,7 @@ namespace ME.ECS.Network {
                     if (bytes.Length == 0) continue;
 
                     var evt = this.serializer.Deserialize(bytes);
-                    this.OnReceivedEvent?.Invoke(false,this.GetCurrentTimeTick(), evt);
+                    this.OnReceivedEvent?.Invoke(false, evt);
                     this.ApplyEvent(evt);
 
                 } while (true);
