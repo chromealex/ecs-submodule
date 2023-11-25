@@ -90,6 +90,8 @@ namespace ME.ECS.Serializer {
         NextTickTask = 201,
         UnsafeData = 200,
         MemoryAllocator = 199,
+        
+        Bounds = 198,
 
     }
 
@@ -380,6 +382,8 @@ namespace ME.ECS.Serializer {
             serializers.Add(new ObjectArraySerializer());
             serializers.Add(new GenericListSerializer());
             serializers.Add(new GenericDictionarySerializer());
+            
+            serializers.Add(new BoundsSerializer());
 
             #if UNITY
             #if FIXED_POINT_MATH

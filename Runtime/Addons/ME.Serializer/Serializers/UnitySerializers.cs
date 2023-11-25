@@ -117,6 +117,25 @@ namespace ME.ECS.Serializer {
         }
 
     }
+    
+    public struct BoundsSerializer : ITypeSerializer {
+
+        [INLINE(256)] public byte GetTypeValue() { return (byte)TypeValue.Bounds; }
+        [INLINE(256)] public System.Type GetTypeSerialized() { return typeof(Bounds); }
+        
+        public void Pack(Packer stream, object obj) {
+
+            Serializer.PackBlittable(stream, (Bounds)obj);
+            
+        }
+        
+        public object Unpack(Packer stream) {
+
+            return Serializer.UnpackBlittable<Bounds>(stream);
+            
+        }
+
+    }
 
 }
 #endif
