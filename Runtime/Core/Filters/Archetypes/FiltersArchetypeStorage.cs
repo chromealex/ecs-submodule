@@ -486,7 +486,7 @@ namespace ME.ECS.FiltersArchetype {
         [ME.ECS.Serializer.SerializeField]
         internal List<int> dead;
         [ME.ECS.Serializer.SerializeField]
-        internal List<int> deadPrepared;
+        internal HashSet<int> deadPrepared;
         [ME.ECS.Serializer.SerializeField]
         internal List<int> alive;
         [ME.ECS.Serializer.SerializeField]
@@ -512,7 +512,7 @@ namespace ME.ECS.FiltersArchetype {
             this.cache.Resize(ref allocator, capacity);
             this.dead.EnsureCapacity(ref allocator, capacity);
             this.alive.EnsureCapacity(ref allocator, capacity);
-            this.deadPrepared.EnsureCapacity(ref allocator, capacity);
+            //this.deadPrepared.EnsureCapacity(ref allocator, capacity);
             
         }
 
@@ -526,7 +526,7 @@ namespace ME.ECS.FiltersArchetype {
             this.cache = new MemArrayAllocator<Entity>(ref allocator, capacity);
             this.dead = new List<int>(ref allocator, capacity);
             this.alive = new List<int>(ref allocator, capacity);
-            this.deadPrepared = new List<int>(ref allocator, capacity);
+            this.deadPrepared = new HashSet<int>(ref allocator, capacity);
             this.versions = new ME.ECS.EntityVersions(ref allocator, capacity);
             this.flags = new ME.ECS.EntityFlags(ref allocator, capacity);
             this.aliveCount = 0;
@@ -697,9 +697,8 @@ namespace ME.ECS.FiltersArchetype {
             var cnt = this.deadPrepared.Count;
             if (cnt > 0) {
 
-                for (var i = 0; i < cnt; ++i) {
-
-                    var id = this.deadPrepared[in allocator, i];
+                foreach (var id in this.deadPrepared) {
+                
                     --this.aliveCount;
                     this.dead.Add(ref allocator, id);
                     this.alive.Remove(ref allocator, id);

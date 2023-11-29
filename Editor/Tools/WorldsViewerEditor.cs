@@ -1190,8 +1190,7 @@ namespace ME.ECSEditor {
                                             }
                                             
                                             GUILayoutExt.DrawHeader("Dead (Prepared)");
-                                            for (int i = 0; i < storage.deadPrepared.Count; ++i) {
-                                                var ent = storage.deadPrepared[allocator, i];
+                                            foreach (var ent in storage.deadPrepared) {
                                                 GUILayoutExt.DataLabel(ent.ToString());
                                             }
                                             
