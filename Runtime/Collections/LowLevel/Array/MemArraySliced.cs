@@ -186,7 +186,7 @@ namespace ME.ECS.Collections.LowLevel {
 
     }
     
-    public struct MemArraySlicedAllocator<T> where T : struct {
+    public struct MemArraySlicedAllocator<T> where T : unmanaged {
 
         [ME.ECS.Serializer.SerializeField]
         public MemArrayAllocator<T> data;

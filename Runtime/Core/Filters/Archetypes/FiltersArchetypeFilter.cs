@@ -8,6 +8,7 @@ using ME.ECS.Collections;
 using Unity.IL2CPP.CompilerServices;
 using Il2Cpp = Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute;
 using BURST = Unity.Burst.BurstCompileAttribute;
+using INLINE = System.Runtime.CompilerServices.MethodImplAttribute;
 
 namespace ME.ECS {
     
@@ -22,7 +23,7 @@ namespace ME.ECS {
 
         public static Filter Empty = new Filter();
 
-        public struct Enumerator : System.Collections.Generic.IEnumerator<Entity> {
+        public unsafe struct Enumerator : System.Collections.Generic.IEnumerator<Entity> {
 
             public World world;
             public State state;
@@ -32,11 +33,15 @@ namespace ME.ECS {
             public bool isCreated;
             public int index;
             public int maxIndex;
-            public int archIndex;
-            public List<int> arr;
-            public List<int> archetypes;
-            public int archetypesCount;
+            public int* arr;
+            public int arrCount;
             public bool enableGroupByEntityId;
+
+            public bool* deadPreparedIndex;
+            public int deadPreparedIndexVersion;
+
+            public Entity* cache;
+            public int cacheVersion;
 
             public List<int> onChanged;
             public List<ConnectInfo> connectedFilters;
@@ -46,9 +51,7 @@ namespace ME.ECS {
             
             private Entity current;
 
-            #if INLINE_METHODS
             [MethodImplAttribute(MethodImplOptions.AggressiveInlining)]
-            #endif
             public bool MoveNext() {
                 
                 if (this.isCreated == false) return false;
@@ -61,37 +64,32 @@ namespace ME.ECS {
 
                 ref var allocator = ref this.allocator;
 
-                while (true) {
-                    
-                    if (this.archIndex >= this.archetypesCount) {
-                        return false;
-                    }
+                bool* dead = this.deadPreparedIndex;
+                if (this.deadPreparedIndexVersion != this.state.storage.deadPreparedIndex.version) {
+                    dead = (bool*)this.state.storage.deadPreparedIndex.GetUnsafePtr(in allocator);
+                    this.deadPreparedIndexVersion = this.state.storage.deadPreparedIndex.version;
+                }
 
-                    if (this.maxIndex >= 0 && this.index >= this.maxIndex) return false;
+                if (this.cacheVersion != this.state.storage.cache.version) {
+                    this.cache = (Entity*)this.state.storage.cache.GetUnsafePtr(in allocator);
+                    this.cacheVersion = this.state.storage.cache.version;
+                }
+
+                while (true) {
 
                     ++this.index;
-                    ref var arch = ref this.state.storage.allArchetypes[in allocator, this.archetypes[in allocator, this.archIndex]];
-                    if (arch.entitiesArr.isCreated == false || this.index >= arch.entitiesArr.Count) {
-
-                        ++this.archIndex;
-                        if (this.archIndex < this.archetypesCount) {
-                            this.arr = this.state.storage.allArchetypes[in allocator, this.archetypes[in allocator, this.archIndex]].entitiesArr;
-                        }
-
-                        this.index = -1;
-                        continue;
-
-                    }
-
-                    var entityId = this.arr[in allocator, this.index];
-                    if (this.withinType == WithinType.GroupByEntityId && this.enableGroupByEntityId == true) {
+                    if (this.index >= this.arrCount) return false;
+                    if (this.maxIndex >= 0 && this.index >= this.maxIndex) return false;
+                    
+                    var entityId = *(this.arr + this.index);
+                    if (this.enableGroupByEntityId == true && this.withinType == WithinType.GroupByEntityId) {
 
                         if (entityId % this.withinTicks != this.state.tick % this.withinTicks) continue;
 
                     }
 
-                    if (this.state.storage.IsDeadPrepared(in allocator, entityId) == true) continue;
-                    this.current = this.state.storage.cache[in allocator, entityId];
+                    if (dead[entityId] == true) continue;
+                    this.current = this.cache[entityId];//this.state.storage.cache[in allocator, entityId];
 
                     if (connectedTracked > 0) {
                         // Check if all custom filters contains connected entity
@@ -126,11 +124,11 @@ namespace ME.ECS {
                             continue;
                         }
                     }
-                    
+
                     return true;
 
                 }
-                
+
             }
 
             #if INLINE_METHODS
@@ -158,7 +156,6 @@ namespace ME.ECS {
 
                 //this.arr.Dispose();
                 this.index = -1;
-                this.archIndex = 0;
                 //this.localEnumerator.Dispose();
 
                 ref var filters = ref Worlds.current.currentState.storage;
@@ -177,7 +174,7 @@ namespace ME.ECS {
         #if INLINE_METHODS
         [MethodImplAttribute(MethodImplOptions.AggressiveInlining)]
         #endif
-        public Enumerator GetEnumerator() {
+        public unsafe Enumerator GetEnumerator() {
 
             var world = Worlds.current;
             ref var filters = ref world.currentState.storage;
@@ -190,6 +187,18 @@ namespace ME.ECS {
             }
 
             ref var filterData = ref filters.GetFilter(in world.currentState.allocator, this.id);
+            var tempArchList = new Unity.Collections.NativeList<int>(Unity.Collections.Allocator.Temp);
+            var archetypesList = (int*)filterData.archetypesList.GetUnsafePtr(in world.currentState.allocator);
+            var allArchetypes = (ME.ECS.FiltersArchetype.FiltersArchetypeStorage.Archetype*)filterData.storage.allArchetypes.GetUnsafePtr(in world.currentState.allocator);
+            for (int i = 0; i < filterData.archetypesList.Count; ++i) {
+                var archIdx = archetypesList[i];
+                var ents = (allArchetypes + archIdx)->entitiesArr;
+                var arr = (int*)ents.GetUnsafePtr(in world.currentState.allocator);
+                if (ents.Count > 0) {
+                    tempArchList.AddRange(arr, ents.Count);
+                }
+            }
+            
             var range = this.GetRange(world, in filterStaticData, out bool enableGroupByEntityId);
             return new Enumerator() {
                 world = world,
@@ -197,10 +206,12 @@ namespace ME.ECS {
                 isCreated = true,
                 index = range.GetFrom(),
                 maxIndex = range.GetTo(),
-                archIndex = 0,
-                arr = filterData.archetypes.Count > 0 ? filterData.storage.allArchetypes[in world.currentState.allocator, filterData.archetypesList[in world.currentState.allocator, 0]].entitiesArr : default,
-                archetypes = filterData.archetypesList,
-                archetypesCount = filterData.archetypesList.Count,
+                deadPreparedIndex = (bool*)world.currentState.storage.deadPreparedIndex.GetUnsafePtr(in world.currentState.allocator),
+                deadPreparedIndexVersion = world.currentState.storage.deadPreparedIndex.version,
+                cache = (Entity*)world.currentState.storage.cache.GetUnsafePtr(in world.currentState.allocator),
+                cacheVersion = world.currentState.storage.cache.version,
+                arr = tempArchList.GetUnsafeList()->Ptr,
+                arrCount = tempArchList.Length,
                 enableGroupByEntityId = enableGroupByEntityId,
                 onChanged = filterStaticData.data.onChanged,
                 connectedFilters = filterStaticData.data.connectedFilters,
@@ -395,6 +406,7 @@ namespace ME.ECS {
             public int from;
             public int to;
 
+            [INLINE(256)]
             public FilterRange(int from, int to) {
 
                 this.from = from;
@@ -402,6 +414,7 @@ namespace ME.ECS {
 
             }
 
+            [INLINE(256)]
             public int GetFrom() {
 
                 if (this.from < 0) return -1;
@@ -409,6 +422,7 @@ namespace ME.ECS {
 
             }
 
+            [INLINE(256)]
             public int GetTo() {
                 
                 if (this.to < 0) return -1;

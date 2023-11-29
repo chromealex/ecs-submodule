@@ -488,6 +488,8 @@ namespace ME.ECS.FiltersArchetype {
         [ME.ECS.Serializer.SerializeField]
         internal HashSet<int> deadPrepared;
         [ME.ECS.Serializer.SerializeField]
+        internal MemArrayAllocator<bool> deadPreparedIndex;
+        [ME.ECS.Serializer.SerializeField]
         internal List<int> alive;
         [ME.ECS.Serializer.SerializeField]
         private int aliveCount;
@@ -512,8 +514,9 @@ namespace ME.ECS.FiltersArchetype {
             this.cache.Resize(ref allocator, capacity);
             this.dead.EnsureCapacity(ref allocator, capacity);
             this.alive.EnsureCapacity(ref allocator, capacity);
+            this.deadPreparedIndex.Resize(ref allocator, capacity);
             //this.deadPrepared.EnsureCapacity(ref allocator, capacity);
-            
+
         }
 
         #if INLINE_METHODS
@@ -523,12 +526,13 @@ namespace ME.ECS.FiltersArchetype {
 
             this.entitiesArrIndex = new List<int>(ref allocator, capacity);
 
-            this.cache = new MemArrayAllocator<Entity>(ref allocator, capacity);
+            this.cache = new MemArrayAllocator<Entity>(ref allocator, capacity, growFactor: 2);
             this.dead = new List<int>(ref allocator, capacity);
             this.alive = new List<int>(ref allocator, capacity);
             this.deadPrepared = new HashSet<int>(ref allocator, capacity);
             this.versions = new ME.ECS.EntityVersions(ref allocator, capacity);
             this.flags = new ME.ECS.EntityFlags(ref allocator, capacity);
+            this.deadPreparedIndex = new MemArrayAllocator<bool>(ref allocator, capacity, growFactor: 2);
             this.aliveCount = 0;
             this.nextEntityId = -1;
             this.isCreated = true;
@@ -580,6 +584,7 @@ namespace ME.ECS.FiltersArchetype {
             this.dirtyArchetypes.Dispose(ref allocator);
             this.entitiesArrIndex.Dispose(ref allocator);
             
+            this.deadPreparedIndex.Dispose(ref allocator);
             this.cache.Dispose(ref allocator);
             this.dead.Dispose(ref allocator);
             this.alive.Dispose(ref allocator);
@@ -622,6 +627,7 @@ namespace ME.ECS.FiltersArchetype {
 
             var lastId = ++this.nextEntityId + count;
             this.cache.Resize(ref allocator, lastId + 1);
+            this.deadPreparedIndex.Resize(ref allocator, lastId + 1);
 
             this.aliveCount += count;
 
@@ -659,7 +665,8 @@ namespace ME.ECS.FiltersArchetype {
 
                 id = ++this.nextEntityId;
                 this.cache.Resize(ref allocator, id + 1);
-                
+                this.deadPreparedIndex.Resize(ref allocator, id + 1);
+
             }
 
             ++this.aliveCount;
@@ -686,6 +693,7 @@ namespace ME.ECS.FiltersArchetype {
 
             //UnityEngine.Debug.Log("Dealloc: " + entity + ", tick: " + Worlds.current.GetCurrentTick());
             this.deadPrepared.Add(ref allocator, entity.id);
+            this.deadPreparedIndex[in allocator, entity.id] = true;
 
             return true;
 
@@ -706,6 +714,7 @@ namespace ME.ECS.FiltersArchetype {
 
                 }
 
+                this.deadPreparedIndex.Clear(in allocator);
                 this.deadPrepared.Clear(in allocator);
 
             }
@@ -1330,14 +1339,12 @@ namespace ME.ECS.FiltersArchetype {
         #endif
         public void SetFreeze(bool freeze) { }
 
-        #if INLINE_METHODS
         [MethodImplAttribute(MethodImplOptions.AggressiveInlining)]
-        #endif
         public bool IsDeadPrepared(in MemoryAllocator allocator, int entityId) {
 
             if (this.deadPrepared.Count == 0) return false;
 
-            return this.deadPrepared.Contains(in allocator, entityId);
+            return this.deadPreparedIndex[in allocator, entityId];
 
         }
 
