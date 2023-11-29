@@ -8,6 +8,15 @@ using BURST = Unity.Burst.BurstCompileAttribute;
 
 namespace ME.ECS.Collections.LowLevel.Unsafe {
 
+    public static unsafe class MemBlockOffsetExt {
+
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        public static MemoryAllocator.MemBlock* Ptr(this ref MemoryAllocator.MemBlockOffset block, void* zone) {
+            return (MemoryAllocator.MemBlock*)((byte*)zone + block.value);
+        }
+
+    }
+
     [Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.NullChecks, false)]
     [Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.ArrayBoundsChecks, false)]
     [Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.DivideByZeroChecks, false)]
@@ -51,11 +60,7 @@ namespace ME.ECS.Collections.LowLevel.Unsafe {
                 this.value = (byte*)block - (byte*)zone;
             }
 
-            [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-            public readonly MemBlock* Ptr(void* zone) {
-                return (MemBlock*)((byte*)zone + this.value);
-            }
-
+            /*
             [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
             public static bool operator ==(MemBlockOffset a, MemBlockOffset b) => a.value == b.value;
 
@@ -73,6 +78,7 @@ namespace ME.ECS.Collections.LowLevel.Unsafe {
             public override int GetHashCode() {
                 return this.value.GetHashCode();
             }
+            */
 
         }
         
@@ -178,7 +184,7 @@ namespace ME.ECS.Collections.LowLevel.Unsafe {
                 other->next = block->next;
                 other->next.Ptr(zone)->prev = otherOffset;
 
-                if (blockOffset == zone->rover) zone->rover = otherOffset;
+                if (blockOffset.value == zone->rover.value) zone->rover = otherOffset;
 
                 block = other;
                 blockOffset = otherOffset;
@@ -192,7 +198,7 @@ namespace ME.ECS.Collections.LowLevel.Unsafe {
                 block->next = other->next;
                 block->next.Ptr(zone)->prev = blockOffset;
 
-                if (otherOffset == zone->rover) zone->rover = blockOffset;
+                if (otherOffset.value == zone->rover.value) zone->rover = blockOffset;
             }
 
             return true;
@@ -235,8 +241,7 @@ namespace ME.ECS.Collections.LowLevel.Unsafe {
                 } else
                     rover = rover->next.Ptr(zone);
             } while (@base->state != MemoryAllocator.BLOCK_STATE_FREE || @base->size < size);
-
-
+            
             // found a block big enough
             var extra = @base->size - size;
 

@@ -653,8 +653,11 @@ namespace ME.ECS.FiltersArchetype {
         #endif
 
         [MethodImplAttribute(MethodImplOptions.AggressiveInlining)]
-        public ref Entity Alloc(ref MemoryAllocator allocator) {
+        public unsafe ref Entity Alloc(ref MemoryAllocator allocator) {
 
+            var marker = new Unity.Profiling.ProfilerMarker("Entities::Alloc");
+            marker.Begin();
+            
             int id;
             if (this.dead.Count > 0) {
 
@@ -670,7 +673,8 @@ namespace ME.ECS.FiltersArchetype {
             }
 
             ++this.aliveCount;
-            ref var e = ref this.cache[in allocator, id];
+            var ptr = (Entity*)this.cache.GetUnsafePtr(in allocator);
+            ref var e = ref ptr[id];
             if (e.generation == 0) {
                 e = new Entity(id, 1);
             }
@@ -678,9 +682,15 @@ namespace ME.ECS.FiltersArchetype {
             this.alive.Add(ref allocator, id);
             this.versions.Reset(ref allocator, id);
             this.flags.Reset(ref allocator, id);
-            this.OnAlloc(ref allocator, id);
+
+            marker.End();
             
-            return ref this.cache[in allocator, id];
+            marker = new Unity.Profiling.ProfilerMarker("Entities::OnAlloc");
+            marker.Begin();
+            this.OnAlloc(ref allocator, id);
+            marker.End();
+            
+            return ref ptr[id];
 
         }
 

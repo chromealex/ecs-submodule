@@ -1241,8 +1241,12 @@ namespace ME.ECS {
         
         public ref Entity AddEntity(string name = null, EntityFlag flags = EntityFlag.None) {
 
+            #if SET_ENTITY_NAME
             var maxLength = Unity.Collections.FixedString64Bytes.UTF8MaxLengthInBytes / sizeof(char);
             var nameBytes = name != null ? new Unity.Collections.FixedString64Bytes(name.Length > maxLength ? name.Substring(0, maxLength) : name) : default;
+            #else
+            Unity.Collections.FixedString64Bytes nameBytes = default;
+            #endif
             return ref this.AddEntity_INTERNAL(nameBytes, flags: flags);
 
         }
@@ -1256,6 +1260,10 @@ namespace ME.ECS {
             ref var entity = ref this.currentState.storage.Alloc(ref this.currentState.allocator);
             if (validate == true) this.UpdateEntityOnCreate(in entity, isNew);
             
+            var marker = new Unity.Profiling.ProfilerMarker("Entities::AddEntity");
+            marker.Begin();
+            
+            #if SET_ENTITY_NAME
             if (name.IsEmpty == false) {
 
                 entity.Set(new ME.ECS.Name.Name() {
@@ -1263,6 +1271,7 @@ namespace ME.ECS {
                 });
 
             }
+            #endif
 
             if ((flags & EntityFlag.OneShot) != 0) {
 
@@ -1270,8 +1279,17 @@ namespace ME.ECS {
 
             }
 
-            this.currentState.storage.flags.Set(in this.currentState.allocator, entity.id, flags);
+            {
+                var markerInner = new Unity.Profiling.ProfilerMarker("Entities::Flags::Set");
+                markerInner.Begin();
 
+                this.currentState.storage.flags.Set(in this.currentState.allocator, entity.id, flags);
+
+                markerInner.End();
+            }
+
+            marker.End();
+            
             return ref entity;
 
         }
@@ -1285,12 +1303,26 @@ namespace ME.ECS {
         internal void UpdateEntityOnCreate(in Entity entity, bool isNew) {
 
             if (isNew == true) {
+            
+                var marker = new Unity.Profiling.ProfilerMarker("Entities::UpdateEntityOnCreate");
+                marker.Begin();
+
                 ComponentsInitializerWorld.Init(in entity);
                 this.currentState.storage.versions.Validate(ref this.currentState.allocator, in entity);
                 this.CreateEntityPlugins(entity, true);
                 this.CreateEntityInFilters(ref this.currentState.allocator, entity);
+                
+                marker.End();
+                
             } else {
+                
+                var marker = new Unity.Profiling.ProfilerMarker("Entities::CreateEntityPlugins");
+                marker.Begin();
+
                 this.CreateEntityPlugins(entity, false);
+
+                marker.End();
+
             }
 
         }
