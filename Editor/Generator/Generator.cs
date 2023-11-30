@@ -425,6 +425,7 @@ namespace ME.ECSEditor {
                     var entityType = type.FullName.Replace("+", ".");
                     var hasFields = type.GetFields(System.Reflection.BindingFlags.Default | System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.Public).Length > 0;
                     var isCopyable = typeof(ME.ECS.ICopyableBase).IsAssignableFrom(type);
+                    var isCopyableUnmanaged = typeof(ME.ECS.ICopyableUnmanaged).IsAssignableFrom(type);
                     var isDisposable = typeof(ME.ECS.IComponentDisposableBase).IsAssignableFrom(type);
                     var isStatic = typeof(ME.ECS.IComponentStatic).IsAssignableFrom(type);
                     var isOneShot = typeof(ME.ECS.IComponentOneShot).IsAssignableFrom(type);
@@ -494,6 +495,7 @@ namespace ME.ECSEditor {
                         resItem = resItem.Replace("#ISTAG#", hasFields == true ? "false" : "true");
                         resItem = resItem.Replace("#ISSHARED#", isShared == true ? "true" : "false");
                         resItem = resItem.Replace("#ISSIMPLE#", isSimple == true ? "true" : "false");
+                        resItem = resItem.Replace("#COPYABLE_UNMANAGED#", isCopyableUnmanaged == true ? "true" : "false");
                         resItem = resItem.Replace("#ISDISPOSABLE#", isDisposable == true ? "true" : "false");
                         resItem = resItem.Replace("#ISBLITTABLE#", isUnmanaged == true || isBlittable == true ? "true" : "false");
                         resItem = resItem.Replace("#TAG#", isTag == true ? "Tag" : "");
@@ -525,6 +527,7 @@ namespace ME.ECSEditor {
                             resItem2 = resItem2.Replace("#ISSHARED#", isShared == true ? "true" : "false");
                             resItem2 = resItem2.Replace("#ISSIMPLE#", isSimple == true ? "true" : "false");
                             resItem2 = resItem2.Replace("#ISDISPOSABLE#", isDisposable == true ? "true" : "false");
+                            resItem2 = resItem2.Replace("#COPYABLE_UNMANAGED#", isCopyableUnmanaged == true ? "true" : "false");
                             resItem2 = resItem2.Replace("#ISBLITTABLE#", isUnmanaged == true || isBlittable == true ? "true" : "false");
                             resItem2 = resItem2.Replace("#TAG#", isTag == true ? "Tag" : "");
                             resItem2 = resItem2.Replace("#COPYABLE#", isCopyable == true ? "Copyable" : "");
@@ -557,6 +560,7 @@ namespace ME.ECSEditor {
                         resItem3 = resItem3.Replace("#ISTAG#", hasFields == true ? "false" : "true");
                         resItem3 = resItem3.Replace("#ISSHARED#", isShared == true ? "true" : "false");
                         resItem3 = resItem3.Replace("#ISSIMPLE#", isSimple == true ? "true" : "false");
+                        resItem3 = resItem3.Replace("#COPYABLE_UNMANAGED#", isCopyableUnmanaged == true ? "true" : "false");
                         resItem3 = resItem3.Replace("#ISDISPOSABLE#", isDisposable == true ? "true" : "false");
                         resItem3 = resItem3.Replace("#ISBLITTABLE#", isUnmanaged == true || isBlittable == true ? "true" : "false");
                         resItem3 = resItem3.Replace("#ISCOPYABLE#", isCopyable == true ? "true" : "false");

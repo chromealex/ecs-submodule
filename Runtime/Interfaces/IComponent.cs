@@ -29,6 +29,8 @@ namespace ME.ECS {
 
     public interface ICopyableBase { }
 
+    public interface ICopyableUnmanaged { }
+
     #if COMPONENTS_COPYABLE
     public interface IStructCopyable<T> : IComponent, ICopyableBase where T : IStructCopyable<T> {
 

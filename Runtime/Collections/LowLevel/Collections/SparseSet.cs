@@ -268,6 +268,28 @@ namespace ME.ECS.Collections.LowLevel {
 
         }
 
+        [INLINE(256)]
+        public void CopyFrom<TCopy>(ref MemoryAllocator allocator, SparseSet<T> arr, TCopy copy) where TCopy : IArrayElementCopyUnmanaged<T> {
+            
+            // clean up prev dense
+            for (int i = 0; i < this.sparse.Length; ++i) {
+                var idx = this.sparse[in allocator, i];
+                if (idx == 0) continue;
+                copy.Recycle(ref allocator, ref this.dense[in allocator, idx]);
+            }
+            NativeArrayUtils.Copy(ref allocator, arr.sparse, ref this.sparse);
+            this.dense.Resize(ref allocator, arr.dense.Length);
+            // set up new dense
+            for (int i = 0; i < this.sparse.Length; ++i) {
+                var idx = this.sparse[in allocator, i];
+                if (idx == 0) continue;
+                copy.Copy(ref allocator, in arr.dense[in allocator, idx], ref this.dense[in allocator, idx]);
+            }
+
+            this.freeIndexes.CopyFrom(ref allocator, arr.freeIndexes);
+            
+        }
+
     }
 
 }

@@ -13,6 +13,13 @@ namespace ME.ECS {
 
     }
 
+    public interface IArrayElementCopyUnmanaged<T> {
+
+        void Copy(ref ME.ECS.Collections.LowLevel.Unsafe.MemoryAllocator allocator, in T from, ref T to);
+        void Recycle(ref ME.ECS.Collections.LowLevel.Unsafe.MemoryAllocator allocator, ref T item);
+
+    }
+
     #if ECS_COMPILE_IL2CPP_OPTIONS
     [Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.NullChecks, false),
      Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.ArrayBoundsChecks, false),

@@ -18,7 +18,7 @@ namespace ME.ECSEditor {
         private const string CONTENT_ITEM2 = @"
             entity.ValidateData#BLITTABLE##COPYABLE##ONESHOT##TAG##UNMANAGED##DISPOSABLE#<#TYPENAME#>(#ISTAG#);";
         private const string CONTENT_ITEM3 = @"
-            WorldUtilities.InitComponentTypeId<#TYPENAME#>(#ISTAG#, #ISSIMPLE#, #ISBLITTABLE#, #ISDISPOSABLE#, #ISCOPYABLE#, #ISVERSIONED#, #ISVERSIONED_NOSTATE#, #ISSHARED#, #ISONESHOT#);";
+            WorldUtilities.InitComponentTypeId<#TYPENAME#>(#ISTAG#, #ISSIMPLE#, #ISBLITTABLE#, #ISDISPOSABLE#, #ISCOPYABLE#, #ISVERSIONED#, #ISVERSIONED_NOSTATE#, #ISSHARED#, #ISONESHOT#, #COPYABLE_UNMANAGED#);";
         private const bool AUTO_COMPILE_DEFAULT = true;
 
         static StructComponentsGenerator() {

@@ -283,6 +283,14 @@ namespace ME.ECS.Collections.LowLevel {
 
         }
 
+        public void CopyFrom(ref MemoryAllocator allocator, in Stack<T> obj) {
+
+            NativeArrayUtils.Copy(ref allocator, in obj.array, ref this.array);
+            this.size = obj.size;
+            this.version = obj.version;
+            
+        }
+
     }
 
 }

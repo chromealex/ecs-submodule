@@ -193,7 +193,7 @@ namespace ME.ECS.Collections.LowLevel {
 
             E.IS_CREATED(this);
             capacity = Helpers.NextPot(capacity);
-            return this.arr.Resize(ref allocator, capacity, ClearOptions.UninitializedMemory);
+            return this.arr.Resize(ref allocator, capacity, ClearOptions.ClearMemory);
             
         }
         

@@ -644,7 +644,7 @@ namespace ME.ECS.FiltersArchetype {
 
             this.nextEntityId += count;
 
-            var array = new Unity.Collections.NativeArray<Entity>(count, unityAllocator, Unity.Collections.NativeArrayOptions.UninitializedMemory);
+            var array = new Unity.Collections.NativeArray<Entity>(count, unityAllocator, Unity.Collections.NativeArrayOptions.ClearMemory);
             var size = sizeof(Entity);
             UnsafeUtility.MemCpy(array.GetUnsafePtr(), (void*)((System.IntPtr)this.cache.GetUnsafePtr(in allocator) + size * from), size * count);
             group = new EntitiesGroup(from, from + count - 1, array, copyMode);

@@ -221,7 +221,7 @@ namespace ME.ECS.Collections.LowLevel {
         [INLINE(256)]
         public MemArrayAllocator(ref MemoryAllocator allocator, BufferArray<T> arr) {
 
-            this = new MemArrayAllocator<T>(ref allocator, arr.Length, ClearOptions.UninitializedMemory);
+            this = new MemArrayAllocator<T>(ref allocator, arr.Length, ClearOptions.ClearMemory);
             NativeArrayUtils.Copy(in allocator, (T[])arr.arr, 0, ref this, 0, arr.Length);
             
         }
@@ -229,7 +229,7 @@ namespace ME.ECS.Collections.LowLevel {
         [INLINE(256)]
         public MemArrayAllocator(ref MemoryAllocator allocator, ListCopyable<T> arr) {
 
-            this = new MemArrayAllocator<T>(ref allocator, arr.Count, ClearOptions.UninitializedMemory);
+            this = new MemArrayAllocator<T>(ref allocator, arr.Count, ClearOptions.ClearMemory);
             NativeArrayUtils.Copy(in allocator, arr.innerArray, 0, ref this, 0, arr.Count);
 
         }
@@ -237,7 +237,7 @@ namespace ME.ECS.Collections.LowLevel {
         [INLINE(256)]
         public MemArrayAllocator(ref MemoryAllocator allocator, T[] arr) {
 
-            this = new MemArrayAllocator<T>(ref allocator, arr.Length, ClearOptions.UninitializedMemory);
+            this = new MemArrayAllocator<T>(ref allocator, arr.Length, ClearOptions.ClearMemory);
             NativeArrayUtils.Copy(in allocator, arr, 0, ref this, 0, arr.Length);
 
         }

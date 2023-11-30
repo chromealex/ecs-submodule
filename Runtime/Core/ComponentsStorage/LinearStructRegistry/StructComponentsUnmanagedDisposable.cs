@@ -9,6 +9,44 @@ namespace ME.ECS {
     #endif
     public class StructComponentsUnmanagedDisposable<TComponent> : StructComponentsUnmanaged<TComponent> where TComponent : struct, IComponentDisposable<TComponent> {
 
+        internal struct CopyItem : IArrayElementCopyUnmanaged<Component<TComponent>> {
+
+            #if INLINE_METHODS
+            [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+            #endif
+            public void Copy(ref ME.ECS.Collections.LowLevel.Unsafe.MemoryAllocator allocator, in Component<TComponent> @from, ref Component<TComponent> to) {
+
+                var hasFrom = (from.state > 0);
+                var hasTo = (to.state > 0);
+                if (hasFrom == false && hasTo == false) return;
+
+                to.state = from.state;
+                to.version = from.version;
+
+                if (hasFrom == false && hasTo == true) {
+                    
+                    to.data.OnDispose(ref allocator);
+                    
+                } else {
+
+                    to.data.ReplaceWith(ref allocator, in from.data);
+
+                }
+
+            }
+
+            #if INLINE_METHODS
+            [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+            #endif
+            public void Recycle(ref ME.ECS.Collections.LowLevel.Unsafe.MemoryAllocator allocator, ref Component<TComponent> item) {
+
+                item.data.OnDispose(ref allocator);
+                item = default;
+
+            }
+
+        }
+
         private ref UnmanagedComponentsStorage.ItemDisposable<TComponent> registry => ref this.storage.GetRegistryDisposable<TComponent>(in this.allocator);
         
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
@@ -218,6 +256,19 @@ namespace ME.ECS {
             }
 
             return false;
+
+        }
+
+        public override void CopyFrom(StructRegistryBase other) {
+            
+            base.CopyFrom(other);
+
+            if (AllComponentTypes<TComponent>.isCopyableUnmanaged == true) {
+
+                var _other = (StructComponentsUnmanagedDisposable<TComponent>)other;
+                NativeArrayUtils.Copy(ref this.allocator, _other.registry.components, ref this.registry.components, new StructComponentsUnmanagedDisposable<TComponent>.CopyItem());
+
+            }
 
         }
 
