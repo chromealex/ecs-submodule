@@ -450,6 +450,7 @@ namespace ME.ECSEditor {
                     if (isCopyable == true && isBlittable == true) {
 
                         isUnmanaged = false;
+                        isBlittable = false;
 
                     }
 
