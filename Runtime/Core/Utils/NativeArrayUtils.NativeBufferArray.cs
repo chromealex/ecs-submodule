@@ -104,15 +104,6 @@ namespace ME.ECS {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
-        public static void Copy<T, TCopy>(ref ME.ECS.Collections.LowLevel.Unsafe.MemoryAllocator allocator, in Collections.LowLevel.SparseSet<T> fromArr, ref Collections.LowLevel.SparseSet<T> arr, TCopy copy) where TCopy : IArrayElementCopyUnmanaged<T> where T : struct {
-
-            arr.CopyFrom(ref allocator, fromArr, copy);
-            
-        }
-
-        #if INLINE_METHODS
-        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-        #endif
         public static void Copy<T>(in NativeBufferArray<T> fromArr, ref NativeBufferArray<T> arr) where T : struct {
 
             if (fromArr.isCreated == false) {

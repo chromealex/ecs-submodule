@@ -259,19 +259,6 @@ namespace ME.ECS {
 
         }
 
-        public override void CopyFrom(StructRegistryBase other) {
-            
-            base.CopyFrom(other);
-
-            if (AllComponentTypes<TComponent>.isCopyableUnmanaged == true) {
-
-                var _other = (StructComponentsUnmanagedDisposable<TComponent>)other;
-                NativeArrayUtils.Copy(ref this.allocator, _other.registry.components, ref this.registry.components, new StructComponentsUnmanagedDisposable<TComponent>.CopyItem());
-
-            }
-
-        }
-
         protected override byte CopyFromState(in Entity from, in Entity to) {
 
             ref var bucket = ref this.Get(in from);
