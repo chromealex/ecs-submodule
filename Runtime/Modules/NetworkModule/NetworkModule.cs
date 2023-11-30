@@ -188,6 +188,8 @@ namespace ME.ECS.Network {
 
         public System.Action<bool, ME.ECS.StatesHistory.HistoryEvent> onReceivedEvent;
 
+        public int GetNextLocalOrderIndex() => ++this.localOrderIndex;
+        
         void IModuleBase.OnConstruct() {
 
             this.replayMode = false;
@@ -481,7 +483,7 @@ namespace ME.ECS.Network {
 
         }
 
-        public void RunRPC(object instance, int order, RPCId rpcId, object[] parameters) {
+        public void RunRPC(object instance, int order, int localOrder, RPCId rpcId, object[] parameters) {
 
             if (this.objectToKey.TryGetValue(instance, out var key) == true) {
 
@@ -493,6 +495,7 @@ namespace ME.ECS.Network {
                     objId = key.objId,
                     groupId = key.groupId,
                     order = order,
+                    localOrder = localOrder,
                 };
                 this.statesHistoryModule.AddEvent(evt);
 
@@ -572,7 +575,7 @@ namespace ME.ECS.Network {
                 }
 
                 // Set up other event data
-                evt.localOrder = ++this.localOrderIndex;
+                evt.localOrder = this.GetNextLocalOrderIndex();
                 evt.storeInHistory = storeInHistory;
                 
                 this.onReceivedEvent?.Invoke(true, evt);
