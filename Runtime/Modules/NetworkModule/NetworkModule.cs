@@ -483,13 +483,12 @@ namespace ME.ECS.Network {
 
         }
 
-        public void RunRPC(object instance, int order, int localOrder, RPCId rpcId, object[] parameters) {
+        public ME.ECS.StatesHistory.HistoryEvent GetHistoryEvent(object instance, int order, int localOrder, Tick tick, RPCId rpcId, object[] parameters) {
 
             if (this.objectToKey.TryGetValue(instance, out var key) == true) {
 
-                var targetTick = this.world.GetCurrentTick();
                 var evt = new ME.ECS.StatesHistory.HistoryEvent {
-                    tick = targetTick, // Call RPC on next N tick
+                    tick = tick,
                     parameters = parameters,
                     rpcId = rpcId,
                     objId = key.objId,
@@ -497,10 +496,12 @@ namespace ME.ECS.Network {
                     order = order,
                     localOrder = localOrder,
                 };
-                this.statesHistoryModule.AddEvent(evt);
+                return evt;
 
             }
-            
+
+            return default;
+
         }
 
         private void CallRPC(object instance, RPCId rpcId, bool storeInHistory, object[] parameters) {
