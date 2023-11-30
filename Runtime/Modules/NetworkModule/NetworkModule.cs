@@ -1075,6 +1075,15 @@ namespace ME.ECS.Network {
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
+        public void RPC(object instance, RPCId rpcId, object[] parameters) {
+
+            this.CallRPC(instance, rpcId, true, parameters);
+
+        }
+
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
         public void RPC<T1>(object instance, RPCId rpcId, T1 p1) {
 
             var arr = new object[1];
