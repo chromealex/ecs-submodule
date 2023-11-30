@@ -183,10 +183,12 @@ namespace ME.ECS {
 
             ref var filterStaticData = ref world.GetFilterStaticData(this.id);
             if (FiltersArchetype.FiltersArchetypeStorage.CheckStaticShared(filterStaticData.data.containsShared, filterStaticData.data.notContainsShared) == false) {
-                return new Enumerator();
+                return default;
             }
 
             ref var filterData = ref filters.GetFilter(in world.currentState.allocator, this.id);
+            if (filterData.archetypesList.Count == 0) return default;
+            
             var tempArchList = new Unity.Collections.NativeList<int>(Unity.Collections.Allocator.Temp);
             var archetypesList = (int*)filterData.archetypesList.GetUnsafePtr(in world.currentState.allocator);
             var allArchetypes = (ME.ECS.FiltersArchetype.FiltersArchetypeStorage.Archetype*)filterData.storage.allArchetypes.GetUnsafePtr(in world.currentState.allocator);
@@ -198,6 +200,8 @@ namespace ME.ECS {
                     tempArchList.AddRange(arr, ents.Count);
                 }
             }
+
+            if (tempArchList.Length == 0) return default;
             
             var range = this.GetRange(world, in filterStaticData, out bool enableGroupByEntityId);
             return new Enumerator() {
