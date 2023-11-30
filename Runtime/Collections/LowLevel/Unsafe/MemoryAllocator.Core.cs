@@ -119,7 +119,7 @@ namespace ME.ECS.Collections.LowLevel.Unsafe {
             var newZone = MemoryAllocator.ZmCreateZone(newSize);
             var extra = newZone->size - zone->size;
 
-            UnsafeUtility.MemCpy(newZone, zone, zone->size);
+            UnsafeUtility.MemMove(newZone, zone, zone->size);
 
             newZone->size = zone->size + extra;
 

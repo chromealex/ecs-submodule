@@ -182,14 +182,14 @@ namespace ME.ECS.Collections.LowLevel.Unsafe {
                             
                             if (curZone == null) {
                                 curZone = MemoryAllocator.ZmCreateZone(otherZone->size);
-                                UnsafeUtility.MemCpy(curZone, otherZone, otherZone->size);
+                                UnsafeUtility.MemMove(curZone, otherZone, otherZone->size);
                             } else if (otherZone == null) {
                                 MemoryAllocator.ZmFreeZone(curZone);
                                 curZone = null;
                             } else {
                                 // resize zone
                                 curZone = MemoryAllocator.ZmReallocZone(curZone, otherZone->size);
-                                UnsafeUtility.MemCpy(curZone, otherZone, otherZone->size);
+                                UnsafeUtility.MemMove(curZone, otherZone, otherZone->size);
                             }
                         }
                     }
@@ -207,7 +207,7 @@ namespace ME.ECS.Collections.LowLevel.Unsafe {
 
                         if (otherZone != null) {
                             var zone = MemoryAllocator.ZmCreateZone(otherZone->size);
-                            UnsafeUtility.MemCpy(zone, otherZone, otherZone->size);
+                            UnsafeUtility.MemMove(zone, otherZone, otherZone->size);
                             this.AddZone(zone);
                         } else {
                             this.AddZone(null);
@@ -330,7 +330,7 @@ namespace ME.ECS.Collections.LowLevel.Unsafe {
             }
             #endif
             
-            UnsafeUtility.MemCpy(this.GetUnsafePtr(dest + destOffset), this.GetUnsafePtr(source + sourceOffset), length);
+            UnsafeUtility.MemMove(this.GetUnsafePtr(dest + destOffset), this.GetUnsafePtr(source + sourceOffset), length);
             
         }
 

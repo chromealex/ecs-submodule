@@ -404,7 +404,7 @@ namespace ME.ECS.Collections.LowLevel {
             }
 
             var size = sizeof(T);
-            allocator.MemCopy(arr.arrPtr, index * size, this.arr.arrPtr, 0, this.Count * size);
+            allocator.MemMove(arr.arrPtr, index * size, this.arr.arrPtr, 0, this.Count * size);
             
         }
 
@@ -417,7 +417,7 @@ namespace ME.ECS.Collections.LowLevel {
             }
 
             var size = sizeof(T);
-            allocator.MemCopy(this.arr.arrPtr, index * size, arr.arrPtr, 0, arr.Length * size);
+            allocator.MemMove(this.arr.arrPtr, index * size, arr.arrPtr, 0, arr.Length * size);
 
         }
         

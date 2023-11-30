@@ -59,7 +59,7 @@ namespace ME.ECS.Collections {
             
             System.Runtime.InteropServices.GCHandle gcHandle = System.Runtime.InteropServices.GCHandle.Alloc(arr, System.Runtime.InteropServices.GCHandleType.Pinned);
             System.IntPtr num = gcHandle.AddrOfPinnedObject();
-            Unity.Collections.LowLevel.Unsafe.UnsafeUtility.MemCpy((void*)((System.IntPtr)this.ptr + dstIndex * Unity.Collections.LowLevel.Unsafe.UnsafeUtility.SizeOf<T>()), (void*) ((System.IntPtr) (void*) num + srcIndex * Unity.Collections.LowLevel.Unsafe.UnsafeUtility.SizeOf<T>()), (long) (length * Unity.Collections.LowLevel.Unsafe.UnsafeUtility.SizeOf<T>()));
+            Unity.Collections.LowLevel.Unsafe.UnsafeUtility.MemMove((void*)((System.IntPtr)this.ptr + dstIndex * Unity.Collections.LowLevel.Unsafe.UnsafeUtility.SizeOf<T>()), (void*) ((System.IntPtr) (void*) num + srcIndex * Unity.Collections.LowLevel.Unsafe.UnsafeUtility.SizeOf<T>()), (long) (length * Unity.Collections.LowLevel.Unsafe.UnsafeUtility.SizeOf<T>()));
             gcHandle.Free();
             
         }
@@ -77,7 +77,7 @@ namespace ME.ECS.Collections {
             
             System.Runtime.InteropServices.GCHandle gcHandle = System.Runtime.InteropServices.GCHandle.Alloc((System.Array)list.innerArray, System.Runtime.InteropServices.GCHandleType.Pinned);
             System.IntPtr num = gcHandle.AddrOfPinnedObject();
-            Unity.Collections.LowLevel.Unsafe.UnsafeUtility.MemCpy((void*)((System.IntPtr)this.ptr + dstIndex * Unity.Collections.LowLevel.Unsafe.UnsafeUtility.SizeOf<T>()), (void*) ((System.IntPtr) (void*) num + srcIndex * Unity.Collections.LowLevel.Unsafe.UnsafeUtility.SizeOf<T>()), (long) (length * Unity.Collections.LowLevel.Unsafe.UnsafeUtility.SizeOf<T>()));
+            Unity.Collections.LowLevel.Unsafe.UnsafeUtility.MemMove((void*)((System.IntPtr)this.ptr + dstIndex * Unity.Collections.LowLevel.Unsafe.UnsafeUtility.SizeOf<T>()), (void*) ((System.IntPtr) (void*) num + srcIndex * Unity.Collections.LowLevel.Unsafe.UnsafeUtility.SizeOf<T>()), (long) (length * Unity.Collections.LowLevel.Unsafe.UnsafeUtility.SizeOf<T>()));
             gcHandle.Free();
             
         }
@@ -88,7 +88,7 @@ namespace ME.ECS.Collections {
             const int srcIndex = 0;
             var length = this.Length;
             var num = list.GetUnsafeList()->Ptr;
-            Unity.Collections.LowLevel.Unsafe.UnsafeUtility.MemCpy((void*)((System.IntPtr)this.ptr + dstIndex * Unity.Collections.LowLevel.Unsafe.UnsafeUtility.SizeOf<T>()), (void*) ((System.IntPtr) (void*) num + srcIndex * Unity.Collections.LowLevel.Unsafe.UnsafeUtility.SizeOf<T>()), (long) (length * Unity.Collections.LowLevel.Unsafe.UnsafeUtility.SizeOf<T>()));
+            Unity.Collections.LowLevel.Unsafe.UnsafeUtility.MemMove((void*)((System.IntPtr)this.ptr + dstIndex * Unity.Collections.LowLevel.Unsafe.UnsafeUtility.SizeOf<T>()), (void*) ((System.IntPtr) (void*) num + srcIndex * Unity.Collections.LowLevel.Unsafe.UnsafeUtility.SizeOf<T>()), (long) (length * Unity.Collections.LowLevel.Unsafe.UnsafeUtility.SizeOf<T>()));
             
         }
 

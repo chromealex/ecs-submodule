@@ -77,7 +77,7 @@ namespace ME.ECS.Collections.LowLevel {
                 ref var tail = ref this.tails[in allocator, i];
                 if (tail.isCreated == false) continue;
 
-                allocator.MemCopy(this.data.arrPtr, ptr, tail.arrPtr, 0, tail.Length * elementSize);
+                allocator.MemMove(this.data.arrPtr, ptr, tail.arrPtr, 0, tail.Length * elementSize);
                 ptr += tail.Length * elementSize;
                 tail.Dispose(ref allocator);
 
@@ -257,7 +257,7 @@ namespace ME.ECS.Collections.LowLevel {
                 ref var tail = ref this.tails[in allocator, i];
                 if (tail.isCreated == false) continue;
 
-                allocator.MemCopy(this.data.arrPtr, ptr, tail.arrPtr, 0, tail.Length * elementSize);
+                allocator.MemMove(this.data.arrPtr, ptr, tail.arrPtr, 0, tail.Length * elementSize);
                 ptr += tail.Length * elementSize;
                 tail.Dispose(ref allocator);
 

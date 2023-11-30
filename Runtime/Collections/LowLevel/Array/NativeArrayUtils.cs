@@ -20,7 +20,7 @@ namespace ME.ECS.Collections.LowLevel {
             var dstPtr = (byte*)dst.GetUnsafePtr(in allocator) + dstIndex * size;
             var srcPtr = (void*)(num + srcIndex * size);
             
-            Unity.Collections.LowLevel.Unsafe.UnsafeUtility.MemCpy(dstPtr, srcPtr, length * size);
+            Unity.Collections.LowLevel.Unsafe.UnsafeUtility.MemMove(dstPtr, srcPtr, length * size);
             gcHandle.Free();
             
         }
@@ -91,7 +91,7 @@ namespace ME.ECS.Collections.LowLevel {
                                    int length) where T : unmanaged {
 
             var size = sizeof(T);
-            allocator.MemCopy(arr.arrPtr, destIndex * size, fromArr.arrPtr, sourceIndex * size, length * size);
+            allocator.MemMove(arr.arrPtr, destIndex * size, fromArr.arrPtr, sourceIndex * size, length * size);
 
         }
 
