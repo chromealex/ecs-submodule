@@ -186,7 +186,7 @@ namespace ME.ECS.Network {
         private bool asyncMode;
         private bool replayMode;
 
-        public System.Action<bool, ME.ECS.StatesHistory.HistoryEvent> OnReceivedEvent;
+        public System.Action<bool, ME.ECS.StatesHistory.HistoryEvent> onReceivedEvent;
 
         void IModuleBase.OnConstruct() {
 
@@ -481,6 +481,25 @@ namespace ME.ECS.Network {
 
         }
 
+        public void RunRPC(object instance, int order, RPCId rpcId, object[] parameters) {
+
+            if (this.objectToKey.TryGetValue(instance, out var key) == true) {
+
+                var targetTick = this.world.GetCurrentTick();
+                var evt = new ME.ECS.StatesHistory.HistoryEvent {
+                    tick = targetTick, // Call RPC on next N tick
+                    parameters = parameters,
+                    rpcId = rpcId,
+                    objId = key.objId,
+                    groupId = key.groupId,
+                    order = order,
+                };
+                this.statesHistoryModule.AddEvent(evt);
+
+            }
+            
+        }
+
         private void CallRPC(object instance, RPCId rpcId, bool storeInHistory, object[] parameters) {
 
             if (this.replayMode == true && storeInHistory == true) {
@@ -556,7 +575,7 @@ namespace ME.ECS.Network {
                 evt.localOrder = ++this.localOrderIndex;
                 evt.storeInHistory = storeInHistory;
                 
-                this.OnReceivedEvent?.Invoke(true, evt);
+                this.onReceivedEvent?.Invoke(true, evt);
 
                 var storedInHistory = false;
                 if (this.GetNetworkType() == NetworkType.RunLocal && storeInHistory == true) {
@@ -787,7 +806,7 @@ namespace ME.ECS.Network {
                     if (bytes.Length == 0) continue;
 
                     var evt = this.serializer.Deserialize(bytes);
-                    this.OnReceivedEvent?.Invoke(false, evt);
+                    this.onReceivedEvent?.Invoke(false, evt);
                     this.ApplyEvent(evt);
 
                 } while (true);
