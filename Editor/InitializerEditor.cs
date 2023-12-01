@@ -399,6 +399,12 @@ namespace ME.ECSEditor {
                             "Create instance copy for Features",
                             "When you add feature into the world, do you need to create copy of feature data at runtime? Turn off this checkbox if you do not want to change features data.");
 
+                        GUILayoutExt.ToggleLeft(
+                            ref target.worldSettings.updateVisualWhileRollback,
+                            ref isDirty,
+                            "Perform visual update while rollback",
+                            "When rollback is performed, do we need to update visual modules?");
+
                         GUILayoutExt.EnumField(
                             ref target.worldSettings.frameFixType,
                             ref isDirty,

@@ -13,6 +13,14 @@ namespace ME.ECS {
         public int alignOf;
         public int typeId;
 
+        public bool Equals(UnsafeData other) {
+            return this.sizeOf == other.sizeOf &&
+                   this.alignOf == other.alignOf &&
+                   this.typeId == other.typeId;
+        }
+
+        public override int GetHashCode() => this.sizeOf ^ this.alignOf ^ this.typeId;
+
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif

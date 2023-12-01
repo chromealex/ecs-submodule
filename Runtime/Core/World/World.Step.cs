@@ -72,7 +72,7 @@ namespace ME.ECS {
 
         }
         
-        public void StepElement<T, TInterface, TState>(TState state, ListCopyable<T> list, float deltaTime, WorldStep step, System.Func<TState, T, int, bool> checkActive, System.Action<TInterface, float> stepAction) where T : IModuleBase {
+        public void StepElement<T, TInterface, TState>(TState state, ListCopyable<T> list, float deltaTime, WorldStep step, System.Func<TState, T, int, bool> checkActive, System.Action<TInterface, float> stepAction) where T : class, IModuleBase {
             
             ////////////////
             this.currentStep |= step;

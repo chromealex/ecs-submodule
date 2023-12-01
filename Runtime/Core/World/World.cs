@@ -97,6 +97,7 @@ namespace ME.ECS {
         public bool turnOffViews;
         public FrameFixBehaviour frameFixType;
         public int frameFixValue;
+        public bool updateVisualWhileRollback;
 
         public WorldViewsSettings viewsSettings;
 
@@ -104,6 +105,7 @@ namespace ME.ECS {
             useJobsForSystems = true,
             useJobsForViews = true,
             createInstanceForFeatures = true,
+            updateVisualWhileRollback = true,
             turnOffViews = false,
             frameFixType = FrameFixBehaviour.None,
             viewsSettings = new WorldViewsSettings(),
@@ -1860,7 +1862,7 @@ namespace ME.ECS {
 
             deltaTime *= this.speed;
 
-            this.UpdateVisualPost(deltaTime);
+            if (this.settings.updateVisualWhileRollback == true || this.IsReverting() == false) this.UpdateVisualPost(deltaTime);
 
         }
 

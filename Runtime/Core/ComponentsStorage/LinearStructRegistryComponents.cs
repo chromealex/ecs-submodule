@@ -1298,6 +1298,11 @@ namespace ME.ECS {
 
             WorldStaticCallbacks.RaiseCallbackLifetimeStep(this, step, deltaTime);
 
+            if (step == ComponentLifetime.NotifyAllSystems) {
+                this.BeginTickNotifications();
+            } else if (step == ComponentLifetime.NotifyAllSystemsBelow) {
+                this.EndTickNotifications();
+            }
             this.UseLifetimeStep(ref this.currentState.allocator, step, deltaTime, ref this.currentState.structComponents);
             this.UseLifetimeStep(ref this.noStateData.allocator, step, deltaTime, ref this.noStateData.storage);
             
@@ -1315,7 +1320,37 @@ namespace ME.ECS {
             }
             
         }
-        
+
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        private void BeginTickNotifications() {
+            
+            // move all notifications to entities
+            foreach (var notification in this.currentState.nextTickNotifications) {
+                if (notification.entity.IsAlive() == true) {
+                    Worlds.current.SetData(notification.entity, notification.data, notification.data.typeId, StorageType.Default);
+                    this.currentState.endTickNotifications.Add(ref this.currentState.allocator, notification);
+                } else {
+                    notification.Dispose(ref this.currentState.allocator);
+                }
+            }
+            this.currentState.nextTickNotifications.Clear(in this.currentState.allocator);
+            
+        }
+
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        private void EndTickNotifications() {
+            
+            // remove all components from entities
+            foreach (var notification in this.currentState.endTickNotifications) {
+                if (notification.entity.IsAlive() == true) {
+                    Worlds.current.RemoveData(notification.entity, notification.data.typeId, StorageType.Default);
+                }
+                notification.Dispose(ref this.currentState.allocator);
+            }
+            this.currentState.endTickNotifications.Clear(in this.currentState.allocator);
+            
+        }
+
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
@@ -1924,7 +1959,36 @@ namespace ME.ECS {
             this.SetData(ref this.currentState.allocator, ref this.currentState.structComponents, in entity, in data, lifetime, secondsLifetime);
 
         }
-        
+
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        private void AddNextTickNotification<T>(ref MemoryAllocator allocator, in Entity entity, in T data) where T : unmanaged, IStructComponent {
+
+            ref var container = ref this.currentState.nextTickNotifications;
+            var n = new TickNotification() {
+                entity = entity,
+                data = new UnsafeData().Set(ref allocator, data),
+            };
+            if (container.Add(ref allocator, n) == false) {
+                n.Dispose(ref allocator);
+            }
+
+        }
+
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        private void AddEndTickNotification<T>(ref MemoryAllocator allocator, in Entity entity, in T data) where T : unmanaged, IStructComponent {
+
+            ref var container = ref this.currentState.endTickNotifications;
+            this.SetData(in entity, in data);
+            var n = new TickNotification() {
+                entity = entity,
+                data = new UnsafeData() { typeId = AllComponentTypes<T>.typeId },
+            };
+            if (container.Add(ref allocator, n) == false) {
+                n.Dispose(ref allocator);
+            }
+
+        }
+
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         #endif
@@ -1933,6 +1997,22 @@ namespace ME.ECS {
             E.IS_LOGIC_STEP(this);
             E.IS_ALIVE(in entity);
 
+            if (lifetime == ComponentLifetime.NotifyAllSystems &&
+                addTaskOnly == false &&
+                secondsLifetime <= 0f) {
+
+                this.AddNextTickNotification(ref allocator, in entity, in data);
+                return;
+
+            } else if (lifetime == ComponentLifetime.NotifyAllSystemsBelow &&
+                addTaskOnly == false &&
+                secondsLifetime <= 0f) {
+
+                this.AddEndTickNotification(ref allocator, in entity, in data);
+                return;
+
+            }
+            
             if (lifetime == ComponentLifetime.Infinite) {
 
                 if (addTaskOnly == false) this.SetData(in entity, in data);
