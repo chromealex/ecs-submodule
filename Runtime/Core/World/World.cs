@@ -23,6 +23,25 @@ namespace ME.ECS {
     using Collections.LowLevel.Unsafe;
     using Collections.LowLevel;
 
+    public struct WorldStepCustom : System.IDisposable {
+
+        private WorldStep step;
+        
+        public WorldStepCustom(WorldStep customStep) {
+
+            this.step = Worlds.current.GetCurrentStep();
+            Worlds.current.SetCurrentStepCustom(customStep);
+
+        }
+        
+        public void Dispose() {
+            
+            Worlds.current.SetCurrentStepCustom(this.step);
+            
+        }
+
+    }
+
     public enum WorldCallbackStep {
 
         None = 0,
@@ -1154,6 +1173,10 @@ namespace ME.ECS {
 
             return this.currentStep;
 
+        }
+
+        public void SetCurrentStepCustom(WorldStep step) {
+            this.currentStep = step;
         }
 
         #if INLINE_METHODS
