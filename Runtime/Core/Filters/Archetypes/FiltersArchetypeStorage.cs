@@ -1197,7 +1197,7 @@ namespace ME.ECS.FiltersArchetype {
         #endif
 
         [MethodImplAttribute(MethodImplOptions.AggressiveInlining)]
-        internal static bool CheckStaticShared(List<int> containsShared, List<int> notContainsShared) {
+        internal static bool CheckStaticShared(in List<int> containsShared, in List<int> notContainsShared) {
 
             if (containsShared.Count == 0 && notContainsShared.Count == 0) {
                 return true;

@@ -10,6 +10,8 @@ using Unity.Mathematics;
 using tfloat = System.Single;
 #endif
 
+using INLINE = System.Runtime.CompilerServices.MethodImplAttribute;
+
 namespace ME.ECS {
 
     #if ECS_COMPILE_IL2CPP_OPTIONS
@@ -446,6 +448,7 @@ namespace ME.ECS {
 
         }
 
+        [INLINE(256)]
         public static int ConvertOrientationToRawIndex(int orientation) {
 
             switch (orientation) {
@@ -480,6 +483,7 @@ namespace ME.ECS {
 
         }
 
+        [INLINE(256)]
         public static int ConvertRawIndexToOrientation(int orientation) {
 
             switch (orientation) {
@@ -514,6 +518,7 @@ namespace ME.ECS {
 
         }
 
+        [INLINE(256)]
         public static int ConvertFileIndexToOrientation(int fileIndex) {
 
             switch (fileIndex) {
@@ -548,6 +553,7 @@ namespace ME.ECS {
 
         }
 
+        [INLINE(256)]
         public static int GetOrientation(float2 dir) {
 
             MathUtils.GetOrientation(out var d, dir);
@@ -555,6 +561,7 @@ namespace ME.ECS {
 
         }
 
+        [INLINE(256)]
         public static int GetOrientation(float2 from, float2 to) {
 
             MathUtils.GetOrientation(out var d, to - from);
@@ -562,6 +569,7 @@ namespace ME.ECS {
 
         }
 
+        [INLINE(256)]
         public static void GetOrientation(out int orientation, float2 dir, int steps = 8) {
 
             float step = 360f / steps;
@@ -614,6 +622,7 @@ namespace ME.ECS {
 
         }
 
+        [INLINE(256)]
         public static bool IsPositionInRange(float3 from, float3 target, float minRange, float maxRange) {
 
             var dir = target - from;
@@ -629,6 +638,7 @@ namespace ME.ECS {
 
         }
 
+        [INLINE(256)]
         public static float3 GetNearestPositionToTarget(float3 from, float3 target, float minRange, float maxRange) {
 
             var dir = target - from;
@@ -652,6 +662,7 @@ namespace ME.ECS {
 
         }
 
+        [INLINE(256)]
         public static bool IsTargetInCone(in float2 position, in float2 direction, in float2 target, tfloat coneAngle) {
 
             if (coneAngle <= 0f) return true;
