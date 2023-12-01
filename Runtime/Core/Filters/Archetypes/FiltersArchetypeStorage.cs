@@ -715,14 +715,17 @@ namespace ME.ECS.FiltersArchetype {
             var cnt = this.deadPrepared.Count;
             if (cnt > 0) {
 
-                foreach (var id in this.deadPrepared) {
-                
+                var e = this.deadPrepared.GetEnumerator(in allocator);
+                while (e.MoveNext() == true) {
+
+                    var id = e.Current;
                     --this.aliveCount;
                     this.dead.Add(ref allocator, id);
                     this.alive.Remove(ref allocator, id);
                     this.OnDealloc(ref allocator, id);
 
                 }
+                e.Dispose();
 
                 this.deadPreparedIndex.Clear(in allocator);
                 this.deadPrepared.Clear(in allocator);

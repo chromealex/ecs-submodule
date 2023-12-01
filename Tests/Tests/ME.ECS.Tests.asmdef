@@ -2,8 +2,6 @@
     "name": "ME.ECS.Tests",
     "rootNamespace": "",
     "references": [
-        "UnityEditor.TestRunner",
-        "UnityEngine.TestRunner",
         "ME.ECS",
         "ME.Pools",
         "Unity.Burst",
@@ -18,9 +16,7 @@
     "excludePlatforms": [],
     "allowUnsafeCode": true,
     "overrideReferences": true,
-    "precompiledReferences": [
-        "nunit.framework.dll"
-    ],
+    "precompiledReferences": [],
     "autoReferenced": false,
     "defineConstraints": [],
     "versionDefines": [],
