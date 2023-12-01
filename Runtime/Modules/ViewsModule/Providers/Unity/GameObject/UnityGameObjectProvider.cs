@@ -282,6 +282,8 @@ namespace ME.ECS.Views.Providers {
 
         public bool interpolateNextImmediately { get; set; }
 
+        public bool isValid => this.transform != null;
+
         public InterpolatedTransform(MonoBehaviourViewBase view, UnityEngine.Transform transform, InterpolatedTransform.Settings settings) {
 
             this.view = view;
@@ -577,7 +579,9 @@ namespace ME.ECS.Views.Providers {
         void IView.DoUpdate(float deltaTime) {
 
             this.OnUpdate(deltaTime);
-            this.transform.Update(deltaTime);
+            if (this.transform.isValid == true) {
+                this.transform.Update(deltaTime);
+            }
             
         }
         
