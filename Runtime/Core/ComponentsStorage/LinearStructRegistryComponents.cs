@@ -342,7 +342,11 @@ namespace ME.ECS {
 
         [ME.ECS.Serializer.SerializeField]
         internal ME.ECS.Collections.LowLevel.HashSet<NextTickTask> nextTickTasks;
-
+        [ME.ECS.Serializer.SerializeField]
+        public ME.ECS.Collections.LowLevel.EquatableHashSet<TickNotification> nextTickNotifications;
+        [ME.ECS.Serializer.SerializeField]
+        public ME.ECS.Collections.LowLevel.EquatableHashSet<TickNotification> endTickNotifications;
+        
         [ME.ECS.Serializer.SerializeField]
         internal BufferArray<StructRegistryBase> list;
         [ME.ECS.Serializer.SerializeField]
@@ -366,6 +370,9 @@ namespace ME.ECS {
             this.nextTickTasks = new ME.ECS.Collections.LowLevel.HashSet<NextTickTask>(ref allocator, 10);
             this.dirtyMap = new ME.ECS.Collections.LowLevel.List<int>(ref allocator, 10);
             
+            this.nextTickNotifications = new ME.ECS.Collections.LowLevel.EquatableHashSet<TickNotification>(ref allocator, 10);
+            this.endTickNotifications = new ME.ECS.Collections.LowLevel.EquatableHashSet<TickNotification>(ref allocator, 10);
+
             this.entitiesIndexer = new EntitiesIndexer();
             this.entitiesIndexer.Initialize(ref allocator, 100);
 
@@ -1102,6 +1109,8 @@ namespace ME.ECS {
             this.entitiesIndexer = other.entitiesIndexer;
             this.dirtyMap = other.dirtyMap;
             this.nextTickTasks = other.nextTickTasks;
+            this.nextTickNotifications = other.nextTickNotifications;
+            this.endTickNotifications = other.endTickNotifications;
             
             ArrayUtils.Copy(other.list, ref this.list, new CopyRegistry());
 
@@ -1299,9 +1308,9 @@ namespace ME.ECS {
             WorldStaticCallbacks.RaiseCallbackLifetimeStep(this, step, deltaTime);
 
             if (step == ComponentLifetime.NotifyAllSystems) {
-                this.BeginTickNotifications();
+                this.BeginTickNotifications(ref this.currentState.allocator, ref this.currentState.structComponents);
             } else if (step == ComponentLifetime.NotifyAllSystemsBelow) {
-                this.EndTickNotifications();
+                this.EndTickNotifications(ref this.currentState.allocator, ref this.currentState.structComponents);
             }
             this.UseLifetimeStep(ref this.currentState.allocator, step, deltaTime, ref this.currentState.structComponents);
             this.UseLifetimeStep(ref this.noStateData.allocator, step, deltaTime, ref this.noStateData.storage);
@@ -1322,32 +1331,38 @@ namespace ME.ECS {
         }
 
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-        private void BeginTickNotifications() {
+        private void BeginTickNotifications(ref MemoryAllocator allocator, ref StructComponentsContainer structComponentsContainer) {
             
             // move all notifications to entities
-            foreach (var notification in this.currentState.nextTickNotifications) {
+            var e = structComponentsContainer.nextTickNotifications.GetEnumerator(in allocator);
+            while (e.MoveNext() == true) {
+                var notification = e.Current;
                 if (notification.entity.IsAlive() == true) {
                     Worlds.current.SetData(notification.entity, notification.data, notification.data.typeId, StorageType.Default);
-                    this.currentState.endTickNotifications.Add(ref this.currentState.allocator, notification);
+                    structComponentsContainer.endTickNotifications.Add(ref allocator, notification);
                 } else {
-                    notification.Dispose(ref this.currentState.allocator);
+                    notification.Dispose(ref allocator);
                 }
             }
-            this.currentState.nextTickNotifications.Clear(in this.currentState.allocator);
+            e.Dispose();
+            structComponentsContainer.nextTickNotifications.Clear(in allocator);
             
         }
 
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-        private void EndTickNotifications() {
+        private void EndTickNotifications(ref MemoryAllocator allocator, ref StructComponentsContainer structComponentsContainer) {
             
             // remove all components from entities
-            foreach (var notification in this.currentState.endTickNotifications) {
+            var e = structComponentsContainer.endTickNotifications.GetEnumerator(in allocator);
+            while (e.MoveNext() == true) {
+                var notification = e.Current;
                 if (notification.entity.IsAlive() == true) {
                     Worlds.current.RemoveData(notification.entity, notification.data.typeId, StorageType.Default);
                 }
-                notification.Dispose(ref this.currentState.allocator);
+                notification.Dispose(ref allocator);
             }
-            this.currentState.endTickNotifications.Clear(in this.currentState.allocator);
+            e.Dispose();
+            structComponentsContainer.endTickNotifications.Clear(in allocator);
             
         }
 
@@ -1961,29 +1976,30 @@ namespace ME.ECS {
         }
 
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-        private void AddNextTickNotification<T>(ref MemoryAllocator allocator, in Entity entity, in T data) where T : unmanaged, IStructComponent {
+        private void AddNextTickNotification<T>(ref MemoryAllocator allocator, ref StructComponentsContainer container, in Entity entity, in T data) where T : unmanaged, IStructComponent {
 
-            ref var container = ref this.currentState.nextTickNotifications;
+            ref var list = ref container.nextTickNotifications;
             var n = new TickNotification() {
                 entity = entity,
                 data = new UnsafeData().Set(ref allocator, data),
             };
-            if (container.Add(ref allocator, n) == false) {
+            if (list.Add(ref allocator, n) == false) {
                 n.Dispose(ref allocator);
             }
 
         }
 
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-        private void AddEndTickNotification<T>(ref MemoryAllocator allocator, in Entity entity, in T data) where T : unmanaged, IStructComponent {
+        private void AddEndTickNotification<T>(ref MemoryAllocator allocator, ref StructComponentsContainer container, in Entity entity, in T data) where T : unmanaged, IStructComponent {
 
-            ref var container = ref this.currentState.endTickNotifications;
+            ref var list = ref container.endTickNotifications;
+            UnityEngine.Debug.Log("SET NOTIFICATION DATA: " + entity + " :: TICK: " + this.currentState.tick + " :: " + this.currentState.randomState);
             this.SetData(in entity, in data);
             var n = new TickNotification() {
                 entity = entity,
                 data = new UnsafeData() { typeId = AllComponentTypes<T>.typeId },
             };
-            if (container.Add(ref allocator, n) == false) {
+            if (list.Add(ref allocator, n) == false) {
                 n.Dispose(ref allocator);
             }
 
@@ -1997,27 +2013,27 @@ namespace ME.ECS {
             E.IS_LOGIC_STEP(this);
             E.IS_ALIVE(in entity);
 
+            if (lifetime == ComponentLifetime.Infinite) {
+
+                if (addTaskOnly == false) this.SetData(in entity, in data);
+                return;
+                
+            }
+
             if (lifetime == ComponentLifetime.NotifyAllSystems &&
                 addTaskOnly == false &&
                 secondsLifetime <= 0f) {
 
-                this.AddNextTickNotification(ref allocator, in entity, in data);
+                this.AddNextTickNotification(ref allocator, ref container, in entity, in data);
                 return;
 
             } else if (lifetime == ComponentLifetime.NotifyAllSystemsBelow &&
                 addTaskOnly == false &&
                 secondsLifetime <= 0f) {
 
-                this.AddEndTickNotification(ref allocator, in entity, in data);
+                this.AddEndTickNotification(ref allocator, ref container, in entity, in data);
                 return;
 
-            }
-            
-            if (lifetime == ComponentLifetime.Infinite) {
-
-                if (addTaskOnly == false) this.SetData(in entity, in data);
-                return;
-                
             }
             
             if (addTaskOnly == false && this.HasData<TComponent>(in entity) == true) return;

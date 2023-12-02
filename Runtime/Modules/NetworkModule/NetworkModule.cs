@@ -908,7 +908,7 @@ namespace ME.ECS.Network {
                 sourceTick = Tick.Zero;
 
             }
-            //UnityEngine.Debug.LogWarning("Rollback. Oldest: " + oldestEventTick + ", sourceTick: " + sourceTick + " (hash: " + sourceState.GetHash() + " rnd: " + sourceState.randomState + "), targetTick: " + targetTick + ", currentTick: " + tick + ", timeSinceGameStart: " + timeSinceGameStart);
+            //UnityEngine.Debug.LogWarning($"Rollback. Oldest: {oldestEventTick}, sourceTick: {sourceTick} (hash: {sourceState.GetHash()} rnd: {sourceState.randomState}), targetTick: {targetTick}, currentTick: {tick}, timeSinceGameStart: {timeSinceGameStart}\n{sourceState.GetHashString()}");
             
             this.statesHistoryModule.InvalidateEntriesAfterTick(sourceTick);
 

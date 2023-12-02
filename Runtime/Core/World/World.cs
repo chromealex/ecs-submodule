@@ -2066,11 +2066,14 @@ namespace ME.ECS {
             UnityEngine.Profiling.Profiler.BeginSample("Tick");
             #endif
             
+            //var rnd = this.currentState.randomState;
+            //var hash = this.currentState.GetHash();
+
             ////////////////
             this.currentStep |= WorldStep.PluginsLogicTick;
             ////////////////
             {
-            
+
                 try {
 
                     using (new Checkpoint("PlayPluginsForTickPre", "PlayPluginsForTickPre", WorldStep.None)) {
@@ -2249,6 +2252,10 @@ namespace ME.ECS {
             UnityEngine.Profiling.Profiler.EndSample();
             #endif
             
+            /*using (NoStackTrace.All) {
+                UnityEngine.Debug.Log($"TICK: {this.currentState.tick}, RND: {this.currentState.randomState}, HASH: {this.currentState.GetHash()}, BEGIN RND: {rnd}, BEGIN HASH: {hash}");
+            }*/
+
             #if ENABLE_PROFILER
             ECSProfiler.LogicSystems.Value += (long)((tickSw.ElapsedTicks / (double)System.Diagnostics.Stopwatch.Frequency) * 1000000000L);
             #endif

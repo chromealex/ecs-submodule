@@ -20,11 +20,6 @@ namespace ME.ECS {
         [ME.ECS.Serializer.SerializeField]
         public StructComponentsContainer structComponents;
 
-        [ME.ECS.Serializer.SerializeField]
-        public ME.ECS.Collections.LowLevel.EquatableHashSet<TickNotification> nextTickNotifications;
-        [ME.ECS.Serializer.SerializeField]
-        public ME.ECS.Collections.LowLevel.EquatableHashSet<TickNotification> endTickNotifications;
-
         public PluginsStorage pluginsStorage;
         
         /// <summary>
@@ -34,6 +29,12 @@ namespace ME.ECS {
         public virtual int GetHash() {
 
             return this.tick ^ this.structComponents.GetHash() ^ this.randomState.GetHashCode() ^ this.storage.GetHash(ref this.allocator);
+
+        }
+
+        public virtual string GetHashString() {
+
+            return $"{this.tick}.{this.structComponents.GetHash()}.{this.randomState.GetHashCode()}.{this.storage.GetHash(ref this.allocator)}";
 
         }
 
@@ -47,9 +48,6 @@ namespace ME.ECS {
             
             this.pluginsStorage.Initialize(ref this.allocator);
 
-            this.nextTickNotifications = new ME.ECS.Collections.LowLevel.EquatableHashSet<TickNotification>(ref this.allocator, 10);
-            this.endTickNotifications = new ME.ECS.Collections.LowLevel.EquatableHashSet<TickNotification>(ref this.allocator, 10);
-            
             ComponentTypesRegistry.burstStateVersionsDirectRef.Data = this.storage.versions.GetMemPtr();
             
         }
@@ -66,9 +64,6 @@ namespace ME.ECS {
 
             this.storage = other.storage;
             this.structComponents.CopyFrom(other.structComponents);
-
-            this.nextTickNotifications = other.nextTickNotifications;
-            this.endTickNotifications = other.endTickNotifications;
 
             ComponentTypesRegistry.burstStateVersionsDirectRef.Data = this.storage.versions.GetMemPtr();
 
