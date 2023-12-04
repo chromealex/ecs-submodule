@@ -105,6 +105,13 @@ namespace ME.ECS.Collections.LowLevel {
         }
 
         [INLINE(256)]
+        public MemArrayAllocator<T> GetDense() {
+
+            return this.dense;
+
+        }
+
+        [INLINE(256)]
         public SparseSet<T> Merge(ref MemoryAllocator allocator) {
 
 #if SPARSESET_DENSE_SLICED
@@ -149,7 +156,8 @@ namespace ME.ECS.Collections.LowLevel {
                 if (this.freeIndexes.Count > 0) {
                     idx = this.freeIndexes.Pop(in allocator);
                 } else {
-                    idx = this.dense.Length + 1;
+                    idx = this.dense.Length;
+                    if (idx == 0) idx = 1;
                 }
             }
 

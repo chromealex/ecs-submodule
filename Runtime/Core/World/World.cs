@@ -2138,7 +2138,10 @@ namespace ME.ECS {
 
                     }
 
-                    using (new Checkpoint(system.GetType().FullName, system, WorldStep.LogicTick)) {
+                    #if CHECKPOINT_COLLECTOR
+                    using (new Checkpoint(system.GetType().FullName, system, WorldStep.LogicTick))
+                    #endif
+                    {
 
                         system.filter = (system.filter.IsAlive() == true ? system.filter : system.CreateFilter());
                         if (system.filter.IsAlive() == true) {

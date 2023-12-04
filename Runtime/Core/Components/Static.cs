@@ -60,6 +60,8 @@ namespace ME.ECS {
 
     public struct AllComponentTypes<TComponent> {
 
+        public static TComponent defaultRef;
+
         public static readonly Unity.Burst.SharedStatic<int> burstTypeId = Unity.Burst.SharedStatic<int>.GetOrCreate<AllComponentTypes<TComponent>, int>();
         public static readonly Unity.Burst.SharedStatic<byte> burstIsVersionedNoState = Unity.Burst.SharedStatic<byte>.GetOrCreate<AllComponentTypes<TComponent>, byte>();
         public static readonly Unity.Burst.SharedStatic<MemPtr> burstTypeStorageDirectRef = Unity.Burst.SharedStatic<MemPtr>.GetOrCreate<AllComponentTypes<TComponent>, MemPtr>();

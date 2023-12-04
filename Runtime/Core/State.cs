@@ -21,6 +21,8 @@ namespace ME.ECS {
         public StructComponentsContainer structComponents;
 
         public PluginsStorage pluginsStorage;
+
+        public int localVersion = 1;
         
         /// <summary>
         /// Return most unique hash
@@ -67,6 +69,8 @@ namespace ME.ECS {
 
             ComponentTypesRegistry.burstStateVersionsDirectRef.Data = this.storage.versions.GetMemPtr();
 
+            ++this.localVersion;
+
         }
 
         public virtual void OnRecycle() {
@@ -79,6 +83,8 @@ namespace ME.ECS {
             this.storage = default;
             
             this.structComponents.OnRecycle(ref this.allocator, true);
+
+            this.localVersion = default;
             
             this.allocator.Dispose();
 

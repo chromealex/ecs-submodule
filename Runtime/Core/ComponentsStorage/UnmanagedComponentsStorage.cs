@@ -114,6 +114,14 @@ namespace ME.ECS {
         }
 
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        public MemPtr GetRegistryPtr<T>(in MemoryAllocator allocator) where T : struct, IComponentBase {
+
+            var typeId = AllComponentTypes<T>.typeId;
+            return this.items[in allocator, typeId];
+
+        }
+
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         public void ValidateTypeId<T>(ref MemoryAllocator allocator) where T : struct, IComponentBase {
 
             this.items.Resize(ref allocator, AllComponentTypesCounter.counter + 1);

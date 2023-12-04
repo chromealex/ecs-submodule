@@ -1,5 +1,6 @@
 using Unity.Burst;
 using Unity.Collections;
+using Unity.Collections.LowLevel.Unsafe;
 using Unity.Jobs;
 
 #if FIXED_POINT_MATH
@@ -30,9 +31,12 @@ namespace ME.ECS.Collections {
 
             NativeQuadTreeUtils<Entity>.GetResults(position, radius, results);
 
+            var sqRadius = radius * radius;
             for (int i = results.Length - 1; i >= 0; --i) {
 
-                if (results[i].element.IsAlive() == false) {
+                var elem = results[i];
+                if (elem.element.IsAlive() == false ||
+                    math.distancesq(elem.pos, position) > sqRadius) {
                     
                     results.RemoveAtSwapBack(i);
                     
@@ -48,7 +52,7 @@ namespace ME.ECS.Collections {
 
         private static NativeQuadTree<T> tempTree;
         private static NativeArray<QuadElement<T>> items;
-        private static int itemsCount;
+        public static int itemsCount;
 
         public static void PrepareTick(in AABB2D mapSize, NativeArray<QuadElement<T>> items, int itemsCount) {
             
@@ -81,24 +85,15 @@ namespace ME.ECS.Collections {
 
         }
 
-        public static void GetResults(in float2 position, tfloat radius, Unity.Collections.NativeList<QuadElement<T>> results) {
+        public static unsafe void GetResults(in float2 position, tfloat radius, Unity.Collections.NativeList<QuadElement<T>> results) {
 
             /*if (NativeQuadTreeUtils<T>.tempTree.isCreated == false) {
                 throw new System.Exception("Temp tree collection has been disposed");
             }*/
 
-            var sqRadius = radius * radius;
             var marker = new Unity.Profiling.ProfilerMarker("GetNearestUnitTarget");
             marker.Begin();
-            for (int i = 0; i < NativeQuadTreeUtils<T>.itemsCount; ++i) {
-
-                var elem = NativeQuadTreeUtils<T>.items[i];
-                var d = math.distancesq(elem.pos, position);
-                if (d <= sqRadius) {
-                    results.Add(elem);
-                }
-
-            }
+            results.AddRange(NativeQuadTreeUtils<T>.items.GetUnsafeReadOnlyPtr(), NativeQuadTreeUtils<T>.itemsCount);
             marker.End();
             /*
             new QuadTreeJobs.QueryRadiusJob<T>() {

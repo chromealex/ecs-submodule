@@ -421,6 +421,15 @@ namespace ME.ECS.Collections.LowLevel {
             
         }
 
+        [INLINE(256)]
+        public int IndexOf(in MemoryAllocator allocator, T value) {
+            for (int i = 0; i < this.Length; ++i) {
+                if (System.Collections.Generic.EqualityComparer<T>.Default.Equals(this[in allocator, i], value) == true) return i;
+            }
+
+            return -1;
+        }
+
     }
 
 }
