@@ -2,6 +2,7 @@
 //#define MEMORY_ALLOCATOR_LOGS
 
 using System;
+using System.Diagnostics;
 using Unity.Collections;
 using Unity.Collections.LowLevel.Unsafe;
 using INLINE = System.Runtime.CompilerServices.MethodImplAttribute;
@@ -399,7 +400,7 @@ namespace ME.ECS.Collections.LowLevel.Unsafe {
         internal readonly MemPtr GetSafePtr(void* ptr, int zoneIndex) {
             
             #if MEMORY_ALLOCATOR_BOUNDS_CHECK
-            if (zoneIndex < this.zonesListCount && this.zonesList[zoneIndex] != null) {
+            if (zoneIndex >= this.zonesListCount || this.zonesList[zoneIndex] == null) {
                 throw new OutOfBoundsException();
             }
             #endif
@@ -445,6 +446,38 @@ namespace ME.ECS.Collections.LowLevel.Unsafe {
         public MemPtr AllocArray(int length, int sizeOf) {
             var size = sizeOf;
             return this.Alloc(size * length);
+        }
+        
+        [Conditional("MEMORY_ALLOCATOR_CONSISTENCY_CHECK")]
+        public void CheckConsistency() {
+            string err = null;
+            var result = true;
+            for (int i = 0; i < this.zonesListCount; ++i) {
+                var zone = this.zonesList[i];
+            
+                if (zone == null) continue;
+        
+                for (var block = zone->blocklist.next.Ptr(zone);; block = block->next.Ptr(zone)) {
+                    if (block->next.Ptr(zone) == &zone->blocklist) {
+                        // all blocks have been hit
+                        break;
+                    }
+                    if ((byte*)block + block->size != (byte*)block->next.Ptr(zone)) {
+                        err = "CheckHeap: block size does not touch the next block";
+                    }
+                    if (block->next.Ptr(zone)->prev.Ptr(zone) != block) {
+                        err = "CheckHeap: next block doesn't have proper back link";
+                    }
+                    if (block->state == MemoryAllocator.BLOCK_STATE_FREE && block->next.Ptr(zone)->state == MemoryAllocator.BLOCK_STATE_FREE) {
+                        err = "CheckHeap: two consecutive free blocks";
+                    }
+                }
+        
+            }
+            if (result == false) {
+                throw new Exception(err);
+            }
+    
         }
 
     }

@@ -212,7 +212,7 @@ namespace ME.ECS {
             if (bucket.state > 0) {
                 bucket.data.ReplaceWith(ref Worlds.current.currentState.allocator, in data);
             } else {
-                bucket.data = data;
+                bucket.data.CopyFrom(ref Worlds.current.currentState.allocator, in data);
             }
             
         }

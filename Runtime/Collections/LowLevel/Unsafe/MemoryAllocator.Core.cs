@@ -165,7 +165,7 @@ namespace ME.ECS.Collections.LowLevel.Unsafe {
             #if MEMORY_ALLOCATOR_BOUNDS_CHECK
             if (block->id != MemoryAllocator.ZONE_ID) {
                 //return false;
-                throw new System.ArgumentException("ZmFree: freed a pointer without ZONEID");
+                throw new System.ArgumentException($"ZmFree: freed a pointer without ZONEID, block->id {block->id}");
             }
             #endif
 

@@ -24,6 +24,7 @@ namespace ME.ECS {
 
         void OnDispose(ref ME.ECS.Collections.LowLevel.Unsafe.MemoryAllocator allocator);
         void ReplaceWith(ref ME.ECS.Collections.LowLevel.Unsafe.MemoryAllocator allocator, in T other);
+        void CopyFrom(ref ME.ECS.Collections.LowLevel.Unsafe.MemoryAllocator allocator, in T other);
 
     }
 

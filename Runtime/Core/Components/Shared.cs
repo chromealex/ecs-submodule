@@ -12,6 +12,10 @@ namespace ME.ECS {
         public void ReplaceWith(ref ME.ECS.Collections.LowLevel.Unsafe.MemoryAllocator allocator, in SharedData other) {
             this.archetypeToId.ReplaceWith(ref allocator, other.archetypeToId);
         }
+        
+        public void CopyFrom(ref ME.ECS.Collections.LowLevel.Unsafe.MemoryAllocator allocator, in SharedData other) {
+            this.archetypeToId.CopyFrom(ref allocator, other.archetypeToId);
+        }
 
     }
     #endif

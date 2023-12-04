@@ -167,7 +167,6 @@ namespace ME.ECS.Collections.LowLevel {
 
         [INLINE(256)]
         public readonly MemPtr GetMemPtr(in MemoryAllocator allocator) {
-			E.IS_CREATED(this);
             return this.buckets.arrPtr;
 
         }

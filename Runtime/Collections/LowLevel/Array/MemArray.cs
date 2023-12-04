@@ -312,7 +312,7 @@ namespace ME.ECS.Collections.LowLevel {
                 this.As<U>(in allocator, i).OnDispose(ref allocator);
             }
             for (int i = 0; i < this.Length; ++i) {
-                this.As<U>(in allocator, i).ReplaceWith(ref allocator, in other.As<U>(in allocator, i));
+                this.As<U>(in allocator, i).CopyFrom(ref allocator, in other.As<U>(in allocator, i));
             }
             
         }
