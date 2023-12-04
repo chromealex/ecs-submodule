@@ -527,13 +527,8 @@ namespace ME.ECS.Network {
 
             if (this.objectToKey.TryGetValue(instance, out var key) == true) {
 
-                var targetTick = this.world.GetStateTick();
-                if (this.IsReverting() == true) {
-                    // We are in reverting stage
-                    // so need to return target tick
-                    targetTick = this.GetCurrentTimeTick();
-                }
-                
+                var targetTick = this.GetCurrentTimeTick();
+
                 var evt = new ME.ECS.StatesHistory.HistoryEvent();
                 evt.tick = targetTick + this.statesHistoryModule.GetEventForwardTick(); // Call RPC on next N tick
                 evt.parameters = parameters;
@@ -867,6 +862,12 @@ namespace ME.ECS.Network {
         protected virtual void ApplyTicksByState() {
 
             var tick = this.world.GetState().tick;
+            
+            if (this.isReverting == true && tick >= this.revertingTo) {
+                    
+                this.DoRevertingEnd();
+                    
+            }
 
             var timeSinceGameStart = (long)(this.world.GetTimeSinceStart() * 1000L);
             var targetTick = (Tick)System.Math.Floor(timeSinceGameStart / (double)((float)this.world.GetTickTime() * 1000d));
@@ -874,18 +875,6 @@ namespace ME.ECS.Network {
             this.currentTimeTick = targetTick;
             //UnityEngine.Debug.LogError("Tick: " + tick + ", timeSinceGameStart: " + timeSinceGameStart + ", targetTick: " + targetTick + ", oldestEventTick: " + oldestEventTick);
             if (oldestEventTick == Tick.Invalid || oldestEventTick >= tick) {
-
-                if (this.isReverting == true && tick == this.revertingTo) {
-                    
-                    this.DoRevertingEnd();
-                    
-                }
-
-                if (this.isReverting == false && tick < this.revertingTo) {
-                    
-                    this.DoRevertingBegin(tick);
-                    
-                }
 
                 // No events found
                 this.world.SetFromToTicks(tick, targetTick);
@@ -923,17 +912,13 @@ namespace ME.ECS.Network {
 
             }*/
 
-            if (this.IsReverting() == true) {
-                tick = this.revertingTo;
-            }
-
             #if ENABLE_PROFILER
             var ns = System.Diagnostics.Stopwatch.StartNew();
             #endif
-            this.DoRevertingBegin(sourceTick);
             {
                 var currentState = this.world.GetState();
-                this.revertingTo = tick;
+                this.revertingTo = Unity.Mathematics.math.max(this.revertingTo, tick);
+                this.DoRevertingBegin(sourceTick);
                 currentState.CopyFrom(sourceState);
                 currentState.Initialize(this.world, freeze: false, restore: true);
                 /*if (this.asyncMode == false) {
@@ -941,7 +926,6 @@ namespace ME.ECS.Network {
                     tick = this.world.Simulate(sourceTick, tick);
                 }*/
             }
-            this.DoRevertingEnd();
             #if ENABLE_PROFILER
             ECSProfiler.LogicRollback.Sample((long)(ns.ElapsedTicks / (double)System.Diagnostics.Stopwatch.Frequency) * 1000000000L);
             #endif
