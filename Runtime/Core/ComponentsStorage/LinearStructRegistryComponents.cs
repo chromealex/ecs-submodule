@@ -1993,7 +1993,6 @@ namespace ME.ECS {
         private void AddEndTickNotification<T>(ref MemoryAllocator allocator, ref StructComponentsContainer container, in Entity entity, in T data) where T : unmanaged, IStructComponent {
 
             ref var list = ref container.endTickNotifications;
-            UnityEngine.Debug.Log("SET NOTIFICATION DATA: " + entity + " :: TICK: " + this.currentState.tick + " :: " + this.currentState.randomState);
             this.SetData(in entity, in data);
             var n = new TickNotification() {
                 entity = entity,
