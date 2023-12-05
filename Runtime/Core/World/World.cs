@@ -29,7 +29,9 @@ namespace ME.ECS {
 
         public UseState(State state) {
             this.useState = Worlds.current.currentState;
-            Worlds.current.currentState = state;
+            if (state != null) {
+                Worlds.current.currentState = state;
+            }
         }
 
         public void Dispose() {
@@ -1123,8 +1125,8 @@ namespace ME.ECS {
 
             if (this.settings.viewsSettings.interpolationState == true) {
                 this.interpolationState = WorldUtilities.CreateState<TState>();
-                this.interpolationState.Initialize(this, freeze: true, restore: false);
                 this.interpolationState.CopyFrom(this.GetState());
+                this.interpolationState.Initialize(this, freeze: true, restore: false);
             }
             
         }
@@ -1133,6 +1135,7 @@ namespace ME.ECS {
             
             if (this.settings.viewsSettings.interpolationState == true) {
                 this.interpolationState.CopyFrom(state);
+                this.interpolationState.Initialize(this, freeze: true, restore: false);
             }
             
         }
