@@ -2364,7 +2364,7 @@ namespace ME.ECS {
             
             this.cpf = to - from;
 
-            if (this.cpf > 0) {
+            if (this.cpf > 0 && this.IsReverting() == false) {
                 this.SaveInterpolationState(state);
             }
             
