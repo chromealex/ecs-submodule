@@ -1307,11 +1307,11 @@ namespace ME.ECS {
 
             WorldStaticCallbacks.RaiseCallbackLifetimeStep(this, step, deltaTime);
 
-            /*if (step == ComponentLifetime.NotifyAllSystems) {
+            if (step == ComponentLifetime.NotifyAllSystems) {
                 this.BeginTickNotifications(ref this.currentState.allocator, ref this.currentState.structComponents);
             } else if (step == ComponentLifetime.NotifyAllSystemsBelow) {
                 this.EndTickNotifications(ref this.currentState.allocator, ref this.currentState.structComponents);
-            }*/
+            }
             this.UseLifetimeStep(ref this.currentState.allocator, step, deltaTime, ref this.currentState.structComponents);
             this.UseLifetimeStep(ref this.noStateData.allocator, step, deltaTime, ref this.noStateData.storage);
             
@@ -2019,7 +2019,7 @@ namespace ME.ECS {
                 
             }
 
-            /*if (lifetime == ComponentLifetime.NotifyAllSystems &&
+            if (lifetime == ComponentLifetime.NotifyAllSystems &&
                 addTaskOnly == false &&
                 secondsLifetime <= 0f) {
 
@@ -2033,7 +2033,7 @@ namespace ME.ECS {
                 this.AddEndTickNotification(ref allocator, ref container, in entity, in data);
                 return;
 
-            }*/
+            }
             
             if (addTaskOnly == false && this.HasData<TComponent>(in entity) == true) return;
 
