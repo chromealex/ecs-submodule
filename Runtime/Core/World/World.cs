@@ -23,6 +23,23 @@ namespace ME.ECS {
     using Collections.LowLevel.Unsafe;
     using Collections.LowLevel;
 
+    public struct UseState : System.IDisposable {
+
+        private State useState;
+
+        public UseState(State state) {
+            this.useState = Worlds.current.currentState;
+            Worlds.current.currentState = state;
+        }
+
+        public void Dispose() {
+            
+            Worlds.current.currentState = this.useState;
+            
+        }
+
+    }
+
     public struct WorldStepCustom : System.IDisposable {
 
         private WorldStep step;
@@ -87,7 +104,11 @@ namespace ME.ECS {
 
     #pragma warning disable
     [System.Serializable]
-    public partial struct WorldViewsSettings { }
+    public partial struct WorldViewsSettings {
+
+        public bool interpolationState;
+
+    }
 
     public enum FrameFixBehaviour {
 
@@ -221,6 +242,7 @@ namespace ME.ECS {
         private State resetState;
         private bool hasResetState;
         public State currentState;
+        private State interpolationState;
         private uint seed;
         private int cpf; // CPF = Calculations per frame
         internal int entitiesCapacity;
@@ -359,6 +381,7 @@ namespace ME.ECS {
             this.simulationToTick = default;
             this.currentState = default;
             this.resetState = default;
+            this.interpolationState = default;
             this.hasResetState = false;
             this.currentStep = default;
             this.checkpointCollector = default;
@@ -605,6 +628,10 @@ namespace ME.ECS {
         public void RecycleResetState<TState>() where TState : State, new() {
 
             if (this.resetState != this.currentState) WorldUtilities.ReleaseState<TState>(ref this.resetState);
+
+            if (this.settings.viewsSettings.interpolationState == true) {
+                WorldUtilities.ReleaseState<TState>(ref this.interpolationState);
+            }
 
         }
 
@@ -1093,6 +1120,20 @@ namespace ME.ECS {
             this.hasResetState = true;
 
             this.currentState.structComponents.Merge(in this.currentState.allocator);
+
+            if (this.settings.viewsSettings.interpolationState == true) {
+                this.interpolationState = WorldUtilities.CreateState<TState>();
+                this.interpolationState.Initialize(this, freeze: true, restore: false);
+                this.interpolationState.CopyFrom(this.GetState());
+            }
+            
+        }
+
+        public void SaveInterpolationState(State state) {
+            
+            if (this.settings.viewsSettings.interpolationState == true) {
+                this.interpolationState.CopyFrom(state);
+            }
             
         }
 
@@ -1102,6 +1143,15 @@ namespace ME.ECS {
         public State GetResetState() {
 
             return this.resetState;
+
+        }
+        
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
+        public State GetInterpolationState() {
+
+            return this.interpolationState;
 
         }
 
@@ -2310,6 +2360,11 @@ namespace ME.ECS {
             }
             
             this.cpf = to - from;
+
+            if (this.cpf > 0) {
+                this.SaveInterpolationState(state);
+            }
+            
             var fixedDeltaTime = this.GetTickTime();
             var frameTime = 0L;
             for (state.tick = from; state.tick < to; ++state.tick) {

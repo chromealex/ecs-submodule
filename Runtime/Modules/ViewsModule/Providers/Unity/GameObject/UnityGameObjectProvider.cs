@@ -245,6 +245,10 @@ namespace ME.ECS.Views.Providers {
         private readonly Settings settings;
         private Transform targetTransform;
         private bool isInitialized;
+        
+        public UnityEngine.Vector3 interpolatedPosition { get; set; }
+        public UnityEngine.Quaternion interpolatedRotation { get; set; }
+        public UnityEngine.Vector3 interpolatedScale { get; set; }
 
         public UnityEngine.Vector3 position {
             get => this.targetTransform.position;
@@ -292,6 +296,28 @@ namespace ME.ECS.Views.Providers {
             this.targetTransform = new Transform(transform);
             this.isInitialized = false;
             this.interpolateNextImmediately = true;
+            this.interpolatedPosition = transform.position;
+            this.interpolatedScale = transform.localScale;
+            this.interpolatedRotation = transform.rotation;
+
+        }
+
+        private void ApplyStateInterpolation() {
+
+            var prevTick = (long)this.view.world.GetInterpolationState().tick;
+            var currentTick = (long)this.view.world.GetCurrentTick();
+            var tickTime = this.view.world.tickTime;
+
+            var prevTime = prevTick * tickTime;
+            var currentTime = currentTick * tickTime;
+
+            var currentWorldTime = this.view.world.timeSinceStart - tickTime;
+
+            var factor = UnityEngine.Mathf.InverseLerp(prevTime, currentTime, (float)currentWorldTime);
+
+            this.transform.position = UnityEngine.Vector3.Lerp(this.interpolatedPosition, this.targetTransform.position, factor);
+            this.transform.localScale = UnityEngine.Vector3.Lerp(this.interpolatedScale, this.targetTransform.localScale, factor);
+            this.transform.rotation = UnityEngine.Quaternion.Slerp(this.interpolatedRotation, this.targetTransform.rotation, factor);
 
         }
         
@@ -309,6 +335,13 @@ namespace ME.ECS.Views.Providers {
                 this.isInitialized = true;
 
             } else {
+                
+                if (this.view.world.settings.viewsSettings.interpolationState == true) {
+                
+                    this.ApplyStateInterpolation();
+                    return;
+                
+                }
 
                 if (this.targetTransform.isDirty == false) return;
 
@@ -440,6 +473,8 @@ namespace ME.ECS.Views.Providers {
         public ParentParameters parentParameters;
         
         new protected InterpolatedTransform transform;
+        
+        public World world { get; protected internal set; }
 
         public virtual bool applyStateJob => true;
 
@@ -527,8 +562,7 @@ namespace ME.ECS.Views.Providers {
         /// Time to despawn view before it has been pooled.
         /// </summary>
         public virtual float despawnDelay => (this.defaultParameters.useDespawnTime == true ? this.defaultParameters.despawnTime : 0f);
-
-        public World world { get; private set; }
+        
         public uint entityVersion { get; set; }
         public virtual Entity entity => this.info.entity;
         public ViewId prefabSourceId => this.info.prefabSourceId;

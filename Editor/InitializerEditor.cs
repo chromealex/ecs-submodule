@@ -453,6 +453,12 @@ namespace ME.ECSEditor {
                             "Use jobs for Views",
                             "Some view providers have jobs implementation. Turn it on to enable them update views inside jobs. Please note that some providers could lose some method calls.");
 
+                        GUILayoutExt.ToggleLeft(
+                            ref target.worldSettings.viewsSettings.interpolationState,
+                            ref isDirty,
+                            "Interpolate view state",
+                            "Use additional interpolate state for views");
+                        
                         if (this.viewsJobsEditors != null) {
 
                             GUILayout.BeginHorizontal();
