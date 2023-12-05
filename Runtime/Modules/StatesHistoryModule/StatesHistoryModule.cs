@@ -301,7 +301,7 @@ namespace ME.ECS.StatesHistory {
         private IEventRunner eventRunner;
         public World world { get; set; }
 
-        public System.Action OnRemoteHashFail;
+        public System.Action onRemoteHashFail;
         
         public virtual void OnConstruct() {
 
@@ -409,9 +409,9 @@ namespace ME.ECS.StatesHistory {
 
         }
         
-        public Tick GetCacheSize() {
+        public virtual Tick GetCacheSize() {
 
-            return this.GetQueueCapacity() * this.GetTicksPerState();
+            return this.GetQueueCapacity() * this.GetTicksPerState() * 4;
 
         }
 
@@ -846,7 +846,7 @@ namespace ME.ECS.StatesHistory {
                             var orderId = kv.Key;
                             using (NoStackTrace.All) {
                                 
-                                this.OnRemoteHashFail?.Invoke();
+                                this.onRemoteHashFail?.Invoke();
                             
                                 UnityEngine.Debug.LogError($"[World #{this.world.id}] Remote Hash (Client Id: {orderId}): {tick}:{remoteHash}, Local Hash: {tick}:{hash}");
                                 this.CleanUpHashTable(currentTick);
