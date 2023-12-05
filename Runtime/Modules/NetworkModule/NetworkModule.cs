@@ -761,10 +761,10 @@ namespace ME.ECS.Network {
         protected virtual void SendPing(float deltaTime) {
 
             this.pingTime += deltaTime;
-            if (this.pingTime >= 1f) {
+            if (this.pingTime >= this.GetPingTime()) {
 
                 this.SystemRPC(this, NetworkModule<TState>.PING_RPC_ID, this.world.GetTimeSinceStart(), true);
-                this.pingTime -= 1f;
+                this.pingTime -= this.GetPingTime();
 
             }
 
@@ -773,7 +773,7 @@ namespace ME.ECS.Network {
         protected virtual void SendSync(float deltaTime) {
 
             this.syncTime += deltaTime;
-            if (this.syncTime >= 2f) {
+            if (this.syncTime >= this.GetSyncTime()) {
 
                 if (this.syncTickSent != this.syncedTick) {
 
@@ -786,11 +786,15 @@ namespace ME.ECS.Network {
 
                 }
 
-                this.syncTime -= 2f;
+                this.syncTime -= this.GetSyncTime();
 
             }
 
         }
+
+        public virtual float GetPingTime() => 1f;
+
+        public virtual float GetSyncTime() => 0.5f;
 
         protected virtual void ReceiveEventsAndApply() {
 

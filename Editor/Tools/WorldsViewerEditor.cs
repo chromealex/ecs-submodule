@@ -402,40 +402,52 @@ namespace ME.ECSEditor {
                                     if (string.IsNullOrEmpty(search) == false) {
 
                                         paramsList.Clear();
-                                    
-                                        var name = entity.Read<ME.ECS.Name.Name>().value.Value;
-                                        if (name != null) paramsList.Add(name.ToLower());
-                                    
-                                        var registries = componentsStructStorage.GetAllRegistries();
-                                        for (int k = 0; k < registries.Length; ++k) {
 
-                                            var registry = registries.arr[k];
-                                            if (registry == null) continue;
-                                        
-                                            var component = registry.GetObject(entity);
-                                            if (component == null) continue;
-
-                                            var compName = component.GetType().Name.ToLower();
-                                            paramsList.Add(compName);
-
+                                        var found = false;
+                                        foreach (var item in searchList) {
+                                            if (item.Contains(entity.id.ToString()) == true) {
+                                                found = true;
+                                                break;
+                                            }
                                         }
 
-                                        if (paramsList.Count == 0) continue;
-                                    
-                                        var notFound = false;
-                                        foreach (var p in searchList) {
+                                        if (found == false) {
 
-                                            if (paramsList.Contains(p) == false) {
+                                            var name = entity.Read<ME.ECS.Name.Name>().value.Value;
+                                            if (name != null) paramsList.Add(name.ToLower());
 
-                                                notFound = true;
-                                                break;
+                                            var registries = componentsStructStorage.GetAllRegistries();
+                                            for (int k = 0; k < registries.Length; ++k) {
+
+                                                var registry = registries.arr[k];
+                                                if (registry == null) continue;
+
+                                                var component = registry.GetObject(entity);
+                                                if (component == null) continue;
+
+                                                var compName = component.GetType().Name.ToLower();
+                                                paramsList.Add(compName);
 
                                             }
-                                        
+
+                                            if (paramsList.Count == 0) continue;
+
+                                            var notFound = false;
+                                            foreach (var p in searchList) {
+
+                                                if (paramsList.Contains(p) == false) {
+
+                                                    notFound = true;
+                                                    break;
+
+                                                }
+
+                                            }
+
+                                            if (notFound == true) continue;
+
                                         }
-                                    
-                                        if (notFound == true) continue;
-                                    
+
                                     }
 
                                     elements.Add(entity);
@@ -534,18 +546,18 @@ namespace ME.ECSEditor {
 
             EditorGUIUtility.wideMode = true;
 
-            var allocator = world.GetAllocator();
-            
             var name = (entityData.Has<ME.ECS.Name.Name>() == true ? entityData.Read<ME.ECS.Name.Name>().value : "Unnamed");
             GUILayoutExt.DrawHeader("Entity " + entityData.id.ToString() + " (" + entityData.generation.ToString() + ") " + name);
             {
 
+                var allocator = world.GetAllocator();
+
                 var usedComponents = new HashSet<System.Type>();
-                
+
                 var style = new GUIStyle(EditorStyles.toolbar);
                 style.fixedHeight = 0f;
                 style.stretchHeight = true;
-                
+
                 GUILayoutExt.Box(
                     padding,
                     0f,
@@ -575,7 +587,7 @@ namespace ME.ECSEditor {
                         EditorGUILayout.Separator();
 
                         #region Components
-                        {
+                        /*{
                             var registries = componentsStructStorage.GetAllRegistries();
                             var sortedRegistries = new List<IStructRegistryBase>();
                             var components = new List<IComponentBase>();
@@ -600,12 +612,12 @@ namespace ME.ECSEditor {
                                 sortedRegistries.Add(registry);
 
                             }
-                            
+
                             GUILayoutExt.DrawFieldsSingle(search, entityData.ToString(), world, components.ToArray(),
                                                           (index, component, prop) => {
-                                                                  
+
                                                               GUILayout.BeginVertical();
-                                                                  
+
                                                           },
                                                           (index, component, prop) => {
 
@@ -615,19 +627,20 @@ namespace ME.ECSEditor {
                                                               GUILayoutExt.Separator();
 
                                                           }, (index, component) => {
-                                                                  
+
                                                               sortedRegistries[index].SetObject(entityData, component, StorageType.Default);
-                                                                  
+
                                                           });
 
                             GUILayoutExt.DrawAddComponentMenu(entityData, usedComponents, componentsStructStorage);
-                            
-                        }
+
+                        }*/
+                        GUILayoutExt.DrawEntitySelection(ME.ECS.Worlds.currentWorld, in entityData, checkAlive: true);
                         #endregion
-                        
+
                         #region Shared Components
                         {
-                        
+
                             var registries = componentsStructStorage.GetAllRegistries();
                             var sortedRegistries = new List<SharedRegistryData>();
                             var components = new List<IComponentBase>();
@@ -641,7 +654,7 @@ namespace ME.ECSEditor {
                                 #if VIEWS_MODULE_SUPPORT
                                 if (registry is StructComponents<ME.ECS.Views.ViewComponent>) continue;
                                 #endif
-                                
+
                                 #if !SHARED_COMPONENTS_DISABLED
                                 var groupIds = registry.GetSharedGroups(entityData);
                                 if (groupIds != null) {
@@ -678,9 +691,9 @@ namespace ME.ECSEditor {
 
                                 GUILayoutExt.DrawFieldsSingle(search, entityData.ToString(), world, components.ToArray(),
                                                               (index, component, prop) => {
-                                                                  
+
                                                                   GUILayout.BeginVertical();
-                                                                  
+
                                                               },
                                                               (index, component, prop) => {
 
@@ -690,9 +703,9 @@ namespace ME.ECSEditor {
                                                                   GUILayoutExt.Separator();
 
                                                               }, (index, component) => {
-                                                                  
+
                                                                   sortedRegistries[index].registry.SetSharedObject(entityData, component, sortedRegistries[index].groupId);
-                                                                  
+
                                                               });
 
                                 GUILayoutExt.DrawAddComponentMenu(entityData, usedComponents, componentsStructStorage);
@@ -700,7 +713,7 @@ namespace ME.ECSEditor {
                             });
                             world.SetFoldOutViews("Shared", entityData.id, isFoldoutShared);
                             #endif
-                            
+
                         }
                         #endregion
 
@@ -713,7 +726,7 @@ namespace ME.ECSEditor {
 
                                 var filter = filters.filters[allocator, i];
                                 if (filter.isAlive == false) continue;
-                                
+
                                 if (filter.Contains(allocator, entityData) == true) {
 
                                     containsFilters.Add(filter);
@@ -721,20 +734,20 @@ namespace ME.ECSEditor {
 
                                 }
 
-                            }                          
+                            }
 
                             var foldoutFilters = world.IsFoldOutFilters("Filters", entityData.id);
                             GUILayoutExt.FoldOut(ref foldoutFilters, "Filters (" + filtersCnt.ToString() + ")", () => {
 
                                 foreach (var filter in containsFilters) {
-                                    
+
                                     WorldsViewerEditor.DrawFilter(filters, filter);
 
                                 }
-                                
+
                             });
                             world.SetFoldOutFilters("Filters", entityData.id, foldoutFilters);
-                            
+
                             PoolListCopyable<FilterData>.Recycle(ref containsFilters);
                         }
                         #endregion

@@ -1326,6 +1326,7 @@ namespace ME.ECSEditor {
 
 						        if (EditorUtilities.GetPropertyChildCount(it) > 1 || it.NextVisible(true) == true) {
 
+                                    it = obj.FindProperty("data");
 							        EditorGUILayout.PropertyField(it, new GUIContent(label), true);
 
 						        } else {
