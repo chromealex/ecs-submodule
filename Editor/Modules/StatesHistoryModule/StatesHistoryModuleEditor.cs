@@ -1,3 +1,5 @@
+using System.Linq;
+
 #if STATES_HISTORY_MODULE_SUPPORT
 namespace ME.ECSEditor {
 
@@ -119,23 +121,7 @@ namespace ME.ECSEditor {
                         GUILayoutExt.DataLabel(tick.ToString(), GUILayout.Width(col1));
                     }
                     GUILayout.EndHorizontal();
-                    var stateHashResult = 0;
-                    foreach (var kv in item.Value) {
-
-                        var hash = kv.Value;
-                        if (localHash != 0 && localHash != hash) {
-
-                            stateHashResult = -1;
-                            break;
-
-                        } else if (localHash != 0) {
-
-                            stateHashResult = 1;
-
-                        }
-                        localHash = hash;
-
-                    }
+                    var stateHashResult = this.GetHashResult(item.Value);
                     
                     foreach (var kv in item.Value) {
                         
@@ -149,32 +135,8 @@ namespace ME.ECSEditor {
 
                                 GUILayout.BeginHorizontal();
                                 GUILayout.FlexibleSpace();
-                                
-                                if (stateHashResult == 1) {
 
-                                    using (new GUILayoutExt.GUIColorUsing(Color.green)) {
-
-                                        GUILayout.Toggle(true, new GUIContent(string.Empty, $"Local hash synced with player #{playerId}."), StatesHistoryModuleEditor.syncBoxStyle);
-
-                                    }
-
-                                } else if (stateHashResult == -1) {
-                                    
-                                    using (new GUILayoutExt.GUIColorUsing(Color.red)) {
-
-                                        GUILayout.Toggle(true, new GUIContent(string.Empty, $"Local hash is not the same as player #{playerId} has, your server must resync that player."), StatesHistoryModuleEditor.syncBoxStyle);
-
-                                    }
-
-                                } else {
-
-                                    using (new GUILayoutExt.GUIColorUsing(Color.yellow)) {
-
-                                        GUILayout.Toggle(false, new GUIContent(string.Empty, $"Local hash is not sync yet with player #{playerId}, current tick is less than remote."), StatesHistoryModuleEditor.syncBoxStyle);
-
-                                    }
-
-                                }
+                                this.DrawSyncCheckbox(stateHashResult, playerId);
                                 
                                 GUILayout.FlexibleSpace();
                                 GUILayout.EndHorizontal();
@@ -197,7 +159,8 @@ namespace ME.ECSEditor {
                 var padding = 2f;
                 var margin = 2f;
                 var col1 = 60f;
-                var col2 = 70f;
+                var col2 = 30f;
+                var col3 = 70f;
                 var cellHeight = 22f;
                 var tableStyle = (GUIStyle)"Box";
                 
@@ -243,22 +206,46 @@ namespace ME.ECSEditor {
                     GUILayoutExt.Box(padding, margin, () => { GUILayoutExt.TableCaption("Hash", EditorStyles.miniBoldLabel); }, tableStyle,
                                      GUILayout.ExpandWidth(true),
                                      GUILayout.Height(cellHeight));
-                    GUILayoutExt.Box(padding, margin, () => { GUILayoutExt.TableCaption("Actions", EditorStyles.miniBoldLabel); }, tableStyle,
+                    GUILayoutExt.Box(padding, margin, () => { GUILayoutExt.TableCaption("S", EditorStyles.miniBoldLabel); }, tableStyle,
                                      GUILayout.Width(col2),
+                                     GUILayout.Height(cellHeight));
+                    GUILayoutExt.Box(padding, margin, () => { GUILayoutExt.TableCaption("Actions", EditorStyles.miniBoldLabel); }, tableStyle,
+                                     GUILayout.Width(col3),
                                      GUILayout.Height(cellHeight));
                 }
                 GUILayout.EndHorizontal();
 
                 var list = PoolList<ME.ECS.Network.ResultEntry<State>>.Spawn(10);
                 this.target.GetResultEntries(list);
+                var minTick = long.MaxValue;
+                var maxTick = 0L;
+                foreach (var entry in list) {
+                    if (entry.isEmpty == false) {
+                        if (minTick > entry.data.tick) minTick = entry.data.tick;
+                        if (maxTick < entry.data.tick) maxTick = entry.data.tick;
+                    }
+                }
+
                 foreach (var entry in list) {
 
                     var state = entry.data;
                     UnityEngine.GUILayout.BeginHorizontal();
                     {
-                        
+
+                        GUI.color = Color.white;
                         GUILayoutExt.Box(padding, margin, () => { GUILayoutExt.DataLabel(entry.isEmpty == true ? "-" : state.tick.ToString()); }, tableStyle, GUILayout.Width(col1), GUILayout.Height(cellHeight));
+                        if (entry.isEmpty == false) {
+                            GUI.color = Color.Lerp(Color.red, Color.green, Mathf.InverseLerp(minTick, maxTick, entry.data.tick));
+                        }
                         GUILayoutExt.Box(padding, margin, () => { GUILayoutExt.DataLabel(entry.isEmpty == true ? "-" : state.GetHash().ToString()); }, tableStyle, GUILayout.ExpandWidth(true), GUILayout.Height(cellHeight));
+                        GUI.color = Color.white;
+                        if (entry.isEmpty == false) {
+                            GUILayoutExt.Box(padding, margin, () => {
+                                var syncHashTable = this.target.GetSyncHashTable();
+                                var stateHashResult = this.GetHashResult(syncHashTable.FirstOrDefault(x => x.Key == entry.data.tick).Value);
+                                this.DrawSyncCheckbox(stateHashResult, 0);
+                            }, tableStyle, GUILayout.Width(col2), GUILayout.Height(cellHeight));
+                        }
                         GUILayoutExt.Box(padding, margin, () => {
 
                             EditorGUI.BeginDisabledGroup(entry.isEmpty == true);
@@ -267,9 +254,18 @@ namespace ME.ECSEditor {
                                 this.PrintEntities(state);
 
                             }
+                            if (UnityEngine.GUILayout.Button("Rollback") == true) {
+
+                                var targetTick = Worlds.current.currentState.tick;
+                                Worlds.current.currentState.CopyFrom(state);
+                                Worlds.current.currentState.Initialize(Worlds.current, false, true);
+                                this.target.InvalidateEntriesAfterTick(state.tick);
+                                Worlds.current.SetFromToTicks(state.tick, targetTick);
+
+                            }
                             EditorGUI.EndDisabledGroup();
 
-                        }, tableStyle, GUILayout.Width(col2), GUILayout.Height(cellHeight));
+                        }, tableStyle, GUILayout.Width(col3), GUILayout.Height(cellHeight));
 
                     }
                     UnityEngine.GUILayout.EndHorizontal();
@@ -331,6 +327,63 @@ namespace ME.ECSEditor {
             this.eventsFoldState = val;
             
             return false;
+
+        }
+
+        private void DrawSyncCheckbox(int stateHashResult, int playerId) {
+            
+            if (stateHashResult == 1) {
+
+                using (new GUILayoutExt.GUIColorUsing(Color.green)) {
+
+                    GUILayout.Toggle(true, new GUIContent(string.Empty, $"Local hash synced with player #{playerId}."), StatesHistoryModuleEditor.syncBoxStyle);
+
+                }
+
+            } else if (stateHashResult == -1) {
+                                    
+                using (new GUILayoutExt.GUIColorUsing(Color.red)) {
+
+                    GUILayout.Toggle(true, new GUIContent(string.Empty, $"Local hash is not the same as player #{playerId} has, your server must resync that player."), StatesHistoryModuleEditor.syncBoxStyle);
+
+                }
+
+            } else {
+
+                using (new GUILayoutExt.GUIColorUsing(Color.yellow)) {
+
+                    GUILayout.Toggle(false, new GUIContent(string.Empty, $"Local hash is not sync yet with player #{playerId}, current tick is less than remote."), StatesHistoryModuleEditor.syncBoxStyle);
+
+                }
+
+            }
+            
+        }
+
+        private int GetHashResult(System.Collections.Generic.Dictionary<int, int> item) {
+
+            if (item == null) return 0;
+            
+            var stateHashResult = 0;
+            var localHash = 0;
+            foreach (var kv in item) {
+
+                var hash = kv.Value;
+                if (localHash != 0 && localHash != hash) {
+
+                    stateHashResult = -1;
+                    break;
+
+                } else if (localHash != 0) {
+
+                    stateHashResult = 1;
+
+                }
+                localHash = hash;
+
+            }
+
+            return stateHashResult;
 
         }
 

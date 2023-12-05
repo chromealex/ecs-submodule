@@ -218,6 +218,8 @@ namespace ME.ECS.StatesHistory {
         void BeginAddEvents();
         void EndAddEvents();
 
+        void InvalidateEntriesAfterTick(Tick tick);
+        
         void HardResetTo(Tick tick);
 
         void GetResultEntries(List<ME.ECS.Network.ResultEntry<State>> states);
@@ -261,7 +263,6 @@ namespace ME.ECS.StatesHistory {
         public void GetResultEntries(List<ME.ECS.Network.ResultEntry<TState>> states);
 
         Tick GetAndResetOldestTick(Tick tick);
-        void InvalidateEntriesAfterTick(Tick tick);
         void SetLastSavedTick(Tick tick);
         
         Tick GetTickByTime(double seconds);
