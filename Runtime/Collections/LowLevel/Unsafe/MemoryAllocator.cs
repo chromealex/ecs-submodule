@@ -241,13 +241,6 @@ namespace ME.ECS.Collections.LowLevel.Unsafe {
         [INLINE(256)]
         internal int AddZone(MemZone* zone) {
             
-            for (int i = 0; i < this.zonesListCount; i++) {
-                if (this.zonesList[i] == null) {
-                    this.zonesList[i] = zone;
-                    return i;
-                }
-            }
-
             if (this.zonesListCapacity <= this.zonesListCount) {
                 var capacity = Math.Max(MemoryAllocator.MIN_ZONES_LIST_CAPACITY, this.zonesListCapacity * 2);
                 var list = (MemZone**)UnsafeUtility.Malloc(capacity * sizeof(MemZone*), UnsafeUtility.AlignOf<byte>(), Allocator.Persistent);
@@ -388,7 +381,7 @@ namespace ME.ECS.Collections.LowLevel.Unsafe {
         public readonly void* GetUnsafePtr(in MemPtr ptr) {
 
             #if MEMORY_ALLOCATOR_BOUNDS_CHECK
-            if (ptr.zoneId < this.zonesListCount && this.zonesList[ptr.zoneId] != null && this.zonesList[ptr.zoneId]->size < ptr.offset) {
+            if (ptr.zoneId < this.zonesListCount && (this.zonesList[ptr.zoneId] == null || this.zonesList[ptr.zoneId]->size < ptr.offset)) {
                 throw new OutOfBoundsException();
             }
             #endif

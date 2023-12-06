@@ -1331,6 +1331,35 @@ namespace ME.ECS {
         }
 
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        private void AddNextTickNotification<T>(ref MemoryAllocator allocator, ref StructComponentsContainer container, in Entity entity, in T data) where T : unmanaged, IStructComponent {
+
+            ref var list = ref container.nextTickNotifications;
+            var n = new TickNotification() {
+                entity = entity,
+                data = new UnsafeData().Set(ref allocator, data),
+            };
+            if (list.Add(ref allocator, n) == false) {
+                n.Dispose(ref allocator);
+            }
+
+        }
+
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        private void AddEndTickNotification<T>(ref MemoryAllocator allocator, ref StructComponentsContainer container, in Entity entity, in T data) where T : unmanaged, IStructComponent {
+
+            ref var list = ref container.endTickNotifications;
+            this.SetData(in entity, in data);
+            var n = new TickNotification() {
+                entity = entity,
+                data = new UnsafeData() { typeId = AllComponentTypes<T>.typeId },
+            };
+            if (list.Add(ref allocator, n) == false) {
+                n.Dispose(ref allocator);
+            }
+
+        }
+
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         private void BeginTickNotifications(ref MemoryAllocator allocator, ref StructComponentsContainer structComponentsContainer) {
             
             // move all notifications to entities
@@ -1972,35 +2001,6 @@ namespace ME.ECS {
         public void SetData<TComponent>(in Entity entity, in TComponent data, ComponentLifetime lifetime, tfloat secondsLifetime) where TComponent : unmanaged, IStructComponent {
 
             this.SetData(ref this.currentState.allocator, ref this.currentState.structComponents, in entity, in data, lifetime, secondsLifetime);
-
-        }
-
-        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-        private void AddNextTickNotification<T>(ref MemoryAllocator allocator, ref StructComponentsContainer container, in Entity entity, in T data) where T : unmanaged, IStructComponent {
-
-            ref var list = ref container.nextTickNotifications;
-            var n = new TickNotification() {
-                entity = entity,
-                data = new UnsafeData().Set(ref allocator, data),
-            };
-            if (list.Add(ref allocator, n) == false) {
-                n.Dispose(ref allocator);
-            }
-
-        }
-
-        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-        private void AddEndTickNotification<T>(ref MemoryAllocator allocator, ref StructComponentsContainer container, in Entity entity, in T data) where T : unmanaged, IStructComponent {
-
-            ref var list = ref container.endTickNotifications;
-            this.SetData(in entity, in data);
-            var n = new TickNotification() {
-                entity = entity,
-                data = new UnsafeData() { typeId = AllComponentTypes<T>.typeId },
-            };
-            if (list.Add(ref allocator, n) == false) {
-                n.Dispose(ref allocator);
-            }
 
         }
 

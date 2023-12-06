@@ -71,10 +71,10 @@ namespace ME.ECS.Collections.LowLevel.Unsafe {
             if (zone != null) {
                 success = MemoryAllocator.ZmFree(zone, allocator.GetUnsafePtr(ptr));
 
-                if (MemoryAllocator.IsEmptyZone(zone) == true) {
+                /*if (MemoryAllocator.IsEmptyZone(zone) == true) {
                     MemoryAllocator.ZmFreeZone(zone);
                     allocator.zonesList[ptr.zoneId] = null;
-                }
+                }*/
             }
 
             return success;

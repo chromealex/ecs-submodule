@@ -23,8 +23,13 @@
                 var list = new System.Collections.Generic.List<Dump>();
                 for (int i = 0; i < this.allocator.zonesListCount; ++i) {
                     var zone = this.allocator.zonesList[i];
-                    
-                    if (zone == null) continue;
+
+                    if (zone == null) {
+                        list.Add(new Dump() {
+                            blocks = null,
+                        });
+                        continue;
+                    }
 
                     var blocks = new System.Collections.Generic.List<string>();
                     MemoryAllocator.ZmDumpHeap(zone, blocks);
@@ -43,8 +48,13 @@
                 var list = new System.Collections.Generic.List<Dump>();
                 for (int i = 0; i < this.allocator.zonesListCount; ++i) {
                     var zone = this.allocator.zonesList[i];
-                    
-                    if (zone == null) continue;
+
+                    if (zone == null) {
+                        list.Add(new Dump() {
+                            blocks = null,
+                        });
+                        continue;
+                    }
                     
                     var blocks = new System.Collections.Generic.List<string>();
                     MemoryAllocator.ZmCheckHeap(zone, blocks);
