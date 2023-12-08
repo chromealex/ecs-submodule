@@ -425,6 +425,7 @@ namespace ME.ECSEditor {
                     var entityType = type.FullName.Replace("+", ".");
                     var hasFields = type.GetFields(System.Reflection.BindingFlags.Default | System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.Public).Length > 0;
                     var isCopyable = typeof(ME.ECS.ICopyableBase).IsAssignableFrom(type);
+                    var ignoreCopyable = typeof(ME.ECS.ICopyableIgnore).IsAssignableFrom(type);
                     var isCopyableUnmanaged = typeof(ME.ECS.ICopyableUnmanaged).IsAssignableFrom(type);
                     var isDisposable = typeof(ME.ECS.IComponentDisposableBase).IsAssignableFrom(type);
                     var isStatic = typeof(ME.ECS.IComponentStatic).IsAssignableFrom(type);
@@ -478,7 +479,7 @@ namespace ME.ECSEditor {
 
                     }
 
-                    if (isCopyable == false && hasFields == true && isStatic == false && isOneShot == false) {
+                    if (isCopyable == false && hasFields == true && isStatic == false && isOneShot == false && ignoreCopyable == false) {
                         
                         // Check for managed types
                         if (Generator.HasManagedTypes(type, false, out var failedFieldInfo) == true) {

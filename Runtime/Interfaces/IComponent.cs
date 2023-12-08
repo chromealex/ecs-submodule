@@ -27,6 +27,8 @@ namespace ME.ECS {
         void CopyFrom(ref ME.ECS.Collections.LowLevel.Unsafe.MemoryAllocator allocator, in T other);
 
     }
+    
+    public interface ICopyableIgnore { }
 
     public interface ICopyableBase { }
 
