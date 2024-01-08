@@ -122,7 +122,7 @@ namespace ME.ECS.Collections {
                         
                     }
 
-                    if (contained == true) break;
+                    // if (contained == true) break;
 
                 }
                 
