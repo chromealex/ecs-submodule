@@ -457,15 +457,23 @@ namespace ME.ECS.Collections.LowLevel.Unsafe {
                     }
                     if ((byte*)block + block->size != (byte*)block->next.Ptr(zone)) {
                         err = "CheckHeap: block size does not touch the next block";
+                        result = false;
+                        break;
                     }
                     if (block->next.Ptr(zone)->prev.Ptr(zone) != block) {
                         err = "CheckHeap: next block doesn't have proper back link";
+                        result = false;
+                        break;
                     }
                     if (block->state == MemoryAllocator.BLOCK_STATE_FREE && block->next.Ptr(zone)->state == MemoryAllocator.BLOCK_STATE_FREE) {
                         err = "CheckHeap: two consecutive free blocks";
+                        result = false;
+                        break;
                     }
                 }
-        
+
+                if (result == false) break;
+
             }
             if (result == false) {
                 throw new Exception(err);

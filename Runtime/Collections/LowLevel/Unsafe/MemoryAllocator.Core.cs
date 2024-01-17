@@ -30,8 +30,8 @@ namespace ME.ECS.Collections.LowLevel.Unsafe {
         
         private const byte BLOCK_STATE_FREE = 0;
         private const byte BLOCK_STATE_USED = 1;
-        
 
+        [StructLayout(LayoutKind.Sequential)]
         public struct MemZone {
 
             public int size;           // total bytes malloced, including header
@@ -40,6 +40,7 @@ namespace ME.ECS.Collections.LowLevel.Unsafe {
 
         }
 
+        [StructLayout(LayoutKind.Sequential)]
         public struct MemBlock {
 
             public int size;    // including the header and possibly tiny fragments

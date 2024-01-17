@@ -47,7 +47,7 @@ namespace ME.ECS {
         public ref T Get<T>(ref MemoryAllocator allocator, int key) where T : unmanaged, IPlugin {
 
             if (key == 0 || this.storages.ContainsKey(in allocator, key) == false) {
-                this.GetOrCreate<T>(ref allocator);
+                return ref this.GetOrCreate<T>(ref allocator);
                 //throw new System.Collections.Generic.KeyNotFoundException();
             }
             return ref this.storages.GetValue(ref allocator, key).Get<T>(ref allocator);
