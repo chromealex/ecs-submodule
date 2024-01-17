@@ -1,6 +1,7 @@
 //#define MEMORY_ALLOCATOR_BOUNDS_CHECK
 
 using System;
+using System.Runtime.InteropServices;
 using Unity.Collections;
 using Unity.Collections.LowLevel.Unsafe;
 using INLINE = System.Runtime.CompilerServices.MethodImplAttribute;
@@ -291,7 +292,7 @@ namespace ME.ECS.Collections.LowLevel.Unsafe {
 
             for (var block = zone->blocklist.next.Ptr(zone);; block = block->next.Ptr(zone)) {
 
-                results.Add($"block offset: {(byte*)block - (byte*)@zone}; size: {block->size}; state: {block->state}");
+                results.Add($"block offset: {(byte*)block - (byte*)@zone}; size: {block->size}; state: {block->state}; prev: {block->prev.value}; next: {block->next.value}");
 
                 if (block->next.Ptr(zone) == &zone->blocklist) break;
 
