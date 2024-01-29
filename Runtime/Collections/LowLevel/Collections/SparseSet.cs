@@ -73,15 +73,17 @@ namespace ME.ECS.Collections.LowLevel {
 
         }
 
+        #if !SPARSESET_DENSE_SLICED
         [INLINE(256)]
         public unsafe SparseSetData GetData(in MemoryAllocator allocator) {
-
+        
             return new SparseSetData() {
                 densePtr = this.dense.GetUnsafePtr(in allocator),
                 sparse = this.sparse,
             };
-
+        
         }
+        #endif
 
         [INLINE(256)]
         public T ReadDense(in MemoryAllocator allocator, int sparseIndex) {
@@ -104,19 +106,28 @@ namespace ME.ECS.Collections.LowLevel {
 
         }
 
+        #if SPARSESET_DENSE_SLICED
+        [INLINE(256)]
+        public MemArraySlicedAllocator<T> GetDense() {
+
+            return this.dense;
+
+        }
+        #else
         [INLINE(256)]
         public MemArrayAllocator<T> GetDense() {
 
             return this.dense;
 
         }
+        #endif
 
         [INLINE(256)]
         public SparseSet<T> Merge(ref MemoryAllocator allocator) {
 
-#if SPARSESET_DENSE_SLICED
+            #if SPARSESET_DENSE_SLICED
             this.dense = this.dense.Merge(ref allocator);
-#endif
+            #endif
             return this;
 
         }
@@ -161,11 +172,11 @@ namespace ME.ECS.Collections.LowLevel {
                 }
             }
 
-#if SPARSESET_DENSE_SLICED
+            #if SPARSESET_DENSE_SLICED
             this.dense.Resize(ref allocator, idx + 1, out _);
-#else
+            #else
             this.dense.Resize(ref allocator, idx + 1);
-#endif
+            #endif
             this.dense[in allocator, idx] = data;
             return idx;
 

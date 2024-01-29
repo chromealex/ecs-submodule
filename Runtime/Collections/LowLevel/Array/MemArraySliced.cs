@@ -5,6 +5,11 @@ namespace ME.ECS.Collections.LowLevel {
     using INLINE = System.Runtime.CompilerServices.MethodImplAttribute;
 
     public unsafe struct UnsafeMemArraySlicedAllocator {
+        
+        public static readonly Unity.Burst.SharedStatic<int> arrayVersion = Unity.Burst.SharedStatic<int>.GetOrCreate<UnsafeMemArrayAllocator>();
+        
+        [ME.ECS.Serializer.SerializeField]
+        public int version;
 
         internal const int BUCKET_SIZE = 4;
 
@@ -31,6 +36,7 @@ namespace ME.ECS.Collections.LowLevel {
             this.data = new UnsafeMemArrayAllocator(sizeOf, ref allocator, length, options);
             this.tails = default;
             this.tailsLength = 0;
+            this.version = ++UnsafeMemArraySlicedAllocator.arrayVersion.Data;
 
         }
 
@@ -48,13 +54,6 @@ namespace ME.ECS.Collections.LowLevel {
 
             this.tails.Dispose(ref allocator);
             this = default;
-
-        }
-
-        [INLINE(256)]
-        public unsafe void* GetUnsafePtr(in MemoryAllocator allocator) {
-
-            return this.data.GetUnsafePtr(in allocator);
 
         }
 
@@ -82,6 +81,8 @@ namespace ME.ECS.Collections.LowLevel {
                 tail.Dispose(ref allocator);
 
             }
+            
+            this.version = ++UnsafeMemArraySlicedAllocator.arrayVersion.Data;
 
             this.tails = default;
             this.tailsLength = 0;
@@ -157,6 +158,7 @@ namespace ME.ECS.Collections.LowLevel {
                 tails[in allocator, idx] = newTail;
                 this.tails = tails;
                 this.tailsLength += bucketSize;
+                this.version = ++UnsafeMemArraySlicedAllocator.arrayVersion.Data;
                 result = true;
                 return this;
 
@@ -186,10 +188,14 @@ namespace ME.ECS.Collections.LowLevel {
 
     }
     
-    public struct MemArraySlicedAllocator<T> where T : unmanaged {
+    public struct MemArraySlicedAllocator<T> where T : struct {
+        
+        public static readonly Unity.Burst.SharedStatic<int> arrayVersion = Unity.Burst.SharedStatic<int>.GetOrCreate<MemArraySlicedAllocator<T>>();
 
         [ME.ECS.Serializer.SerializeField]
         public MemArrayAllocator<T> data;
+        [ME.ECS.Serializer.SerializeField]
+        public int version;
         [ME.ECS.Serializer.SerializeField]
         private MemArrayAllocator<MemArrayAllocator<T>> tails;
         [ME.ECS.Serializer.SerializeField]
@@ -211,6 +217,7 @@ namespace ME.ECS.Collections.LowLevel {
             this.data = new MemArrayAllocator<T>(ref allocator, length, options);
             this.tails = default;
             this.tailsLength = 0;
+            this.version = ++MemArraySlicedAllocator<T>.arrayVersion.Data;
 
         }
 
@@ -228,13 +235,6 @@ namespace ME.ECS.Collections.LowLevel {
 
             this.tails.Dispose(ref allocator);
             this = default;
-
-        }
-
-        [INLINE(256)]
-        public unsafe void* GetUnsafePtr(in MemoryAllocator allocator) {
-
-            return this.data.GetUnsafePtr(in allocator);
 
         }
 
@@ -265,6 +265,7 @@ namespace ME.ECS.Collections.LowLevel {
 
             this.tails = default;
             this.tailsLength = 0;
+            this.version = ++MemArraySlicedAllocator<T>.arrayVersion.Data;
             
             return this;
             
@@ -360,6 +361,7 @@ namespace ME.ECS.Collections.LowLevel {
                 tails[in allocator, idx] = newTail;
                 this.tails = tails;
                 this.tailsLength += bucketSize;
+                this.version = ++MemArraySlicedAllocator<T>.arrayVersion.Data;
                 result = true;
                 return this;
 
