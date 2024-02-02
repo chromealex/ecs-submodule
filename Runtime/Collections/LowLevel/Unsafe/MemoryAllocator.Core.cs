@@ -351,6 +351,11 @@ namespace ME.ECS.Collections.LowLevel.Unsafe {
 
             return false;
         }
+        
+        [INLINE(256)]
+        internal static int Align(int size) => ((size + 3) & ~3);
+        [INLINE(256)]
+        internal static long Align(long size) => ((size + 3) & ~3);
 
     }
 

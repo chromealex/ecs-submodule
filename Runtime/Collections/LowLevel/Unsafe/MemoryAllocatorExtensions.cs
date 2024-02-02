@@ -11,6 +11,8 @@ namespace ME.ECS.Collections.LowLevel.Unsafe {
         //[BURST(CompileSynchronously = true)]
         #endif
         public static MemPtr Alloc(this ref MemoryAllocator allocator, int size) {
+            
+            size = MemoryAllocator.Align(size);
 
             void* ptr = null;
 

@@ -288,6 +288,8 @@ namespace ME.ECS.Collections.LowLevel.Unsafe {
         [INLINE(256)]
         public MemPtr ReAlloc(MemPtr ptr, int size) {
             
+            size = MemoryAllocator.Align(size);
+            
             if (ptr == MemPtr.Null) return this.Alloc(size);
 
             var blockSize = ((MemBlock*)((byte*)this.GetUnsafePtr(ptr) - TSize<MemBlock>.size))->size;
