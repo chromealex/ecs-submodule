@@ -97,8 +97,8 @@ namespace ME.ECS.Collections {
 
     public static class NativeBufferArrayExt {
         
-        [BurstCompatible(GenericTypeArguments = new[] { typeof(int), typeof(int) })]
-        public static int IndexOf<T, U>(this NativeBufferArray<T> array, U value) where T : struct, System.IEquatable<U> {
+        [GenerateTestsForBurstCompatibility(GenericTypeArguments = new[] { typeof(int), typeof(int) })]
+        public static int IndexOf<T, U>(this NativeBufferArray<T> array, U value) where T : unmanaged, System.IEquatable<U> {
 
             if (array.isCreated == false) return -1;
             return array.arr.IndexOf(value);
