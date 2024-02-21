@@ -88,13 +88,18 @@ namespace ME.ECS.Serializer {
         
         public void Pack(Packer stream, object obj) {
 
-            Serializer.PackBlittable(stream, (float2)obj);
+            var v = (float2)obj;
+            Serializer.PackSingle(stream, v.x);
+            Serializer.PackSingle(stream, v.y);
             
         }
         
         public object Unpack(Packer stream) {
 
-            return Serializer.UnpackBlittable<float2>(stream);
+            float2 res = default;
+            res.x = Serializer.UnpackSingle(stream);
+            res.y = Serializer.UnpackSingle(stream);
+            return res;
             
         }
 
@@ -107,13 +112,20 @@ namespace ME.ECS.Serializer {
         
         public void Pack(Packer stream, object obj) {
 
-            Serializer.PackBlittable(stream, (float3)obj);
+            var v = (float3)obj;
+            Serializer.PackSingle(stream, v.x);
+            Serializer.PackSingle(stream, v.y);
+            Serializer.PackSingle(stream, v.z);
             
         }
         
         public object Unpack(Packer stream) {
 
-            return Serializer.UnpackBlittable<float3>(stream);
+            float3 res = default;
+            res.x = Serializer.UnpackSingle(stream);
+            res.y = Serializer.UnpackSingle(stream);
+            res.z = Serializer.UnpackSingle(stream);
+            return res;
             
         }
 
@@ -126,13 +138,22 @@ namespace ME.ECS.Serializer {
         
         public void Pack(Packer stream, object obj) {
 
-            Serializer.PackBlittable(stream, (float4)obj);
+            var v = (float4)obj;
+            Serializer.PackSingle(stream, v.x);
+            Serializer.PackSingle(stream, v.y);
+            Serializer.PackSingle(stream, v.z);
+            Serializer.PackSingle(stream, v.w);
             
         }
         
         public object Unpack(Packer stream) {
 
-            return Serializer.UnpackBlittable<float4>(stream);
+            float4 res = default;
+            res.x = Serializer.UnpackSingle(stream);
+            res.y = Serializer.UnpackSingle(stream);
+            res.z = Serializer.UnpackSingle(stream);
+            res.w = Serializer.UnpackSingle(stream);
+            return res;
             
         }
 
@@ -145,13 +166,22 @@ namespace ME.ECS.Serializer {
         
         public void Pack(Packer stream, object obj) {
 
-            Serializer.PackBlittable(stream, (quaternion)obj);
+            var v = (quaternion)obj;
+            Serializer.PackSingle(stream, v.value.x);
+            Serializer.PackSingle(stream, v.value.y);
+            Serializer.PackSingle(stream, v.value.z);
+            Serializer.PackSingle(stream, v.value.w);
             
         }
         
         public object Unpack(Packer stream) {
 
-            return Serializer.UnpackBlittable<quaternion>(stream);
+            quaternion res = default;
+            res.value.x = Serializer.UnpackSingle(stream);
+            res.value.y = Serializer.UnpackSingle(stream);
+            res.value.z = Serializer.UnpackSingle(stream);
+            res.value.w = Serializer.UnpackSingle(stream);
+            return res;
             
         }
 
