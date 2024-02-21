@@ -1,7 +1,7 @@
-using System.Collections.Generic;
 #if ENABLE_IL2CPP
 #define INLINE_METHODS
 #endif
+using System.Collections.Generic;
 
 #if STATES_HISTORY_MODULE_SUPPORT && NETWORK_MODULE_SUPPORT
 
@@ -191,6 +191,8 @@ namespace ME.ECS.Network {
         private bool asyncMode;
         private bool replayMode;
 
+        private PingStorage pingStorage;
+
         public System.Action<bool, ME.ECS.StatesHistory.HistoryEvent> onReceivedEvent;
 
         public int GetNextLocalOrderIndex() => ++this.localOrderIndex;
@@ -232,6 +234,8 @@ namespace ME.ECS.Network {
             this.RegisterRPC(NetworkModule<TState>.CANCEL_EVENT_RPC_ID, new System.Action<byte[]>(this.CancelEvent_RPC).Method);
             this.RegisterRPC(NetworkModule<TState>.PING_RPC_ID, new System.Action<double, bool>(this.Ping_RPC).Method);
             this.RegisterRPC(NetworkModule<TState>.SYNC_RPC_ID, new System.Action<Tick, int>(this.Sync_RPC).Method);
+
+            this.pingStorage = new PingStorage();
             
             this.OnInitialize();
 
@@ -287,6 +291,12 @@ namespace ME.ECS.Network {
             return this.ping;
 
         }
+        
+        public double GetAvgPing() {
+
+            return this.pingStorage.avg;
+
+        }
 
         private void CancelEvent_RPC(byte[] array) {
 
@@ -320,6 +330,7 @@ namespace ME.ECS.Network {
                 // Measure ping client to client
                 var dt = this.world.GetTimeSinceStart() - t;
                 this.ping = dt;
+                this.pingStorage.AddValue(dt);
                 //UnityEngine.Debug.Log(this.world.id + ", ping c2c: " + dt + "secs");
 
             }
