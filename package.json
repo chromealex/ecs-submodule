@@ -6,7 +6,7 @@
   "unity": "2020.3",
   "documentationUrl": "https://github.com/chromealex/ecs/blob/master/README.md",
   "dependencies": {
-    "com.unity.collections": "2.1.4",
+    "com.unity.collections": "1.0.0-pre.6",
     "com.unity.ui": "1.0.0-preview.18",
     "com.unity.addressables": "1.19.9",
     "com.unity.burst": "1.5.6",

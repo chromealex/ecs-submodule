@@ -249,10 +249,10 @@ namespace ME.ECS {
                     return;
             }
             
-            if (arr.IsCreated == false || arr.Count != fromArr.Count) {
+            if (arr.IsCreated == false || arr.Count() != fromArr.Count()) {
 
                 if (arr.IsCreated == true) arr.Dispose();
-                arr = new Unity.Collections.NativeHashSet<T>(fromArr.Count, Unity.Collections.Allocator.Persistent);
+                arr = new Unity.Collections.NativeHashSet<T>(fromArr.Count(), Unity.Collections.Allocator.Persistent);
                 
             }
             
