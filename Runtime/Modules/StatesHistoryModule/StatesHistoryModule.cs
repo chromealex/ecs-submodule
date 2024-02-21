@@ -1089,6 +1089,11 @@ namespace ME.ECS.StatesHistory {
     
                         module.syncedTick = overwritedStateTick;
                         module.syncHash = overwritedStateHash;
+                        
+#if NETWORK_SYNC_QUEUE_SUPPORT
+                        module.syncedTickQueue.Enqueue(overwritedStateTick);
+                        module.syncHashQueue.Enqueue(overwritedStateHash);
+#endif
     
                     }
 

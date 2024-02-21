@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 #if ENABLE_IL2CPP
 #define INLINE_METHODS
 #endif
@@ -177,6 +178,10 @@ namespace ME.ECS.Network {
         private float syncTime;
         internal Tick syncedTick;
         internal int syncHash;
+#if NETWORK_SYNC_QUEUE_SUPPORT
+        internal Queue<Tick> syncedTickQueue;
+        internal Queue<int> syncHashQueue;
+#endif
         private Tick syncTickSent;
 
         private bool isReverting;
@@ -213,6 +218,10 @@ namespace ME.ECS.Network {
             this.keyToObjects = PoolDictionary<long, object>.Spawn(100);
             this.runLocalOnly = PoolHashSet<int>.Spawn(100);
             this.currentObjectRegistryId = 1000;
+#if NETWORK_SYNC_QUEUE_SUPPORT
+            this.syncedTickQueue = PoolQueue<Tick>.Spawn(100);
+            this.syncHashQueue = PoolQueue<int>.Spawn(100);
+#endif
 
             this.statesHistoryModule = this.world.GetModule<StatesHistory.IStatesHistoryModule<TState>>();
             this.statesHistoryModule.SetEventRunner(this);
@@ -260,6 +269,10 @@ namespace ME.ECS.Network {
             PoolDictionary<long, object>.Recycle(ref this.keyToObjects);
             PoolDictionary<object, Key>.Recycle(ref this.objectToKey);
             PoolDictionary<int, System.Reflection.MethodInfo>.Recycle(ref this.registry);
+#if NETWORK_SYNC_QUEUE_SUPPORT
+            PoolQueue<Tick>.Recycle(ref this.syncedTickQueue);
+            PoolQueue<int>.Recycle(ref this.syncHashQueue);
+#endif
 
         }
 
@@ -774,17 +787,29 @@ namespace ME.ECS.Network {
 
             this.syncTime += deltaTime;
             if (this.syncTime >= this.GetSyncTime()) {
-
+#if NETWORK_SYNC_QUEUE_SUPPORT
+                while (this.syncedTickQueue.TryDequeue(out Tick tickToSync) == true) {
+                    
+                    var hashToSync = this.syncHashQueue.Dequeue();
+                    this.SystemRPC(this, NetworkModule<TState>.SYNC_RPC_ID, tickToSync, hashToSync);
+                    this.runCurrentEvent = new ME.ECS.StatesHistory.HistoryEvent() {
+                        order = this.GetRPCOrder(),
+                    };
+                    this.Sync_RPC(this.syncedTick, this.syncHash);
+                    
+                }
+#else
                 if (this.syncTickSent != this.syncedTick) {
-
+                
                     this.SystemRPC(this, NetworkModule<TState>.SYNC_RPC_ID, this.syncedTick, this.syncHash);
                     this.runCurrentEvent = new ME.ECS.StatesHistory.HistoryEvent() {
                         order = this.GetRPCOrder(),
                     };
                     this.Sync_RPC(this.syncedTick, this.syncHash);
                     this.syncTickSent = this.syncedTick;
-
+                
                 }
+#endif
 
                 this.syncTime -= this.GetSyncTime();
 

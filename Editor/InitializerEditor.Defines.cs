@@ -193,6 +193,20 @@ namespace ME.ECSEditor {
                 return false;
                 #endif
             }, true, InitializerBase.ConfigurationType.DebugAndRelease, InitializerBase.CodeSize.Normal, InitializerBase.RuntimeSpeed.Normal),
+            new InitializerBase.DefineInfo(true, "NETWORK_SYNC_QUEUE_SUPPORT", "If enabled, NetworkModule sends SYNC_RPC on each state, taken out from history (each 4 ticks)", () => {
+                #if NETWORK_SYNC_QUEUE_SUPPORT
+                return true;
+                #else
+                return false;
+                #endif
+            }, true, InitializerBase.ConfigurationType.DebugAndRelease, InitializerBase.CodeSize.Light, InitializerBase.RuntimeSpeed.Normal),
+            new InitializerBase.DefineInfo(true, "SPARSESET_DENSE_SLICED", "If enabled, entity's components are stored in non movable memory arrays. Is required to use when aspects used", () => {
+                #if SPARSESET_DENSE_SLICED
+                return true;
+                #else
+                return false;
+                #endif
+            }, true, InitializerBase.ConfigurationType.DebugAndRelease, InitializerBase.CodeSize.Light, InitializerBase.RuntimeSpeed.Normal),
         };
 
     }
