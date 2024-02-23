@@ -873,7 +873,7 @@ namespace ME.ECS.StatesHistory {
 
         }
 
-        public void InvalidateEntriesAfterTick(Tick tick) {
+        public virtual void InvalidateEntriesAfterTick(Tick tick) {
             
             this.statesHistory.InvalidateEntriesAfterTick(tick);
             this.SetLastSavedTick(tick);
@@ -892,7 +892,7 @@ namespace ME.ECS.StatesHistory {
 
         }
 
-        public State GetStateBeforeTick(Tick tick) {
+        public virtual State GetStateBeforeTick(Tick tick) {
 
             this.ValidatePrewarm();
 
@@ -906,7 +906,7 @@ namespace ME.ECS.StatesHistory {
 
         }
 
-        public TState GetStateBeforeTick(Tick tick, out Tick targetTick, bool lookupAll = false) {
+        public virtual TState GetStateBeforeTick(Tick tick, out Tick targetTick, bool lookupAll = false) {
 
             this.ValidatePrewarm();
 
@@ -958,7 +958,7 @@ namespace ME.ECS.StatesHistory {
 
         }
 
-        public void PlayEventsForTickPre(Tick tick) {
+        public virtual void PlayEventsForTickPre(Tick tick) {
             
             if (tick > this.lastSavedStateTick && tick > Tick.Zero && tick % this.GetTicksPerState() == 0L) {
 
