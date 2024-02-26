@@ -195,10 +195,9 @@ namespace ME.ECS {
             for (int i = 0; i < filterData.archetypesList.Count; ++i) {
                 var archIdx = archetypesList[i];
                 var ents = (allArchetypes + archIdx)->entitiesArr;
+                if (ents.Count == 0) continue;
                 var arr = (int*)ents.GetUnsafePtr(in world.currentState.allocator);
-                if (ents.Count > 0) {
-                    tempArchList.AddRange(arr, ents.Count);
-                }
+                tempArchList.AddRange(arr, ents.Count);
             }
 
             if (tempArchList.Length == 0) return default;

@@ -50,13 +50,13 @@ namespace ME.ECS.Collections.LowLevel {
 
         #if SPARSESET_DENSE_SLICED
         [ME.ECS.Serializer.SerializeField]
-        private MemArraySlicedAllocator<T> dense;
+        public MemArraySlicedAllocator<T> dense;
         #else
         [ME.ECS.Serializer.SerializeField]
-        private MemArrayAllocator<T> dense;
+        public MemArrayAllocator<T> dense;
         #endif
         [ME.ECS.Serializer.SerializeField]
-        private MemArrayAllocator<int> sparse;
+        public MemArrayAllocator<int> sparse;
         [ME.ECS.Serializer.SerializeField]
         private Stack<int> freeIndexes;
 

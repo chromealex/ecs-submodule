@@ -11,7 +11,7 @@ namespace ME.ECS.Collections.LowLevel.Unsafe {
 
     public static unsafe class MemBlockOffsetExt {
 
-        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        [INLINE(256)]
         public static MemoryAllocator.MemBlock* Ptr(this ref MemoryAllocator.MemBlockOffset block, void* zone) {
             return (MemoryAllocator.MemBlock*)((byte*)zone + block.value);
         }
@@ -58,6 +58,7 @@ namespace ME.ECS.Collections.LowLevel.Unsafe {
 
             public readonly long value;
 
+            [INLINE(256)]
             public MemBlockOffset(void* block, MemZone* zone) {
                 this.value = (byte*)block - (byte*)zone;
             }
@@ -85,6 +86,7 @@ namespace ME.ECS.Collections.LowLevel.Unsafe {
         }
         
         //[BURST(CompileSynchronously = true)]
+        [INLINE(256)]
         public static void ZmClearZone(MemZone* zone) {
             var block = (MemBlock*)((byte*)zone + sizeof(MemZone));
             var blockOffset = new MemBlockOffset(block, zone);
@@ -103,6 +105,7 @@ namespace ME.ECS.Collections.LowLevel.Unsafe {
         }
 
         //[BURST(CompileSynchronously = true)]
+        [INLINE(256)]
         public static MemZone* ZmCreateZone(int size) {
             
             size = MemoryAllocator.ZmGetMemBlockSize(size) + TSize<MemZone>.size;
@@ -115,6 +118,7 @@ namespace ME.ECS.Collections.LowLevel.Unsafe {
         }
 
         //[BURST(CompileSynchronously = true)]
+        [INLINE(256)]
         public static MemZone* ZmReallocZone(MemZone* zone, int newSize) {
             if (zone->size >= newSize) return zone;
 
@@ -155,11 +159,13 @@ namespace ME.ECS.Collections.LowLevel.Unsafe {
         }
 
         //[BURST(CompileSynchronously = true)]
+        [INLINE(256)]
         public static void ZmFreeZone(MemZone* zone) {
             UnsafeUtility.Free(zone, Allocator.Persistent);
         }
 
         //[BURST(CompileSynchronously = true)]
+        [INLINE(256)]
         public static bool ZmFree(MemZone* zone, void* ptr) {
             var block = (MemBlock*)((byte*)ptr - TSize<MemBlock>.size);
             var blockOffset = new MemBlockOffset(block, zone);
@@ -207,11 +213,13 @@ namespace ME.ECS.Collections.LowLevel.Unsafe {
         }
 
         //[BURST(CompileSynchronously = true)]
+        [INLINE(256)]
         private static int ZmGetMemBlockSize(int size) {
             return ((size + 3) & ~3) + TSize<MemBlock>.size;
         }
 
         //[BURST(CompileSynchronously = true)]
+        [INLINE(256)]
         public static void* ZmMalloc(MemZone* zone, int size) {
             size = MemoryAllocator.ZmGetMemBlockSize(size);
 

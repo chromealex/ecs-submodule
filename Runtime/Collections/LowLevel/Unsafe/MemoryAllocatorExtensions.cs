@@ -2,6 +2,7 @@
 //#define MEMORY_ALLOCATOR_LOGS
 
 using System;
+using INLINE = System.Runtime.CompilerServices.MethodImplAttribute;
 
 namespace ME.ECS.Collections.LowLevel.Unsafe {
 
@@ -10,6 +11,7 @@ namespace ME.ECS.Collections.LowLevel.Unsafe {
         #if !MEMORY_ALLOCATOR_LOGS && !MEMORY_ALLOCATOR_BOUNDS_CHECK
         //[BURST(CompileSynchronously = true)]
         #endif
+        [INLINE(256)]
         public static MemPtr Alloc(this ref MemoryAllocator allocator, int size) {
             
             size = MemoryAllocator.Align(size);
@@ -50,6 +52,7 @@ namespace ME.ECS.Collections.LowLevel.Unsafe {
         #if !MEMORY_ALLOCATOR_LOGS && !MEMORY_ALLOCATOR_BOUNDS_CHECK
         //[BURST(CompileSynchronously = true)]
         #endif
+        [INLINE(256)]
         public static bool Free(this ref MemoryAllocator allocator, MemPtr ptr) {
 
             if (ptr == MemPtr.Null) return false;
