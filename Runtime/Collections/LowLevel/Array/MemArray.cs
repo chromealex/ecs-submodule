@@ -355,13 +355,19 @@ namespace ME.ECS.Collections.LowLevel {
             
         }
 
-        public MemPtr GetAllocPtr(in MemoryAllocator allocator, int index) {
+        [INLINE(256)]
+        public readonly void* GetUnsafePtr(in MemoryAllocator allocator, int index) {
+            return allocator.GetUnsafePtr(this.GetAllocPtr(in allocator, index));
+        }
+
+        [INLINE(256)]
+        public readonly MemPtr GetAllocPtr(in MemoryAllocator allocator, int index) {
             
             return allocator.RefArrayPtr<T>(this.arrPtr, index);
             
         }
 
-        public ref T this[in MemoryAllocator allocator, int index] {
+        public readonly ref T this[in MemoryAllocator allocator, int index] {
             [INLINE(256)]
             get {
                 E.RANGE(index, 0, this.Length);
@@ -369,7 +375,7 @@ namespace ME.ECS.Collections.LowLevel {
             }
         }
 
-        public ref T this[MemoryAllocator allocator, int index] {
+        public readonly ref T this[MemoryAllocator allocator, int index] {
             [INLINE(256)]
             get {
                 E.RANGE(index, 0, this.Length);

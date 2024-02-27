@@ -1862,9 +1862,8 @@ namespace ME.ECS {
 
             if (AllComponentTypes<TComponent>.isBlittable == true &&
                 AllComponentTypes<TComponent>.isDisposable == false) {
-                ref var allocator = ref this.currentState.allocator;
                 ref var item = ref this.currentState.structComponents.unmanagedComponentsStorage.GetRegistry<TComponent>(in this.currentState.allocator);
-                return ref item.components.Read(in allocator, entity.id).data;
+                return ref item.components.Read(in this.currentState.allocator, entity.id).data;
             }
 
             return ref ((StructComponentsBase<TComponent>)this.currentState.structComponents.list.arr[AllComponentTypes<TComponent>.typeId]).Read(in entity);

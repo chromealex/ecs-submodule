@@ -13,12 +13,21 @@ namespace ME.ECS {
 
             public Collections.LowLevel.SparseSet<Component<T>> components;
             
+            [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
             public void Merge(ref MemoryAllocator allocator) {
 
                 this.components.Merge(ref allocator);
 
             }
 
+            [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+            public bool HasMerge(in MemoryAllocator allocator) {
+
+                return this.components.HasMerge(in allocator);
+                
+            }
+
+            [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
             public bool Validate(ref MemoryAllocator allocator, int entityId) {
 
                 var resized = false;
@@ -32,6 +41,7 @@ namespace ME.ECS {
 
             }
 
+            [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
             public void Replace(ref Component<T> bucket, in T data) {
 
                 this.DisposeData(ref bucket);
@@ -39,6 +49,7 @@ namespace ME.ECS {
 
             }
 
+            [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
             public void RemoveData(ref Component<T> bucket) {
 
                 this.DisposeData(ref bucket);
@@ -46,6 +57,7 @@ namespace ME.ECS {
 
             }
 
+            [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
             private void DisposeData(ref Component<T> bucket) {
                 
                 
@@ -105,7 +117,7 @@ namespace ME.ECS {
         }
 
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-        public ref Item<T> GetRegistry<T>(in MemoryAllocator allocator) where T : struct, IComponentBase {
+        public readonly ref Item<T> GetRegistry<T>(in MemoryAllocator allocator) where T : struct, IComponentBase {
 
             var typeId = AllComponentTypes<T>.typeId;
             var ptr = this.items[in allocator, typeId];

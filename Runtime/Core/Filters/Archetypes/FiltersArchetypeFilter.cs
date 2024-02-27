@@ -25,10 +25,8 @@ namespace ME.ECS {
 
         public unsafe struct Enumerator : System.Collections.Generic.IEnumerator<Entity> {
 
-            public World world;
             public State state;
             private ref MemoryAllocator allocator => ref this.state.allocator;
-            private ref MemoryAllocator tempAllocator => ref this.world.tempAllocator;
             
             public bool isCreated;
             public int index;
@@ -51,7 +49,7 @@ namespace ME.ECS {
             
             private Entity current;
 
-            [MethodImplAttribute(MethodImplOptions.AggressiveInlining)]
+            [INLINE(256)]
             public bool MoveNext() {
                 
                 if (this.isCreated == false) return false;
@@ -94,8 +92,8 @@ namespace ME.ECS {
                     if (connectedTracked > 0) {
                         // Check if all custom filters contains connected entity
                         var found = true;
-                        for (int i = 0, cnt = connectedTracked; i < cnt; ++i) {
-                            var connectedFilter = connectedFilters[in this.tempAllocator, i];
+                        for (int i = 0; i < connectedTracked; ++i) {
+                            var connectedFilter = connectedFilters[in this.allocator, i];
                             var connectedLambda = this.connectedLambdas[i];
                             if (connectedFilter.filter.Contains(in allocator, connectedLambda.get.Invoke(this.current)) == false) {
                                 found = false;
@@ -111,8 +109,8 @@ namespace ME.ECS {
                     if (changedTracked > 0) {
                         // Check if any component has changed on this entity
                         var hasChanged = false;
-                        for (int i = 0, cnt = changedTracked; i < cnt; ++i) {
-                            var typeId = onChanged[in this.tempAllocator, i];
+                        for (int i = 0; i < changedTracked; ++i) {
+                            var typeId = onChanged[in this.allocator, i];
                             var reg = this.state.structComponents.list.arr[typeId];
                             if (reg.HasChanged(entityId) == true) {
                                 hasChanged = true;
@@ -131,9 +129,7 @@ namespace ME.ECS {
 
             }
 
-            #if INLINE_METHODS
-            [MethodImplAttribute(MethodImplOptions.AggressiveInlining)]
-            #endif
+            [INLINE(256)]
             public void Reset() {
 
                 this.index = -1;
@@ -143,15 +139,11 @@ namespace ME.ECS {
             object IEnumerator.Current => this.Current;
 
             public Entity Current {
-                #if INLINE_METHODS
-                [MethodImplAttribute(MethodImplOptions.AggressiveInlining)]
-                #endif
+                [INLINE(256)]
                 get => this.current;
             }
 
-            #if INLINE_METHODS
-            [MethodImplAttribute(MethodImplOptions.AggressiveInlining)]
-            #endif
+            [INLINE(256)]
             public void Dispose() {
 
                 //this.arr.Dispose();
@@ -171,9 +163,7 @@ namespace ME.ECS {
 
         }
 
-        #if INLINE_METHODS
-        [MethodImplAttribute(MethodImplOptions.AggressiveInlining)]
-        #endif
+        [INLINE(256)]
         public unsafe Enumerator GetEnumerator() {
 
             var world = Worlds.current;
@@ -189,7 +179,7 @@ namespace ME.ECS {
             ref var filterData = ref filters.GetFilter(in world.currentState.allocator, this.id);
             if (filterData.archetypesList.Count == 0) return default;
             
-            var tempArchList = new Unity.Collections.NativeList<int>(Unity.Collections.Allocator.Temp);
+            var tempArchList = new Unity.Collections.NativeList<int>(500, Unity.Collections.Allocator.Temp);
             var archetypesList = (int*)filterData.archetypesList.GetUnsafePtr(in world.currentState.allocator);
             var allArchetypes = (ME.ECS.FiltersArchetype.FiltersArchetypeStorage.Archetype*)filterData.storage.allArchetypes.GetUnsafePtr(in world.currentState.allocator);
             for (int i = 0; i < filterData.archetypesList.Count; ++i) {
@@ -204,7 +194,6 @@ namespace ME.ECS {
             
             var range = this.GetRange(world, in filterStaticData, out bool enableGroupByEntityId);
             return new Enumerator() {
-                world = world,
                 state = world.currentState,
                 isCreated = true,
                 index = range.GetFrom(),
@@ -237,9 +226,7 @@ namespace ME.ECS {
             get => Worlds.current.currentState.storage.Count(Worlds.current.currentState, ref Worlds.current.currentState.allocator, this);
         }
 
-        #if INLINE_METHODS
-        [MethodImplAttribute(MethodImplOptions.AggressiveInlining)]
-        #endif
+        [INLINE(256)]
         public static FilterBuilder CreateFromData(FilterDataTypes data) {
 
             var dataInternal = FilterInternalData.Create(ref Worlds.current.tempAllocator);
@@ -275,9 +262,7 @@ namespace ME.ECS {
 
         }
 
-        #if INLINE_METHODS
-        [MethodImplAttribute(MethodImplOptions.AggressiveInlining)]
-        #endif
+        [INLINE(256)]
         public static FilterBuilder CreateFromData(FilterDataTypesOptional data) {
 
             var dataInternal = FilterInternalData.Create(ref Worlds.current.tempAllocator);
@@ -349,6 +334,7 @@ namespace ME.ECS {
         }
 
         #if !FILTERS_LAMBDA_DISABLED
+        [INLINE(256)]
         private static void CreateFromDataLambda<T>(ref FilterInternalData data, int typeId, System.Type type, IComponentBase component, T equalsChecker) where T : struct, IEqualsChecker {
 
             ComponentTypesRegistry.allTypeId.TryGetValue(type, out var globalTypeId);
@@ -435,6 +421,7 @@ namespace ME.ECS {
 
         }
 
+        [INLINE(256)]
         private FilterRange GetRange(World world, in FilterStaticData data, out bool enableGroupByEntityId) {
 
             enableGroupByEntityId = false;
@@ -481,9 +468,7 @@ namespace ME.ECS {
 
         }
 
-        #if INLINE_METHODS
-        [MethodImplAttribute(MethodImplOptions.AggressiveInlining)]
-        #endif
+        [INLINE(256)]
         public void GetBounds(out int min, out int max) {
 
             ref var allocator = ref Worlds.current.currentState.allocator;
@@ -516,9 +501,7 @@ namespace ME.ECS {
         /// </summary>
         /// <param name="allocator"></param>
         /// <returns></returns>
-        #if INLINE_METHODS
-        [MethodImplAttribute(MethodImplOptions.AggressiveInlining)]
-        #endif
+        [INLINE(256)]
         public Unity.Collections.NativeArray<Entity> ToArray(Unity.Collections.Allocator allocator = Unity.Collections.Allocator.Persistent) {
 
             var filterData = Worlds.current.currentState.storage.GetFilter(in Worlds.current.currentState.allocator, this.id);
@@ -537,9 +520,7 @@ namespace ME.ECS {
 
         }
         
-        #if INLINE_METHODS
-        [MethodImplAttribute(MethodImplOptions.AggressiveInlining)]
-        #endif
+        [INLINE(256)]
         public Unity.Collections.NativeArray<Entity> ToArray(Unity.Collections.Allocator allocator, out int min, out int max) {
 
             min = int.MaxValue;
@@ -567,9 +548,7 @@ namespace ME.ECS {
 
         }
         
-        #if INLINE_METHODS
-        [MethodImplAttribute(MethodImplOptions.AggressiveInlining)]
-        #endif
+        [INLINE(256)]
         public Unity.Collections.NativeList<int> ToList(Unity.Collections.Allocator allocator, out Unity.Collections.NativeArray<int> idToIndex) {
 
             var filterData = Worlds.current.currentState.storage.GetFilter(in Worlds.current.currentState.allocator, this.id);
@@ -591,9 +570,7 @@ namespace ME.ECS {
 
         }
 
-        #if INLINE_METHODS
-        [MethodImplAttribute(MethodImplOptions.AggressiveInlining)]
-        #endif
+        [INLINE(256)]
         public Unity.Collections.NativeList<int> ToList(Unity.Collections.Allocator allocator, out int min, out int max) {
 
             min = int.MaxValue;
@@ -615,9 +592,7 @@ namespace ME.ECS {
 
         }
 
-        #if INLINE_METHODS
-        [MethodImplAttribute(MethodImplOptions.AggressiveInlining)]
-        #endif
+        [INLINE(256)]
         public Unity.Collections.NativeList<int> ToList(Unity.Collections.Allocator allocator) {
 
             var filterData = Worlds.current.currentState.storage.GetFilter(in Worlds.current.currentState.allocator, this.id);
@@ -630,6 +605,7 @@ namespace ME.ECS {
 
         }
 
+        [INLINE(256)]
         public bool Contains(in MemoryAllocator allocator, in Entity entity) {
 
             var filterData = Worlds.current.currentState.storage.GetFilter(in allocator, this.id);
@@ -637,6 +613,7 @@ namespace ME.ECS {
 
         }
 
+        [INLINE(256)]
         public bool Contains(in MemoryAllocator allocator, int entityId) {
 
             var filterData = Worlds.current.currentState.storage.GetFilter(in allocator, this.id);
@@ -644,6 +621,7 @@ namespace ME.ECS {
 
         }
 
+        [INLINE(256)]
         public bool IsAlive() {
 
             return this.id > 0;
@@ -654,18 +632,21 @@ namespace ME.ECS {
 
         internal static InjectDelegate currentInject;
 
+        [INLINE(256)]
         public static void RegisterInject(InjectDelegate injectFilter) {
 
             Filter.currentInject += injectFilter;
 
         }
 
+        [INLINE(256)]
         public static void UnregisterInject(InjectDelegate injectFilter) {
 
             Filter.currentInject -= injectFilter;
 
         }
 
+        [INLINE(256)]
         public static FilterBuilder Create(string name = null) {
 
             var data = FilterInternalData.Create(ref Worlds.current.tempAllocator);
@@ -709,9 +690,7 @@ namespace ME.ECS {
         [ME.ECS.Serializer.SerializeField]
         public bool isAlive;
 
-        #if INLINE_METHODS
-        [MethodImplAttribute(MethodImplOptions.AggressiveInlining)]
-        #endif
+        [INLINE(256)]
         public void Dispose(ref MemoryAllocator allocator) {
 
             this.id = 0;
@@ -721,9 +700,7 @@ namespace ME.ECS {
             
         }
 
-        #if INLINE_METHODS
-        [MethodImplAttribute(MethodImplOptions.AggressiveInlining)]
-        #endif
+        [INLINE(256)]
         public int Count(State state, ref MemoryAllocator allocator) {
             return this.storage.Count(state, ref allocator, this.id);
         }
@@ -767,27 +744,21 @@ namespace ME.ECS {
 
         }
 
-        #if INLINE_METHODS
-        [MethodImplAttribute(MethodImplOptions.AggressiveInlining)]
-        #endif
+        [INLINE(256)]
         public void ApplyAllRequests() {
 
             // Apply all requests after enumeration has ended
 
         }
 
-        #if INLINE_METHODS
-        [MethodImplAttribute(MethodImplOptions.AggressiveInlining)]
-        #endif
+        [INLINE(256)]
         public bool Contains(in MemoryAllocator allocator, in Entity entity) {
 
             return this.Contains(in allocator, entity.id);
 
         }
         
-        #if INLINE_METHODS
-        [MethodImplAttribute(MethodImplOptions.AggressiveInlining)]
-        #endif
+        [INLINE(256)]
         public bool Contains(in MemoryAllocator allocator, int entityId) {
 
             for (int i = 0; i < this.archetypesList.Count; ++i) {
@@ -1128,6 +1099,7 @@ namespace ME.ECS {
 
         }
 
+        [INLINE(256)]
         public FilterBuilder With<T>() where T : struct {
 
             WorldUtilities.SetComponentTypeId<T>();
@@ -1136,6 +1108,7 @@ namespace ME.ECS {
 
         }
 
+        [INLINE(256)]
         public FilterBuilder Without<T>() where T : struct {
 
             WorldUtilities.SetComponentTypeId<T>();

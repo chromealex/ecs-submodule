@@ -58,7 +58,7 @@ namespace ME.ECS {
 
             ref var storage = ref this.storage;
             ref var reg = ref storage.GetRegistry<TComponent>(in this.allocator);
-            ref var item = ref reg.components.Read(in this.allocator, entity.id);
+            ref readonly var item = ref reg.components.Read(in this.allocator, entity.id);
             return ref item.data;
         }
 
@@ -146,7 +146,7 @@ namespace ME.ECS {
 
             ref var storage = ref this.storage;
             ref var reg = ref storage.GetRegistry<TComponent>(in this.allocator);
-            reg.Merge(ref this.allocator);
+            if (reg.HasMerge(in this.allocator) == true) reg.Merge(ref this.allocator);
 
         }
 

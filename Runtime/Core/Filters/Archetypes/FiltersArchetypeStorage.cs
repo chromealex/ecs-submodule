@@ -9,6 +9,7 @@ using Unity.IL2CPP.CompilerServices;
 using System.Runtime.InteropServices;
 using Il2Cpp = Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute;
 using BURST = Unity.Burst.BurstCompileAttribute;
+using INLINE = System.Runtime.CompilerServices.MethodImplAttribute;
 
 namespace ME.ECS.FiltersArchetype {
     
@@ -83,9 +84,7 @@ namespace ME.ECS.FiltersArchetype {
             public EquatableDictionary<int, int> edgesToAdd; // Contains edges to move from this archetype to another
             public EquatableDictionary<int, int> edgesToRemove; // Contains edges to move from this archetype to another
             
-            #if INLINE_METHODS
-            [MethodImplAttribute(MethodImplOptions.AggressiveInlining)]
-            #endif
+            [INLINE(256)]
             internal readonly bool HasAnyPair(in MemoryAllocator allocator, in MemoryAllocator tempAllocator, List<FilterInternalData.Pair2> list) {
 
                 for (int i = 0, cnt = list.Count; i < cnt; ++i) {
@@ -100,9 +99,7 @@ namespace ME.ECS.FiltersArchetype {
 
             }
 
-            #if INLINE_METHODS
-            [MethodImplAttribute(MethodImplOptions.AggressiveInlining)]
-            #endif
+            [INLINE(256)]
             internal readonly bool HasAnyPair(in MemoryAllocator allocator, in MemoryAllocator tempAllocator, List<FilterInternalData.Pair3> list) {
 
                 for (int i = 0, cnt = list.Count; i < cnt; ++i) {
@@ -118,9 +115,7 @@ namespace ME.ECS.FiltersArchetype {
 
             }
 
-            #if INLINE_METHODS
-            [MethodImplAttribute(MethodImplOptions.AggressiveInlining)]
-            #endif
+            [INLINE(256)]
             internal readonly bool HasAnyPair(in MemoryAllocator allocator, in MemoryAllocator tempAllocator, List<FilterInternalData.Pair4> list) {
 
                 for (int i = 0, cnt = list.Count; i < cnt; ++i) {
@@ -137,16 +132,14 @@ namespace ME.ECS.FiltersArchetype {
 
             }
 
-            [MethodImplAttribute(MethodImplOptions.AggressiveInlining)]
+            [INLINE(256)]
             public readonly bool Has(in MemoryAllocator allocator, int componentId) {
 
                 return this.components.ContainsKey(in allocator, componentId);
 
             }
 
-            #if INLINE_METHODS
-            [MethodImplAttribute(MethodImplOptions.AggressiveInlining)]
-            #endif
+            [INLINE(256)]
             public readonly bool HasAll(in MemoryAllocator allocator, in MemoryAllocator tempAllocator, List<int> componentIds) {
 
                 for (int i = 0, cnt = componentIds.Count; i < cnt; ++i) {
@@ -160,9 +153,7 @@ namespace ME.ECS.FiltersArchetype {
 
             }
 
-            #if INLINE_METHODS
-            [MethodImplAttribute(MethodImplOptions.AggressiveInlining)]
-            #endif
+            [INLINE(256)]
             public readonly bool HasAll(in MemoryAllocator allocator, List<int> componentIds) {
 
                 for (int i = 0, cnt = componentIds.Count; i < cnt; ++i) {
@@ -176,9 +167,7 @@ namespace ME.ECS.FiltersArchetype {
 
             }
 
-            #if INLINE_METHODS
-            [MethodImplAttribute(MethodImplOptions.AggressiveInlining)]
-            #endif
+            [INLINE(256)]
             public readonly bool HasAll(in MemoryAllocator allocator, ListCopyable<int> componentIds) {
 
                 for (int i = 0, cnt = componentIds.Count; i < cnt; ++i) {
@@ -192,9 +181,7 @@ namespace ME.ECS.FiltersArchetype {
 
             }
 
-            #if INLINE_METHODS
-            [MethodImplAttribute(MethodImplOptions.AggressiveInlining)]
-            #endif
+            [INLINE(256)]
             public readonly bool HasNotAll(in MemoryAllocator allocator, in MemoryAllocator tempAllocator, List<int> componentIds) {
 
                 for (int i = 0, cnt = componentIds.Count; i < cnt; ++i) {
@@ -210,9 +197,7 @@ namespace ME.ECS.FiltersArchetype {
 
             }
 
-            #if INLINE_METHODS
-            [MethodImplAttribute(MethodImplOptions.AggressiveInlining)]
-            #endif
+            [INLINE(256)]
             public readonly bool HasAllExcept(in MemoryAllocator allocator, List<int> componentIds, int componentId) {
 
                 for (int i = 0, cnt = componentIds.Count; i < cnt; ++i) {
@@ -232,9 +217,7 @@ namespace ME.ECS.FiltersArchetype {
 
             }
 
-            #if INLINE_METHODS
-            [MethodImplAttribute(MethodImplOptions.AggressiveInlining)]
-            #endif
+            [INLINE(256)]
             public Archetype Set(ref MemoryAllocator allocator, ref FiltersArchetypeStorage storage, Entity entity, int componentId) {
 
                 if (this.Has(in allocator, componentId) == true) {
@@ -260,9 +243,7 @@ namespace ME.ECS.FiltersArchetype {
 
             }
 
-            #if INLINE_METHODS
-            [MethodImplAttribute(MethodImplOptions.AggressiveInlining)]
-            #endif
+            [INLINE(256)]
             public Archetype Remove(ref MemoryAllocator allocator, ref FiltersArchetypeStorage storage, Entity entity, int componentId) {
 
                 if (this.Has(in allocator, componentId) == false) {
@@ -288,9 +269,7 @@ namespace ME.ECS.FiltersArchetype {
 
             }
 
-            #if INLINE_METHODS
-            [MethodImplAttribute(MethodImplOptions.AggressiveInlining)]
-            #endif
+            [INLINE(256)]
             private static int CreateAdd(ref MemoryAllocator allocator, ref FiltersArchetypeStorage storage, int node, in List<int> componentIds, in EquatableDictionary<int, int> components, int componentId) {
 
                 if (storage.TryGetArchetypeAdd(ref allocator, componentIds, componentId, out var ar) == true) {
@@ -324,9 +303,7 @@ namespace ME.ECS.FiltersArchetype {
 
             }
 
-            #if INLINE_METHODS
-            [MethodImplAttribute(MethodImplOptions.AggressiveInlining)]
-            #endif
+            [INLINE(256)]
             private static int CreateRemove(ref MemoryAllocator allocator, ref FiltersArchetypeStorage storage, int node, in List<int> componentIds, in EquatableDictionary<int, int> components, int componentId) {
 
                 if (storage.TryGetArchetypeRemove(ref allocator, componentIds, componentId, out var ar) == true) {
@@ -366,9 +343,7 @@ namespace ME.ECS.FiltersArchetype {
 
         }
 
-        #if INLINE_METHODS
-        [MethodImplAttribute(MethodImplOptions.AggressiveInlining)]
-        #endif
+        [INLINE(256)]
         public int GetHash(ref MemoryAllocator allocator) {
             
             if (this.dead.isCreated == false) return 0;
@@ -401,9 +376,7 @@ namespace ME.ECS.FiltersArchetype {
             
         }*/
 
-        #if INLINE_METHODS
-        [MethodImplAttribute(MethodImplOptions.AggressiveInlining)]
-        #endif
+        [INLINE(256)]
         private void RemoveEntityFromArch(ref MemoryAllocator allocator, ref Archetype arch, int entityId) {
 
             var idx = this.GetEntityArrIndex(ref allocator, entityId);
@@ -416,9 +389,7 @@ namespace ME.ECS.FiltersArchetype {
             
         }
 
-        #if INLINE_METHODS
-        [MethodImplAttribute(MethodImplOptions.AggressiveInlining)]
-        #endif
+        [INLINE(256)]
         private void AddEntityToArch(ref MemoryAllocator allocator, ref Archetype arch, int entityId) {
 
             //this.ValidateArchetype(ref allocator, ref arch);
@@ -429,9 +400,7 @@ namespace ME.ECS.FiltersArchetype {
             
         }
 
-        #if INLINE_METHODS
-        [MethodImplAttribute(MethodImplOptions.AggressiveInlining)]
-        #endif
+        [INLINE(256)]
         private int GetEntityArrIndex(ref MemoryAllocator allocator, int entityId) {
 
             this.entitiesArrIndex.Resize(ref allocator, entityId + 1);
@@ -439,9 +408,7 @@ namespace ME.ECS.FiltersArchetype {
 
         }
 
-        #if INLINE_METHODS
-        [MethodImplAttribute(MethodImplOptions.AggressiveInlining)]
-        #endif
+        [INLINE(256)]
         private void SetEntityArrIndex(ref MemoryAllocator allocator, int entityId, int index) {
 
             this.entitiesArrIndex.Resize(ref allocator, entityId + 1);
@@ -755,18 +722,14 @@ namespace ME.ECS.FiltersArchetype {
         }
         #endregion
 
-        #if INLINE_METHODS
-        [MethodImplAttribute(MethodImplOptions.AggressiveInlining)]
-        #endif
+        [INLINE(256)]
         public ref FilterData GetFilter(in MemoryAllocator allocator, int id) {
 
             return ref this.filters[in allocator, id - 1];
 
         }
 
-        #if INLINE_METHODS
-        [MethodImplAttribute(MethodImplOptions.AggressiveInlining)]
-        #endif
+        [INLINE(256)]
         private bool TryGetArchetypeAdd(ref MemoryAllocator allocator, List<int> componentIds, int componentId, out int arch) {
 
             // Try to search archetype with componentIds + componentId contained in
@@ -789,9 +752,7 @@ namespace ME.ECS.FiltersArchetype {
 
         }
 
-        #if INLINE_METHODS
-        [MethodImplAttribute(MethodImplOptions.AggressiveInlining)]
-        #endif
+        [INLINE(256)]
         private bool TryGetArchetypeRemove(ref MemoryAllocator allocator, List<int> componentIds, int componentId, out int arch) {
 
             // Try to search archetype with componentIds except componentId contained in
@@ -814,9 +775,7 @@ namespace ME.ECS.FiltersArchetype {
 
         }
 
-        #if INLINE_METHODS
-        [MethodImplAttribute(MethodImplOptions.AggressiveInlining)]
-        #endif
+        [INLINE(256)]
         public bool Has<T>(in MemoryAllocator allocator, in Entity entity) where T : struct {
 
             var key = (ulong)entity.id << 32;
@@ -827,9 +786,7 @@ namespace ME.ECS.FiltersArchetype {
         }
 
         #if !ENTITIES_GROUP_DISABLED
-        #if INLINE_METHODS
-        [MethodImplAttribute(MethodImplOptions.AggressiveInlining)]
-        #endif
+        [INLINE(256)]
         public void Set(ref MemoryAllocator allocator, in EntitiesGroup group, int componentId, bool checkLambda) {
 
             for (var i = group.fromId; i <= group.toId; ++i) {
@@ -840,9 +797,7 @@ namespace ME.ECS.FiltersArchetype {
 
         }
 
-        #if INLINE_METHODS
-        [MethodImplAttribute(MethodImplOptions.AggressiveInlining)]
-        #endif
+        [INLINE(256)]
         public void Remove(ref MemoryAllocator allocator, in EntitiesGroup group, int componentId, bool checkLambda) {
 
             for (var i = group.fromId; i <= group.toId; ++i) {
@@ -854,18 +809,14 @@ namespace ME.ECS.FiltersArchetype {
         }
         #endif
 
-        #if INLINE_METHODS
-        [MethodImplAttribute(MethodImplOptions.AggressiveInlining)]
-        #endif
+        [INLINE(256)]
         public void Validate<T>(ref MemoryAllocator allocator, in Entity entity, bool makeRequest) where T : struct {
 
             this.Validate(ref allocator, in entity, ComponentTypes<T>.typeId, makeRequest);
 
         }
 
-        #if INLINE_METHODS
-        [MethodImplAttribute(MethodImplOptions.AggressiveInlining)]
-        #endif
+        [INLINE(256)]
         public void Validate(ref MemoryAllocator allocator, in Entity entity, int componentId, bool makeRequest) {
 
             if (makeRequest == true) {
@@ -885,9 +836,7 @@ namespace ME.ECS.FiltersArchetype {
 
         }
 
-        #if INLINE_METHODS
-        [MethodImplAttribute(MethodImplOptions.AggressiveInlining)]
-        #endif
+        [INLINE(256)]
         public void Set(ref MemoryAllocator allocator, in Entity entity, int componentId, bool checkLambda) {
 
             #if !FILTERS_LAMBDA_DISABLED
@@ -912,9 +861,7 @@ namespace ME.ECS.FiltersArchetype {
 
         }
 
-        #if INLINE_METHODS
-        [MethodImplAttribute(MethodImplOptions.AggressiveInlining)]
-        #endif
+        [INLINE(256)]
         public void Set<T>(ref MemoryAllocator allocator, in Entity entity) where T : struct {
 
             #if !FILTERS_LAMBDA_DISABLED
@@ -926,14 +873,10 @@ namespace ME.ECS.FiltersArchetype {
 
         }
 
-        #if INLINE_METHODS
-        [MethodImplAttribute(MethodImplOptions.AggressiveInlining)]
-        #endif
+        [INLINE(256)]
         public void Remove(ref MemoryAllocator allocator, in Entity entity) { }
 
-        #if INLINE_METHODS
-        [MethodImplAttribute(MethodImplOptions.AggressiveInlining)]
-        #endif
+        [INLINE(256)]
         public void Remove(ref MemoryAllocator allocator, in Entity entity, int componentId, bool checkLambda) {
 
             #if !FILTERS_LAMBDA_DISABLED
@@ -958,9 +901,7 @@ namespace ME.ECS.FiltersArchetype {
 
         }
 
-        #if INLINE_METHODS
-        [MethodImplAttribute(MethodImplOptions.AggressiveInlining)]
-        #endif
+        [INLINE(256)]
         public void Remove<T>(ref MemoryAllocator allocator, in Entity entity) where T : struct {
 
             #if !FILTERS_LAMBDA_DISABLED
@@ -972,9 +913,7 @@ namespace ME.ECS.FiltersArchetype {
 
         }
 
-        #if INLINE_METHODS
-        [MethodImplAttribute(MethodImplOptions.AggressiveInlining)]
-        #endif
+        [INLINE(256)]
         internal void ApplyAllRequests(ref MemoryAllocator allocator) {
 
             var e = this.requests.GetEnumerator(in allocator);
@@ -1006,9 +945,7 @@ namespace ME.ECS.FiltersArchetype {
 
         }
 
-        #if INLINE_METHODS
-        [MethodImplAttribute(MethodImplOptions.AggressiveInlining)]
-        #endif
+        [INLINE(256)]
         private void AddValidateRequest(ref MemoryAllocator allocator, in Entity entity, int componentId) {
 
             this.requests.Add(ref allocator, new Request() {
@@ -1019,9 +956,7 @@ namespace ME.ECS.FiltersArchetype {
 
         }
 
-        #if INLINE_METHODS
-        [MethodImplAttribute(MethodImplOptions.AggressiveInlining)]
-        #endif
+        [INLINE(256)]
         private void AddSetRequest(ref MemoryAllocator allocator, in Entity entity, int componentId, bool checkLambda) {
 
             this.requests.Add(ref allocator, new Request() {
@@ -1033,9 +968,7 @@ namespace ME.ECS.FiltersArchetype {
 
         }
 
-        #if INLINE_METHODS
-        [MethodImplAttribute(MethodImplOptions.AggressiveInlining)]
-        #endif
+        [INLINE(256)]
         private void AddRemoveRequest(ref MemoryAllocator allocator, in Entity entity, int componentId, bool checkLambda) {
 
             this.requests.Add(ref allocator, new Request() {
@@ -1047,18 +980,14 @@ namespace ME.ECS.FiltersArchetype {
 
         }
 
-        #if INLINE_METHODS
-        [MethodImplAttribute(MethodImplOptions.AggressiveInlining)]
-        #endif
+        [INLINE(256)]
         public int Count(State state, ref MemoryAllocator allocator, Filter filter) {
 
             return this.Count(state, ref allocator, filter.id);
 
         }
 
-        #if INLINE_METHODS
-        [MethodImplAttribute(MethodImplOptions.AggressiveInlining)]
-        #endif
+        [INLINE(256)]
         // ReSharper disable once CognitiveComplexity
         public int Count(State state, ref MemoryAllocator allocator, int filterId) {
 
@@ -1145,6 +1074,7 @@ namespace ME.ECS.FiltersArchetype {
 
         }
 
+        [INLINE(256)]
         public void MarkAllArchetypesAsDirty(ref MemoryAllocator allocator) {
 
             for (int archId = 0, cnt2 = this.allArchetypes.Count; archId < cnt2; ++archId) {
@@ -1155,9 +1085,7 @@ namespace ME.ECS.FiltersArchetype {
 
         }
 
-        #if INLINE_METHODS
-        [MethodImplAttribute(MethodImplOptions.AggressiveInlining)]
-        #endif
+        [INLINE(256)]
         // ReSharper disable once CognitiveComplexity
         public void UpdateFilters(State state, ref MemoryAllocator allocator) {
 
@@ -1188,7 +1116,7 @@ namespace ME.ECS.FiltersArchetype {
         }
         
         #if !FILTERS_LAMBDA_DISABLED
-        [MethodImplAttribute(MethodImplOptions.AggressiveInlining)]
+        [INLINE(256)]
         internal static bool CheckLambdas(in MemoryAllocator allocator, in MemoryAllocator tempAllocator, in Archetype arch, List<int> lambdas) {
 
             return arch.HasAll(in allocator, in tempAllocator, lambdas);
@@ -1196,7 +1124,7 @@ namespace ME.ECS.FiltersArchetype {
         }
         #endif
 
-        [MethodImplAttribute(MethodImplOptions.AggressiveInlining)]
+        [INLINE(256)]
         internal static bool CheckStaticShared(in List<int> containsShared, in List<int> notContainsShared) {
 
             if (containsShared.Count == 0 && notContainsShared.Count == 0) {
@@ -1224,9 +1152,7 @@ namespace ME.ECS.FiltersArchetype {
 
         }
 
-        #if INLINE_METHODS
-        [MethodImplAttribute(MethodImplOptions.AggressiveInlining)]
-        #endif
+        [INLINE(256)]
         public bool TryGetFilter(in MemoryAllocator allocator, FilterBuilder filterBuilder, out FilterData filterData) {
 
             filterData = default;
@@ -1267,9 +1193,7 @@ namespace ME.ECS.FiltersArchetype {
 
         }
 
-        #if INLINE_METHODS
-        [MethodImplAttribute(MethodImplOptions.AggressiveInlining)]
-        #endif
+        [INLINE(256)]
         private static bool IsEquals(in MemoryAllocator tempAllocator, List<int> list1, List<int> list2) {
 
             if (list1.Count != list2.Count) {
@@ -1288,9 +1212,7 @@ namespace ME.ECS.FiltersArchetype {
 
         }
 
-        #if INLINE_METHODS
-        [MethodImplAttribute(MethodImplOptions.AggressiveInlining)]
-        #endif
+        [INLINE(256)]
         private static bool IsEquals<T>(in MemoryAllocator tempAllocator, List<T> list1, List<T> list2) where T : unmanaged, System.IEquatable<T> {
 
             if (list1.Count != list2.Count) {
@@ -1309,36 +1231,28 @@ namespace ME.ECS.FiltersArchetype {
 
         }
 
-        #if INLINE_METHODS
-        [MethodImplAttribute(MethodImplOptions.AggressiveInlining)]
-        #endif
+        [INLINE(256)]
         private static bool IsEquals(ListCopyable<ConnectInfo> list1, ListCopyable<ConnectInfo> list2) {
 
             return list1.Count == 0 && list2.Count == 0;
 
         }
 
-        #if INLINE_METHODS
-        [MethodImplAttribute(MethodImplOptions.AggressiveInlining)]
-        #endif
+        [INLINE(256)]
         public bool WillNew(in MemoryAllocator allocator) {
 
             return this.dead.Count == 0;
 
         }
 
-        #if INLINE_METHODS
-        [MethodImplAttribute(MethodImplOptions.AggressiveInlining)]
-        #endif
+        [INLINE(256)]
         public List<int> GetAlive() {
 
             return this.alive;
 
         }
 
-        #if INLINE_METHODS
-        [MethodImplAttribute(MethodImplOptions.AggressiveInlining)]
-        #endif
+        [INLINE(256)]
         public ref Entity IncrementGeneration(in MemoryAllocator allocator, in Entity entity) {
 
             // Make this entity not alive, but not completely destroyed at this time
@@ -1347,12 +1261,10 @@ namespace ME.ECS.FiltersArchetype {
 
         }
 
-        #if INLINE_METHODS
-        [MethodImplAttribute(MethodImplOptions.AggressiveInlining)]
-        #endif
+        [INLINE(256)]
         public void SetFreeze(bool freeze) { }
 
-        [MethodImplAttribute(MethodImplOptions.AggressiveInlining)]
+        [INLINE(256)]
         public bool IsDeadPrepared(in MemoryAllocator allocator, int entityId) {
 
             if (this.deadPrepared.Count == 0) return false;

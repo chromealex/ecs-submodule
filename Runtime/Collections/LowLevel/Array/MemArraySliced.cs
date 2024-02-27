@@ -239,6 +239,19 @@ namespace ME.ECS.Collections.LowLevel {
         }
 
         [INLINE(256)]
+        public readonly bool HasMerge(in MemoryAllocator allocator) {
+            
+            if (this.tails.isCreated == false || this.tails.Length == 0) {
+
+                return false;
+
+            }
+
+            return true;
+
+        }
+
+        [INLINE(256)]
         public MemArraySlicedAllocator<T> Merge(ref MemoryAllocator allocator) {
             
             if (this.tails.isCreated == false || this.tails.Length == 0) {
@@ -271,13 +284,38 @@ namespace ME.ECS.Collections.LowLevel {
             
         }
 
-        public MemPtr GetAllocPtr(in MemoryAllocator allocator, int index) {
+        [INLINE(256)]
+        public readonly unsafe void* GetUnsafePtr(in MemoryAllocator allocator, int index) {
             
-            var data = this.data;
+            ref readonly var data = ref this.data;
             if (index >= data.Length) {
 
                 // Look into tails
-                var tails = this.tails;
+                ref readonly var tails = ref this.tails;
+                index -= data.Length;
+                for (int i = 0, length = tails.Length; i < length; ++i) {
+
+                    ref var tail = ref tails[in allocator, i];
+                    var len = tail.Length;
+                    if (index < len) return allocator.GetUnsafePtr(tail.GetAllocPtr(in allocator, index));
+                    index -= len;
+
+                }
+
+            }
+
+            return allocator.GetUnsafePtr(data.GetAllocPtr(in allocator, index));
+            
+        }
+
+        [INLINE(256)]
+        public readonly MemPtr GetAllocPtr(in MemoryAllocator allocator, int index) {
+            
+            ref readonly var data = ref this.data;
+            if (index >= data.Length) {
+
+                // Look into tails
+                ref readonly var tails = ref this.tails;
                 index -= data.Length;
                 for (int i = 0, length = tails.Length; i < length; ++i) {
 
@@ -294,14 +332,14 @@ namespace ME.ECS.Collections.LowLevel {
             
         }
 
-        public ref T this[in MemoryAllocator allocator, int index] {
+        public readonly ref T this[in MemoryAllocator allocator, int index] {
             [INLINE(256)]
             get {
-                var data = this.data;
+                ref readonly var data = ref this.data;
                 if (index >= data.Length) {
 
                     // Look into tails
-                    var tails = this.tails;
+                    ref readonly var tails = ref this.tails;
                     index -= data.Length;
                     for (int i = 0, length = tails.Length; i < length; ++i) {
 

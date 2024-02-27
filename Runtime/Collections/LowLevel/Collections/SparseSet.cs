@@ -131,7 +131,18 @@ namespace ME.ECS.Collections.LowLevel {
             return this;
 
         }
-        
+
+        [INLINE(256)]
+        public readonly bool HasMerge(in MemoryAllocator allocator) {
+
+            #if SPARSESET_DENSE_SLICED
+            return this.dense.HasMerge(in allocator);
+            #else
+            return false;
+            #endif
+
+        }
+
         [INLINE(256)]
         public void Validate(ref MemoryAllocator allocator, int capacity) {
 
@@ -192,11 +203,11 @@ namespace ME.ECS.Collections.LowLevel {
         }
 
         [INLINE(256)]
-        public readonly ref T Read(in MemoryAllocator allocator, int entityId) {
+        public readonly unsafe ref readonly T Read(in MemoryAllocator allocator, int entityId) {
 
             var idx = this.sparse[in allocator, entityId];
             if (idx == 0) return ref defaultRef;
-            return ref this.dense[in allocator, idx];
+            return ref UnsafeUtility.AsRef<T>(this.dense.GetUnsafePtr(in allocator, idx));
 
         }
 
