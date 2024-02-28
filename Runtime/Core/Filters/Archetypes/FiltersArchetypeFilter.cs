@@ -179,7 +179,7 @@ namespace ME.ECS {
             ref var filterData = ref filters.GetFilter(in world.currentState.allocator, this.id);
             if (filterData.archetypesList.Count == 0) return default;
             
-            var tempArchList = new Unity.Collections.NativeList<int>(500, Unity.Collections.Allocator.Temp);
+            var tempArchList = new Unity.Collections.NativeList<int>(Unity.Collections.Allocator.Temp);
             var archetypesList = (int*)filterData.archetypesList.GetUnsafePtr(in world.currentState.allocator);
             var allArchetypes = (ME.ECS.FiltersArchetype.FiltersArchetypeStorage.Archetype*)filterData.storage.allArchetypes.GetUnsafePtr(in world.currentState.allocator);
             for (int i = 0; i < filterData.archetypesList.Count; ++i) {
