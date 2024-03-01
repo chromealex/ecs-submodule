@@ -1,3 +1,5 @@
+using Unity.Collections.LowLevel.Unsafe;
+
 namespace ME.ECS.Collections.LowLevel {
 
     using ME.ECS.Collections.LowLevel.Unsafe;
@@ -334,6 +336,30 @@ namespace ME.ECS.Collections.LowLevel {
                 
                 this.Add(ref allocator, item);
                 
+            }
+            
+        }
+
+        [INLINE(256)]
+        public unsafe void AddRange(ref MemoryAllocator allocator, Unity.Collections.NativeArray<T> collection) {
+
+            E.IS_CREATED(this);
+            var index = this.Count;
+            if (collection.IsCreated == false)
+                ThrowHelper.ThrowArgumentNullException(ExceptionArgument.collection);
+            if ((uint) index > (uint)this.Count)
+                throw new System.IndexOutOfRangeException();
+            int count = collection.Length;
+            if (count > 0) {
+                this.EnsureCapacity(ref allocator, this.Count + count);
+                var size = sizeof(T);
+                if (index < this.Count) {
+                    allocator.MemMove(this.arr.arrPtr, (index + count) * size, this.arr.arrPtr, index * size, (this.Count - index) * size);
+                }
+
+                Unity.Collections.LowLevel.Unsafe.UnsafeUtility.MemMove(allocator.GetUnsafePtr(this.arr.arrPtr), collection.GetUnsafePtr(), this.Count * size);
+                
+                this.Count += count;
             }
             
         }

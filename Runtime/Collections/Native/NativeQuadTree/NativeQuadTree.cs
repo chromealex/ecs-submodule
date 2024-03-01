@@ -42,12 +42,6 @@ namespace ME.ECS.Collections {
     /// </summary>
     public unsafe partial struct NativeQuadTree<T> : IDisposable where T : unmanaged {
 
-        #if ENABLE_UNITY_COLLECTIONS_CHECKS
-        // Safety
-        private AtomicSafetyHandle safetyHandle;
-        [NativeSetClassTypeToNullOnSchedule]
-        private DisposeSentinel disposeSentinel;
-        #endif
         // Data
         [NativeDisableUnsafePtrRestriction]
         private UnsafeList<QuadElement<T>>* elements;
@@ -86,11 +80,6 @@ namespace ME.ECS.Collections {
                 throw new InvalidOperationException();
             }
 
-            #if ENABLE_UNITY_COLLECTIONS_CHECKS
-            //CollectionHelper.CheckIsUnmanaged<T>();
-            DisposeSentinel.Create(out this.safetyHandle, out this.disposeSentinel, 1, allocator);
-            #endif
-
             // Allocate memory for every depth, the nodes on all depths are stored in a single continuous array
             var totalSize = LookupTables.DepthSizeLookup[maxDepth + 1];
 
@@ -110,10 +99,6 @@ namespace ME.ECS.Collections {
             // Always have to clear before bulk insert as otherwise the lookup and node allocations need to account
             // for existing data.
             this.Clear();
-
-            #if ENABLE_UNITY_COLLECTIONS_CHECKS
-            AtomicSafetyHandle.CheckWriteAndBumpSecondaryVersion(this.safetyHandle);
-            #endif
 
             // Resize if needed
             if (this.elements->Length < this.elementsCount + incomingElementsLength) {
@@ -211,24 +196,15 @@ namespace ME.ECS.Collections {
         }
 
         public void RangeQuery(AABB2D bounds, NativeList<QuadElement<T>> results) {
-            #if ENABLE_UNITY_COLLECTIONS_CHECKS
-            AtomicSafetyHandle.CheckReadAndThrow(this.safetyHandle);
-            #endif
             new QuadTreeRangeQuery().Query(this, bounds, results);
         }
 
         public void RangeRadiusQuery(AABB2D bounds, tfloat radius, NativeList<QuadElement<T>> results) {
-            #if ENABLE_UNITY_COLLECTIONS_CHECKS
-            AtomicSafetyHandle.CheckReadAndThrow(this.safetyHandle);
-            #endif
             new QuadTreeRangeQuery().RadiusQuery(this, bounds, radius, results);
         }
 
         public void Clear() {
             ref var tempAllocator = ref StaticAllocators.GetAllocator(AllocatorType.Temp);
-            #if ENABLE_UNITY_COLLECTIONS_CHECKS
-            AtomicSafetyHandle.CheckWriteAndBumpSecondaryVersion(this.safetyHandle);
-            #endif
             //this.lookup.Clear();
             //this.nodes.Clear();
             //this.elements.Clear();
@@ -256,9 +232,6 @@ namespace ME.ECS.Collections {
             //this.lookup = null;
             //UnsafeList.Destroy(this.nodes);
             //this.nodes = null;
-            #if ENABLE_UNITY_COLLECTIONS_CHECKS
-            DisposeSentinel.Dispose(ref this.safetyHandle, ref this.disposeSentinel);
-            #endif
         }
 
     }

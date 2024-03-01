@@ -98,11 +98,21 @@
 	#endif
 	public static class PoolListCopyable<TValue> {
 
-		public static ListCopyable<TValue> Spawn(int capacity) {
+        public static object lockObj = new object();
+        
+        public static ListCopyable<TValue> Spawn(int capacity) {
 
-			return Pools.current.PoolSpawn(capacity, c => new ListCopyable<TValue>(c), x => x.Clear());
+            return Pools.current.PoolSpawn(capacity, c => new ListCopyable<TValue>(c), x => x.Clear());
 			
-		}
+        }
+
+        public static ListCopyable<TValue> SpawnThread(int capacity) {
+
+            lock (lockObj) {
+                return Pools.current.PoolSpawn(capacity, c => new ListCopyable<TValue>(c), x => x.Clear());
+            }
+
+        }
 
 		public static void Recycle(ref ListCopyable<TValue> dic) {
 

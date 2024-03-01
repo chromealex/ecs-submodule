@@ -172,8 +172,8 @@ namespace ME.ECS {
             return temp;
         }
 
-        public static fpmatrix3x3 identity = fpmatrix3x3.CreateIdentityMatrix3x3f();
-        public static fpmatrix3x3 zero = fpmatrix3x3.CreateZeroMatrix3x3f();
+        public static readonly fpmatrix3x3 identity = fpmatrix3x3.CreateIdentityMatrix3x3f();
+        public static readonly fpmatrix3x3 zero = fpmatrix3x3.CreateZeroMatrix3x3f();
 
         public void SetIdentity() {
             this.Get(0, 0) = 1.0F;
