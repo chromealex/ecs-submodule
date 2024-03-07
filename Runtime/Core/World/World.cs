@@ -254,6 +254,8 @@ namespace ME.ECS {
         private System.Diagnostics.Stopwatch tickTimeWatcher;
         public bool isPaused { private set; get; }
 
+        public System.Action<int> onSimulationLimitReached { get; set; }
+
         void IPoolableSpawn.OnSpawn() {
 
             Unity.Burst.BurstCompiler.SetExecutionMode(Unity.Burst.BurstExecutionEnvironment.Deterministic);
@@ -2386,6 +2388,10 @@ namespace ME.ECS {
                     // because we have reached max ms per frame
                     ++state.tick;
                     to = state.tick + 1;
+
+                    var ticksSimulated = state.tick - from;
+                    this.onSimulationLimitReached?.Invoke(ticksSimulated);
+                    
                     break;
 
                 }
