@@ -252,9 +252,14 @@ namespace ME.ECS {
         private bool isLoaded;
         private float loadingProgress;
         private System.Diagnostics.Stopwatch tickTimeWatcher;
+        private System.Diagnostics.Stopwatch simulationTimeWatcher;
         public bool isPaused { private set; get; }
 
         public System.Action<int> onSimulationLimitReached { get; set; }
+        /**
+         * Returns average frame simulation time in ms
+         */
+        public System.Action<double> onFrameSimulated { get; set; }
 
         void IPoolableSpawn.OnSpawn() {
 
@@ -266,6 +271,7 @@ namespace ME.ECS {
             ME.WeakRef.Reg(this);
 
             this.tickTimeWatcher = new System.Diagnostics.Stopwatch();
+            this.simulationTimeWatcher = new System.Diagnostics.Stopwatch();
             
             this.isPaused = false;
             this.speed = 1f;
@@ -2346,6 +2352,8 @@ namespace ME.ECS {
                 return to;
 
             }
+            
+            this.simulationTimeWatcher.Restart();
 
             if (from < Tick.Zero) from = Tick.Zero;
 
@@ -2434,6 +2442,11 @@ namespace ME.ECS {
             ////////////////
             this.currentStep &= ~WorldStep.PluginsLogicSimulate;
             ////////////////
+            
+            this.simulationTimeWatcher.Stop();
+            if (to > from) {
+                this.onFrameSimulated?.Invoke((double)this.simulationTimeWatcher.Elapsed.TotalSeconds / (double)(to - from));
+            }
             
             return to;
 
