@@ -155,14 +155,35 @@ namespace ME.ECS.Serializer {
         
         public void Pack(Packer stream, object obj) {
 
-            Serializer.PackBlittable(stream, (Bounds)obj);
+            var v = (Bounds)obj;
+            var center = v.center;
+            Serializer.PackSingle(stream, center.x);
+            Serializer.PackSingle(stream, center.y);
+            Serializer.PackSingle(stream, center.z);
+            var extents = v.extents;
+            Serializer.PackSingle(stream, extents.x);
+            Serializer.PackSingle(stream, extents.y);
+            Serializer.PackSingle(stream, extents.z);
             
         }
         
         public object Unpack(Packer stream) {
 
-            return Serializer.UnpackBlittable<Bounds>(stream);
-            
+            Bounds res = default;
+            Vector3 center = default;
+            center.x = Serializer.UnpackSingle(stream);
+            center.y = Serializer.UnpackSingle(stream);
+            center.z = Serializer.UnpackSingle(stream);
+            Vector3 extents = default;
+            extents.x = Serializer.UnpackSingle(stream);
+            extents.y = Serializer.UnpackSingle(stream);
+            extents.z = Serializer.UnpackSingle(stream);
+
+            res.center = center;
+            res.extents = extents;
+
+            return res;
+
         }
 
     }
