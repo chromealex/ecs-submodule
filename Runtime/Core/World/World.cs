@@ -30,13 +30,13 @@ namespace ME.ECS {
         public UseState(State state) {
             this.useState = Worlds.current.currentState;
             if (state != null) {
-                Worlds.current.currentState = state;
+                Worlds.current.SetStateDirect(state);
             }
         }
 
         public void Dispose() {
             
-            Worlds.current.currentState = this.useState;
+            Worlds.current.SetStateDirect(this.useState);
             
         }
 
