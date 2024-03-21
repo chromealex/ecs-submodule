@@ -1206,6 +1206,7 @@ namespace ME.ECS {
 
             this.currentState = state;
             state.Initialize(this, freeze: false, restore: false);
+            state.Revalidate();
 
         }
 

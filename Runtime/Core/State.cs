@@ -104,6 +104,8 @@ namespace ME.ECS {
             
         }
 
+        public virtual void Revalidate() { }
+
     }
 
 }
