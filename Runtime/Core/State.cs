@@ -5,6 +5,8 @@ namespace ME.ECS {
     using Collections.LowLevel.Unsafe;
     
     public abstract class State : IPoolableRecycle {
+        
+        public static readonly Unity.Burst.SharedStatic<int> stateVersion = Unity.Burst.SharedStatic<int>.GetOrCreate<State>();
 
         [ME.ECS.Serializer.SerializeField]
         public Tick tick;
@@ -22,7 +24,7 @@ namespace ME.ECS {
 
         public PluginsStorage pluginsStorage;
 
-        public int localVersion = 1;
+        public int localVersion = ++State.stateVersion.Data;
         
         /// <summary>
         /// Return most unique hash
@@ -69,7 +71,7 @@ namespace ME.ECS {
 
             ComponentTypesRegistry.burstStateVersionsDirectRef.Data = this.storage.versions.GetMemPtr();
 
-            ++this.localVersion;
+            this.localVersion = ++State.stateVersion.Data;
 
         }
 
