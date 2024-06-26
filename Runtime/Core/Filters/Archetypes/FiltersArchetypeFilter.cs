@@ -25,8 +25,10 @@ namespace ME.ECS {
 
         public unsafe struct Enumerator : System.Collections.Generic.IEnumerator<Entity> {
 
-            public State state;
-            private ref MemoryAllocator allocator => ref this.state.allocator;
+            public World world;
+            public ref State state { [INLINE(256)] get { return ref this.world.currentState; } }
+            private ref MemoryAllocator allocator { [INLINE(256)] get { return ref this.state.allocator; } }
+            private ref MemoryAllocator tempAllocator { [INLINE(256)] get { return ref this.world.tempAllocator; } }
             
             public bool isCreated;
             public int index;
@@ -93,7 +95,7 @@ namespace ME.ECS {
                         // Check if all custom filters contains connected entity
                         var found = true;
                         for (int i = 0; i < connectedTracked; ++i) {
-                            var connectedFilter = connectedFilters[in this.allocator, i];
+                            var connectedFilter = connectedFilters[in this.tempAllocator, i];
                             var connectedLambda = this.connectedLambdas[i];
                             if (connectedFilter.filter.Contains(in allocator, connectedLambda.get.Invoke(this.current)) == false) {
                                 found = false;
@@ -110,7 +112,7 @@ namespace ME.ECS {
                         // Check if any component has changed on this entity
                         var hasChanged = false;
                         for (int i = 0; i < changedTracked; ++i) {
-                            var typeId = onChanged[in this.allocator, i];
+                            var typeId = onChanged[in this.tempAllocator, i];
                             var reg = this.state.structComponents.list.arr[typeId];
                             if (reg.HasChanged(entityId) == true) {
                                 hasChanged = true;
@@ -195,7 +197,7 @@ namespace ME.ECS {
             
             var range = this.GetRange(world, in filterStaticData, out bool enableGroupByEntityId);
             return new Enumerator() {
-                state = world.currentState,
+                world = world,
                 isCreated = true,
                 index = range.GetFrom(),
                 maxIndex = range.GetTo(),

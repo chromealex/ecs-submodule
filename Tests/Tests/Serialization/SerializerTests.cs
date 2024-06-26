@@ -374,6 +374,7 @@ namespace ME.ECS.Tests {
             NUnit.Framework.Assert.True(ent1.Has<TestStructComponent>());
             NUnit.Framework.Assert.True(ent2.Has<TestStructComponent>());
 
+            ComponentsInitializerWorld.Setup(null);
             WorldUtilities.ReleaseWorld<TestState>(ref sourceWorld);
             WorldUtilities.ReleaseWorld<TestState>(ref targetWorld);
 

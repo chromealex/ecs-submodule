@@ -91,6 +91,9 @@ namespace ME.ECS.Tests {
 
             }
             
+            ComponentsInitializerWorld.Setup(null);
+            WorldUtilities.ReleaseWorld<TestState>(ref world);
+            
         }
 
     }

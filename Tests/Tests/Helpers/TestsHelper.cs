@@ -58,6 +58,7 @@ namespace ME.ECS.Tests {
             
             afterUpdate?.Invoke(world);
             
+            ComponentsInitializerWorld.Setup(null);
             WorldUtilities.ReleaseWorld<EmptyState>(ref world);
 
         }

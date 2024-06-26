@@ -87,6 +87,7 @@ namespace ME.ECS.Tests {
             world.SetFromToTicks(0, 1);
             world.Update(1f);
             
+            ComponentsInitializerWorld.Setup(null);
             WorldUtilities.ReleaseWorld<TestState>(ref world);
 
         }
@@ -129,6 +130,7 @@ namespace ME.ECS.Tests {
             world.SetFromToTicks(0, 1);
             world.Update(1f);
             
+            ComponentsInitializerWorld.Setup(null);
             WorldUtilities.ReleaseWorld<TestState>(ref world);
 
         }
