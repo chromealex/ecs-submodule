@@ -167,7 +167,7 @@ namespace ME.ECS.Network {
         private System.Collections.Generic.Dictionary<object, Key> objectToKey;
         private int currentObjectRegistryId;
 
-        private StatesHistory.IStatesHistoryModule<TState> statesHistoryModule;
+        protected StatesHistory.IStatesHistoryModule<TState> statesHistoryModule { get; private set; }
         protected ITransporter transporter { get; private set; }
         protected ISerializer serializer { get; private set; }
         private int localOrderIndex;
@@ -723,7 +723,7 @@ namespace ME.ECS.Network {
 
         }
 
-        private bool ApplyEvent(ME.ECS.StatesHistory.HistoryEvent historyEvent) {
+        protected bool ApplyEvent(ME.ECS.StatesHistory.HistoryEvent historyEvent) {
 
             /*if (historyEvent.storeInHistory == true) {
                         
