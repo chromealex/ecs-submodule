@@ -29,29 +29,35 @@ namespace ME.ECS.Collections.LowLevel {
         private int size;
         [ME.ECS.Serializer.SerializeField]
         private int version;
+        [ME.ECS.Serializer.SerializeField]
+        public int allocatorVersion;
         public bool isCreated => this.array.isCreated;
 
         public readonly int Count => this.size;
 
         public Stack(ref MemoryAllocator allocator, int capacity) {
             this = default;
+            this.allocatorVersion = allocator.version;
             this.array = new MemArrayAllocator<T>(ref allocator, capacity);
         }
 
         public void Dispose(ref MemoryAllocator allocator) {
             
+            E.CHECK_ALLOCATOR_VERSION(this.allocatorVersion, allocator.version);
             this.array.Dispose(ref allocator);
             this = default;
             
         }
 
         public void Clear(in MemoryAllocator allocator) {
+            E.CHECK_ALLOCATOR_VERSION(this.allocatorVersion, allocator.version);
             this.size = 0;
             this.version++;
         }
 
         public bool Contains<U>(in MemoryAllocator allocator, U item) where U : System.IEquatable<T> {
 
+            E.CHECK_ALLOCATOR_VERSION(this.allocatorVersion, allocator.version);
             var count = this.size;
             while (count-- > 0) {
                 if (item.Equals(this.array[in allocator, count])) {
@@ -74,10 +80,12 @@ namespace ME.ECS.Collections.LowLevel {
         }
 
         public readonly EnumeratorNoState GetEnumerator(in MemoryAllocator allocator) {
+            E.CHECK_ALLOCATOR_VERSION(this.allocatorVersion, allocator.version);
             return new EnumeratorNoState(this, in allocator);
         }
 
         public readonly T Peek(in MemoryAllocator allocator) {
+            E.CHECK_ALLOCATOR_VERSION(this.allocatorVersion, allocator.version);
             if (this.size == 0) {
                 ThrowHelper.ThrowInvalidOperationException(ExceptionResource.InvalidOperation_EmptyStack);
             }
@@ -86,6 +94,7 @@ namespace ME.ECS.Collections.LowLevel {
         }
 
         public T Pop(in MemoryAllocator allocator) {
+            E.CHECK_ALLOCATOR_VERSION(this.allocatorVersion, allocator.version);
             if (this.size == 0) {
                 ThrowHelper.ThrowInvalidOperationException(ExceptionResource.InvalidOperation_EmptyStack);
             }
@@ -97,6 +106,7 @@ namespace ME.ECS.Collections.LowLevel {
         }
 
         public void Push(ref MemoryAllocator allocator, T item) {
+            E.CHECK_ALLOCATOR_VERSION(this.allocatorVersion, allocator.version);
             if (this.size == this.array.Length) {
                 this.array.Resize(ref allocator, this.array.Length == 0 ? Stack<T>.DEFAULT_CAPACITY : 2 * this.array.Length);
             }
@@ -284,6 +294,9 @@ namespace ME.ECS.Collections.LowLevel {
         }
 
         public void CopyFrom(ref MemoryAllocator allocator, in Stack<T> obj) {
+            
+            E.CHECK_ALLOCATOR_VERSION(this.allocatorVersion, allocator.version);
+            E.CHECK_ALLOCATOR_VERSION(obj.allocatorVersion, allocator.version);
 
             NativeArrayUtils.Copy(ref allocator, in obj.array, ref this.array);
             this.size = obj.size;

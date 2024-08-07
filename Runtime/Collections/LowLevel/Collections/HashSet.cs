@@ -117,6 +117,8 @@ namespace ME.ECS.Collections.LowLevel {
         internal int freeList;
         [ME.ECS.Serializer.SerializeField]
         internal int version;
+        [ME.ECS.Serializer.SerializeField]
+        public int allocatorVersion;
 
         public bool isCreated {
             [INLINE(256)]
@@ -138,7 +140,7 @@ namespace ME.ECS.Collections.LowLevel {
         
         [INLINE(256)]
         public void Dispose(ref MemoryAllocator allocator) {
-            
+            E.CHECK_ALLOCATOR_VERSION(this.allocatorVersion, allocator.version);
             this.buckets.Dispose(ref allocator);
             this.slots.Dispose(ref allocator);
             this = default;
@@ -147,7 +149,7 @@ namespace ME.ECS.Collections.LowLevel {
 
         [INLINE(256)]
         public readonly MemPtr GetMemPtr(in MemoryAllocator allocator) {
-            
+            E.CHECK_ALLOCATOR_VERSION(this.allocatorVersion, allocator.version);
             E.IS_CREATED(this);
             return this.buckets.arrPtr;
 
@@ -155,7 +157,8 @@ namespace ME.ECS.Collections.LowLevel {
 
         [INLINE(256)]
         public void ReplaceWith(ref MemoryAllocator allocator, in HashSet<T> other) {
-
+            E.CHECK_ALLOCATOR_VERSION(this.allocatorVersion, allocator.version);
+            E.CHECK_ALLOCATOR_VERSION(other.allocatorVersion, allocator.version);
             if (this.GetMemPtr(in allocator) == other.GetMemPtr(in allocator)) {
                 return;
             }
@@ -181,13 +184,14 @@ namespace ME.ECS.Collections.LowLevel {
 
         [INLINE(256)]
         public readonly EnumeratorNoState GetEnumerator(in MemoryAllocator allocator) {
-            
+            E.CHECK_ALLOCATOR_VERSION(this.allocatorVersion, allocator.version);
             return new EnumeratorNoState(in allocator, this);
             
         }
 
         [INLINE(256)]
         public ref T GetByIndex(in MemoryAllocator allocator, int index) {
+            E.CHECK_ALLOCATOR_VERSION(this.allocatorVersion, allocator.version);
             return ref this.slots[in allocator, index].value;
         }
 
@@ -198,6 +202,7 @@ namespace ME.ECS.Collections.LowLevel {
         /// <param name="allocator"></param>
         [INLINE(256)]
         public void Clear(in MemoryAllocator allocator) {
+            E.CHECK_ALLOCATOR_VERSION(this.allocatorVersion, allocator.version);
             if (this.lastIndex > 0) {
                 // clear the elements so that the gc can reclaim the references.
                 // clear only up to m_lastIndex for m_slots
@@ -218,6 +223,7 @@ namespace ME.ECS.Collections.LowLevel {
         /// <returns>true if item contained; false if not</returns>
         [INLINE(256)]
         public readonly bool Contains(in MemoryAllocator allocator, T item) {
+            E.CHECK_ALLOCATOR_VERSION(this.allocatorVersion, allocator.version);
             if (this.buckets.isCreated == true) {
                 var c = System.Collections.Generic.EqualityComparer<T>.Default;
                 int hashCode = this.InternalGetHashCode(item);
@@ -241,6 +247,7 @@ namespace ME.ECS.Collections.LowLevel {
         /// <returns>true if removed; false if not (i.e. if the item wasn't in the HashSet)</returns>
         [INLINE(256)]
         public bool Remove(ref MemoryAllocator allocator, T item) {
+            E.CHECK_ALLOCATOR_VERSION(this.allocatorVersion, allocator.version);
             if (this.buckets.isCreated == true) {
                 var c = System.Collections.Generic.EqualityComparer<T>.Default;
                 int hashCode = this.InternalGetHashCode(item);
@@ -287,6 +294,7 @@ namespace ME.ECS.Collections.LowLevel {
         /// <returns>true if added, false if already present</returns>
         [INLINE(256)]
         public bool Add(ref MemoryAllocator allocator, T item) {
+            E.CHECK_ALLOCATOR_VERSION(this.allocatorVersion, allocator.version);
             return this.AddIfNotPresent(ref allocator, item);
         }
 
@@ -305,6 +313,7 @@ namespace ME.ECS.Collections.LowLevel {
         /// </remarks>
         [INLINE(256)]
         public readonly bool TryGetValue(ref MemoryAllocator allocator, T equalValue, out T actualValue) {
+            E.CHECK_ALLOCATOR_VERSION(this.allocatorVersion, allocator.version);
             if (this.buckets.isCreated == true) {
                 int i = this.InternalIndexOf(in allocator, equalValue);
                 if (i >= 0) {
@@ -318,6 +327,7 @@ namespace ME.ECS.Collections.LowLevel {
         
         [INLINE(256)]
         public ref T GetValue(in MemoryAllocator allocator, T equalValue) {
+            E.CHECK_ALLOCATOR_VERSION(this.allocatorVersion, allocator.version);
             
             int i = this.InternalIndexOf(in allocator, equalValue);
             if (i >= 0) {
@@ -341,6 +351,7 @@ namespace ME.ECS.Collections.LowLevel {
             this.buckets = new MemArrayAllocator<int>(ref allocator, size);
             this.slots = new MemArrayAllocator<Slot>(ref allocator, size);
             this.freeList = -1;
+            this.allocatorVersion = allocator.version;
         }
 
         /// <summary>
@@ -352,6 +363,7 @@ namespace ME.ECS.Collections.LowLevel {
         /// <param name="allocator"></param>
         [INLINE(256)]
         private void IncreaseCapacity(ref MemoryAllocator allocator) {
+            E.CHECK_ALLOCATOR_VERSION(this.allocatorVersion, allocator.version);
             int newSize = HashHelpers.ExpandPrime(this.count);
             if (newSize <= this.count) {
                 throw new System.ArgumentException();
@@ -368,6 +380,7 @@ namespace ME.ECS.Collections.LowLevel {
         /// </summary>
         [INLINE(256)]
         private void SetCapacity(ref MemoryAllocator allocator, int newSize, bool forceNewHashCodes) { 
+            E.CHECK_ALLOCATOR_VERSION(this.allocatorVersion, allocator.version);
             System.Diagnostics.Contracts.Contract.Assert(HashHelpers.IsPrime(newSize), "New size is not prime!");
 
             System.Diagnostics.Contracts.Contract.Assert(this.buckets.isCreated, "SetCapacity called on a set with no elements");
@@ -406,6 +419,7 @@ namespace ME.ECS.Collections.LowLevel {
         /// <returns></returns>
         [INLINE(256)]
         private bool AddIfNotPresent(ref MemoryAllocator allocator, T value) {
+            E.CHECK_ALLOCATOR_VERSION(this.allocatorVersion, allocator.version);
             if (this.buckets.isCreated == false) {
                 this.Initialize(ref allocator, 0);
             }
@@ -448,6 +462,7 @@ namespace ME.ECS.Collections.LowLevel {
         // when constructing from another HashSet.
         [INLINE(256)]
         private void AddValue(ref MemoryAllocator allocator, int index, int hashCode, T value) {
+            E.CHECK_ALLOCATOR_VERSION(this.allocatorVersion, allocator.version);
             int bucket = hashCode % this.buckets.Length;
             this.slots[in allocator, index].hashCode = hashCode;
             this.slots[in allocator, index].value = value;
@@ -464,6 +479,7 @@ namespace ME.ECS.Collections.LowLevel {
         /// <returns></returns>
         [INLINE(256)]
         private readonly int InternalIndexOf(in MemoryAllocator allocator, T item) {
+            E.CHECK_ALLOCATOR_VERSION(this.allocatorVersion, allocator.version);
             int hashCode = this.InternalGetHashCode(item);
             var c = System.Collections.Generic.EqualityComparer<T>.Default;
             for (int i = this.buckets[in allocator, hashCode % this.buckets.Length] - 1; i >= 0; i = this.slots[in allocator, i].next) {

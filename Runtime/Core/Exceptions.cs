@@ -134,6 +134,17 @@ namespace ME.ECS {
 
         }
 
+        [System.Diagnostics.Conditional("WORLD_EXCEPTIONS")]
+        public static void CHECK_ALLOCATOR_VERSION(int v1, int v2) {
+            
+            if (v1 != v2) {
+                
+                throw new OutOfBoundsException($"allocator version mismatch {v1}, {v2}");
+                
+            }
+            
+        }
+
     }
     
     public class CollectionNotCreated : System.Exception {

@@ -26,6 +26,8 @@ namespace ME.ECS.Collections.LowLevel.Unsafe {
     [Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.ArrayBoundsChecks, false)]
     [Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.DivideByZeroChecks, false)]
     public unsafe partial struct MemoryAllocator : IDisposable {
+        
+        public static readonly Unity.Burst.SharedStatic<int> allocatorVersion = Unity.Burst.SharedStatic<int>.GetOrCreate<MemoryAllocator>();
 
         #if MEMORY_ALLOCATOR_LOGS && UNITY_EDITOR
         [Unity.Burst.BurstDiscardAttribute]
@@ -70,6 +72,8 @@ namespace ME.ECS.Collections.LowLevel.Unsafe {
         internal int zonesListCount;
         internal int zonesListCapacity;
         internal long maxSize;
+
+        public int version;
         
         public bool isValid => this.zonesList != null;
 
@@ -143,6 +147,8 @@ namespace ME.ECS.Collections.LowLevel.Unsafe {
             this.AddZone(MemoryAllocator.ZmCreateZone((int)Math.Max(initialSize, MemoryAllocator.MIN_ZONE_SIZE)));
             
             this.maxSize = maxSize;
+
+            this.version = ++MemoryAllocator.allocatorVersion.Data;
 
             return this;
         }
@@ -221,7 +227,8 @@ namespace ME.ECS.Collections.LowLevel.Unsafe {
             }
             
             this.maxSize = other.maxSize;
-	    
+            this.version = other.version;
+
         }
 
         [INLINE(256)]

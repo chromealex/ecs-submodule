@@ -19,6 +19,8 @@ namespace ME.ECS.Collections.LowLevel {
         private MemArrayAllocator<UnsafeMemArrayAllocator> tails;
         [ME.ECS.Serializer.SerializeField]
         private int tailsLength;
+        [ME.ECS.Serializer.SerializeField]
+        public int allocatorVersion;
 
         public bool isCreated {
             [INLINE(256)]
@@ -37,11 +39,14 @@ namespace ME.ECS.Collections.LowLevel {
             this.tails = default;
             this.tailsLength = 0;
             this.version = ++UnsafeMemArraySlicedAllocator.arrayVersion.Data;
+            this.allocatorVersion = allocator.version;
 
         }
 
         [INLINE(256)]
         public void Dispose(ref MemoryAllocator allocator) {
+            
+            E.CHECK_ALLOCATOR_VERSION(this.allocatorVersion, allocator.version);
             
             this.data.Dispose(ref allocator);
                 
@@ -59,6 +64,8 @@ namespace ME.ECS.Collections.LowLevel {
 
         [INLINE(256)]
         public UnsafeMemArraySlicedAllocator Merge(int sizeOf, ref MemoryAllocator allocator) {
+            
+            E.CHECK_ALLOCATOR_VERSION(this.allocatorVersion, allocator.version);
             
             if (this.tails.isCreated == false || this.tails.Length == 0) {
 
@@ -94,6 +101,8 @@ namespace ME.ECS.Collections.LowLevel {
         [INLINE(256)]
         public ref T Get<T>(in MemoryAllocator allocator, int index) where T : unmanaged {
             
+            E.CHECK_ALLOCATOR_VERSION(this.allocatorVersion, allocator.version);
+            
             var data = this.data;
             if (index >= data.Length) {
 
@@ -118,6 +127,8 @@ namespace ME.ECS.Collections.LowLevel {
         [INLINE(256)]
         public UnsafeMemArraySlicedAllocator Resize(int sizeOf, ref MemoryAllocator allocator, int newLength, out bool result, ClearOptions options = ClearOptions.ClearMemory) {
 
+            E.CHECK_ALLOCATOR_VERSION(this.allocatorVersion, allocator.version);
+            
             if (this.isCreated == false) {
 
                 result = true;
@@ -172,6 +183,8 @@ namespace ME.ECS.Collections.LowLevel {
 
         [INLINE(256)]
         public void Clear(int sizeOf, ref MemoryAllocator allocator) {
+            
+            E.CHECK_ALLOCATOR_VERSION(this.allocatorVersion, allocator.version);
 
             this.Clear(sizeOf, ref allocator, 0, this.Length);
 
@@ -179,6 +192,8 @@ namespace ME.ECS.Collections.LowLevel {
 
         [INLINE(256)]
         public void Clear(int sizeOf, ref MemoryAllocator allocator, int index, int length) {
+            
+            E.CHECK_ALLOCATOR_VERSION(this.allocatorVersion, allocator.version);
 
             this.Merge(sizeOf, ref allocator);
             var size = sizeOf;
@@ -200,6 +215,8 @@ namespace ME.ECS.Collections.LowLevel {
         private MemArrayAllocator<MemArrayAllocator<T>> tails;
         [ME.ECS.Serializer.SerializeField]
         private int tailsLength;
+        [ME.ECS.Serializer.SerializeField]
+        public int allocatorVersion;
         
         public bool isCreated {
             [INLINE(256)]
@@ -218,11 +235,14 @@ namespace ME.ECS.Collections.LowLevel {
             this.tails = default;
             this.tailsLength = 0;
             this.version = ++MemArraySlicedAllocator<T>.arrayVersion.Data;
+            this.allocatorVersion = allocator.version;
 
         }
 
         [INLINE(256)]
         public void Dispose(ref MemoryAllocator allocator) {
+            
+            E.CHECK_ALLOCATOR_VERSION(this.allocatorVersion, allocator.version);
             
             this.data.Dispose(ref allocator);
                 
@@ -259,6 +279,8 @@ namespace ME.ECS.Collections.LowLevel {
                 return this;
 
             }
+            
+            E.CHECK_ALLOCATOR_VERSION(this.allocatorVersion, allocator.version);
 
             //var arr = PoolArrayNative<T>.Spawn(this.Length);
             //if (this.data.isCreated == true) NativeArrayUtils.Copy(this.data, 0, ref arr, 0, this.data.Length);
@@ -287,6 +309,8 @@ namespace ME.ECS.Collections.LowLevel {
         [INLINE(256)]
         public readonly unsafe void* GetUnsafePtr(in MemoryAllocator allocator, int index) {
             
+            E.CHECK_ALLOCATOR_VERSION(this.allocatorVersion, allocator.version);
+            
             ref readonly var data = ref this.data;
             if (index >= data.Length) {
 
@@ -310,6 +334,8 @@ namespace ME.ECS.Collections.LowLevel {
 
         [INLINE(256)]
         public readonly MemPtr GetAllocPtr(in MemoryAllocator allocator, int index) {
+            
+            E.CHECK_ALLOCATOR_VERSION(this.allocatorVersion, allocator.version);
             
             ref readonly var data = ref this.data;
             if (index >= data.Length) {
@@ -335,6 +361,7 @@ namespace ME.ECS.Collections.LowLevel {
         public readonly ref T this[in MemoryAllocator allocator, int index] {
             [INLINE(256)]
             get {
+                E.CHECK_ALLOCATOR_VERSION(this.allocatorVersion, allocator.version);
                 ref readonly var data = ref this.data;
                 if (index >= data.Length) {
 
@@ -358,7 +385,7 @@ namespace ME.ECS.Collections.LowLevel {
 
         [INLINE(256)]
         public MemArraySlicedAllocator<T> Resize(ref MemoryAllocator allocator, int newLength, out bool result, ClearOptions options = ClearOptions.ClearMemory) {
-
+            
             if (this.isCreated == false) {
 
                 result = true;
@@ -366,6 +393,8 @@ namespace ME.ECS.Collections.LowLevel {
                 return this;
 
             }
+            
+            E.CHECK_ALLOCATOR_VERSION(this.allocatorVersion, allocator.version);
             
             var index = newLength - 1;
             if (index >= this.Length) {
@@ -413,14 +442,14 @@ namespace ME.ECS.Collections.LowLevel {
 
         [INLINE(256)]
         public void Clear(ref MemoryAllocator allocator) {
-
+            E.CHECK_ALLOCATOR_VERSION(this.allocatorVersion, allocator.version);
             this.Clear(ref allocator, 0, this.Length);
 
         }
 
         [INLINE(256)]
         public void Clear(ref MemoryAllocator allocator, int index, int length) {
-
+            E.CHECK_ALLOCATOR_VERSION(this.allocatorVersion, allocator.version);
             this.Merge(ref allocator);
             var size = Unity.Collections.LowLevel.Unsafe.UnsafeUtility.SizeOf<T>();
             allocator.MemClear(this.data.arrPtr, index * size, length * size);

@@ -16,6 +16,9 @@ namespace ME.ECS.Collections.LowLevel {
         public byte growFactor;
         [ME.ECS.Serializer.SerializeField]
         public int version;
+        
+        [ME.ECS.Serializer.SerializeField]
+        public int allocatorVersion;
 
         public readonly bool isCreated {
             [INLINE(256)]
@@ -29,6 +32,7 @@ namespace ME.ECS.Collections.LowLevel {
             this.Length = length;
             this.growFactor = growFactor;
             this.version = ++UnsafeMemArrayAllocator.arrayVersion.Data;
+            this.allocatorVersion = allocator.version;
 
             if (clearOptions == ClearOptions.ClearMemory) {
                 this.Clear(sizeOf, in allocator);
@@ -39,12 +43,14 @@ namespace ME.ECS.Collections.LowLevel {
         [INLINE(256)]
         public ref T Get<T>(in MemoryAllocator allocator, int index) where T : unmanaged {
             E.RANGE(index, 0, this.Length);
+            E.CHECK_ALLOCATOR_VERSION(this.allocatorVersion, allocator.version);
             return ref allocator.RefArray<T>(this.arrPtr, index);
         }
 
         [INLINE(256)]
         public void Dispose(ref MemoryAllocator allocator) {
 
+            E.CHECK_ALLOCATOR_VERSION(this.allocatorVersion, allocator.version);
             if (this.arrPtr != MemPtr.Null) {
                 allocator.Free(this.arrPtr);
             }
@@ -55,6 +61,7 @@ namespace ME.ECS.Collections.LowLevel {
         [INLINE(256)]
         public readonly unsafe void* GetUnsafePtr(in MemoryAllocator allocator) {
 
+            E.CHECK_ALLOCATOR_VERSION(this.allocatorVersion, allocator.version);
             return allocator.GetUnsafePtr(this.arrPtr);
 
         }
@@ -62,6 +69,7 @@ namespace ME.ECS.Collections.LowLevel {
         [INLINE(256)]
         public void Clear(int sizeOf, in MemoryAllocator allocator) {
 
+            E.CHECK_ALLOCATOR_VERSION(this.allocatorVersion, allocator.version);
             this.Clear(sizeOf, in allocator, 0, this.Length);
 
         }
@@ -69,6 +77,7 @@ namespace ME.ECS.Collections.LowLevel {
         [INLINE(256)]
         public void Clear(int sizeOf, in MemoryAllocator allocator, int index, int length) {
 
+            E.CHECK_ALLOCATOR_VERSION(this.allocatorVersion, allocator.version);
             var size = sizeOf;
             allocator.MemClear(this.arrPtr, index * size, length * size);
             
@@ -77,6 +86,7 @@ namespace ME.ECS.Collections.LowLevel {
         [INLINE(256)]
         public bool Resize(int sizeOf, ref MemoryAllocator allocator, int newLength, ClearOptions options = ClearOptions.ClearMemory, byte growFactor = 1) {
 
+            E.CHECK_ALLOCATOR_VERSION(this.allocatorVersion, allocator.version);
             if (this.isCreated == false) {
 
                 this = new UnsafeMemArrayAllocator(sizeOf, ref allocator, newLength, options, growFactor);
@@ -178,6 +188,8 @@ namespace ME.ECS.Collections.LowLevel {
         public byte growFactor;
         [ME.ECS.Serializer.SerializeField]
         public int version;
+        [ME.ECS.Serializer.SerializeField]
+        public int allocatorVersion;
 
         public readonly bool isCreated {
             [INLINE(256)]
@@ -191,6 +203,7 @@ namespace ME.ECS.Collections.LowLevel {
             this.Length = length;
             this.growFactor = growFactor;
             this.version = ++UnsafeMemArrayAllocator.arrayVersion.Data;
+            this.allocatorVersion = allocator.version;
 
             if (clearOptions == ClearOptions.ClearMemory) {
                 this.Clear(in allocator);
@@ -205,6 +218,7 @@ namespace ME.ECS.Collections.LowLevel {
             this.Length = arr.Length;
             this.growFactor = arr.growFactor;
             this.version = ++UnsafeMemArrayAllocator.arrayVersion.Data;
+            this.allocatorVersion = allocator.version;
             
         }
 
@@ -215,11 +229,14 @@ namespace ME.ECS.Collections.LowLevel {
             this.Length = length;
             this.growFactor = growFactor;
             this.version = ++UnsafeMemArrayAllocator.arrayVersion.Data;
+            this.allocatorVersion = allocator.version;
             
         }
 
         [INLINE(256)]
         public MemArrayAllocator(ref MemoryAllocator allocator, BufferArray<T> arr) {
+
+            this.allocatorVersion = allocator.version;
 
             this = new MemArrayAllocator<T>(ref allocator, arr.Length, ClearOptions.ClearMemory);
             NativeArrayUtils.Copy(in allocator, (T[])arr.arr, 0, ref this, 0, arr.Length);
@@ -228,6 +245,8 @@ namespace ME.ECS.Collections.LowLevel {
 
         [INLINE(256)]
         public MemArrayAllocator(ref MemoryAllocator allocator, ListCopyable<T> arr) {
+            
+            this.allocatorVersion = allocator.version;
 
             this = new MemArrayAllocator<T>(ref allocator, arr.Count, ClearOptions.ClearMemory);
             NativeArrayUtils.Copy(in allocator, arr.innerArray, 0, ref this, 0, arr.Count);
@@ -236,6 +255,8 @@ namespace ME.ECS.Collections.LowLevel {
 
         [INLINE(256)]
         public MemArrayAllocator(ref MemoryAllocator allocator, T[] arr) {
+            
+            this.allocatorVersion = allocator.version;
 
             this = new MemArrayAllocator<T>(ref allocator, arr.Length, ClearOptions.ClearMemory);
             NativeArrayUtils.Copy(in allocator, arr, 0, ref this, 0, arr.Length);
@@ -244,6 +265,8 @@ namespace ME.ECS.Collections.LowLevel {
 
         [INLINE(256)]
         public void DisposeWithData<U>(ref MemoryAllocator allocator) where U : struct, IComponentDisposable<U> {
+            
+            E.CHECK_ALLOCATOR_VERSION(this.allocatorVersion, allocator.version);
 
             for (int i = 0; i < this.Length; ++i) {
                 this.As<U>(in allocator, i).OnDispose(ref allocator);
@@ -254,6 +277,7 @@ namespace ME.ECS.Collections.LowLevel {
 
         [INLINE(256)]
         public readonly ref U As<U>(in MemoryAllocator allocator, int index) where U : struct {
+            E.CHECK_ALLOCATOR_VERSION(this.allocatorVersion, allocator.version);
             E.RANGE(index, 0, this.Length);
             return ref allocator.RefArray<U>(this.arrPtr, index);
         }
@@ -277,6 +301,7 @@ namespace ME.ECS.Collections.LowLevel {
                 return;
             }
             
+            E.CHECK_ALLOCATOR_VERSION(other.allocatorVersion, allocator.version);
             this.DisposeWithData<U>(ref allocator);
             this = new MemArrayAllocator<T>(ref allocator, other.arrPtr, other.Length, other.growFactor);
             
@@ -293,6 +318,9 @@ namespace ME.ECS.Collections.LowLevel {
             }
             if (this.arrPtr == MemPtr.Null) this = new MemArrayAllocator<T>(ref allocator, other.Length);
             
+            E.CHECK_ALLOCATOR_VERSION(this.allocatorVersion, allocator.version);
+            E.CHECK_ALLOCATOR_VERSION(other.allocatorVersion, allocator.version);
+            
             NativeArrayUtils.Copy(ref allocator, in other, ref this);
             
         }
@@ -307,6 +335,9 @@ namespace ME.ECS.Collections.LowLevel {
                 return;
             }
             if (this.arrPtr == MemPtr.Null) this = new MemArrayAllocator<T>(ref allocator, other.Length);
+            
+            E.CHECK_ALLOCATOR_VERSION(this.allocatorVersion, allocator.version);
+            E.CHECK_ALLOCATOR_VERSION(other.allocatorVersion, allocator.version);
 
             for (int i = 0; i < this.Length; ++i) {
                 this.As<U>(in allocator, i).OnDispose(ref allocator);
@@ -321,6 +352,7 @@ namespace ME.ECS.Collections.LowLevel {
         public void Dispose(ref MemoryAllocator allocator) {
 
             if (this.arrPtr != MemPtr.Null) {
+                E.CHECK_ALLOCATOR_VERSION(this.allocatorVersion, allocator.version);
                 allocator.Free(this.arrPtr);
             }
             this = default;
@@ -329,6 +361,8 @@ namespace ME.ECS.Collections.LowLevel {
 
         [INLINE(256)]
         public readonly void* GetUnsafePtr(in MemoryAllocator allocator) {
+            
+            E.CHECK_ALLOCATOR_VERSION(this.allocatorVersion, allocator.version);
 
             return allocator.GetUnsafePtr(this.arrPtr);
 
@@ -351,18 +385,21 @@ namespace ME.ECS.Collections.LowLevel {
         [INLINE(256)]
         public readonly EnumeratorNoState GetEnumerator(in MemoryAllocator allocator) {
             
+            E.CHECK_ALLOCATOR_VERSION(this.allocatorVersion, allocator.version);
+            
             return new EnumeratorNoState(in allocator, this);
             
         }
 
         [INLINE(256)]
         public readonly void* GetUnsafePtr(in MemoryAllocator allocator, int index) {
+            E.CHECK_ALLOCATOR_VERSION(this.allocatorVersion, allocator.version);
             return allocator.GetUnsafePtr(this.GetAllocPtr(in allocator, index));
         }
 
         [INLINE(256)]
         public readonly MemPtr GetAllocPtr(in MemoryAllocator allocator, int index) {
-            
+            E.CHECK_ALLOCATOR_VERSION(this.allocatorVersion, allocator.version);
             return allocator.RefArrayPtr<T>(this.arrPtr, index);
             
         }
@@ -370,6 +407,7 @@ namespace ME.ECS.Collections.LowLevel {
         public readonly ref T this[in MemoryAllocator allocator, int index] {
             [INLINE(256)]
             get {
+                E.CHECK_ALLOCATOR_VERSION(this.allocatorVersion, allocator.version);
                 E.RANGE(index, 0, this.Length);
                 return ref Unity.Collections.LowLevel.Unsafe.UnsafeUtility.ArrayElementAsRef<T>(this.GetUnsafePtr(in allocator), index);
             }
@@ -378,6 +416,7 @@ namespace ME.ECS.Collections.LowLevel {
         public readonly ref T this[MemoryAllocator allocator, int index] {
             [INLINE(256)]
             get {
+                E.CHECK_ALLOCATOR_VERSION(this.allocatorVersion, allocator.version);
                 E.RANGE(index, 0, this.Length);
                 return ref Unity.Collections.LowLevel.Unsafe.UnsafeUtility.ArrayElementAsRef<T>(this.GetUnsafePtr(in allocator), index);
             }
@@ -392,6 +431,8 @@ namespace ME.ECS.Collections.LowLevel {
                 return true;
 
             }
+            
+            E.CHECK_ALLOCATOR_VERSION(this.allocatorVersion, allocator.version);
             
             if (newLength <= this.Length) {
 
@@ -414,6 +455,8 @@ namespace ME.ECS.Collections.LowLevel {
 
         [INLINE(256)]
         public void Clear(in MemoryAllocator allocator) {
+            
+            E.CHECK_ALLOCATOR_VERSION(this.allocatorVersion, allocator.version);
 
             this.Clear(in allocator, 0, this.Length);
 
@@ -421,6 +464,8 @@ namespace ME.ECS.Collections.LowLevel {
 
         [INLINE(256)]
         public void Clear(in MemoryAllocator allocator, int index, int length) {
+            
+            E.CHECK_ALLOCATOR_VERSION(this.allocatorVersion, allocator.version);
 
             var size = Unity.Collections.LowLevel.Unsafe.UnsafeUtility.SizeOf<T>();
             allocator.MemClear(this.arrPtr, index * size, length * size);
@@ -429,6 +474,9 @@ namespace ME.ECS.Collections.LowLevel {
 
         [INLINE(256)]
         public int IndexOf(in MemoryAllocator allocator, T value) {
+            
+            E.CHECK_ALLOCATOR_VERSION(this.allocatorVersion, allocator.version);
+            
             for (int i = 0; i < this.Length; ++i) {
                 if (System.Collections.Generic.EqualityComparer<T>.Default.Equals(this[in allocator, i], value) == true) return i;
             }

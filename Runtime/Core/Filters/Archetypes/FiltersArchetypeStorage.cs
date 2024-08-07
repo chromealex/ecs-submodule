@@ -29,6 +29,7 @@ namespace ME.ECS.FiltersArchetype {
 
             for (int idx = 0, cnt = filters.Count; idx < cnt; ++idx) {
 
+                E.RANGE(idx, 0, filters.Count);
                 ref var item = ref filters[in allocator, idx];
                 var e = dirtyArchetypes.GetEnumerator(in allocator);
                 while (e.MoveNext() == true) {
@@ -143,6 +144,7 @@ namespace ME.ECS.FiltersArchetype {
             public readonly bool HasAll(in MemoryAllocator allocator, in MemoryAllocator tempAllocator, List<int> componentIds) {
 
                 for (int i = 0, cnt = componentIds.Count; i < cnt; ++i) {
+                    E.RANGE(i, 0, componentIds.Count);
                     var item = componentIds[in tempAllocator, i];
                     if (this.components.ContainsKey(in allocator, item) == false) {
                         return false;
@@ -157,6 +159,7 @@ namespace ME.ECS.FiltersArchetype {
             public readonly bool HasAll(in MemoryAllocator allocator, List<int> componentIds) {
 
                 for (int i = 0, cnt = componentIds.Count; i < cnt; ++i) {
+                    E.RANGE(i, 0, componentIds.Count);
                     var item = componentIds[in allocator, i];
                     if (this.components.ContainsKey(in allocator, item) == false) {
                         return false;
@@ -171,6 +174,7 @@ namespace ME.ECS.FiltersArchetype {
             public readonly bool HasAll(in MemoryAllocator allocator, ListCopyable<int> componentIds) {
 
                 for (int i = 0, cnt = componentIds.Count; i < cnt; ++i) {
+                    E.RANGE(i, 0, componentIds.Count);
                     var item = componentIds[i];
                     if (this.components.ContainsKey(in allocator, item) == false) {
                         return false;
@@ -185,7 +189,7 @@ namespace ME.ECS.FiltersArchetype {
             public readonly bool HasNotAll(in MemoryAllocator allocator, in MemoryAllocator tempAllocator, List<int> componentIds) {
 
                 for (int i = 0, cnt = componentIds.Count; i < cnt; ++i) {
-                    
+                    E.RANGE(i, 0, componentIds.Count);
                     var item = componentIds[in tempAllocator, i];
                     if (this.components.ContainsKey(in allocator, item) == true) {
                         return false;
@@ -201,7 +205,7 @@ namespace ME.ECS.FiltersArchetype {
             public readonly bool HasAllExcept(in MemoryAllocator allocator, List<int> componentIds, int componentId) {
 
                 for (int i = 0, cnt = componentIds.Count; i < cnt; ++i) {
-                    
+                    E.RANGE(i, 0, componentIds.Count);
                     var item = componentIds[in allocator, i];
                     if (item == componentId) {
                         continue;

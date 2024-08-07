@@ -20,6 +20,8 @@ namespace ME.ECS.Collections.LowLevel {
             var dstPtr = (byte*)dst.GetUnsafePtr(in allocator) + dstIndex * size;
             var srcPtr = (void*)(num + srcIndex * size);
             
+            E.CHECK_ALLOCATOR_VERSION(dst.allocatorVersion, allocator.version);
+            
             Unity.Collections.LowLevel.Unsafe.UnsafeUtility.MemMove(dstPtr, srcPtr, length * size);
             gcHandle.Free();
             
@@ -32,6 +34,9 @@ namespace ME.ECS.Collections.LowLevel {
                                    in MemArrayAllocator<T> fromArr,
                                    ref MemArrayAllocator<T> arr) where T : struct {
             
+            E.CHECK_ALLOCATOR_VERSION(fromArr.allocatorVersion, allocator.version);
+            E.CHECK_ALLOCATOR_VERSION(arr.allocatorVersion, allocator.version);
+            
             NativeArrayUtils.Copy(ref allocator, fromArr, 0, ref arr, 0, fromArr.Length);
             
         }
@@ -42,6 +47,9 @@ namespace ME.ECS.Collections.LowLevel {
         public static void CopyExact<T>(ref MemoryAllocator allocator,
                                    in MemArrayAllocator<T> fromArr,
                                    ref MemArrayAllocator<T> arr) where T : struct {
+            
+            E.CHECK_ALLOCATOR_VERSION(fromArr.allocatorVersion, allocator.version);
+            E.CHECK_ALLOCATOR_VERSION(arr.allocatorVersion, allocator.version);
             
             NativeArrayUtils.Copy(ref allocator, fromArr, 0, ref arr, 0, fromArr.Length, true);
             
@@ -57,6 +65,9 @@ namespace ME.ECS.Collections.LowLevel {
                                    int destIndex,
                                    int length,
                                    bool copyExact = false) where T : struct {
+            
+            E.CHECK_ALLOCATOR_VERSION(fromArr.allocatorVersion, allocator.version);
+            E.CHECK_ALLOCATOR_VERSION(arr.allocatorVersion, allocator.version);
 
             switch (fromArr.isCreated) {
                 case false when arr.isCreated == false:
@@ -89,6 +100,9 @@ namespace ME.ECS.Collections.LowLevel {
                                    ref MemArrayAllocator<T> arr,
                                    int destIndex,
                                    int length) where T : unmanaged {
+            
+            E.CHECK_ALLOCATOR_VERSION(fromArr.allocatorVersion, allocator.version);
+            E.CHECK_ALLOCATOR_VERSION(arr.allocatorVersion, allocator.version);
 
             var size = sizeof(T);
             allocator.MemMove(arr.arrPtr, destIndex * size, fromArr.arrPtr, sourceIndex * size, length * size);

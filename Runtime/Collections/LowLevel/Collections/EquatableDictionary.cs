@@ -137,6 +137,8 @@ namespace ME.ECS.Collections.LowLevel {
         internal int freeList;
         [ME.ECS.Serializer.SerializeField]
         internal int freeCount;
+        [ME.ECS.Serializer.SerializeField]
+        public int allocatorVersion;
 
         public bool isCreated {
             [INLINE(256)]
@@ -159,6 +161,7 @@ namespace ME.ECS.Collections.LowLevel {
         [INLINE(256)]
         public void Dispose(ref MemoryAllocator allocator) {
 
+            E.CHECK_ALLOCATOR_VERSION(this.allocatorVersion, allocator.version);
             this.buckets.Dispose(ref allocator);
             this.entries.Dispose(ref allocator);
             this = default;
@@ -168,6 +171,7 @@ namespace ME.ECS.Collections.LowLevel {
         [INLINE(256)]
         public readonly MemPtr GetMemPtr(in MemoryAllocator allocator) {
 
+            E.CHECK_ALLOCATOR_VERSION(this.allocatorVersion, allocator.version);
             return this.buckets.arrPtr;
 
         }
@@ -175,6 +179,8 @@ namespace ME.ECS.Collections.LowLevel {
         [INLINE(256)]
         public void ReplaceWith(ref MemoryAllocator allocator, in EquatableDictionary<TKey, TValue> other) {
             
+            E.CHECK_ALLOCATOR_VERSION(this.allocatorVersion, allocator.version);
+            E.CHECK_ALLOCATOR_VERSION(other.allocatorVersion, allocator.version);
             if (this.GetMemPtr(in allocator) == other.GetMemPtr(in allocator)) return;
             
             this.Dispose(ref allocator);
@@ -184,6 +190,9 @@ namespace ME.ECS.Collections.LowLevel {
 
         [INLINE(256)]
         public void CopyFrom(ref MemoryAllocator allocator, in EquatableDictionary<TKey, TValue> other) {
+            
+            E.CHECK_ALLOCATOR_VERSION(this.allocatorVersion, allocator.version);
+            E.CHECK_ALLOCATOR_VERSION(other.allocatorVersion, allocator.version);
 
             if (this.GetMemPtr(in allocator) == other.GetMemPtr(in allocator)) return;
             if (this.GetMemPtr(in allocator) == MemPtr.Null && other.GetMemPtr(in allocator) == MemPtr.Null) return;
@@ -218,6 +227,8 @@ namespace ME.ECS.Collections.LowLevel {
 
         [INLINE(256)]
         public readonly EnumeratorNoState GetEnumerator(in MemoryAllocator allocator) {
+            
+            E.CHECK_ALLOCATOR_VERSION(this.allocatorVersion, allocator.version);
 
             return new EnumeratorNoState(in allocator, this);
 
@@ -229,6 +240,7 @@ namespace ME.ECS.Collections.LowLevel {
         public readonly ref TValue this[in MemoryAllocator allocator, TKey key] {
             [INLINE(256)]
             get {
+                E.CHECK_ALLOCATOR_VERSION(this.allocatorVersion, allocator.version);
                 var entry = this.FindEntry(in allocator, key);
                 if (entry >= 0) {
                     return ref this.entries[in allocator, entry].value;
@@ -240,6 +252,8 @@ namespace ME.ECS.Collections.LowLevel {
 
         [INLINE(256)]
         public ref TValue GetValue(ref MemoryAllocator allocator, TKey key) {
+            
+            E.CHECK_ALLOCATOR_VERSION(this.allocatorVersion, allocator.version);
 
             var entry = this.FindEntry(in allocator, key);
             if (entry >= 0) {
@@ -253,6 +267,8 @@ namespace ME.ECS.Collections.LowLevel {
 
         [INLINE(256)]
         public ref TValue GetValue(ref MemoryAllocator allocator, TKey key, out bool exist) {
+            
+            E.CHECK_ALLOCATOR_VERSION(this.allocatorVersion, allocator.version);
             
             var entry = this.FindEntry(in allocator, key);
             if (entry >= 0) {
@@ -268,6 +284,8 @@ namespace ME.ECS.Collections.LowLevel {
 
         [INLINE(256)]
         public TValue GetValueAndRemove(ref MemoryAllocator allocator, TKey key) {
+            
+            E.CHECK_ALLOCATOR_VERSION(this.allocatorVersion, allocator.version);
 
             this.Remove(ref allocator, key, out var value);
             return value;
@@ -280,12 +298,14 @@ namespace ME.ECS.Collections.LowLevel {
         /// <param name="value"></param>
         [INLINE(256)]
         public void Add(ref MemoryAllocator allocator, TKey key, TValue value) {
+            E.CHECK_ALLOCATOR_VERSION(this.allocatorVersion, allocator.version);
             this.TryInsert(ref allocator, key, value, InsertionBehavior.ThrowOnExisting);
         }
 
         /// <summary><para>Removes all elements from the dictionary.</para></summary>
         [INLINE(256)]
         public void Clear(in MemoryAllocator allocator) {
+            E.CHECK_ALLOCATOR_VERSION(this.allocatorVersion, allocator.version);
             var count = this.count;
             if (count > 0) {
                 this.buckets.Clear(in allocator);
@@ -303,6 +323,7 @@ namespace ME.ECS.Collections.LowLevel {
         /// <param name="key">The key to locate in the dictionary.</param>
         [INLINE(256)]
         public readonly bool ContainsKey(in MemoryAllocator allocator, TKey key) {
+            E.CHECK_ALLOCATOR_VERSION(this.allocatorVersion, allocator.version);
             return this.FindEntry(in allocator, key) >= 0;
         }
 
@@ -311,6 +332,7 @@ namespace ME.ECS.Collections.LowLevel {
         /// <param name="value">The value to locate in the dictionary.</param>
         [INLINE(256)]
         public readonly bool ContainsValue(in MemoryAllocator allocator, TValue value) { 
+            E.CHECK_ALLOCATOR_VERSION(this.allocatorVersion, allocator.version);
             for (var index = 0; index < this.count; ++index) {
                 if (this.entries[in allocator, index].hashCode >= 0 && System.Collections.Generic.EqualityComparer<TValue>.Default.Equals(this.entries[in allocator, index].value, value)) {
                     return true;
@@ -321,6 +343,7 @@ namespace ME.ECS.Collections.LowLevel {
 
         [INLINE(256)]
         private readonly int FindEntry(in MemoryAllocator allocator, TKey key) {
+            E.CHECK_ALLOCATOR_VERSION(this.allocatorVersion, allocator.version);
             var index = -1;
             var num1 = 0;
             if (this.buckets.isCreated == true) {
@@ -346,11 +369,13 @@ namespace ME.ECS.Collections.LowLevel {
             this.freeList = -1;
             this.buckets = new MemArrayAllocator<int>(ref allocator, prime);
             this.entries = new MemArrayAllocator<Entry>(ref allocator, prime);
+            this.allocatorVersion = allocator.version;
             return prime;
         }
 
         [INLINE(256)]
         private bool TryInsert(ref MemoryAllocator allocator, TKey key, TValue value, InsertionBehavior behavior) {
+            E.CHECK_ALLOCATOR_VERSION(this.allocatorVersion, allocator.version);
             ++this.version;
             if (this.buckets.isCreated == false) {
                 this.Initialize(ref allocator, 0);
@@ -421,11 +446,13 @@ namespace ME.ECS.Collections.LowLevel {
 
         [INLINE(256)]
         private void Resize(ref MemoryAllocator allocator) {
+            E.CHECK_ALLOCATOR_VERSION(this.allocatorVersion, allocator.version);
             this.Resize(ref allocator, HashHelpers.ExpandPrime(this.count));
         }
 
         [INLINE(256)]
         private void Resize(ref MemoryAllocator allocator, int newSize) {
+            E.CHECK_ALLOCATOR_VERSION(this.allocatorVersion, allocator.version);
             var numArray = new MemArrayAllocator<int>(ref allocator, newSize);
             var entryArray = new MemArrayAllocator<Entry>(ref allocator, newSize);
             var count = this.count;
@@ -455,6 +482,7 @@ namespace ME.ECS.Collections.LowLevel {
         /// <param name="key">The key of the element to be removed from the dictionary.</param>
         [INLINE(256)]
         public bool Remove(ref MemoryAllocator allocator, TKey key) {
+            E.CHECK_ALLOCATOR_VERSION(this.allocatorVersion, allocator.version);
             if (this.buckets.isCreated == true) {
                 var num = key.GetHashCode() & int.MaxValue;
                 var index1 = num % this.buckets.Length;
@@ -495,6 +523,7 @@ namespace ME.ECS.Collections.LowLevel {
         /// <param name="value"></param>
         [INLINE(256)]
         public bool Remove(ref MemoryAllocator allocator, TKey key, out TValue value) {
+            E.CHECK_ALLOCATOR_VERSION(this.allocatorVersion, allocator.version);
             if (this.buckets.isCreated == true) {
                 var num = key.GetHashCode() & int.MaxValue;
                 var index1 = num % this.buckets.Length;
@@ -537,6 +566,7 @@ namespace ME.ECS.Collections.LowLevel {
         /// <param name="value"></param>
         [INLINE(256)]
         public readonly bool TryGetValue(in MemoryAllocator allocator, TKey key, out TValue value) {
+            E.CHECK_ALLOCATOR_VERSION(this.allocatorVersion, allocator.version);
             var entry = this.FindEntry(in allocator, key);
             if (entry >= 0) {
                 value = this.entries[in allocator, entry].value;
@@ -549,11 +579,13 @@ namespace ME.ECS.Collections.LowLevel {
 
         [INLINE(256)]
         public bool TryAdd(ref MemoryAllocator allocator, TKey key, TValue value) {
+            E.CHECK_ALLOCATOR_VERSION(this.allocatorVersion, allocator.version);
             return this.TryInsert(ref allocator, key, value, InsertionBehavior.None);
         }
 
         [INLINE(256)]
         public int EnsureCapacity(ref MemoryAllocator allocator, int capacity) {
+            E.CHECK_ALLOCATOR_VERSION(this.allocatorVersion, allocator.version);
             if (capacity < 0) {
                 ThrowHelper.ThrowArgumentOutOfRangeException(ExceptionArgument.capacity);
             }

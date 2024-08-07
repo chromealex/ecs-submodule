@@ -20,6 +20,9 @@ namespace ME.ECS.Collections.LowLevel {
         private int size;
         [ME.ECS.Serializer.SerializeField]
         private int version;
+        [ME.ECS.Serializer.SerializeField]
+        public int allocatorVersion;
+
         public readonly bool isCreated => this.array.isCreated;
 
         public readonly int Count => this.size;
@@ -27,16 +30,18 @@ namespace ME.ECS.Collections.LowLevel {
         public Queue(ref MemoryAllocator allocator, int capacity) {
             this = default;
             this.array = new MemArrayAllocator<T>(ref allocator, capacity);
+            this.allocatorVersion = allocator.version;
         }
 
         public void Dispose(ref MemoryAllocator allocator) {
-            
+            E.CHECK_ALLOCATOR_VERSION(this.allocatorVersion, allocator.version);
             this.array.Dispose(ref allocator);
             this = default;
             
         }
 
         public void Clear(in MemoryAllocator allocator) {
+            E.CHECK_ALLOCATOR_VERSION(this.allocatorVersion, allocator.version);
             this.head = 0;
             this.tail = 0;
             this.size = 0;
@@ -44,6 +49,7 @@ namespace ME.ECS.Collections.LowLevel {
         }
 
         public void Enqueue(ref MemoryAllocator allocator, T item) {
+            E.CHECK_ALLOCATOR_VERSION(this.allocatorVersion, allocator.version);
             if (this.size == this.array.Length) {
                 var newCapacity = (int)((long)this.array.Length * (long)Queue<T>.GROW_FACTOR / 100);
                 if (newCapacity < this.array.Length + Queue<T>.MINIMUM_GROW) {
@@ -70,10 +76,12 @@ namespace ME.ECS.Collections.LowLevel {
         }
 
         public EnumeratorNoState GetEnumerator(in MemoryAllocator allocator) {
+            E.CHECK_ALLOCATOR_VERSION(this.allocatorVersion, allocator.version);
             return new EnumeratorNoState(this, in allocator);
         }
 
         public T Dequeue(in MemoryAllocator allocator) {
+            E.CHECK_ALLOCATOR_VERSION(this.allocatorVersion, allocator.version);
             if (this.size == 0) {
                 ThrowHelper.ThrowInvalidOperationException(ExceptionResource.InvalidOperation_EmptyQueue);
             }
@@ -87,6 +95,7 @@ namespace ME.ECS.Collections.LowLevel {
         }
 
         public T Peek(in MemoryAllocator allocator) {
+            E.CHECK_ALLOCATOR_VERSION(this.allocatorVersion, allocator.version);
             if (this.size == 0) {
                 ThrowHelper.ThrowInvalidOperationException(ExceptionResource.InvalidOperation_EmptyQueue);
             }
@@ -95,6 +104,7 @@ namespace ME.ECS.Collections.LowLevel {
         }
 
         public bool Contains<U>(in MemoryAllocator allocator, U item) where U : System.IEquatable<T> {
+            E.CHECK_ALLOCATOR_VERSION(this.allocatorVersion, allocator.version);
             var index = this.head;
             var count = this.size;
 
@@ -110,10 +120,12 @@ namespace ME.ECS.Collections.LowLevel {
         }
 
         private T GetElement(in MemoryAllocator allocator, int i) {
+            E.CHECK_ALLOCATOR_VERSION(this.allocatorVersion, allocator.version);
             return this.array[in allocator, (this.head + i) % this.array.Length];
         }
 
         private void SetCapacity(ref MemoryAllocator allocator, int capacity) {
+            E.CHECK_ALLOCATOR_VERSION(this.allocatorVersion, allocator.version);
             this.array.Resize(ref allocator, capacity);
             this.head = 0;
             this.tail = this.size == capacity ? 0 : this.size;
