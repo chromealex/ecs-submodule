@@ -303,6 +303,7 @@ namespace ME.ECS.StatesHistory {
         public World world { get; set; }
 
         public System.Action<Tick> onRemoteHashFail;
+        public System.Action onRemoteHashSucceed;
         
         public virtual void OnConstruct() {
 
@@ -864,6 +865,8 @@ namespace ME.ECS.StatesHistory {
                 }
 
             }
+            
+            this.onRemoteHashSucceed?.Invoke();
             
         }
 
