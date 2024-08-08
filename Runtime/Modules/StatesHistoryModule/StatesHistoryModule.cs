@@ -989,7 +989,7 @@ namespace ME.ECS.StatesHistory {
 
         }
 
-        public void GetEntries(List<TState> states) {
+        public virtual void GetEntries(List<TState> states) {
             this.statesHistory.GetEntries(states);
         }
 

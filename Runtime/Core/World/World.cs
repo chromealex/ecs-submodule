@@ -1123,8 +1123,8 @@ namespace ME.ECS {
 
             if (this.resetState != null) WorldUtilities.ReleaseState<TState>(ref this.resetState);
             this.resetState = WorldUtilities.CreateState<TState>();
-            this.resetState.Initialize(this, freeze: true, restore: false);
             this.resetState.CopyFrom(this.GetState());
+            this.resetState.Initialize(this, freeze: true, restore: false);
             this.resetState.tick = Tick.Zero;
             this.resetState.structComponents.Merge(in this.resetState.allocator);
             this.hasResetState = true;
@@ -1132,6 +1132,7 @@ namespace ME.ECS {
             this.currentState.structComponents.Merge(in this.currentState.allocator);
 
             if (this.settings.viewsSettings.interpolationState == true) {
+                if (this.interpolationState != null) WorldUtilities.ReleaseState<TState>(ref this.interpolationState);
                 this.interpolationState = WorldUtilities.CreateState<TState>();
                 this.interpolationState.CopyFrom(this.GetState());
                 this.interpolationState.Initialize(this, freeze: true, restore: false);
