@@ -259,7 +259,7 @@ namespace ME.ECS.StatesHistory {
 
     public interface IStatesHistoryModule<TState> : IStatesHistoryModuleBase, IModule where TState : State, new() {
 
-        public void GetEntries(List<TState> states);
+        public void GetEntries(List<State> states);
         public void GetResultEntries(List<ME.ECS.Network.ResultEntry<TState>> states);
 
         Tick GetAndResetOldestTick(Tick tick);
@@ -989,7 +989,7 @@ namespace ME.ECS.StatesHistory {
 
         }
 
-        public virtual void GetEntries(List<TState> states) {
+        public virtual void GetEntries(List<State> states) {
             this.statesHistory.GetEntries(states);
         }
 

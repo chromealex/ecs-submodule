@@ -18,7 +18,7 @@
     public interface IStatesHistory<TState> : IStatesHistory where TState : State, new() {
 
         void GetResultEntries(List<ResultEntry<TState>> states);
-        void GetEntries(List<TState> states);
+        void GetEntries(List<State> states);
         Tick Store(Tick tick, TState state, out int overwritedStateHash);
         bool FindClosestEntry(Tick maxTick, out TState state, out Tick tick, bool lookupAll = false);
         void InvalidateEntriesAfterTick(Tick tick);
@@ -121,7 +121,7 @@
 
         }
 
-        public void GetEntries(List<TState> states) {
+        public void GetEntries(List<State> states) {
             foreach (var entry in this.entries) {
                 if (entry.isEmpty == false) {
                     states.Add(entry.state);

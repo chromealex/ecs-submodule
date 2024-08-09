@@ -579,7 +579,7 @@ namespace ME.ECS.Network {
                         this.statesHistoryModule.RunEvent(evt);
                     }
 
-                    var list = PoolList<TState>.Spawn(50);
+                    var list = PoolList<State>.Spawn(50);
                     this.statesHistoryModule.GetEntries(list);
                     foreach (var state in list) {
 
@@ -587,7 +587,7 @@ namespace ME.ECS.Network {
                         this.statesHistoryModule.RunEvent(evt);
 
                     }
-                    PoolList<TState>.Recycle(ref list);
+                    PoolList<State>.Recycle(ref list);
 
                     this.world.SetStateDirect(currentState);
                     return;
