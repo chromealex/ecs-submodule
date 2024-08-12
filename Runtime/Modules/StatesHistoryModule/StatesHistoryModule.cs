@@ -235,6 +235,8 @@ namespace ME.ECS.StatesHistory {
         void PlayEventsForTickPost(Tick tick);
         void RunEvent(HistoryEvent historyEvent);
 
+        void RunEventForEachStoredState(HistoryEvent historyEvent);
+
         void SetEventRunner(IEventRunner eventRunner);
         
         void SetSyncHash(int orderId, Tick tick, int hash);
@@ -989,7 +991,7 @@ namespace ME.ECS.StatesHistory {
 
         }
 
-        public virtual void GetEntries(List<TState> states) {
+        public void GetEntries(List<TState> states) {
             this.statesHistory.GetEntries(states);
         }
 
@@ -1018,6 +1020,26 @@ namespace ME.ECS.StatesHistory {
             
             if (this.eventRunner != null) this.eventRunner.RunEvent(historyEvent);
             
+        }
+
+        public virtual void RunEventForEachStoredState(HistoryEvent historyEvent) {
+
+            var currentState = this.world.GetState();
+
+            var list = PoolList<TState>.Spawn(50);
+            this.statesHistory.GetEntries(list);
+
+            foreach (var state in list) {
+
+                this.world.SetStateDirect(state);
+                this.RunEvent(historyEvent);
+
+            }
+
+            this.world.SetStateDirect(currentState);
+
+            PoolList<TState>.Recycle(list);
+
         }
 
         private void ValidatePrewarm() {
