@@ -59,6 +59,15 @@ namespace ME.ECS {
             }
 
         }
+        
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
+        public static IView GetMainView(this Entity entity) {
+            
+            return Worlds.currentWorld.GetMainView(entity.id);
+            
+        }
 
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
@@ -166,6 +175,16 @@ namespace ME.ECS {
             var viewsModule = this.GetModule<ViewsModule>();
             viewsModule.InstantiateView(prefab, entity);
 
+        }
+        
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
+        public IView GetMainView(int entityId) {
+            
+            var viewsModule = this.GetModule<ViewsModule>();
+            return viewsModule.GetMainView(entityId);
+            
         }
 
         #if INLINE_METHODS
@@ -819,6 +838,21 @@ namespace ME.ECS.Views {
 
             this.isRequestsDirty = true;
 
+        }
+        
+        #if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        #endif
+        public IView GetMainView(int entityId) {
+            
+            if (entityId < 0 || entityId >= this.list.arr.Length) {
+                
+                throw new System.ArgumentException("Invalid entity id");
+                
+            }
+            
+            return this.list.arr[entityId].mainView;
+            
         }
 
         #if INLINE_METHODS
