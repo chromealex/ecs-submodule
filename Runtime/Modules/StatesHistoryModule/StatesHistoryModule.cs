@@ -205,7 +205,7 @@ namespace ME.ECS.StatesHistory {
         void PauseStoreStateSinceTick(Tick tick);
         void ResumeStoreState();
 
-        Dictionary<Tick, Dictionary<int, int>> GetSyncHashTable();
+        SortedDictionary<Tick, Dictionary<int, int>> GetSyncHashTable();
         
         Tick GetCacheSize();
         Tick GetTicksPerState();
@@ -234,8 +234,6 @@ namespace ME.ECS.StatesHistory {
         void PlayEventsForTickPre(Tick tick);
         void PlayEventsForTickPost(Tick tick);
         void RunEvent(HistoryEvent historyEvent);
-
-        void RunEventForEachStoredState(HistoryEvent historyEvent);
 
         void SetEventRunner(IEventRunner eventRunner);
         
@@ -270,6 +268,8 @@ namespace ME.ECS.StatesHistory {
         Tick GetTickByTime(double seconds);
         TState GetStateBeforeTick(Tick tick, out Tick targetTick, bool lookupAll = false);
 
+        void SetPlayersCount(int count);
+
     }
 
 #if ECS_COMPILE_IL2CPP_OPTIONS
@@ -290,7 +290,7 @@ namespace ME.ECS.StatesHistory {
         
         private ME.ECS.Network.StatesHistoryStorage<TState> statesHistory;
         private Dictionary<Tick, ME.ECS.Collections.SortedList<long, HistoryEvent>> events;
-        private Dictionary<Tick, Dictionary<int, int>> syncHashTable;
+        private SortedDictionary<Tick, Dictionary<int, int>> syncHashTable;
         
         private bool prewarmed;
         //private int beginAddEventsCount;
@@ -305,7 +305,9 @@ namespace ME.ECS.StatesHistory {
         public World world { get; set; }
 
         public System.Action<Tick> onRemoteHashFail;
-        public System.Action onRemoteHashSucceed;
+        public System.Action<Tick> gotValidState;
+
+        private int playersCount;
         
         public virtual void OnConstruct() {
 
@@ -321,7 +323,7 @@ namespace ME.ECS.StatesHistory {
             
             this.statesHistory = new ME.ECS.Network.StatesHistoryStorage<TState>(this.world, this.GetQueueCapacity());
             this.events = PoolDictionary<Tick, ME.ECS.Collections.SortedList<long, HistoryEvent>>.Spawn(StatesHistoryModule<TState>.POOL_EVENTS_CAPACITY);
-            this.syncHashTable = PoolDictionary<Tick, Dictionary<int, int>>.Spawn(StatesHistoryModule<TState>.POOL_SYNCHASH_CAPACITY);
+            this.syncHashTable = new SortedDictionary<Tick, Dictionary<int, int>>();
             
             this.world.SetStatesHistoryModule(this);
 
@@ -365,7 +367,7 @@ namespace ME.ECS.StatesHistory {
                 PoolDictionary<int, int>.Recycle(kv.Value);
                 
             }
-            PoolDictionary<Tick, Dictionary<int, int>>.Recycle(ref this.syncHashTable);
+            this.syncHashTable.Clear();
 
         }
 
@@ -591,6 +593,7 @@ namespace ME.ECS.StatesHistory {
                 
             }
             this.syncHashTable.Clear();
+            this.InvalidateEntriesAfterTick(Tick.Invalid);
             this.statesHistory.DiscardAllAndReinitialize(this.world);
             
             foreach (var item in this.events) {
@@ -764,7 +767,7 @@ namespace ME.ECS.StatesHistory {
 
         }
 
-        public Dictionary<Tick, Dictionary<int, int>> GetSyncHashTable() {
+        public SortedDictionary<Tick, Dictionary<int, int>> GetSyncHashTable() {
 
             return this.syncHashTable;
 
@@ -774,19 +777,7 @@ namespace ME.ECS.StatesHistory {
 
             //UnityEngine.Debug.Log("SetSyncHash: " + orderId + " :: " + tick + " :: " + hash);
             Dictionary<int, int> dic;
-            if (this.syncHashTable.TryGetValue(tick, out dic) == true) {
-
-                if (dic.ContainsKey(orderId) == true) {
-
-                    dic[orderId] = hash;
-
-                } else {
-                    
-                    dic.Add(orderId, hash);
-                    
-                }
-
-            } else {
+            if (this.syncHashTable.TryGetValue(tick, out dic) == false) {
 
                 dic = PoolDictionary<int, int>.Spawn(4);
                 this.syncHashTable.Add(tick, dic);
@@ -835,6 +826,9 @@ namespace ME.ECS.StatesHistory {
         
         private void CheckHash(Tick currentTick) {
 
+            var greatestValidTick = Tick.Invalid;
+
+            // syncHashTable is in Desc order, so we can notify each checked hash as valid
             foreach (var sync in this.syncHashTable) {
 
                 var tick = sync.Key;
@@ -866,9 +860,20 @@ namespace ME.ECS.StatesHistory {
                     
                 }
 
+                if (this.playersCount > 0 && dic.Count == this.playersCount) {
+
+                    // all client's hashes got & they are the same, so tell that state is valid
+                    this.gotValidState?.Invoke(tick);
+
+                    if (tick > greatestValidTick) {
+                        greatestValidTick = tick;
+                    }
+
+                }
+
             }
-            
-            this.onRemoteHashSucceed?.Invoke();
+
+            if (greatestValidTick != Tick.Invalid) this.CleanUpHashTable(greatestValidTick);
             
         }
 
@@ -991,7 +996,7 @@ namespace ME.ECS.StatesHistory {
 
         }
 
-        public void GetEntries(List<TState> states) {
+        public virtual void GetEntries(List<TState> states) {
             this.statesHistory.GetEntries(states);
         }
 
@@ -1020,26 +1025,6 @@ namespace ME.ECS.StatesHistory {
             
             if (this.eventRunner != null) this.eventRunner.RunEvent(historyEvent);
             
-        }
-
-        public virtual void RunEventForEachStoredState(HistoryEvent historyEvent) {
-
-            var currentState = this.world.GetState();
-
-            var list = PoolList<TState>.Spawn(50);
-            this.statesHistory.GetEntries(list);
-
-            foreach (var state in list) {
-
-                this.world.SetStateDirect(state);
-                this.RunEvent(historyEvent);
-
-            }
-
-            this.world.SetStateDirect(currentState);
-
-            PoolList<TState>.Recycle(list);
-
         }
 
         private void ValidatePrewarm() {
@@ -1127,7 +1112,13 @@ namespace ME.ECS.StatesHistory {
             }
             
         }
-        
+
+        public void SetPlayersCount(int count) {
+
+            this.playersCount = count;
+
+        }
+
     }
 
 }
