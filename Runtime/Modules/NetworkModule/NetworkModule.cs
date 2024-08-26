@@ -589,7 +589,6 @@ namespace ME.ECS.Network {
 
                     this.world.SetStateDirect(currentState);
 
-                    this.world.SetStateDirect(currentState);
                     return;
 
                 }
