@@ -1121,15 +1121,14 @@ namespace ME.ECS {
 
             WorldStaticCallbacks.RaiseCallbackInitResetState(this.GetState());
 
+            this.currentState.structComponents.Merge(in this.currentState.allocator);
+
             if (this.resetState != null) WorldUtilities.ReleaseState<TState>(ref this.resetState);
             this.resetState = WorldUtilities.CreateState<TState>();
             this.resetState.CopyFrom(this.GetState());
             this.resetState.Initialize(this, freeze: true, restore: false);
             this.resetState.tick = Tick.Zero;
-            this.resetState.structComponents.Merge(in this.resetState.allocator);
             this.hasResetState = true;
-
-            this.currentState.structComponents.Merge(in this.currentState.allocator);
 
             if (this.settings.viewsSettings.interpolationState == true) {
                 if (this.interpolationState != null) WorldUtilities.ReleaseState<TState>(ref this.interpolationState);
@@ -1190,6 +1189,7 @@ namespace ME.ECS {
 
             if (this.currentState != null && this.currentState != state) WorldUtilities.ReleaseState<TState>(ref this.currentState);
             this.currentState = state;
+            this.currentState.structComponents.Merge(in this.currentState.allocator);
             state.Initialize(this, freeze: false, restore: true);
 
             if (state.storage.nextEntityId > 0) {
@@ -2135,6 +2135,12 @@ namespace ME.ECS {
             ////////////////
             this.currentStep |= WorldStep.PluginsLogicTick;
             ////////////////
+
+            // This is performed after each system/filter tick, but it should be performed before too
+            if (this.HasStep(WorldStep.LogicTick) == true) {
+                this.currentState.storage.UpdateFilters(this.currentState, ref this.currentState.allocator);
+            }
+
             {
 
                 try {
@@ -2161,6 +2167,12 @@ namespace ME.ECS {
                 this.GetRandomValue();
 
             }
+
+            // This is performed after each system/filter tick, but it should be performed before too
+            if (this.HasStep(WorldStep.LogicTick) == true) {
+                this.currentState.storage.UpdateFilters(this.currentState, ref this.currentState.allocator);
+            }
+
             ////////////////
             this.currentStep &= ~WorldStep.PluginsLogicTick;
             ////////////////
