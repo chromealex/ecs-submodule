@@ -63,7 +63,7 @@ namespace ME.ECS.Collections.LowLevel.Unsafe {
         #endif
         
         internal const int MIN_ZONE_SIZE = 512 * 1024;
-        private const int MIN_ZONES_LIST_CAPACITY = 20;
+        private const int MIN_ZONES_LIST_CAPACITY = 1000;
 
         [NativeDisableUnsafePtrRestriction]
         internal MemZone** zonesList;
