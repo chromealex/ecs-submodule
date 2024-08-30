@@ -165,8 +165,7 @@ namespace ME.ECS {
 
         }
 
-        // Editor crashes with inlining on Windows 10/11
-        // [INLINE(256)]
+        [INLINE(256)]
         public unsafe Enumerator GetEnumerator() {
 
             var world = Worlds.current;

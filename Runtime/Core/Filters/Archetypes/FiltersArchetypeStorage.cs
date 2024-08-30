@@ -1093,6 +1093,10 @@ namespace ME.ECS.FiltersArchetype {
                 return;
             }
 
+            if (Worlds.currentWorld.HasStep(WorldStep.LogicTick) == false) {
+                return;
+            }
+
             this.ApplyDead(ref allocator);
             this.ApplyAllRequests(ref allocator);
 

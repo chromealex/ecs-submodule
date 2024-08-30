@@ -182,7 +182,8 @@ namespace ME.ECS {
 
             var reg = this.SpawnInstance();
             ME.WeakRef.Reg(reg);
-            this.Merge();
+            // Avoid merging here, because it will change source game state
+            // this.Merge();
             reg.CopyFrom(this);
             return reg;
 
