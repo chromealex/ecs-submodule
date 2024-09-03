@@ -63,12 +63,7 @@ namespace ME.ECS.Collections.LowLevel.Unsafe {
         #endif
         
         internal const int MIN_ZONE_SIZE = 512 * 1024;
-        // There were 20 zones, I've significantly increased it
-        // Because there is a possible crash, when we a changing `MemZone** zonesList` pointer (doing AddZone call) in allocator copy
-        // 1000 zones will take only 8kB of memory, so it's ok
-        // Max possible iOS memory consumption is 2GB, so we can potentially use 4000 zones * 512kb, but it will cause longer array iterations
-        // So 1000 zones looks kinda enough
-        private const int MIN_ZONES_LIST_CAPACITY = 1000;
+        private const int MIN_ZONES_LIST_CAPACITY = 20;
 
         [NativeDisableUnsafePtrRestriction]
         internal MemZone** zonesList;
@@ -486,47 +481,6 @@ namespace ME.ECS.Collections.LowLevel.Unsafe {
                 throw new Exception(err);
             }
     
-        }
-
-        public long GetHash() {
-
-            long hash = 0;
-
-            for (int i = 0; i < this.zonesListCount; ++i) {
-
-                hash += i;
-
-                var zone = this.zonesList[i];
-
-                if (zone == null) {
-
-                    continue;
-
-                }
-
-                var blockCounter = 0;
-
-                for (var block = zone->blocklist.next.Ptr(zone);; block = block->next.Ptr(zone)) {
-                    if (block->next.Ptr(zone) == &zone->blocklist) {
-                        // all blocks have been hit
-                        break;
-                    }
-
-                    hash += block->state;
-                    hash += block->size;
-                    hash += block->prev.value;
-                    hash += block->next.value;
-
-                    blockCounter++;
-
-                }
-
-                hash += blockCounter;
-
-            }
-
-            return hash;
-
         }
 
     }

@@ -1081,8 +1081,7 @@ namespace ME.ECS {
 
                 } else {
 
-                    // Avoid merging here, because it will change source game state
-                    // from.Merge();
+                    from.Merge();
                     to.CopyFrom(from);
 
                 }

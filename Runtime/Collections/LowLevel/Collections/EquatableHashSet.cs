@@ -1,5 +1,3 @@
-using System.Runtime.InteropServices;
-
 namespace ME.ECS.Collections.LowLevel {
 
     using Unsafe;
@@ -100,7 +98,6 @@ namespace ME.ECS.Collections.LowLevel {
             
         }
 
-        [StructLayout(LayoutKind.Sequential)]
         public struct Slot {
             internal int hashCode;      // Lower 31 bits of hash code, -1 if unused
             internal int next;          // Index of next entry, -1 if last
