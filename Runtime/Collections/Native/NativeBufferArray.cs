@@ -97,13 +97,13 @@ namespace ME.ECS.Collections {
 
     public static class NativeBufferArrayExt {
         
-        [BurstCompatible(GenericTypeArguments = new[] { typeof(int), typeof(int) })]
-        public static int IndexOf<T, U>(this NativeBufferArray<T> array, U value) where T : struct, System.IEquatable<U> {
+        //[BurstCompatible(GenericTypeArguments = new[] { typeof(int), typeof(int) })]
+        /*public static int IndexOf<T, U>(this NativeBufferArray<T> array, U value) where T : struct, System.IEquatable<U> {
 
             if (array.isCreated == false) return -1;
             return array.arr.IndexOf(value);
             
-        }
+        }*/
 
         public static unsafe void* GetUnsafePtr<T>(this ref NativeBufferArray<T> arr) where T : struct {
             return arr.arr.GetUnsafePtr();
