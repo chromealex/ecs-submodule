@@ -248,11 +248,19 @@ namespace ME.ECS {
                     arr = default;
                     return;
             }
-            
-            if (arr.IsCreated == false || arr.Count != fromArr.Count) {
+
+            #if UNITY_2022
+            var fromCnt = fromArr.Count;
+            var toCnt = arr.Count;
+            #else
+            var fromCnt = fromArr.Count();
+            var toCnt = arr.Count();
+            #endif
+
+            if (arr.IsCreated == false || toCnt != fromCnt) {
 
                 if (arr.IsCreated == true) arr.Dispose();
-                arr = new Unity.Collections.NativeHashSet<T>(fromArr.Count, Unity.Collections.Allocator.Persistent);
+                arr = new Unity.Collections.NativeHashSet<T>(fromCnt, Unity.Collections.Allocator.Persistent);
                 
             }
             
