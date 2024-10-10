@@ -1081,7 +1081,8 @@ namespace ME.ECS {
 
                 } else {
 
-                    from.Merge();
+                    // Shouldn't merge source, because it leads to lose of deterministic behaviour
+                    // from.Merge();
                     to.CopyFrom(from);
 
                 }

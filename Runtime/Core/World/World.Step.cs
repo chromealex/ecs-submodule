@@ -41,6 +41,10 @@ namespace ME.ECS {
 
                         stepAction.Invoke(state, system, deltaTime);
 
+                        if (this.HasStep(WorldStep.LogicTick) == true) {
+                            this.currentState.storage.UpdateFilters(this.currentState, ref this.currentState.allocator);
+                        }
+
                         #if UNITY_EDITOR
                         UnityEngine.Profiling.Profiler.EndSample();
                         #endif
@@ -104,6 +108,10 @@ namespace ME.ECS {
 
                             stepAction.Invoke(moduleBase, deltaTime);
 
+                        }
+
+                        if (this.HasStep(WorldStep.LogicTick) == true) {
+                            this.currentState.storage.UpdateFilters(this.currentState, ref this.currentState.allocator);
                         }
 
                         #if UNITY_EDITOR

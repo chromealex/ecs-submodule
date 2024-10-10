@@ -1122,14 +1122,14 @@ namespace ME.ECS {
             WorldStaticCallbacks.RaiseCallbackInitResetState(this.GetState());
 
             if (this.resetState != null) WorldUtilities.ReleaseState<TState>(ref this.resetState);
+
+            this.currentState.structComponents.Merge(in this.currentState.allocator);
+
             this.resetState = WorldUtilities.CreateState<TState>();
             this.resetState.CopyFrom(this.GetState());
             this.resetState.Initialize(this, freeze: true, restore: false);
             this.resetState.tick = Tick.Zero;
-            this.resetState.structComponents.Merge(in this.resetState.allocator);
             this.hasResetState = true;
-
-            this.currentState.structComponents.Merge(in this.currentState.allocator);
 
             if (this.settings.viewsSettings.interpolationState == true) {
                 if (this.interpolationState != null) WorldUtilities.ReleaseState<TState>(ref this.interpolationState);
