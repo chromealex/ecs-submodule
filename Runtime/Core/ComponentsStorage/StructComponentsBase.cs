@@ -182,7 +182,8 @@ namespace ME.ECS {
 
             var reg = this.SpawnInstance();
             ME.WeakRef.Reg(reg);
-            this.Merge();
+            // Shouldn't merge source, because it leads to lose of deterministic behaviour
+            // this.Merge();
             reg.CopyFrom(this);
             return reg;
 
