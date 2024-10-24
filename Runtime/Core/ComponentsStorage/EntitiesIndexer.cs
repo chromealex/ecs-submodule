@@ -1,11 +1,40 @@
 #if ENABLE_IL2CPP
 #define INLINE_METHODS
 #endif
+using Unity.Burst;
 
 namespace ME.ECS {
     
     using Collections.LowLevel.Unsafe;
     using Collections.LowLevel;
+
+    [BurstCompile]
+    public static class EntitiesIndexerBurst {
+
+#if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+#endif
+        [BurstCompile]
+        internal static void Set(ref EntitiesIndexer entitiesIndexer, ref MemoryAllocator allocator, int entityId, int componentId) {
+
+            ref var item = ref entitiesIndexer.data[in allocator, entityId];
+            if (item.isCreated == false) item = new EquatableHashSet<int>(ref allocator, 1);
+            item.Add(ref allocator, componentId);
+
+        }
+
+#if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+#endif
+        [BurstCompile]
+        internal static void Remove(ref EntitiesIndexer entitiesIndexer, ref MemoryAllocator allocator, int entityId, int componentId) {
+
+            ref var item = ref entitiesIndexer.data[in allocator, entityId];
+            if (item.isCreated == true) item.Remove(ref allocator, componentId);
+
+        }
+
+    }
 
     #if ECS_COMPILE_IL2CPP_OPTIONS
     [Unity.IL2CPP.CompilerServices.Il2CppSetOptionAttribute(Unity.IL2CPP.CompilerServices.Option.NullChecks, false),
@@ -15,7 +44,7 @@ namespace ME.ECS {
     public struct EntitiesIndexer {
 
         [ME.ECS.Serializer.SerializeField]
-        private ME.ECS.Collections.LowLevel.MemArrayAllocator<ME.ECS.Collections.LowLevel.EquatableHashSet<int>> data;
+        internal ME.ECS.Collections.LowLevel.MemArrayAllocator<ME.ECS.Collections.LowLevel.EquatableHashSet<int>> data;
 
         #if INLINE_METHODS
         [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
@@ -66,27 +95,6 @@ namespace ME.ECS {
 
             return ref this.data[in allocator, entityId];
 
-        }
-
-        #if INLINE_METHODS
-        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-        #endif
-        internal void Set(ref MemoryAllocator allocator, int entityId, int componentId) {
-
-            ref var item = ref this.data[in allocator, entityId];
-            if (item.isCreated == false) item = new EquatableHashSet<int>(ref allocator, 1);
-            item.Add(ref allocator, componentId);
-
-        }
-
-        #if INLINE_METHODS
-        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-        #endif
-        internal void Remove(ref MemoryAllocator allocator, int entityId, int componentId) {
-            
-            ref var item = ref this.data[in allocator, entityId];
-            if (item.isCreated == true) item.Remove(ref allocator, componentId);
-            
         }
 
         #if INLINE_METHODS

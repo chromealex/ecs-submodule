@@ -1631,7 +1631,7 @@ namespace ME.ECS {
                 
                 incrementVersion = true;
                 SharedGroupsAPI<TComponent>.Set(ref reg.sharedStorage, entity.id, groupId);
-                this.currentState.structComponents.entitiesIndexer.Set(ref this.currentState.allocator, entity.id, AllComponentTypes<TComponent>.typeId);
+                EntitiesIndexerBurst.Set(ref this.currentState.structComponents.entitiesIndexer, ref this.currentState.allocator, entity.id, AllComponentTypes<TComponent>.typeId);
                 if (ComponentTypes<TComponent>.typeId >= 0) {
 
                     this.AddFilterByStructComponent<TComponent>(ref this.currentState.allocator, in entity);
@@ -1711,7 +1711,7 @@ namespace ME.ECS {
                 }
 
                 state = false;
-                this.currentState.structComponents.entitiesIndexer.Remove(ref this.currentState.allocator, entity.id, AllComponentTypes<TComponent>.typeId);
+                EntitiesIndexerBurst.Remove(ref this.currentState.structComponents.entitiesIndexer, ref this.currentState.allocator, entity.id, AllComponentTypes<TComponent>.typeId);
                 
                 if (ComponentTypes<TComponent>.typeId >= 0) {
 
@@ -1751,7 +1751,7 @@ namespace ME.ECS {
             if (state == false) {
 
                 state = true;
-                this.currentState.structComponents.entitiesIndexer.Set(ref this.currentState.allocator, entity.id, AllComponentTypes<TComponent>.typeId);
+                EntitiesIndexerBurst.Set(ref this.currentState.structComponents.entitiesIndexer, ref this.currentState.allocator, entity.id, AllComponentTypes<TComponent>.typeId);
                 if (ComponentTypes<TComponent>.typeId >= 0) {
 
                     this.AddFilterByStructComponent<TComponent>(ref this.currentState.allocator, in entity);

@@ -23,9 +23,9 @@ namespace ME.ECS {
                 reg.RemoveData(in entity, ref state);
                 
                 if (storageType == StorageType.Default) {
-                    world.currentState.structComponents.entitiesIndexer.Remove(ref world.currentState.allocator, entity.id, AllComponentTypes<T>.typeId);
+                    EntitiesIndexerBurst.Remove(ref world.currentState.structComponents.entitiesIndexer, ref world.currentState.allocator, entity.id, AllComponentTypes<T>.typeId);
                 } else if (storageType == StorageType.NoState) {
-                    world.noStateData.storage.entitiesIndexer.Remove(ref world.noStateData.allocator, entity.id, OneShotComponentTypes<T>.typeId);
+                    EntitiesIndexerBurst.Remove(ref world.noStateData.storage.entitiesIndexer, ref world.noStateData.allocator, entity.id, OneShotComponentTypes<T>.typeId);
                 }
                 
                 if (ComponentTypes<T>.typeId >= 0) {
@@ -64,9 +64,9 @@ namespace ME.ECS {
                 }
 
                 if (storageType == StorageType.Default) {
-                    world.currentState.structComponents.entitiesIndexer.Set(ref world.currentState.allocator, entity.id, AllComponentTypes<T>.typeId);
+                    EntitiesIndexerBurst.Set(ref world.currentState.structComponents.entitiesIndexer, ref world.currentState.allocator, entity.id, AllComponentTypes<T>.typeId);
                 } else if (storageType == StorageType.NoState) {
-                    world.noStateData.storage.entitiesIndexer.Set(ref world.noStateData.allocator, entity.id, OneShotComponentTypes<T>.typeId);
+                    EntitiesIndexerBurst.Set(ref world.noStateData.storage.entitiesIndexer, ref world.noStateData.allocator, entity.id, OneShotComponentTypes<T>.typeId);
                 }
 
                 if (ComponentTypes<T>.typeId >= 0) {

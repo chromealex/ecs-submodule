@@ -64,12 +64,117 @@ namespace ME.ECS.FiltersArchetype {
 
         }
 
+        [INLINE(256)]
+        [BURST]
+        public static void AddEntityToArch(ref FiltersArchetypeStorage storage, ref MemoryAllocator allocator, ref FiltersArchetypeStorage.Archetype arch, int entityId) {
+
+            //this.ValidateArchetype(ref allocator, ref arch);
+            var idx = arch.entitiesArr.Count;
+            arch.entitiesArr.Add(ref allocator, entityId);
+            arch.entitiesContains.Add(ref allocator, entityId);
+            storage.SetEntityArrIndex(ref allocator, entityId, idx);
+
+        }
+
+        [INLINE(256)]
+        [BURST]
+        public static void RemoveEntityFromArch(ref FiltersArchetypeStorage storage, ref MemoryAllocator allocator, ref FiltersArchetypeStorage.Archetype arch, int entityId) {
+
+            var idx = storage.GetEntityArrIndex(ref allocator, entityId);
+            var movedEntityId = arch.entitiesArr[in allocator, arch.entitiesArr.Count - 1];
+            arch.entitiesArr.RemoveAtFast(ref allocator, idx);
+            arch.entitiesContains.Remove(ref allocator, entityId);
+            //this.CleanUpArchetype(ref allocator, ref arch);
+            if (movedEntityId != entityId) storage.SetEntityArrIndex(ref allocator, movedEntityId, idx);
+            storage.SetEntityArrIndex(ref allocator, entityId, -1);
+
+        }
+
     }
     
     [Il2Cpp(Option.NullChecks, false)]
     [Il2Cpp(Option.ArrayBoundsChecks, false)]
     [Il2Cpp(Option.DivideByZeroChecks, false)]
     public struct FiltersArchetypeStorage : IStorage {
+
+        [BURST]
+        public static class ArchetypeBurst {
+
+            [INLINE(256)]
+            [BURST]
+            public static int CreateAdd(ref MemoryAllocator allocator, ref FiltersArchetypeStorage storage, int node, in List<int> componentIds, in EquatableDictionary<int, int> components, int componentId) {
+
+                if (storage.TryGetArchetypeAdd(ref allocator, componentIds, componentId, out var ar) == true) {
+                    return ar;
+                }
+
+                var arch = new Archetype() {
+                    edgesToAdd = new EquatableDictionary<int, int>(ref allocator, 1),
+                    edgesToRemove = new EquatableDictionary<int, int>(ref allocator, 1),
+                    entitiesArr = new List<int>(ref allocator, 1),
+                    entitiesContains = new EquatableHashSet<int>(ref allocator, 1),
+                    componentIds = new List<int>(ref allocator, componentIds.Count + 1),
+                    components = new EquatableDictionary<int, int>(ref allocator, components.Count + 1),
+                };
+                arch.components.CopyFrom(ref allocator, components);
+                arch.componentIds.AddRange(ref allocator, componentIds);
+                arch.components.Add(ref allocator, componentId,  arch.componentIds.Count);
+                arch.componentIds.Add(ref allocator, componentId);
+                if (node >= 0) {
+                    arch.edgesToRemove.Add(ref allocator, componentId, node);
+                }
+
+                storage.isArchetypesDirty = true;
+                var idx = storage.allArchetypes.Count;
+                arch.index = idx;
+
+                storage.dirtyArchetypes.Add(ref allocator, idx);
+                storage.allArchetypes.Add(ref allocator, arch);
+
+                return idx;
+
+            }
+
+            [INLINE(256)]
+            [BURST]
+            public static int CreateRemove(ref MemoryAllocator allocator, ref FiltersArchetypeStorage storage, int node, in List<int> componentIds, in EquatableDictionary<int, int> components, int componentId) {
+
+                if (storage.TryGetArchetypeRemove(ref allocator, componentIds, componentId, out var ar) == true) {
+                    return ar;
+                }
+
+                var arch = new Archetype() {
+                    edgesToAdd = new EquatableDictionary<int, int>(ref allocator, 1),
+                    edgesToRemove = new EquatableDictionary<int, int>(ref allocator, 1),
+                    entitiesArr = new List<int>(ref allocator, 1),
+                    entitiesContains = new EquatableHashSet<int>(ref allocator, 1),
+                    componentIds = new List<int>(ref allocator, componentIds.Count - 1),
+                    components = new EquatableDictionary<int, int>(ref allocator, components.Count - 1),
+                };
+                arch.componentIds.AddRange(ref allocator, componentIds);
+                storage.isArchetypesDirty = true;
+                var idx = storage.allArchetypes.Count;
+                arch.index = idx;
+
+                var infoIndex = components[in allocator, componentId];
+                arch.componentIds.RemoveAt(ref allocator, infoIndex);
+                for (var i = 0; i < arch.componentIds.Count; ++i) {
+                    var cId = arch.componentIds[in allocator, i];
+                    arch.components.Add(ref allocator, cId, i);
+                }
+
+                if (node >= 0) {
+                    arch.edgesToAdd.Add(ref allocator, componentId, node);
+                }
+
+                storage.dirtyArchetypes.Add(ref allocator, idx);
+                storage.allArchetypes.Add(ref allocator, arch);
+
+                return idx;
+
+            }
+
+        }
 
         [Il2Cpp(Option.NullChecks, false)]
         [Il2Cpp(Option.ArrayBoundsChecks, false)]
@@ -225,17 +330,17 @@ namespace ME.ECS.FiltersArchetype {
                 }
 
                 // Remove entity from current archetype
-                storage.RemoveEntityFromArch(ref allocator, ref this, entity.id);
+                FiltersArchetypeStorageBurst.RemoveEntityFromArch(ref storage, ref allocator, ref this, entity.id);
 
                 // Find the edge to move
                 ref var edge = ref this.edgesToAdd.GetValue(ref allocator, componentId, out var exist);
                 if (exist == false) {
-                    edge = Archetype.CreateAdd(ref allocator, ref storage, this.index, this.componentIds, this.components, componentId);
+                    edge = ArchetypeBurst.CreateAdd(ref allocator, ref storage, this.index, this.componentIds, this.components, componentId);
                 }
                 
                 {
                     ref var arch = ref storage.allArchetypes[in allocator, edge];
-                    storage.AddEntityToArch(ref allocator, ref arch, entity.id);
+                    FiltersArchetype.FiltersArchetypeStorageBurst.AddEntityToArch(ref storage, ref allocator, ref arch, entity.id);
                 }
 
                 // Return the new archetype we are moved to
@@ -251,93 +356,21 @@ namespace ME.ECS.FiltersArchetype {
                 }
 
                 // Remove entity from current archetype
-                storage.RemoveEntityFromArch(ref allocator, ref this, entity.id);
+                FiltersArchetypeStorageBurst.RemoveEntityFromArch(ref storage, ref allocator, ref this, entity.id);
 
                 // Find the edge to move
                 ref var edge = ref this.edgesToRemove.GetValue(ref allocator, componentId, out var exist);
                 if (exist == false) {
-                    edge = Archetype.CreateRemove(ref allocator, ref storage, this.index, this.componentIds, this.components, componentId);
+                    edge = ArchetypeBurst.CreateRemove(ref allocator, ref storage, this.index, this.componentIds, this.components, componentId);
                 }
 
                 {
                     ref var arch = ref storage.allArchetypes[in allocator, edge];
-                    storage.AddEntityToArch(ref allocator, ref arch, entity.id);
+                    FiltersArchetypeStorageBurst.AddEntityToArch(ref storage, ref allocator, ref arch, entity.id);
                 }
 
                 // Return the new archetype we are moved to
                 return storage.allArchetypes[in allocator, edge];
-
-            }
-
-            [INLINE(256)]
-            private static int CreateAdd(ref MemoryAllocator allocator, ref FiltersArchetypeStorage storage, int node, in List<int> componentIds, in EquatableDictionary<int, int> components, int componentId) {
-
-                if (storage.TryGetArchetypeAdd(ref allocator, componentIds, componentId, out var ar) == true) {
-                    return ar;
-                }
-
-                var arch = new Archetype() {
-                    edgesToAdd = new EquatableDictionary<int, int>(ref allocator, 1),
-                    edgesToRemove = new EquatableDictionary<int, int>(ref allocator, 1),
-                    entitiesArr = new List<int>(ref allocator, 1),
-                    entitiesContains = new EquatableHashSet<int>(ref allocator, 1),
-                    componentIds = new List<int>(ref allocator, componentIds.Count + 1),
-                    components = new EquatableDictionary<int, int>(ref allocator, components.Count + 1),
-                };
-                arch.components.CopyFrom(ref allocator, components);
-                arch.componentIds.AddRange(ref allocator, componentIds);
-                arch.components.Add(ref allocator, componentId,  arch.componentIds.Count);
-                arch.componentIds.Add(ref allocator, componentId);
-                if (node >= 0) {
-                    arch.edgesToRemove.Add(ref allocator, componentId, node);
-                }
-
-                storage.isArchetypesDirty = true;
-                var idx = storage.allArchetypes.Count;
-                arch.index = idx;
-
-                storage.dirtyArchetypes.Add(ref allocator, idx);
-                storage.allArchetypes.Add(ref allocator, arch);
-                
-                return idx;
-
-            }
-
-            [INLINE(256)]
-            private static int CreateRemove(ref MemoryAllocator allocator, ref FiltersArchetypeStorage storage, int node, in List<int> componentIds, in EquatableDictionary<int, int> components, int componentId) {
-
-                if (storage.TryGetArchetypeRemove(ref allocator, componentIds, componentId, out var ar) == true) {
-                    return ar;
-                }
-
-                var arch = new Archetype() {
-                    edgesToAdd = new EquatableDictionary<int, int>(ref allocator, 1),
-                    edgesToRemove = new EquatableDictionary<int, int>(ref allocator, 1),
-                    entitiesArr = new List<int>(ref allocator, 1),
-                    entitiesContains = new EquatableHashSet<int>(ref allocator, 1),
-                    componentIds = new List<int>(ref allocator, componentIds.Count - 1),
-                    components = new EquatableDictionary<int, int>(ref allocator, components.Count - 1),
-                };
-                arch.componentIds.AddRange(ref allocator, componentIds);
-                storage.isArchetypesDirty = true;
-                var idx = storage.allArchetypes.Count;
-                arch.index = idx;
-                
-                var infoIndex = components[in allocator, componentId];
-                arch.componentIds.RemoveAt(ref allocator, infoIndex);
-                for (var i = 0; i < arch.componentIds.Count; ++i) {
-                    var cId = arch.componentIds[in allocator, i];
-                    arch.components.Add(ref allocator, cId, i);
-                }
-
-                if (node >= 0) {
-                    arch.edgesToAdd.Add(ref allocator, componentId, node);
-                }
-
-                storage.dirtyArchetypes.Add(ref allocator, idx);
-                storage.allArchetypes.Add(ref allocator, arch);
-                
-                return idx;
 
             }
 
@@ -377,31 +410,7 @@ namespace ME.ECS.FiltersArchetype {
         }*/
 
         [INLINE(256)]
-        private void RemoveEntityFromArch(ref MemoryAllocator allocator, ref Archetype arch, int entityId) {
-
-            var idx = this.GetEntityArrIndex(ref allocator, entityId);
-            var movedEntityId = arch.entitiesArr[in allocator, arch.entitiesArr.Count - 1];
-            arch.entitiesArr.RemoveAtFast(ref allocator, idx);
-            arch.entitiesContains.Remove(ref allocator, entityId);
-            //this.CleanUpArchetype(ref allocator, ref arch);
-            if (movedEntityId != entityId) this.SetEntityArrIndex(ref allocator, movedEntityId, idx);
-            this.SetEntityArrIndex(ref allocator, entityId, -1);
-            
-        }
-
-        [INLINE(256)]
-        private void AddEntityToArch(ref MemoryAllocator allocator, ref Archetype arch, int entityId) {
-
-            //this.ValidateArchetype(ref allocator, ref arch);
-            var idx = arch.entitiesArr.Count;
-            arch.entitiesArr.Add(ref allocator, entityId);
-            arch.entitiesContains.Add(ref allocator, entityId);
-            this.SetEntityArrIndex(ref allocator, entityId, idx);
-            
-        }
-
-        [INLINE(256)]
-        private int GetEntityArrIndex(ref MemoryAllocator allocator, int entityId) {
+        internal int GetEntityArrIndex(ref MemoryAllocator allocator, int entityId) {
 
             this.entitiesArrIndex.Resize(ref allocator, entityId + 1);
             return this.entitiesArrIndex[in allocator, entityId];
@@ -409,7 +418,7 @@ namespace ME.ECS.FiltersArchetype {
         }
 
         [INLINE(256)]
-        private void SetEntityArrIndex(ref MemoryAllocator allocator, int entityId, int index) {
+        internal void SetEntityArrIndex(ref MemoryAllocator allocator, int entityId, int index) {
 
             this.entitiesArrIndex.Resize(ref allocator, entityId + 1);
             this.entitiesArrIndex[in allocator, entityId] = index;
@@ -705,7 +714,7 @@ namespace ME.ECS.FiltersArchetype {
         private void OnAlloc(ref MemoryAllocator allocator, int entityId) {
 
             ref var arch = ref this.allArchetypes[in allocator, this.root];
-            this.AddEntityToArch(ref allocator, ref arch, entityId);
+            FiltersArchetypeStorageBurst.AddEntityToArch(ref this, ref allocator, ref arch, entityId);
             this.index.Add(ref allocator, (ulong)entityId << 32, this.root);
 
         }
@@ -717,7 +726,7 @@ namespace ME.ECS.FiltersArchetype {
             var key = (ulong)entityId << 32;
             var archIdx = this.index.GetValueAndRemove(ref allocator, key);
             ref var arch = ref this.allArchetypes[in allocator, archIdx];
-            this.RemoveEntityFromArch(ref allocator, ref arch, entityId);
+            FiltersArchetypeStorageBurst.RemoveEntityFromArch(ref this, ref allocator, ref arch, entityId);
 
         }
         #endregion
