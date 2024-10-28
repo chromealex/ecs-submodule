@@ -975,7 +975,7 @@ namespace ME.ECS {
         #endif
         public bool HasBit(in MemoryAllocator allocator, in Entity entity, int bit) {
 
-            return this.entitiesIndexer.Has(in allocator, entity.id, bit);
+            return EntitiesIndexerBurst.Has(ref this.entitiesIndexer, in allocator, entity.id, bit);
             
         }
 

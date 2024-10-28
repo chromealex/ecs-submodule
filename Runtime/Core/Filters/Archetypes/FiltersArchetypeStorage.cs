@@ -72,7 +72,7 @@ namespace ME.ECS.FiltersArchetype {
             var idx = arch.entitiesArr.Count;
             arch.entitiesArr.Add(ref allocator, entityId);
             arch.entitiesContains.Add(ref allocator, entityId);
-            storage.SetEntityArrIndex(ref allocator, entityId, idx);
+            FiltersArchetypeStorageBurst.SetEntityArrIndex(ref storage, ref allocator, entityId, idx);
 
         }
 
@@ -80,13 +80,31 @@ namespace ME.ECS.FiltersArchetype {
         [BURST]
         public static void RemoveEntityFromArch(ref FiltersArchetypeStorage storage, ref MemoryAllocator allocator, ref FiltersArchetypeStorage.Archetype arch, int entityId) {
 
-            var idx = storage.GetEntityArrIndex(ref allocator, entityId);
+            var idx = FiltersArchetypeStorageBurst.GetEntityArrIndex(ref storage, ref allocator, entityId);
             var movedEntityId = arch.entitiesArr[in allocator, arch.entitiesArr.Count - 1];
             arch.entitiesArr.RemoveAtFast(ref allocator, idx);
             arch.entitiesContains.Remove(ref allocator, entityId);
             //this.CleanUpArchetype(ref allocator, ref arch);
-            if (movedEntityId != entityId) storage.SetEntityArrIndex(ref allocator, movedEntityId, idx);
-            storage.SetEntityArrIndex(ref allocator, entityId, -1);
+            if (movedEntityId != entityId) FiltersArchetypeStorageBurst.SetEntityArrIndex(ref storage, ref allocator, movedEntityId, idx);
+            FiltersArchetypeStorageBurst.SetEntityArrIndex(ref storage, ref allocator, entityId, -1);
+
+        }
+
+        [INLINE(256)]
+        [BURST]
+        internal static int GetEntityArrIndex(ref FiltersArchetypeStorage storage, ref MemoryAllocator allocator, int entityId) {
+
+            storage.entitiesArrIndex.Resize(ref allocator, entityId + 1);
+            return storage.entitiesArrIndex[in allocator, entityId];
+
+        }
+
+        [INLINE(256)]
+        [BURST]
+        internal static void SetEntityArrIndex(ref FiltersArchetypeStorage storage, ref MemoryAllocator allocator, int entityId, int index) {
+
+            storage.entitiesArrIndex.Resize(ref allocator, entityId + 1);
+            storage.entitiesArrIndex[in allocator, entityId] = index;
 
         }
 
@@ -408,22 +426,6 @@ namespace ME.ECS.FiltersArchetype {
             }
             
         }*/
-
-        [INLINE(256)]
-        internal int GetEntityArrIndex(ref MemoryAllocator allocator, int entityId) {
-
-            this.entitiesArrIndex.Resize(ref allocator, entityId + 1);
-            return this.entitiesArrIndex[in allocator, entityId];
-
-        }
-
-        [INLINE(256)]
-        internal void SetEntityArrIndex(ref MemoryAllocator allocator, int entityId, int index) {
-
-            this.entitiesArrIndex.Resize(ref allocator, entityId + 1);
-            this.entitiesArrIndex[in allocator, entityId] = index;
-
-        }
 
         private struct Request {
 

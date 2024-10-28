@@ -34,6 +34,19 @@ namespace ME.ECS {
 
         }
 
+#if INLINE_METHODS
+        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+#endif
+        [BurstCompile]
+        public static bool Has(ref EntitiesIndexer entitiesIndexer, in MemoryAllocator allocator, int entityId, int componentId) {
+
+            var arr = entitiesIndexer.data[in allocator, entityId];
+            if (arr.isCreated == false) return false;
+
+            return arr.Contains(in allocator, componentId);
+
+        }
+
     }
 
     #if ECS_COMPILE_IL2CPP_OPTIONS
@@ -73,18 +86,6 @@ namespace ME.ECS {
             if (arr.isCreated == false) return 0;
             
             return arr.Count;
-
-        }
-
-        #if INLINE_METHODS
-        [System.Runtime.CompilerServices.MethodImplAttribute(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-        #endif
-        public readonly bool Has(in MemoryAllocator allocator, int entityId, int componentId) {
-
-            var arr = this.data[in allocator, entityId];
-            if (arr.isCreated == false) return false;
-
-            return arr.Contains(in allocator, componentId);
 
         }
         
