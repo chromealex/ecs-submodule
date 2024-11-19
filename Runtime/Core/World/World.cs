@@ -1920,10 +1920,10 @@ namespace ME.ECS {
             var allocatorHashAfter = this.currentState.allocator.GetHashCode();
             var stateHashAfter = this.currentState.GetHash();
             if (allocatorHash != allocatorHashAfter) {
-                Debug.LogError($"PreUpdate, allocator hash changed! Allocator must be immutable outside of Logic");
+                Debug.LogError($"PreUpdate, allocator hash changed! Allocator must be immutable outside of LogicTick");
             }
             if (stateHash != stateHashAfter) {
-                Debug.LogError($"PreUpdate, state hash changed! State must be immutable outside of Logic");
+                Debug.LogError($"PreUpdate, state hash changed! State must be immutable outside of LogicTick");
             }
             #endif
 
@@ -1976,10 +1976,10 @@ namespace ME.ECS {
             var allocatorHashAfter = this.currentState.allocator.GetHashCode();
             var stateHashAfter = this.currentState.GetHash();
             if (allocatorHash != allocatorHashAfter) {
-                Debug.LogError($"PreUpdate, allocator hash changed! Allocator must be immutable outside of Logic");
+                Debug.LogError($"LateUpdate, allocator hash changed! Allocator must be immutable outside of LogicTick");
             }
             if (stateHash != stateHashAfter) {
-                Debug.LogError($"PreUpdate, state hash changed! State must be immutable outside of Logic");
+                Debug.LogError($"LateUpdate, state hash changed! State must be immutable outside of LogicTick");
             }
             #endif
 
