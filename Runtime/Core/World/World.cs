@@ -16,6 +16,7 @@ using Unity.Mathematics;
 using tfloat = System.Single;
 #endif
 using Unity.Jobs;
+using UnityEngine;
 
 namespace ME.ECS {
 
@@ -1908,7 +1909,27 @@ namespace ME.ECS {
 
             if (deltaTime < 0f) return;
 
+            #if !PRODUCTION
+            var allocatorHash = this.currentState.allocator.GetHashCode();
+            var stateHash = this.currentState.GetHash();
+            var tickBefore = this.currentState.tick;
+            #endif
+
             this.UpdateVisualPre(deltaTime * this.speed);
+
+            #if !PRODUCTION
+            if (tickBefore == this.currentState.tick) {
+                var allocatorHashAfter = this.currentState.allocator.GetHashCode();
+                var stateHashAfter = this.currentState.GetHash();
+                if (allocatorHash != allocatorHashAfter) {
+                    Debug.LogError(
+                        $"PreUpdate, allocator hash changed! Allocator must be immutable outside of LogicTick");
+                }
+                if (stateHash != stateHashAfter) {
+                    Debug.LogError($"PreUpdate, state hash changed! State must be immutable outside of LogicTick");
+                }
+            }
+            #endif
 
         }
 
@@ -1948,7 +1969,27 @@ namespace ME.ECS {
 
             deltaTime *= this.speed;
 
+            #if !PRODUCTION
+            var allocatorHash = this.currentState.allocator.GetHashCode();
+            var stateHash = this.currentState.GetHash();
+            var tickBefore = this.currentState.tick;
+            #endif
+
             if (this.settings.updateVisualWhileRollback == true || this.IsReverting() == false) this.UpdateVisualPost(deltaTime);
+
+            #if !PRODUCTION
+            if (tickBefore == this.currentState.tick) {
+                var allocatorHashAfter = this.currentState.allocator.GetHashCode();
+                var stateHashAfter = this.currentState.GetHash();
+                if (allocatorHash != allocatorHashAfter) {
+                    Debug.LogError(
+                        $"LateUpdate, allocator hash changed! Allocator must be immutable outside of LogicTick");
+                }
+                if (stateHash != stateHashAfter) {
+                    Debug.LogError($"LateUpdate, state hash changed! State must be immutable outside of LogicTick");
+                }
+            }
+            #endif
 
         }
 

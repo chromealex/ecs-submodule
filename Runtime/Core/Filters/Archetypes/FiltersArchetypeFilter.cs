@@ -51,7 +51,9 @@ namespace ME.ECS {
             
             private Entity current;
 
+            #if INLINE_METHODS
             [INLINE(256)]
+            #endif
             public bool MoveNext() {
                 
                 if (this.isCreated == false) return false;
@@ -131,7 +133,9 @@ namespace ME.ECS {
 
             }
 
+            #if INLINE_METHODS
             [INLINE(256)]
+            #endif
             public void Reset() {
 
                 this.index = -1;
@@ -141,11 +145,15 @@ namespace ME.ECS {
             object IEnumerator.Current => this.Current;
 
             public Entity Current {
+                #if INLINE_METHODS
                 [INLINE(256)]
+                #endif
                 get => this.current;
             }
 
+            #if INLINE_METHODS
             [INLINE(256)]
+            #endif
             public void Dispose() {
 
                 //this.arr.Dispose();
@@ -165,8 +173,9 @@ namespace ME.ECS {
 
         }
 
-        // Editor crashes with inlining on Windows 10/11
-        // [INLINE(256)]
+        #if INLINE_METHODS
+        [INLINE(256)]
+        #endif
         public unsafe Enumerator GetEnumerator() {
 
             var world = Worlds.current;
@@ -224,12 +233,14 @@ namespace ME.ECS {
         // ReSharper disable once InconsistentNaming
         public int Count {
             #if INLINE_METHODS
-            [MethodImplAttribute(MethodImplOptions.AggressiveInlining)]
+            [INLINE(256)]
             #endif
             get => Worlds.current.currentState.storage.Count(Worlds.current.currentState, ref Worlds.current.currentState.allocator, this);
         }
 
+        #if INLINE_METHODS
         [INLINE(256)]
+        #endif
         public static FilterBuilder CreateFromData(FilterDataTypes data) {
 
             var dataInternal = FilterInternalData.Create(ref Worlds.current.tempAllocator);
@@ -265,7 +276,9 @@ namespace ME.ECS {
 
         }
 
+        #if INLINE_METHODS
         [INLINE(256)]
+        #endif
         public static FilterBuilder CreateFromData(FilterDataTypesOptional data) {
 
             var dataInternal = FilterInternalData.Create(ref Worlds.current.tempAllocator);
@@ -337,7 +350,9 @@ namespace ME.ECS {
         }
 
         #if !FILTERS_LAMBDA_DISABLED
+        #if INLINE_METHODS
         [INLINE(256)]
+        #endif
         private static void CreateFromDataLambda<T>(ref FilterInternalData data, int typeId, System.Type type, IComponentBase component, T equalsChecker) where T : struct, IEqualsChecker {
 
             ComponentTypesRegistry.allTypeId.TryGetValue(type, out var globalTypeId);
@@ -424,7 +439,9 @@ namespace ME.ECS {
 
         }
 
+        #if INLINE_METHODS
         [INLINE(256)]
+        #endif
         private FilterRange GetRange(World world, in FilterStaticData data, out bool enableGroupByEntityId) {
 
             enableGroupByEntityId = false;
@@ -471,7 +488,9 @@ namespace ME.ECS {
 
         }
 
+        #if INLINE_METHODS
         [INLINE(256)]
+        #endif
         public void GetBounds(out int min, out int max) {
 
             ref var allocator = ref Worlds.current.currentState.allocator;
@@ -504,7 +523,9 @@ namespace ME.ECS {
         /// </summary>
         /// <param name="allocator"></param>
         /// <returns></returns>
+        #if INLINE_METHODS
         [INLINE(256)]
+        #endif
         public Unity.Collections.NativeArray<Entity> ToArray(Unity.Collections.Allocator allocator = Unity.Collections.Allocator.Persistent) {
 
             var filterData = Worlds.current.currentState.storage.GetFilter(in Worlds.current.currentState.allocator, this.id);
@@ -523,7 +544,9 @@ namespace ME.ECS {
 
         }
         
+        #if INLINE_METHODS
         [INLINE(256)]
+        #endif
         public Unity.Collections.NativeArray<Entity> ToArray(Unity.Collections.Allocator allocator, out int min, out int max) {
 
             min = int.MaxValue;
@@ -551,7 +574,9 @@ namespace ME.ECS {
 
         }
         
+        #if INLINE_METHODS
         [INLINE(256)]
+        #endif
         public Unity.Collections.NativeList<int> ToList(Unity.Collections.Allocator allocator, out Unity.Collections.NativeArray<int> idToIndex) {
 
             var filterData = Worlds.current.currentState.storage.GetFilter(in Worlds.current.currentState.allocator, this.id);
@@ -573,7 +598,9 @@ namespace ME.ECS {
 
         }
 
+        #if INLINE_METHODS
         [INLINE(256)]
+        #endif
         public Unity.Collections.NativeList<int> ToList(Unity.Collections.Allocator allocator, out int min, out int max) {
 
             min = int.MaxValue;
@@ -595,7 +622,9 @@ namespace ME.ECS {
 
         }
 
+        #if INLINE_METHODS
         [INLINE(256)]
+        #endif
         public Unity.Collections.NativeList<int> ToList(Unity.Collections.Allocator allocator) {
 
             var filterData = Worlds.current.currentState.storage.GetFilter(in Worlds.current.currentState.allocator, this.id);
@@ -608,7 +637,9 @@ namespace ME.ECS {
 
         }
 
+        #if INLINE_METHODS
         [INLINE(256)]
+        #endif
         public bool Contains(in MemoryAllocator allocator, in Entity entity) {
 
             var filterData = Worlds.current.currentState.storage.GetFilter(in allocator, this.id);
@@ -616,7 +647,9 @@ namespace ME.ECS {
 
         }
 
+        #if INLINE_METHODS
         [INLINE(256)]
+        #endif
         public bool Contains(in MemoryAllocator allocator, int entityId) {
 
             var filterData = Worlds.current.currentState.storage.GetFilter(in allocator, this.id);
@@ -624,7 +657,9 @@ namespace ME.ECS {
 
         }
 
+        #if INLINE_METHODS
         [INLINE(256)]
+        #endif
         public bool IsAlive() {
 
             return this.id > 0;
@@ -635,21 +670,27 @@ namespace ME.ECS {
 
         internal static InjectDelegate currentInject;
 
+        #if INLINE_METHODS
         [INLINE(256)]
+        #endif
         public static void RegisterInject(InjectDelegate injectFilter) {
 
             Filter.currentInject += injectFilter;
 
         }
 
+        #if INLINE_METHODS
         [INLINE(256)]
+        #endif
         public static void UnregisterInject(InjectDelegate injectFilter) {
 
             Filter.currentInject -= injectFilter;
 
         }
 
+        #if INLINE_METHODS
         [INLINE(256)]
+        #endif
         public static FilterBuilder Create(string name = null) {
 
             var data = FilterInternalData.Create(ref Worlds.current.tempAllocator);
@@ -693,7 +734,9 @@ namespace ME.ECS {
         [ME.ECS.Serializer.SerializeField]
         public bool isAlive;
 
+        #if INLINE_METHODS
         [INLINE(256)]
+        #endif
         public void Dispose(ref MemoryAllocator allocator) {
 
             this.id = 0;
@@ -703,7 +746,9 @@ namespace ME.ECS {
             
         }
 
+        #if INLINE_METHODS
         [INLINE(256)]
+        #endif
         public int Count(State state, ref MemoryAllocator allocator) {
             return this.storage.Count(state, ref allocator, this.id);
         }
@@ -747,21 +792,27 @@ namespace ME.ECS {
 
         }
 
+        #if INLINE_METHODS
         [INLINE(256)]
+        #endif
         public void ApplyAllRequests() {
 
             // Apply all requests after enumeration has ended
 
         }
 
+        #if INLINE_METHODS
         [INLINE(256)]
+        #endif
         public bool Contains(in MemoryAllocator allocator, in Entity entity) {
 
             return this.Contains(in allocator, entity.id);
 
         }
         
+        #if INLINE_METHODS
         [INLINE(256)]
+        #endif
         public bool Contains(in MemoryAllocator allocator, int entityId) {
 
             for (int i = 0; i < this.archetypesList.Count; ++i) {
@@ -1102,7 +1153,9 @@ namespace ME.ECS {
 
         }
 
+        #if INLINE_METHODS
         [INLINE(256)]
+        #endif
         public FilterBuilder With<T>() where T : struct {
 
             WorldUtilities.SetComponentTypeId<T>();
@@ -1111,7 +1164,9 @@ namespace ME.ECS {
 
         }
 
+        #if INLINE_METHODS
         [INLINE(256)]
+        #endif
         public FilterBuilder Without<T>() where T : struct {
 
             WorldUtilities.SetComponentTypeId<T>();
