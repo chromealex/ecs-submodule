@@ -975,7 +975,7 @@ namespace ME.ECS {
         #endif
         public bool HasBit(in MemoryAllocator allocator, in Entity entity, int bit) {
 
-            return this.entitiesIndexer.Has(in allocator, entity.id, bit);
+            return EntitiesIndexerBurst.Has(ref this.entitiesIndexer, in allocator, entity.id, bit);
             
         }
 
@@ -1081,7 +1081,8 @@ namespace ME.ECS {
 
                 } else {
 
-                    from.Merge();
+                    // Shouldn't merge source, because it leads to lose of deterministic behaviour
+                    // from.Merge();
                     to.CopyFrom(from);
 
                 }
@@ -1630,7 +1631,7 @@ namespace ME.ECS {
                 
                 incrementVersion = true;
                 SharedGroupsAPI<TComponent>.Set(ref reg.sharedStorage, entity.id, groupId);
-                this.currentState.structComponents.entitiesIndexer.Set(ref this.currentState.allocator, entity.id, AllComponentTypes<TComponent>.typeId);
+                EntitiesIndexerBurst.Set(ref this.currentState.structComponents.entitiesIndexer, ref this.currentState.allocator, entity.id, AllComponentTypes<TComponent>.typeId);
                 if (ComponentTypes<TComponent>.typeId >= 0) {
 
                     this.AddFilterByStructComponent<TComponent>(ref this.currentState.allocator, in entity);
@@ -1710,7 +1711,7 @@ namespace ME.ECS {
                 }
 
                 state = false;
-                this.currentState.structComponents.entitiesIndexer.Remove(ref this.currentState.allocator, entity.id, AllComponentTypes<TComponent>.typeId);
+                EntitiesIndexerBurst.Remove(ref this.currentState.structComponents.entitiesIndexer, ref this.currentState.allocator, entity.id, AllComponentTypes<TComponent>.typeId);
                 
                 if (ComponentTypes<TComponent>.typeId >= 0) {
 
@@ -1750,7 +1751,7 @@ namespace ME.ECS {
             if (state == false) {
 
                 state = true;
-                this.currentState.structComponents.entitiesIndexer.Set(ref this.currentState.allocator, entity.id, AllComponentTypes<TComponent>.typeId);
+                EntitiesIndexerBurst.Set(ref this.currentState.structComponents.entitiesIndexer, ref this.currentState.allocator, entity.id, AllComponentTypes<TComponent>.typeId);
                 if (ComponentTypes<TComponent>.typeId >= 0) {
 
                     this.AddFilterByStructComponent<TComponent>(ref this.currentState.allocator, in entity);

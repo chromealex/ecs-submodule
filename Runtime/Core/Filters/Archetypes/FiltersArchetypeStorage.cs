@@ -64,6 +64,50 @@ namespace ME.ECS.FiltersArchetype {
 
         }
 
+        [INLINE(256)]
+        [BURST]
+        public static void AddEntityToArch(ref FiltersArchetypeStorage storage, ref MemoryAllocator allocator, ref FiltersArchetypeStorage.Archetype arch, int entityId) {
+
+            //this.ValidateArchetype(ref allocator, ref arch);
+            var idx = arch.entitiesArr.Count;
+            arch.entitiesArr.Add(ref allocator, entityId);
+            arch.entitiesContains.Add(ref allocator, entityId);
+            FiltersArchetypeStorageBurst.SetEntityArrIndex(ref storage, ref allocator, entityId, idx);
+
+        }
+
+        [INLINE(256)]
+        [BURST]
+        public static void RemoveEntityFromArch(ref FiltersArchetypeStorage storage, ref MemoryAllocator allocator, ref FiltersArchetypeStorage.Archetype arch, int entityId) {
+
+            var idx = FiltersArchetypeStorageBurst.GetEntityArrIndex(ref storage, ref allocator, entityId);
+            var movedEntityId = arch.entitiesArr[in allocator, arch.entitiesArr.Count - 1];
+            arch.entitiesArr.RemoveAtFast(ref allocator, idx);
+            arch.entitiesContains.Remove(ref allocator, entityId);
+            //this.CleanUpArchetype(ref allocator, ref arch);
+            if (movedEntityId != entityId) FiltersArchetypeStorageBurst.SetEntityArrIndex(ref storage, ref allocator, movedEntityId, idx);
+            FiltersArchetypeStorageBurst.SetEntityArrIndex(ref storage, ref allocator, entityId, -1);
+
+        }
+
+        [INLINE(256)]
+        [BURST]
+        internal static int GetEntityArrIndex(ref FiltersArchetypeStorage storage, ref MemoryAllocator allocator, int entityId) {
+
+            storage.entitiesArrIndex.Resize(ref allocator, entityId + 1);
+            return storage.entitiesArrIndex[in allocator, entityId];
+
+        }
+
+        [INLINE(256)]
+        [BURST]
+        internal static void SetEntityArrIndex(ref FiltersArchetypeStorage storage, ref MemoryAllocator allocator, int entityId, int index) {
+
+            storage.entitiesArrIndex.Resize(ref allocator, entityId + 1);
+            storage.entitiesArrIndex[in allocator, entityId] = index;
+
+        }
+
     }
     
     [Il2Cpp(Option.NullChecks, false)]
@@ -71,206 +115,12 @@ namespace ME.ECS.FiltersArchetype {
     [Il2Cpp(Option.DivideByZeroChecks, false)]
     public struct FiltersArchetypeStorage : IStorage {
 
-        [Il2Cpp(Option.NullChecks, false)]
-        [Il2Cpp(Option.ArrayBoundsChecks, false)]
-        [Il2Cpp(Option.DivideByZeroChecks, false)]
-        public struct Archetype {
-
-            public int index;
-            public EquatableDictionary<int, int> components; // Contains componentId => Index in list
-            public List<int> componentIds; // Contains raw list of component ids
-            public List<int> entitiesArr; // Contains raw unsorted list of entities
-            public EquatableHashSet<int> entitiesContains;
-            public EquatableDictionary<int, int> edgesToAdd; // Contains edges to move from this archetype to another
-            public EquatableDictionary<int, int> edgesToRemove; // Contains edges to move from this archetype to another
-            
-            [INLINE(256)]
-            internal readonly bool HasAnyPair(in MemoryAllocator allocator, in MemoryAllocator tempAllocator, List<FilterInternalData.Pair2> list) {
-
-                for (int i = 0, cnt = list.Count; i < cnt; ++i) {
-                    var pair = list[tempAllocator, i];
-                    if (this.Has(in allocator, pair.t1) == false &&
-                        this.Has(in allocator, pair.t2) == false) {
-                        return false;
-                    }
-                }
-
-                return true;
-
-            }
+        [BURST]
+        public static class ArchetypeBurst {
 
             [INLINE(256)]
-            internal readonly bool HasAnyPair(in MemoryAllocator allocator, in MemoryAllocator tempAllocator, List<FilterInternalData.Pair3> list) {
-
-                for (int i = 0, cnt = list.Count; i < cnt; ++i) {
-                    var pair = list[tempAllocator, i];
-                    if (this.Has(in allocator, pair.t1) == false &&
-                        this.Has(in allocator, pair.t2) == false &&
-                        this.Has(in allocator, pair.t3) == false) {
-                        return false;
-                    }
-                }
-
-                return true;
-
-            }
-
-            [INLINE(256)]
-            internal readonly bool HasAnyPair(in MemoryAllocator allocator, in MemoryAllocator tempAllocator, List<FilterInternalData.Pair4> list) {
-
-                for (int i = 0, cnt = list.Count; i < cnt; ++i) {
-                    var pair = list[tempAllocator, i];
-                    if (this.Has(in allocator, pair.t1) == false &&
-                        this.Has(in allocator, pair.t2) == false &&
-                        this.Has(in allocator, pair.t3) == false &&
-                        this.Has(in allocator, pair.t4) == false) {
-                        return false;
-                    }
-                }
-
-                return true;
-
-            }
-
-            [INLINE(256)]
-            public readonly bool Has(in MemoryAllocator allocator, int componentId) {
-
-                return this.components.ContainsKey(in allocator, componentId);
-
-            }
-
-            [INLINE(256)]
-            public readonly bool HasAll(in MemoryAllocator allocator, in MemoryAllocator tempAllocator, List<int> componentIds) {
-
-                for (int i = 0, cnt = componentIds.Count; i < cnt; ++i) {
-                    var item = componentIds[in tempAllocator, i];
-                    if (this.components.ContainsKey(in allocator, item) == false) {
-                        return false;
-                    }
-                }
-
-                return true;
-
-            }
-
-            [INLINE(256)]
-            public readonly bool HasAll(in MemoryAllocator allocator, List<int> componentIds) {
-
-                for (int i = 0, cnt = componentIds.Count; i < cnt; ++i) {
-                    var item = componentIds[in allocator, i];
-                    if (this.components.ContainsKey(in allocator, item) == false) {
-                        return false;
-                    }
-                }
-
-                return true;
-
-            }
-
-            [INLINE(256)]
-            public readonly bool HasAll(in MemoryAllocator allocator, ListCopyable<int> componentIds) {
-
-                for (int i = 0, cnt = componentIds.Count; i < cnt; ++i) {
-                    var item = componentIds[i];
-                    if (this.components.ContainsKey(in allocator, item) == false) {
-                        return false;
-                    }
-                }
-
-                return true;
-
-            }
-
-            [INLINE(256)]
-            public readonly bool HasNotAll(in MemoryAllocator allocator, in MemoryAllocator tempAllocator, List<int> componentIds) {
-
-                for (int i = 0, cnt = componentIds.Count; i < cnt; ++i) {
-                    
-                    var item = componentIds[in tempAllocator, i];
-                    if (this.components.ContainsKey(in allocator, item) == true) {
-                        return false;
-                    }
-
-                }
-
-                return true;
-
-            }
-
-            [INLINE(256)]
-            public readonly bool HasAllExcept(in MemoryAllocator allocator, List<int> componentIds, int componentId) {
-
-                for (int i = 0, cnt = componentIds.Count; i < cnt; ++i) {
-                    
-                    var item = componentIds[in allocator, i];
-                    if (item == componentId) {
-                        continue;
-                    }
-
-                    if (this.components.ContainsKey(in allocator, item) == false) {
-                        return false;
-                    }
-
-                }
-
-                return true;
-
-            }
-
-            [INLINE(256)]
-            public Archetype Set(ref MemoryAllocator allocator, ref FiltersArchetypeStorage storage, Entity entity, int componentId) {
-
-                if (this.Has(in allocator, componentId) == true) {
-                    return this;
-                }
-
-                // Remove entity from current archetype
-                storage.RemoveEntityFromArch(ref allocator, ref this, entity.id);
-
-                // Find the edge to move
-                ref var edge = ref this.edgesToAdd.GetValue(ref allocator, componentId, out var exist);
-                if (exist == false) {
-                    edge = Archetype.CreateAdd(ref allocator, ref storage, this.index, this.componentIds, this.components, componentId);
-                }
-                
-                {
-                    ref var arch = ref storage.allArchetypes[in allocator, edge];
-                    storage.AddEntityToArch(ref allocator, ref arch, entity.id);
-                }
-
-                // Return the new archetype we are moved to
-                return storage.allArchetypes[in allocator, edge];
-
-            }
-
-            [INLINE(256)]
-            public Archetype Remove(ref MemoryAllocator allocator, ref FiltersArchetypeStorage storage, Entity entity, int componentId) {
-
-                if (this.Has(in allocator, componentId) == false) {
-                    return this;
-                }
-
-                // Remove entity from current archetype
-                storage.RemoveEntityFromArch(ref allocator, ref this, entity.id);
-
-                // Find the edge to move
-                ref var edge = ref this.edgesToRemove.GetValue(ref allocator, componentId, out var exist);
-                if (exist == false) {
-                    edge = Archetype.CreateRemove(ref allocator, ref storage, this.index, this.componentIds, this.components, componentId);
-                }
-
-                {
-                    ref var arch = ref storage.allArchetypes[in allocator, edge];
-                    storage.AddEntityToArch(ref allocator, ref arch, entity.id);
-                }
-
-                // Return the new archetype we are moved to
-                return storage.allArchetypes[in allocator, edge];
-
-            }
-
-            [INLINE(256)]
-            private static int CreateAdd(ref MemoryAllocator allocator, ref FiltersArchetypeStorage storage, int node, in List<int> componentIds, in EquatableDictionary<int, int> components, int componentId) {
+            [BURST]
+            public static int CreateAdd(ref MemoryAllocator allocator, ref FiltersArchetypeStorage storage, int node, in List<int> componentIds, in EquatableDictionary<int, int> components, int componentId) {
 
                 if (storage.TryGetArchetypeAdd(ref allocator, componentIds, componentId, out var ar) == true) {
                     return ar;
@@ -298,13 +148,14 @@ namespace ME.ECS.FiltersArchetype {
 
                 storage.dirtyArchetypes.Add(ref allocator, idx);
                 storage.allArchetypes.Add(ref allocator, arch);
-                
+
                 return idx;
 
             }
 
             [INLINE(256)]
-            private static int CreateRemove(ref MemoryAllocator allocator, ref FiltersArchetypeStorage storage, int node, in List<int> componentIds, in EquatableDictionary<int, int> components, int componentId) {
+            [BURST]
+            public static int CreateRemove(ref MemoryAllocator allocator, ref FiltersArchetypeStorage storage, int node, in List<int> componentIds, in EquatableDictionary<int, int> components, int componentId) {
 
                 if (storage.TryGetArchetypeRemove(ref allocator, componentIds, componentId, out var ar) == true) {
                     return ar;
@@ -322,7 +173,7 @@ namespace ME.ECS.FiltersArchetype {
                 storage.isArchetypesDirty = true;
                 var idx = storage.allArchetypes.Count;
                 arch.index = idx;
-                
+
                 var infoIndex = components[in allocator, componentId];
                 arch.componentIds.RemoveAt(ref allocator, infoIndex);
                 for (var i = 0; i < arch.componentIds.Count; ++i) {
@@ -336,14 +187,238 @@ namespace ME.ECS.FiltersArchetype {
 
                 storage.dirtyArchetypes.Add(ref allocator, idx);
                 storage.allArchetypes.Add(ref allocator, arch);
-                
+
                 return idx;
 
             }
 
         }
 
+        [Il2Cpp(Option.NullChecks, false)]
+        [Il2Cpp(Option.ArrayBoundsChecks, false)]
+        [Il2Cpp(Option.DivideByZeroChecks, false)]
+        public struct Archetype {
+
+            public int index;
+            public EquatableDictionary<int, int> components; // Contains componentId => Index in list
+            public List<int> componentIds; // Contains raw list of component ids
+            public List<int> entitiesArr; // Contains raw unsorted list of entities
+            public EquatableHashSet<int> entitiesContains;
+            public EquatableDictionary<int, int> edgesToAdd; // Contains edges to move from this archetype to another
+            public EquatableDictionary<int, int> edgesToRemove; // Contains edges to move from this archetype to another
+            
+            #if INLINE_METHODS
+            [INLINE(256)]
+            #endif
+            internal readonly bool HasAnyPair(in MemoryAllocator allocator, in MemoryAllocator tempAllocator, List<FilterInternalData.Pair2> list) {
+
+                for (int i = 0, cnt = list.Count; i < cnt; ++i) {
+                    var pair = list[tempAllocator, i];
+                    if (this.Has(in allocator, pair.t1) == false &&
+                        this.Has(in allocator, pair.t2) == false) {
+                        return false;
+                    }
+                }
+
+                return true;
+
+            }
+
+            #if INLINE_METHODS
+            [INLINE(256)]
+            #endif
+            internal readonly bool HasAnyPair(in MemoryAllocator allocator, in MemoryAllocator tempAllocator, List<FilterInternalData.Pair3> list) {
+
+                for (int i = 0, cnt = list.Count; i < cnt; ++i) {
+                    var pair = list[tempAllocator, i];
+                    if (this.Has(in allocator, pair.t1) == false &&
+                        this.Has(in allocator, pair.t2) == false &&
+                        this.Has(in allocator, pair.t3) == false) {
+                        return false;
+                    }
+                }
+
+                return true;
+
+            }
+
+            #if INLINE_METHODS
+            [INLINE(256)]
+            #endif
+            internal readonly bool HasAnyPair(in MemoryAllocator allocator, in MemoryAllocator tempAllocator, List<FilterInternalData.Pair4> list) {
+
+                for (int i = 0, cnt = list.Count; i < cnt; ++i) {
+                    var pair = list[tempAllocator, i];
+                    if (this.Has(in allocator, pair.t1) == false &&
+                        this.Has(in allocator, pair.t2) == false &&
+                        this.Has(in allocator, pair.t3) == false &&
+                        this.Has(in allocator, pair.t4) == false) {
+                        return false;
+                    }
+                }
+
+                return true;
+
+            }
+
+            #if INLINE_METHODS
+            [INLINE(256)]
+            #endif
+            public readonly bool Has(in MemoryAllocator allocator, int componentId) {
+
+                return this.components.ContainsKey(in allocator, componentId);
+
+            }
+
+            #if INLINE_METHODS
+            [INLINE(256)]
+            #endif
+            public readonly bool HasAll(in MemoryAllocator allocator, in MemoryAllocator tempAllocator, List<int> componentIds) {
+
+                for (int i = 0, cnt = componentIds.Count; i < cnt; ++i) {
+                    var item = componentIds[in tempAllocator, i];
+                    if (this.components.ContainsKey(in allocator, item) == false) {
+                        return false;
+                    }
+                }
+
+                return true;
+
+            }
+
+            #if INLINE_METHODS
+            [INLINE(256)]
+            #endif
+            public readonly bool HasAll(in MemoryAllocator allocator, List<int> componentIds) {
+
+                for (int i = 0, cnt = componentIds.Count; i < cnt; ++i) {
+                    var item = componentIds[in allocator, i];
+                    if (this.components.ContainsKey(in allocator, item) == false) {
+                        return false;
+                    }
+                }
+
+                return true;
+
+            }
+
+            #if INLINE_METHODS
+            [INLINE(256)]
+            #endif
+            public readonly bool HasAll(in MemoryAllocator allocator, ListCopyable<int> componentIds) {
+
+                for (int i = 0, cnt = componentIds.Count; i < cnt; ++i) {
+                    var item = componentIds[i];
+                    if (this.components.ContainsKey(in allocator, item) == false) {
+                        return false;
+                    }
+                }
+
+                return true;
+
+            }
+
+            #if INLINE_METHODS
+            [INLINE(256)]
+            #endif
+            public readonly bool HasNotAll(in MemoryAllocator allocator, in MemoryAllocator tempAllocator, List<int> componentIds) {
+
+                for (int i = 0, cnt = componentIds.Count; i < cnt; ++i) {
+                    
+                    var item = componentIds[in tempAllocator, i];
+                    if (this.components.ContainsKey(in allocator, item) == true) {
+                        return false;
+                    }
+
+                }
+
+                return true;
+
+            }
+
+            #if INLINE_METHODS
+            [INLINE(256)]
+            #endif
+            public readonly bool HasAllExcept(in MemoryAllocator allocator, List<int> componentIds, int componentId) {
+
+                for (int i = 0, cnt = componentIds.Count; i < cnt; ++i) {
+                    
+                    var item = componentIds[in allocator, i];
+                    if (item == componentId) {
+                        continue;
+                    }
+
+                    if (this.components.ContainsKey(in allocator, item) == false) {
+                        return false;
+                    }
+
+                }
+
+                return true;
+
+            }
+
+            #if INLINE_METHODS
+            [INLINE(256)]
+            #endif
+            public Archetype Set(ref MemoryAllocator allocator, ref FiltersArchetypeStorage storage, Entity entity, int componentId) {
+
+                if (this.Has(in allocator, componentId) == true) {
+                    return this;
+                }
+
+                // Remove entity from current archetype
+                FiltersArchetypeStorageBurst.RemoveEntityFromArch(ref storage, ref allocator, ref this, entity.id);
+
+                // Find the edge to move
+                ref var edge = ref this.edgesToAdd.GetValue(ref allocator, componentId, out var exist);
+                if (exist == false) {
+                    edge = ArchetypeBurst.CreateAdd(ref allocator, ref storage, this.index, this.componentIds, this.components, componentId);
+                }
+                
+                {
+                    ref var arch = ref storage.allArchetypes[in allocator, edge];
+                    FiltersArchetype.FiltersArchetypeStorageBurst.AddEntityToArch(ref storage, ref allocator, ref arch, entity.id);
+                }
+
+                // Return the new archetype we are moved to
+                return storage.allArchetypes[in allocator, edge];
+
+            }
+
+            #if INLINE_METHODS
+            [INLINE(256)]
+            #endif
+            public Archetype Remove(ref MemoryAllocator allocator, ref FiltersArchetypeStorage storage, Entity entity, int componentId) {
+
+                if (this.Has(in allocator, componentId) == false) {
+                    return this;
+                }
+
+                // Remove entity from current archetype
+                FiltersArchetypeStorageBurst.RemoveEntityFromArch(ref storage, ref allocator, ref this, entity.id);
+
+                // Find the edge to move
+                ref var edge = ref this.edgesToRemove.GetValue(ref allocator, componentId, out var exist);
+                if (exist == false) {
+                    edge = ArchetypeBurst.CreateRemove(ref allocator, ref storage, this.index, this.componentIds, this.components, componentId);
+                }
+
+                {
+                    ref var arch = ref storage.allArchetypes[in allocator, edge];
+                    FiltersArchetypeStorageBurst.AddEntityToArch(ref storage, ref allocator, ref arch, entity.id);
+                }
+
+                // Return the new archetype we are moved to
+                return storage.allArchetypes[in allocator, edge];
+
+            }
+
+        }
+
+        #if INLINE_METHODS
         [INLINE(256)]
+        #endif
         public int GetHash(ref MemoryAllocator allocator) {
             
             if (this.dead.isCreated == false) return 0;
@@ -375,46 +450,6 @@ namespace ME.ECS.FiltersArchetype {
             }
             
         }*/
-
-        [INLINE(256)]
-        private void RemoveEntityFromArch(ref MemoryAllocator allocator, ref Archetype arch, int entityId) {
-
-            var idx = this.GetEntityArrIndex(ref allocator, entityId);
-            var movedEntityId = arch.entitiesArr[in allocator, arch.entitiesArr.Count - 1];
-            arch.entitiesArr.RemoveAtFast(ref allocator, idx);
-            arch.entitiesContains.Remove(ref allocator, entityId);
-            //this.CleanUpArchetype(ref allocator, ref arch);
-            if (movedEntityId != entityId) this.SetEntityArrIndex(ref allocator, movedEntityId, idx);
-            this.SetEntityArrIndex(ref allocator, entityId, -1);
-            
-        }
-
-        [INLINE(256)]
-        private void AddEntityToArch(ref MemoryAllocator allocator, ref Archetype arch, int entityId) {
-
-            //this.ValidateArchetype(ref allocator, ref arch);
-            var idx = arch.entitiesArr.Count;
-            arch.entitiesArr.Add(ref allocator, entityId);
-            arch.entitiesContains.Add(ref allocator, entityId);
-            this.SetEntityArrIndex(ref allocator, entityId, idx);
-            
-        }
-
-        [INLINE(256)]
-        private int GetEntityArrIndex(ref MemoryAllocator allocator, int entityId) {
-
-            this.entitiesArrIndex.Resize(ref allocator, entityId + 1);
-            return this.entitiesArrIndex[in allocator, entityId];
-
-        }
-
-        [INLINE(256)]
-        private void SetEntityArrIndex(ref MemoryAllocator allocator, int entityId, int index) {
-
-            this.entitiesArrIndex.Resize(ref allocator, entityId + 1);
-            this.entitiesArrIndex[in allocator, entityId] = index;
-
-        }
 
         private struct Request {
 
@@ -559,14 +594,18 @@ namespace ME.ECS.FiltersArchetype {
 
         }
 
-        [MethodImplAttribute(MethodImplOptions.AggressiveInlining)]
+        #if INLINE_METHODS
+        [INLINE(256)]
+        #endif
         public ref Entity GetEntityById(in MemoryAllocator allocator, int id) {
 
             return ref this.cache[in allocator, id];
 
         }
 
-        [MethodImplAttribute(MethodImplOptions.AggressiveInlining)]
+        #if INLINE_METHODS
+        [INLINE(256)]
+        #endif
         public bool IsAlive(in MemoryAllocator allocator, int id, ushort generation) {
 
             return this.cache[in allocator, id].generation == generation;
@@ -574,7 +613,7 @@ namespace ME.ECS.FiltersArchetype {
         }
 
         #if INLINE_METHODS
-        [MethodImplAttribute(MethodImplOptions.AggressiveInlining)]
+        [INLINE(256)]
         #endif
         public bool ForEach(in MemoryAllocator allocator, ListCopyable<Entity> results) {
 
@@ -588,7 +627,9 @@ namespace ME.ECS.FiltersArchetype {
         }
 
         #if !ENTITIES_GROUP_DISABLED
-        [MethodImplAttribute(MethodImplOptions.AggressiveInlining)]
+        #if INLINE_METHODS
+        [INLINE(256)]
+        #endif
         // ReSharper disable once RedundantAssignment
         public unsafe void Alloc(ref MemoryAllocator allocator, int count, ref EntitiesGroup group, Unity.Collections.Allocator unityAllocator, bool copyMode) {
 
@@ -619,7 +660,9 @@ namespace ME.ECS.FiltersArchetype {
         }
         #endif
 
-        [MethodImplAttribute(MethodImplOptions.AggressiveInlining)]
+        #if INLINE_METHODS
+        [INLINE(256)]
+        #endif
         public unsafe ref Entity Alloc(ref MemoryAllocator allocator) {
 
             var marker = new Unity.Profiling.ProfilerMarker("Entities::Alloc");
@@ -661,7 +704,9 @@ namespace ME.ECS.FiltersArchetype {
 
         }
 
-        [MethodImplAttribute(MethodImplOptions.AggressiveInlining)]
+        #if INLINE_METHODS
+        [INLINE(256)]
+        #endif
         public bool Dealloc(ref MemoryAllocator allocator, in Entity entity) {
 
             if (this.IsAlive(in allocator, entity.id, entity.generation) == false) {
@@ -676,7 +721,9 @@ namespace ME.ECS.FiltersArchetype {
 
         }
 
-        [MethodImplAttribute(MethodImplOptions.AggressiveInlining)]
+        #if INLINE_METHODS
+        [INLINE(256)]
+        #endif
         public void ApplyDead(ref MemoryAllocator allocator) {
 
             var cnt = this.deadPrepared.Count;
@@ -701,35 +748,43 @@ namespace ME.ECS.FiltersArchetype {
 
         }
 
-        [MethodImplAttribute(MethodImplOptions.AggressiveInlining)]
+        #if INLINE_METHODS
+        [INLINE(256)]
+        #endif
         private void OnAlloc(ref MemoryAllocator allocator, int entityId) {
 
             ref var arch = ref this.allArchetypes[in allocator, this.root];
-            this.AddEntityToArch(ref allocator, ref arch, entityId);
+            FiltersArchetypeStorageBurst.AddEntityToArch(ref this, ref allocator, ref arch, entityId);
             this.index.Add(ref allocator, (ulong)entityId << 32, this.root);
 
         }
 
-        [MethodImplAttribute(MethodImplOptions.AggressiveInlining)]
+        #if INLINE_METHODS
+        [INLINE(256)]
+        #endif
         private void OnDealloc(ref MemoryAllocator allocator, int entityId) {
 
             // Remove from archetype
             var key = (ulong)entityId << 32;
             var archIdx = this.index.GetValueAndRemove(ref allocator, key);
             ref var arch = ref this.allArchetypes[in allocator, archIdx];
-            this.RemoveEntityFromArch(ref allocator, ref arch, entityId);
+            FiltersArchetypeStorageBurst.RemoveEntityFromArch(ref this, ref allocator, ref arch, entityId);
 
         }
         #endregion
 
+        #if INLINE_METHODS
         [INLINE(256)]
+        #endif
         public ref FilterData GetFilter(in MemoryAllocator allocator, int id) {
 
             return ref this.filters[in allocator, id - 1];
 
         }
 
+        #if INLINE_METHODS
         [INLINE(256)]
+        #endif
         private bool TryGetArchetypeAdd(ref MemoryAllocator allocator, List<int> componentIds, int componentId, out int arch) {
 
             // Try to search archetype with componentIds + componentId contained in
@@ -752,7 +807,9 @@ namespace ME.ECS.FiltersArchetype {
 
         }
 
+        #if INLINE_METHODS
         [INLINE(256)]
+        #endif
         private bool TryGetArchetypeRemove(ref MemoryAllocator allocator, List<int> componentIds, int componentId, out int arch) {
 
             // Try to search archetype with componentIds except componentId contained in
@@ -775,7 +832,9 @@ namespace ME.ECS.FiltersArchetype {
 
         }
 
+        #if INLINE_METHODS
         [INLINE(256)]
+        #endif
         public bool Has<T>(in MemoryAllocator allocator, in Entity entity) where T : struct {
 
             var key = (ulong)entity.id << 32;
@@ -786,7 +845,9 @@ namespace ME.ECS.FiltersArchetype {
         }
 
         #if !ENTITIES_GROUP_DISABLED
+        #if INLINE_METHODS
         [INLINE(256)]
+        #endif
         public void Set(ref MemoryAllocator allocator, in EntitiesGroup group, int componentId, bool checkLambda) {
 
             for (var i = group.fromId; i <= group.toId; ++i) {
@@ -797,7 +858,9 @@ namespace ME.ECS.FiltersArchetype {
 
         }
 
+        #if INLINE_METHODS
         [INLINE(256)]
+        #endif
         public void Remove(ref MemoryAllocator allocator, in EntitiesGroup group, int componentId, bool checkLambda) {
 
             for (var i = group.fromId; i <= group.toId; ++i) {
@@ -809,14 +872,18 @@ namespace ME.ECS.FiltersArchetype {
         }
         #endif
 
+        #if INLINE_METHODS
         [INLINE(256)]
+        #endif
         public void Validate<T>(ref MemoryAllocator allocator, in Entity entity, bool makeRequest) where T : struct {
 
             this.Validate(ref allocator, in entity, ComponentTypes<T>.typeId, makeRequest);
 
         }
 
+        #if INLINE_METHODS
         [INLINE(256)]
+        #endif
         public void Validate(ref MemoryAllocator allocator, in Entity entity, int componentId, bool makeRequest) {
 
             if (makeRequest == true) {
@@ -836,7 +903,9 @@ namespace ME.ECS.FiltersArchetype {
 
         }
 
+        #if INLINE_METHODS
         [INLINE(256)]
+        #endif
         public void Set(ref MemoryAllocator allocator, in Entity entity, int componentId, bool checkLambda) {
 
             #if !FILTERS_LAMBDA_DISABLED
@@ -861,7 +930,9 @@ namespace ME.ECS.FiltersArchetype {
 
         }
 
+        #if INLINE_METHODS
         [INLINE(256)]
+        #endif
         public void Set<T>(ref MemoryAllocator allocator, in Entity entity) where T : struct {
 
             #if !FILTERS_LAMBDA_DISABLED
@@ -873,10 +944,14 @@ namespace ME.ECS.FiltersArchetype {
 
         }
 
+        #if INLINE_METHODS
         [INLINE(256)]
+        #endif
         public void Remove(ref MemoryAllocator allocator, in Entity entity) { }
 
+        #if INLINE_METHODS
         [INLINE(256)]
+        #endif
         public void Remove(ref MemoryAllocator allocator, in Entity entity, int componentId, bool checkLambda) {
 
             #if !FILTERS_LAMBDA_DISABLED
@@ -901,7 +976,9 @@ namespace ME.ECS.FiltersArchetype {
 
         }
 
+        #if INLINE_METHODS
         [INLINE(256)]
+        #endif
         public void Remove<T>(ref MemoryAllocator allocator, in Entity entity) where T : struct {
 
             #if !FILTERS_LAMBDA_DISABLED
@@ -913,7 +990,9 @@ namespace ME.ECS.FiltersArchetype {
 
         }
 
+        #if INLINE_METHODS
         [INLINE(256)]
+        #endif
         internal void ApplyAllRequests(ref MemoryAllocator allocator) {
 
             var e = this.requests.GetEnumerator(in allocator);
@@ -945,7 +1024,9 @@ namespace ME.ECS.FiltersArchetype {
 
         }
 
+        #if INLINE_METHODS
         [INLINE(256)]
+        #endif
         private void AddValidateRequest(ref MemoryAllocator allocator, in Entity entity, int componentId) {
 
             this.requests.Add(ref allocator, new Request() {
@@ -956,7 +1037,9 @@ namespace ME.ECS.FiltersArchetype {
 
         }
 
+        #if INLINE_METHODS
         [INLINE(256)]
+        #endif
         private void AddSetRequest(ref MemoryAllocator allocator, in Entity entity, int componentId, bool checkLambda) {
 
             this.requests.Add(ref allocator, new Request() {
@@ -968,7 +1051,9 @@ namespace ME.ECS.FiltersArchetype {
 
         }
 
+        #if INLINE_METHODS
         [INLINE(256)]
+        #endif
         private void AddRemoveRequest(ref MemoryAllocator allocator, in Entity entity, int componentId, bool checkLambda) {
 
             this.requests.Add(ref allocator, new Request() {
@@ -980,14 +1065,18 @@ namespace ME.ECS.FiltersArchetype {
 
         }
 
+        #if INLINE_METHODS
         [INLINE(256)]
+        #endif
         public int Count(State state, ref MemoryAllocator allocator, Filter filter) {
 
             return this.Count(state, ref allocator, filter.id);
 
         }
 
+        #if INLINE_METHODS
         [INLINE(256)]
+        #endif
         // ReSharper disable once CognitiveComplexity
         public int Count(State state, ref MemoryAllocator allocator, int filterId) {
 
@@ -1074,7 +1163,9 @@ namespace ME.ECS.FiltersArchetype {
 
         }
 
+        #if INLINE_METHODS
         [INLINE(256)]
+        #endif
         public void MarkAllArchetypesAsDirty(ref MemoryAllocator allocator) {
 
             for (int archId = 0, cnt2 = this.allArchetypes.Count; archId < cnt2; ++archId) {
@@ -1085,13 +1176,17 @@ namespace ME.ECS.FiltersArchetype {
 
         }
 
+        #if INLINE_METHODS
         [INLINE(256)]
+        #endif
         // ReSharper disable once CognitiveComplexity
         public void UpdateFilters(State state, ref MemoryAllocator allocator) {
 
             if (this.forEachMode > 0) {
                 return;
             }
+
+            if (Worlds.currentWorld.HasStep(WorldStep.LogicTick) == false) return;
 
             this.ApplyDead(ref allocator);
             this.ApplyAllRequests(ref allocator);
@@ -1116,7 +1211,9 @@ namespace ME.ECS.FiltersArchetype {
         }
         
         #if !FILTERS_LAMBDA_DISABLED
+        #if INLINE_METHODS
         [INLINE(256)]
+        #endif
         internal static bool CheckLambdas(in MemoryAllocator allocator, in MemoryAllocator tempAllocator, in Archetype arch, List<int> lambdas) {
 
             return arch.HasAll(in allocator, in tempAllocator, lambdas);
@@ -1124,7 +1221,9 @@ namespace ME.ECS.FiltersArchetype {
         }
         #endif
 
+        #if INLINE_METHODS
         [INLINE(256)]
+        #endif
         internal static bool CheckStaticShared(in List<int> containsShared, in List<int> notContainsShared) {
 
             if (containsShared.Count == 0 && notContainsShared.Count == 0) {
@@ -1152,7 +1251,9 @@ namespace ME.ECS.FiltersArchetype {
 
         }
 
+        #if INLINE_METHODS
         [INLINE(256)]
+        #endif
         public bool TryGetFilter(in MemoryAllocator allocator, FilterBuilder filterBuilder, out FilterData filterData) {
 
             filterData = default;
@@ -1193,7 +1294,9 @@ namespace ME.ECS.FiltersArchetype {
 
         }
 
+        #if INLINE_METHODS
         [INLINE(256)]
+        #endif
         private static bool IsEquals(in MemoryAllocator tempAllocator, List<int> list1, List<int> list2) {
 
             if (list1.Count != list2.Count) {
@@ -1212,7 +1315,9 @@ namespace ME.ECS.FiltersArchetype {
 
         }
 
+        #if INLINE_METHODS
         [INLINE(256)]
+        #endif
         private static bool IsEquals<T>(in MemoryAllocator tempAllocator, List<T> list1, List<T> list2) where T : unmanaged, System.IEquatable<T> {
 
             if (list1.Count != list2.Count) {
@@ -1231,28 +1336,36 @@ namespace ME.ECS.FiltersArchetype {
 
         }
 
+        #if INLINE_METHODS
         [INLINE(256)]
+        #endif
         private static bool IsEquals(ListCopyable<ConnectInfo> list1, ListCopyable<ConnectInfo> list2) {
 
             return list1.Count == 0 && list2.Count == 0;
 
         }
 
+        #if INLINE_METHODS
         [INLINE(256)]
+        #endif
         public bool WillNew(in MemoryAllocator allocator) {
 
             return this.dead.Count == 0;
 
         }
 
+        #if INLINE_METHODS
         [INLINE(256)]
+        #endif
         public List<int> GetAlive() {
 
             return this.alive;
 
         }
 
+        #if INLINE_METHODS
         [INLINE(256)]
+        #endif
         public ref Entity IncrementGeneration(in MemoryAllocator allocator, in Entity entity) {
 
             // Make this entity not alive, but not completely destroyed at this time
@@ -1261,10 +1374,14 @@ namespace ME.ECS.FiltersArchetype {
 
         }
 
+        #if INLINE_METHODS
         [INLINE(256)]
+        #endif
         public void SetFreeze(bool freeze) { }
 
+        #if INLINE_METHODS
         [INLINE(256)]
+        #endif
         public bool IsDeadPrepared(in MemoryAllocator allocator, int entityId) {
 
             if (this.deadPrepared.Count == 0) return false;
