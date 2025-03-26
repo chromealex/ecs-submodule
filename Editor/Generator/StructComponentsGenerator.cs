@@ -77,7 +77,8 @@ namespace ME.ECSEditor {
         }
 
         public static void OnAfterAssemblyReload() {
-            
+
+            if (UnityEngine.Application.isBatchMode == true) return; 
             StructComponentsGenerator.Init();
             Generator.OnAfterAssemblyReload(false);
 
@@ -85,6 +86,7 @@ namespace ME.ECSEditor {
 
         public static void OnPostprocessAllAssets(string[] importedAssets, string[] deletedAssets, string[] movedAssets, string[] movedFromAssetPaths) {
 
+            if (UnityEngine.Application.isBatchMode == true) return;
             StructComponentsGenerator.Init();
             Generator.OnPostprocessAllAssetsGen(importedAssets, deletedAssets, movedAssets, movedFromAssetPaths);
             
@@ -93,6 +95,7 @@ namespace ME.ECSEditor {
         [UnityEditor.Callbacks.DidReloadScripts]
         private static void OnScriptsReloaded() {
 
+            if (UnityEngine.Application.isBatchMode == true) return;
             if (EditorApplication.isPlayingOrWillChangePlaymode == true) return;
             
             StructComponentsGenerator.Init();
