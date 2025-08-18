@@ -82,7 +82,7 @@ namespace ME.ECS.Collections.LowLevel {
 
         [INLINE(256)]
         public readonly int Capacity(in MemoryAllocator allocator) {
-            E.IS_CREATED(this);
+            ECS.E.IS_CREATED(this);
             return this.arr.Length;
         }
         
@@ -112,12 +112,12 @@ namespace ME.ECS.Collections.LowLevel {
         public void CopyFrom(ref MemoryAllocator allocator, in List<T> other) {
 
             if (other.arr.arrPtr == this.arr.arrPtr) return;
-            if (this.arr.arrPtr == MemPtr.Null && other.arr.arrPtr == MemPtr.Null) return;
-            if (this.arr.arrPtr != MemPtr.Null && other.arr.arrPtr == MemPtr.Null) {
+            if (this.arr.arrPtr == MemPtr.Invalid && other.arr.arrPtr == MemPtr.Invalid) return;
+            if (this.arr.arrPtr != MemPtr.Invalid && other.arr.arrPtr == MemPtr.Invalid) {
                 this.Dispose(ref allocator);
                 return;
             }
-            if (this.arr.arrPtr == MemPtr.Null) this = new List<T>(ref allocator, other.Capacity(in allocator));
+            if (this.arr.arrPtr == MemPtr.Invalid) this = new List<T>(ref allocator, other.Capacity(in allocator));
             
             NativeArrayUtils.Copy(ref allocator, in other.arr, ref this.arr);
             this.Count = other.Count;
@@ -127,7 +127,7 @@ namespace ME.ECS.Collections.LowLevel {
         [INLINE(256)]
         public readonly MemPtr GetMemPtr(in MemoryAllocator allocator) {
             
-            E.IS_CREATED(this);
+            ECS.E.IS_CREATED(this);
             return this.arr.arrPtr;
             
         }
@@ -135,7 +135,7 @@ namespace ME.ECS.Collections.LowLevel {
         [INLINE(256)]
         public readonly unsafe void* GetUnsafePtr(in MemoryAllocator allocator) {
 
-            E.IS_CREATED(this);
+            ECS.E.IS_CREATED(this);
             return this.arr.GetUnsafePtr(in allocator);
 
         }
@@ -143,7 +143,7 @@ namespace ME.ECS.Collections.LowLevel {
         [INLINE(256)]
         public void Dispose(ref MemoryAllocator allocator) {
 
-            E.IS_CREATED(this);
+            ECS.E.IS_CREATED(this);
             this.arr.Dispose(ref allocator);
             this = default;
             
@@ -152,7 +152,7 @@ namespace ME.ECS.Collections.LowLevel {
         [INLINE(256)]
         public readonly Enumerator GetEnumerator(State state) {
             
-            E.IS_CREATED(this);
+            ECS.E.IS_CREATED(this);
             return new Enumerator(state, this);
             
         }
@@ -160,7 +160,7 @@ namespace ME.ECS.Collections.LowLevel {
         [INLINE(256)]
         public readonly Enumerator GetEnumerator() {
             
-            E.IS_CREATED(this);
+            ECS.E.IS_CREATED(this);
             return this.GetEnumerator(Worlds.current.GetState());
             
         }
@@ -168,7 +168,7 @@ namespace ME.ECS.Collections.LowLevel {
         [INLINE(256)]
         public readonly EnumeratorNoState GetEnumerator(in MemoryAllocator allocator) {
             
-            E.IS_CREATED(this);
+            ECS.E.IS_CREATED(this);
             return new EnumeratorNoState(in allocator, this);
             
         }
@@ -176,7 +176,7 @@ namespace ME.ECS.Collections.LowLevel {
         [INLINE(256)]
         public void Clear(in MemoryAllocator allocator) {
 
-            E.IS_CREATED(this);
+            ECS.E.IS_CREATED(this);
             this.Count = 0;
 
         }
@@ -184,7 +184,7 @@ namespace ME.ECS.Collections.LowLevel {
         public readonly ref T this[in MemoryAllocator allocator, int index] {
             [INLINE(256)]
             get {
-                E.IS_CREATED(this);
+                ECS.E.IS_CREATED(this);
                 E.RANGE(index, 0, this.Count);
                 return ref this.arr[in allocator, index];
             }
@@ -193,7 +193,7 @@ namespace ME.ECS.Collections.LowLevel {
         [INLINE(256)]
         public bool EnsureCapacity(ref MemoryAllocator allocator, int capacity) {
 
-            E.IS_CREATED(this);
+            ECS.E.IS_CREATED(this);
             capacity = Helpers.NextPot(capacity);
             return this.arr.Resize(ref allocator, capacity, ClearOptions.ClearMemory);
             
@@ -202,7 +202,7 @@ namespace ME.ECS.Collections.LowLevel {
         [INLINE(256)]
         public void Add(ref MemoryAllocator allocator, T obj) {
 
-            E.IS_CREATED(this);
+            ECS.E.IS_CREATED(this);
             ++this.Count;
             this.EnsureCapacity(ref allocator, this.Count);
 
@@ -213,7 +213,7 @@ namespace ME.ECS.Collections.LowLevel {
         [INLINE(256)]
         public readonly bool Contains<U>(in MemoryAllocator allocator, U obj) where U : unmanaged, System.IEquatable<T> {
             
-            E.IS_CREATED(this);
+            ECS.E.IS_CREATED(this);
             for (int i = 0, cnt = this.Count; i < cnt; ++i) {
 
                 if (obj.Equals(this.arr[in allocator, i]) == true) {
@@ -231,7 +231,7 @@ namespace ME.ECS.Collections.LowLevel {
         [INLINE(256)]
         public bool Remove<U>(ref MemoryAllocator allocator, U obj) where U : unmanaged, System.IEquatable<T> {
 
-            E.IS_CREATED(this);
+            ECS.E.IS_CREATED(this);
             for (int i = 0, cnt = this.Count; i < cnt; ++i) {
 
                 if (obj.Equals(this.arr[in allocator, i]) == true) {
@@ -250,7 +250,7 @@ namespace ME.ECS.Collections.LowLevel {
         [INLINE(256)]
         public bool RemoveFast<U>(ref MemoryAllocator allocator, U obj) where U : unmanaged, System.IEquatable<T> {
 
-            E.IS_CREATED(this);
+            ECS.E.IS_CREATED(this);
             for (int i = 0, cnt = this.Count; i < cnt; ++i) {
 
                 if (obj.Equals(this.arr[in allocator, i]) == true) {
@@ -269,7 +269,7 @@ namespace ME.ECS.Collections.LowLevel {
         [INLINE(256)]
         public unsafe bool RemoveAt(ref MemoryAllocator allocator, int index) {
             
-            E.IS_CREATED(this);
+            ECS.E.IS_CREATED(this);
             if (index < 0 || index >= this.Count) return false;
 
             if (index == this.Count - 1) {
@@ -294,7 +294,7 @@ namespace ME.ECS.Collections.LowLevel {
         [INLINE(256)]
         public bool RemoveAtFast(ref MemoryAllocator allocator, int index) {
             
-            E.IS_CREATED(this);
+            ECS.E.IS_CREATED(this);
             if (index < 0 || index >= this.Count) return false;
             
             --this.Count;
@@ -308,7 +308,7 @@ namespace ME.ECS.Collections.LowLevel {
         [INLINE(256)]
         public bool Resize(ref MemoryAllocator allocator, int newLength, ClearOptions options = ClearOptions.ClearMemory) {
 
-            E.IS_CREATED(this);
+            ECS.E.IS_CREATED(this);
             if (this.isCreated == false) {
                 
                 this = new List<T>(ref allocator, newLength);
@@ -331,7 +331,7 @@ namespace ME.ECS.Collections.LowLevel {
         [INLINE(256)]
         public void AddRange(ref MemoryAllocator allocator, ListCopyable<T> list) {
 
-            E.IS_CREATED(this);
+            ECS.E.IS_CREATED(this);
             foreach (var item in list) {
                 
                 this.Add(ref allocator, item);
@@ -343,7 +343,7 @@ namespace ME.ECS.Collections.LowLevel {
         [INLINE(256)]
         public unsafe void AddRange(ref MemoryAllocator allocator, Unity.Collections.NativeArray<T> collection) {
 
-            E.IS_CREATED(this);
+            ECS.E.IS_CREATED(this);
             var index = this.Count;
             if (collection.IsCreated == false)
                 ThrowHelper.ThrowArgumentNullException(ExceptionArgument.collection);
@@ -357,7 +357,7 @@ namespace ME.ECS.Collections.LowLevel {
                     allocator.MemMove(this.arr.arrPtr, (index + count) * size, this.arr.arrPtr, index * size, (this.Count - index) * size);
                 }
 
-                Unity.Collections.LowLevel.Unsafe.UnsafeUtility.MemMove(allocator.GetUnsafePtr(this.arr.arrPtr), collection.GetUnsafePtr(), this.Count * size);
+                Unity.Collections.LowLevel.Unsafe.UnsafeUtility.MemMove(allocator.GetUnsafePtr(this.arr.arrPtr).ptr, collection.GetUnsafePtr(), this.Count * size);
                 
                 this.Count += count;
             }
@@ -367,7 +367,7 @@ namespace ME.ECS.Collections.LowLevel {
         [INLINE(256)]
         public unsafe void AddRange(ref MemoryAllocator allocator, List<T> collection) {
 
-            E.IS_CREATED(this);
+            ECS.E.IS_CREATED(this);
             var index = this.Count;
             if (collection.isCreated == false)
                 ThrowHelper.ThrowArgumentNullException(ExceptionArgument.collection);
@@ -396,7 +396,7 @@ namespace ME.ECS.Collections.LowLevel {
         [INLINE(256)]
         public unsafe void AddRange(ref MemoryAllocator allocator, MemArrayAllocator<T> collection) {
 
-            E.IS_CREATED(this);
+            ECS.E.IS_CREATED(this);
             var index = this.Count;
             if (collection.isCreated == false)
                 ThrowHelper.ThrowArgumentNullException(ExceptionArgument.collection);
@@ -424,7 +424,7 @@ namespace ME.ECS.Collections.LowLevel {
         [INLINE(256)]
         public readonly unsafe void CopyTo(ref MemoryAllocator allocator, MemArrayAllocator<T> arr, int index) {
             
-            E.IS_CREATED(this);
+            ECS.E.IS_CREATED(this);
             if (arr.isCreated == false) {
                 ThrowHelper.ThrowArgumentException(ExceptionResource.Arg_RankMultiDimNotSupported);
             }
@@ -437,7 +437,7 @@ namespace ME.ECS.Collections.LowLevel {
         [INLINE(256)]
         public readonly unsafe void CopyFrom(ref MemoryAllocator allocator, MemArrayAllocator<T> arr, int index) {
 
-            E.IS_CREATED(this);
+            ECS.E.IS_CREATED(this);
             if (arr.isCreated == false) {
                 ThrowHelper.ThrowArgumentException(ExceptionResource.Arg_RankMultiDimNotSupported);
             }

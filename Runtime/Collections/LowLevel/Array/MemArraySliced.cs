@@ -182,7 +182,7 @@ namespace ME.ECS.Collections.LowLevel {
 
             this.Merge(sizeOf, ref allocator);
             var size = sizeOf;
-            allocator.MemClear(this.data.arrPtr, index * size, length * size);
+            allocator.MemClear(this.data.arrPtr, (uint) (index * size), length * size);
             
         }
 
@@ -297,14 +297,14 @@ namespace ME.ECS.Collections.LowLevel {
 
                     ref var tail = ref tails[in allocator, i];
                     var len = tail.Length;
-                    if (index < len) return allocator.GetUnsafePtr(tail.GetAllocPtr(in allocator, index));
+                    if (index < len) return allocator.GetUnsafePtr(tail.GetAllocPtr(in allocator, index)).ptr;
                     index -= len;
 
                 }
 
             }
 
-            return allocator.GetUnsafePtr(data.GetAllocPtr(in allocator, index));
+            return allocator.GetUnsafePtr(data.GetAllocPtr(in allocator, index)).ptr;
             
         }
 
@@ -423,7 +423,7 @@ namespace ME.ECS.Collections.LowLevel {
 
             this.Merge(ref allocator);
             var size = Unity.Collections.LowLevel.Unsafe.UnsafeUtility.SizeOf<T>();
-            allocator.MemClear(this.data.arrPtr, index * size, length * size);
+            allocator.MemClear(this.data.arrPtr, (uint)(index * size), length * size);
             
         }
 

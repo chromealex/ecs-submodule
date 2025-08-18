@@ -1,3 +1,4 @@
+using ME.ECS.Collections.LowLevel.Unsafe;
 #if ENABLE_IL2CPP
 #define INLINE_METHODS
 #endif
@@ -46,6 +47,7 @@ namespace ME.ECS {
             ME.WeakRef.Reg(state);
             state.tick = default;
             state.randomState = default;
+            state.allocator = new MemoryAllocator().Initialize(1024 * 1024);
             return state;
 
         }

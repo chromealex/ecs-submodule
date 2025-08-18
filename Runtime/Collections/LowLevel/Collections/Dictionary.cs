@@ -185,12 +185,12 @@ namespace ME.ECS.Collections.LowLevel {
         public void CopyFrom(ref MemoryAllocator allocator, in Dictionary<TKey, TValue> other) {
 
             if (this.GetMemPtr(in allocator) == other.GetMemPtr(in allocator)) return;
-            if (this.GetMemPtr(in allocator) == MemPtr.Null && other.GetMemPtr(in allocator) == MemPtr.Null) return;
-            if (this.GetMemPtr(in allocator) != MemPtr.Null && other.GetMemPtr(in allocator) == MemPtr.Null) {
+            if (this.GetMemPtr(in allocator) == MemPtr.Invalid && other.GetMemPtr(in allocator) == MemPtr.Invalid) return;
+            if (this.GetMemPtr(in allocator) != MemPtr.Invalid && other.GetMemPtr(in allocator) == MemPtr.Invalid) {
                 this.Dispose(ref allocator);
                 return;
             }
-            if (this.GetMemPtr(in allocator) == MemPtr.Null) this = new Dictionary<TKey, TValue>(ref allocator, other.Count);
+            if (this.GetMemPtr(in allocator) == MemPtr.Invalid) this = new Dictionary<TKey, TValue>(ref allocator, other.Count);
             
             NativeArrayUtils.CopyExact(ref allocator, other.buckets, ref this.buckets);
             NativeArrayUtils.CopyExact(ref allocator, other.entries, ref this.entries);
@@ -203,21 +203,21 @@ namespace ME.ECS.Collections.LowLevel {
 
         [INLINE(256)]
         public readonly Enumerator GetEnumerator(State state) {
-			E.IS_CREATED(this);
+			ECS.E.IS_CREATED(this);
             return new Enumerator(state, this);
 
         }
         
         [INLINE(256)]
         public readonly Enumerator GetEnumerator() {
-			E.IS_CREATED(this);
+			ECS.E.IS_CREATED(this);
             return this.GetEnumerator(Worlds.current.GetState());
             
         }
 
         [INLINE(256)]
         public readonly EnumeratorNoState GetEnumerator(in MemoryAllocator allocator) {
-			E.IS_CREATED(this);
+			ECS.E.IS_CREATED(this);
             return new EnumeratorNoState(in allocator, this);
 
         }
@@ -228,7 +228,7 @@ namespace ME.ECS.Collections.LowLevel {
         public readonly ref TValue this[in MemoryAllocator allocator, TKey key] {
             [INLINE(256)]
             get {
-				E.IS_CREATED(this);
+                ECS.E.IS_CREATED(this);
                 var entry = this.FindEntry(in allocator, key);
                 if (entry >= 0) {
                     return ref this.entries[in allocator, entry].value;
@@ -240,7 +240,7 @@ namespace ME.ECS.Collections.LowLevel {
 
         [INLINE(256)]
         public ref TValue GetValue(ref MemoryAllocator allocator, TKey key) {
-			E.IS_CREATED(this);
+            ECS.E.IS_CREATED(this);
             var entry = this.FindEntry(in allocator, key);
             if (entry >= 0) {
                 return ref this.entries[in allocator, entry].value;
@@ -253,7 +253,7 @@ namespace ME.ECS.Collections.LowLevel {
 
         [INLINE(256)]
         public ref TValue GetValue(ref MemoryAllocator allocator, TKey key, out bool exist) {
-			E.IS_CREATED(this);
+            ECS.E.IS_CREATED(this);
             var entry = this.FindEntry(in allocator, key);
             if (entry >= 0) {
                 exist = true;
@@ -268,7 +268,7 @@ namespace ME.ECS.Collections.LowLevel {
 
         [INLINE(256)]
         public TValue GetValueAndRemove(ref MemoryAllocator allocator, TKey key) {
-			E.IS_CREATED(this);
+            ECS.E.IS_CREATED(this);
             this.Remove(ref allocator, key, out var value);
             return value;
 
@@ -280,14 +280,14 @@ namespace ME.ECS.Collections.LowLevel {
         /// <param name="value"></param>
         [INLINE(256)]
         public void Add(ref MemoryAllocator allocator, TKey key, TValue value) {
-			E.IS_CREATED(this);
+            ECS.E.IS_CREATED(this);
             this.TryInsert(ref allocator, key, value, InsertionBehavior.ThrowOnExisting);
         }
 
         /// <summary><para>Removes all elements from the dictionary.</para></summary>
         [INLINE(256)]
         public void Clear(in MemoryAllocator allocator) {
-			E.IS_CREATED(this);
+            ECS.E.IS_CREATED(this);
             var count = this.count;
             if (count > 0) {
                 this.buckets.Clear(in allocator);
@@ -305,7 +305,7 @@ namespace ME.ECS.Collections.LowLevel {
         /// <param name="key">The key to locate in the dictionary.</param>
         [INLINE(256)]
         public readonly bool ContainsKey(in MemoryAllocator allocator, TKey key) {
-			E.IS_CREATED(this);
+            ECS.E.IS_CREATED(this);
             return this.FindEntry(in allocator, key) >= 0;
         }
 
@@ -314,7 +314,7 @@ namespace ME.ECS.Collections.LowLevel {
         /// <param name="value">The value to locate in the dictionary.</param>
         [INLINE(256)]
         public readonly bool ContainsValue(in MemoryAllocator allocator, TValue value) { 
-			E.IS_CREATED(this);
+            ECS.E.IS_CREATED(this);
             for (var index = 0; index < this.count; ++index) {
                 if (this.entries[in allocator, index].hashCode >= 0 && System.Collections.Generic.EqualityComparer<TValue>.Default.Equals(this.entries[in allocator, index].value, value)) {
                     return true;
@@ -325,7 +325,7 @@ namespace ME.ECS.Collections.LowLevel {
 
         [INLINE(256)]
         private readonly int FindEntry(in MemoryAllocator allocator, TKey key) {
-			E.IS_CREATED(this);
+            ECS.E.IS_CREATED(this);
             var index = -1;
             var num1 = 0;
             if (this.buckets.isCreated == true) {
@@ -357,7 +357,7 @@ namespace ME.ECS.Collections.LowLevel {
 
         [INLINE(256)]
         private bool TryInsert(ref MemoryAllocator allocator, TKey key, TValue value, InsertionBehavior behavior) {
-			E.IS_CREATED(this);
+            ECS.E.IS_CREATED(this);
             ++this.version;
             if (this.buckets.isCreated == false) {
                 this.Initialize(ref allocator, 0);
@@ -428,13 +428,13 @@ namespace ME.ECS.Collections.LowLevel {
 
         [INLINE(256)]
         private void Resize(ref MemoryAllocator allocator) {
-			E.IS_CREATED(this);
+            ECS.E.IS_CREATED(this);
             this.Resize(ref allocator, HashHelpers.ExpandPrime(this.count));
         }
 
         [INLINE(256)]
         private void Resize(ref MemoryAllocator allocator, int newSize) {
-			E.IS_CREATED(this);
+            ECS.E.IS_CREATED(this);
             var numArray = new MemArrayAllocator<int>(ref allocator, newSize);
             var entryArray = new MemArrayAllocator<Entry>(ref allocator, newSize);
             var count = this.count;
@@ -464,7 +464,7 @@ namespace ME.ECS.Collections.LowLevel {
         /// <param name="key">The key of the element to be removed from the dictionary.</param>
         [INLINE(256)]
         public bool Remove(ref MemoryAllocator allocator, TKey key) {
-			E.IS_CREATED(this);
+            ECS.E.IS_CREATED(this);
             if (this.buckets.isCreated == true) {
                 var num = System.Collections.Generic.EqualityComparer<TKey>.Default.GetHashCode(key) & int.MaxValue;
                 var index1 = num % this.buckets.Length;
@@ -505,7 +505,7 @@ namespace ME.ECS.Collections.LowLevel {
         /// <param name="value"></param>
         [INLINE(256)]
         public bool Remove(ref MemoryAllocator allocator, TKey key, out TValue value) {
-			E.IS_CREATED(this);
+            ECS.E.IS_CREATED(this);
             if (this.buckets.isCreated == true) {
                 var num = System.Collections.Generic.EqualityComparer<TKey>.Default.GetHashCode(key) & int.MaxValue;
                 var index1 = num % this.buckets.Length;
@@ -548,7 +548,7 @@ namespace ME.ECS.Collections.LowLevel {
         /// <param name="value"></param>
         [INLINE(256)]
         public readonly bool TryGetValue(in MemoryAllocator allocator, TKey key, out TValue value) {
-			E.IS_CREATED(this);
+            ECS.E.IS_CREATED(this);
             var entry = this.FindEntry(in allocator, key);
             if (entry >= 0) {
                 value = this.entries[in allocator, entry].value;
@@ -561,13 +561,13 @@ namespace ME.ECS.Collections.LowLevel {
 
         [INLINE(256)]
         public bool TryAdd(ref MemoryAllocator allocator, TKey key, TValue value) {
-			E.IS_CREATED(this);
+            ECS.E.IS_CREATED(this);
             return this.TryInsert(ref allocator, key, value, InsertionBehavior.None);
         }
 
         [INLINE(256)]
         public int EnsureCapacity(ref MemoryAllocator allocator, int capacity) {
-			E.IS_CREATED(this);
+            ECS.E.IS_CREATED(this);
             if (capacity < 0) {
                 ThrowHelper.ThrowArgumentOutOfRangeException(ExceptionArgument.capacity);
             }

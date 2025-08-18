@@ -145,7 +145,7 @@ namespace ME.ECS.Collections {
                         return new AABB2D(new float2(parentBounds.center.x + half.x, parentBounds.center.y - half.y), half);
 
                     default:
-                        throw new Exception();
+                        throw new System.Exception();
                 }
             }
 

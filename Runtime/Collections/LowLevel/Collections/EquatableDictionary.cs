@@ -186,12 +186,12 @@ namespace ME.ECS.Collections.LowLevel {
         public void CopyFrom(ref MemoryAllocator allocator, in EquatableDictionary<TKey, TValue> other) {
 
             if (this.GetMemPtr(in allocator) == other.GetMemPtr(in allocator)) return;
-            if (this.GetMemPtr(in allocator) == MemPtr.Null && other.GetMemPtr(in allocator) == MemPtr.Null) return;
-            if (this.GetMemPtr(in allocator) != MemPtr.Null && other.GetMemPtr(in allocator) == MemPtr.Null) {
+            if (this.GetMemPtr(in allocator) == MemPtr.Invalid && other.GetMemPtr(in allocator) == MemPtr.Invalid) return;
+            if (this.GetMemPtr(in allocator) != MemPtr.Invalid && other.GetMemPtr(in allocator) == MemPtr.Invalid) {
                 this.Dispose(ref allocator);
                 return;
             }
-            if (this.GetMemPtr(in allocator) == MemPtr.Null) this = new EquatableDictionary<TKey, TValue>(ref allocator, other.Count);
+            if (this.GetMemPtr(in allocator) == MemPtr.Invalid) this = new EquatableDictionary<TKey, TValue>(ref allocator, other.Count);
             
             NativeArrayUtils.CopyExact(ref allocator, other.buckets, ref this.buckets);
             NativeArrayUtils.CopyExact(ref allocator, other.entries, ref this.entries);

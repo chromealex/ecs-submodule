@@ -274,8 +274,8 @@ namespace ME.ECS.Serializer {
             
             Int32Serializer.PackDirect(packer, data.alignOf);
             Int32Serializer.PackDirect(packer, data.typeId);
-            Int32Serializer.PackDirect(packer, data.data.zoneId);
-            Int32Serializer.PackDirect(packer, data.data.offset);
+            UInt32Serializer.PackDirect(packer, data.data.zoneId);
+            UInt32Serializer.PackDirect(packer, data.data.offset);
             /*var buffer = packer.GetBufferToWrite(data.sizeOf);
             var pos = packer.GetPositionAndMove(data.sizeOf);
             System.Runtime.InteropServices.Marshal.Copy(data.data, buffer, pos, data.sizeOf);
@@ -292,8 +292,8 @@ namespace ME.ECS.Serializer {
             data.alignOf = Int32Serializer.UnpackDirect(packer);
             data.typeId = Int32Serializer.UnpackDirect(packer);
             
-            var zoneId = Int32Serializer.UnpackDirect(packer);
-            var offset = Int32Serializer.UnpackDirect(packer);
+            var zoneId = UInt32Serializer.UnpackDirect(packer);
+            var offset = UInt32Serializer.UnpackDirect(packer);
 
             data.data = new ME.ECS.Collections.LowLevel.Unsafe.MemPtr(zoneId, offset);
             /*var buffer = packer.GetBuffer();

@@ -1137,7 +1137,7 @@ namespace ME.ECS {
 
             public void Initialize() {
 
-                this.allocator.Initialize(1024 * 1024, -1);
+                this.allocator.Initialize(1024 * 1024);
                 this.storage.Initialize(ref this.allocator, true);
                 this.pluginsStorage.Initialize(ref this.allocator);
 

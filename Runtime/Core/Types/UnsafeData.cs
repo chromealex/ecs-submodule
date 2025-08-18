@@ -37,7 +37,7 @@ namespace ME.ECS {
 
             this.typeId = AllComponentTypes<T>.typeId;
 
-            if (this.data != MemPtr.Null) allocator.Free(this.data);
+            if (this.data != MemPtr.Invalid) allocator.Free(this.data);
             
             this.sizeOf = UnsafeUtility.SizeOf<T>();
             this.alignOf = UnsafeUtility.AlignOf<T>();
@@ -71,7 +71,7 @@ namespace ME.ECS {
         #endif
         public void Dispose(ref MemoryAllocator allocator) {
 
-            if (this.data != MemPtr.Null) allocator.Free(this.data);
+            if (this.data != MemPtr.Invalid) allocator.Free(this.data);
             this = default;
             
         }
@@ -85,11 +85,16 @@ namespace ME.ECS {
 
         private bool EqualsData(in MemoryAllocator allocator, MemPtr ptr1, MemPtr ptr2) {
 
+            var safePtr1 = allocator.GetUnsafePtr(ptr1).ptr;
+            var safePtr2 = allocator.GetUnsafePtr(ptr2).ptr;
             for (int i = 0; i < this.sizeOf; ++i) {
-                if (allocator.GetUnsafePtr(ptr1 + i) != allocator.GetUnsafePtr(ptr2 + i)) {
+                byte byte1 = *(safePtr1 + i);
+                byte byte2 = *(safePtr2 + i);
+                if (byte1 != byte2) {
                     return false;
                 }
             }
+
             return true;
 
         }

@@ -1,3 +1,4 @@
+using System;
 using ME.ECS.Collections;
 using INLINE = System.Runtime.CompilerServices.MethodImplAttribute;
 
@@ -17,6 +18,7 @@ namespace ME.ECS.Serializer {
 
         [INLINE(256)] public void Pack(Packer packer, object obj) {
 
+            /*
             var allocator = (MemoryAllocator)obj;
             Int64Serializer.PackDirect(packer, allocator.maxSize);
             Int32Serializer.PackDirect(packer, allocator.zonesListCount);
@@ -33,11 +35,25 @@ namespace ME.ECS.Serializer {
                 var buffer = packer.GetBuffer();
                 Marshal.Copy((System.IntPtr)zone, buffer, pos, writeSize);
             }
+            */
+
+            // NOT TESTED!
+
+            var allocator = (MemoryAllocator)obj;
+
+            var writer = new StreamBufferWriter(100u);
+            allocator.Serialize(ref writer);
+            var data = writer.ToArray();
+
+            ByteArraySerializer.PackDirect(packer, data);
+
+            writer.Dispose();
 
         }
 
         [INLINE(256)] public object Unpack(Packer packer) {
 
+            /*
             var allocator = new MemoryAllocator();
             allocator.maxSize = Int64Serializer.UnpackDirect(packer);
             allocator.zonesListCount = Int32Serializer.UnpackDirect(packer);
@@ -58,6 +74,19 @@ namespace ME.ECS.Serializer {
                 Marshal.Copy(buffer, pos, (System.IntPtr)zone, readSize);
                 
             }
+
+            return allocator;
+            */
+
+            // NOT TESTED
+
+            var data = ByteArraySerializer.UnpackDirect(packer);
+
+            var reader = new StreamBufferReader(data);
+            var allocator = new MemoryAllocator(Unity.Collections.Allocator.Persistent);
+            allocator.Deserialize(ref reader);
+
+            reader.Dispose();
 
             return allocator;
 

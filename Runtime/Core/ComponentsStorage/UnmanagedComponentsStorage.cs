@@ -150,8 +150,9 @@ namespace ME.ECS {
             var typeId = AllComponentTypes<T>.typeId;
             this.items.Resize(ref allocator, typeId + 1);
             var ptr = this.items[in allocator, typeId];
-            if (ptr == MemPtr.Null) {
+            if (ptr == MemPtr.Invalid) {
                 ptr = this.items[in allocator, typeId] = allocator.Alloc<Item<T>>();
+                allocator.MemClear<Item<T>>(ptr);
             }
             AllComponentTypes<T>.burstTypeStorageDirectRef.Data = ptr;
             var item = allocator.Ref<Item<T>>(ptr);
@@ -182,8 +183,9 @@ namespace ME.ECS {
             var typeId = AllComponentTypes<T>.typeId;
             this.items.Resize(ref allocator, typeId + 1);
             var ptr = this.items[in allocator, typeId];
-            if (ptr == MemPtr.Null) {
+            if (ptr == MemPtr.Invalid) {
                 ptr = this.items[in allocator, typeId] = allocator.Alloc<ItemDisposable<T>>();
+                allocator.MemClear<ItemDisposable<T>>(ptr);
             }
             AllComponentTypes<T>.burstTypeStorageDirectRef.Data = ptr;
             var item = allocator.Ref<ItemDisposable<T>>(ptr);

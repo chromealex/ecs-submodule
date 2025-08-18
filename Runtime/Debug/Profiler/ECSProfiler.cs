@@ -114,9 +114,9 @@ namespace ME.ECS {
             ECSProfiler.PoolAllocation.Value = PoolInternalBase.newAllocated - ECSProfiler.poolAllocationPrev;
             ECSProfiler.poolAllocationPrev = PoolInternalBase.newAllocated;
             
-            ECSProfiler.MemoryAllocatorReserved.Sample(world.currentState.allocator.GetReservedSize());
-            ECSProfiler.MemoryAllocatorUsed.Sample(world.currentState.allocator.GetUsedSize());
-            ECSProfiler.MemoryAllocatorFree.Sample(world.currentState.allocator.GetFreeSize());
+            ECSProfiler.MemoryAllocatorReserved.Sample((int)world.currentState.allocator.GetReservedSize());
+            ECSProfiler.MemoryAllocatorUsed.Sample((int)world.currentState.allocator.GetUsedSize());
+            ECSProfiler.MemoryAllocatorFree.Sample((int)world.currentState.allocator.GetFreeSize());
 
         }
         

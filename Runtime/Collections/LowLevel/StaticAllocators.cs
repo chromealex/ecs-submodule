@@ -1,6 +1,6 @@
-﻿namespace ME.ECS.Collections.LowLevel {
-    
-    using Unsafe;
+﻿using ME.ECS.Collections.LowLevel.Unsafe;
+
+namespace ME.ECS.Collections.LowLevel {
     
     public enum AllocatorType {
 
@@ -20,10 +20,10 @@
         static StaticAllocatorInitializer() {
 
             // 4 MB of persistent memory + no max size
-            StaticAllocators.persistent.Data = new MemoryAllocator().Initialize(4 * 1024 * 1024, -1);
+            StaticAllocators.persistent.Data = new MemoryAllocator().Initialize(4 * 1024 * 1024);
 
             // 256 KB of temp memory + max size = 256 KB
-            StaticAllocators.temp.Data = new MemoryAllocator().Initialize(256 * 1024, 256 * 1024);
+            StaticAllocators.temp.Data = new MemoryAllocator().Initialize(256 * 1024);
 
         }
 

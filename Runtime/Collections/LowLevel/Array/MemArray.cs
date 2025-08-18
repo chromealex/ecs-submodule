@@ -19,13 +19,13 @@ namespace ME.ECS.Collections.LowLevel {
 
         public readonly bool isCreated {
             [INLINE(256)]
-            get => this.arrPtr != MemPtr.Null;
+            get => this.arrPtr != MemPtr.Invalid;
         }
 
         [INLINE(256)]
         public UnsafeMemArrayAllocator(int sizeOf, ref MemoryAllocator allocator, int length, ClearOptions clearOptions = ClearOptions.ClearMemory, byte growFactor = 1) {
 
-            this.arrPtr = length > 0 ? allocator.AllocArray(length, sizeOf) : MemPtr.Null;
+            this.arrPtr = length > 0 ? allocator.AllocArray((uint)length, (uint)sizeOf) : MemPtr.Invalid;
             this.Length = length;
             this.growFactor = growFactor;
             this.version = ++UnsafeMemArrayAllocator.arrayVersion.Data;
@@ -45,7 +45,7 @@ namespace ME.ECS.Collections.LowLevel {
         [INLINE(256)]
         public void Dispose(ref MemoryAllocator allocator) {
 
-            if (this.arrPtr != MemPtr.Null) {
+            if (this.arrPtr != MemPtr.Invalid) {
                 allocator.Free(this.arrPtr);
             }
             this = default;
@@ -55,7 +55,7 @@ namespace ME.ECS.Collections.LowLevel {
         [INLINE(256)]
         public readonly unsafe void* GetUnsafePtr(in MemoryAllocator allocator) {
 
-            return allocator.GetUnsafePtr(this.arrPtr);
+            return allocator.GetUnsafePtr(this.arrPtr).ptr;
 
         }
 
@@ -70,7 +70,7 @@ namespace ME.ECS.Collections.LowLevel {
         public void Clear(int sizeOf, in MemoryAllocator allocator, int index, int length) {
 
             var size = sizeOf;
-            allocator.MemClear(this.arrPtr, index * size, length * size);
+            allocator.MemClear(this.arrPtr, (uint)(index * size), length * size);
             
         }
 
@@ -93,7 +93,7 @@ namespace ME.ECS.Collections.LowLevel {
             newLength *= this.growFactor;
 
             var prevLength = this.Length;
-            this.arrPtr = allocator.ReAllocArray(sizeOf, this.arrPtr, newLength);
+            this.arrPtr = allocator.ReAllocArray(this.arrPtr, (uint)(newLength * sizeOf));
             this.version = ++UnsafeMemArrayAllocator.arrayVersion.Data;
             if (options == ClearOptions.ClearMemory) {
                 this.Clear(sizeOf, in allocator, prevLength, newLength - prevLength);
@@ -181,13 +181,13 @@ namespace ME.ECS.Collections.LowLevel {
 
         public readonly bool isCreated {
             [INLINE(256)]
-            get => this.arrPtr != MemPtr.Null;
+            get => this.arrPtr != MemPtr.Invalid;
         }
 
         [INLINE(256)]
         public MemArrayAllocator(ref MemoryAllocator allocator, int length, ClearOptions clearOptions = ClearOptions.ClearMemory, byte growFactor = 1) {
 
-            this.arrPtr = length > 0 ? allocator.AllocArray<T>(length) : MemPtr.Null;
+            this.arrPtr = length > 0 ? allocator.AllocArray<T>((uint)length) : MemPtr.Invalid;
             this.Length = length;
             this.growFactor = growFactor;
             this.version = ++UnsafeMemArrayAllocator.arrayVersion.Data;
@@ -286,12 +286,12 @@ namespace ME.ECS.Collections.LowLevel {
         public void CopyFrom(ref MemoryAllocator allocator, in MemArrayAllocator<T> other) {
 
             if (other.arrPtr == this.arrPtr) return;
-            if (this.arrPtr == MemPtr.Null && other.arrPtr == MemPtr.Null) return;
-            if (this.arrPtr != MemPtr.Null && other.arrPtr == MemPtr.Null) {
+            if (this.arrPtr == MemPtr.Invalid && other.arrPtr == MemPtr.Invalid) return;
+            if (this.arrPtr != MemPtr.Invalid && other.arrPtr == MemPtr.Invalid) {
                 this.Dispose(ref allocator);
                 return;
             }
-            if (this.arrPtr == MemPtr.Null) this = new MemArrayAllocator<T>(ref allocator, other.Length);
+            if (this.arrPtr == MemPtr.Invalid) this = new MemArrayAllocator<T>(ref allocator, other.Length);
             
             NativeArrayUtils.Copy(ref allocator, in other, ref this);
             
@@ -301,12 +301,12 @@ namespace ME.ECS.Collections.LowLevel {
         public void CopyFromWithData<U>(ref MemoryAllocator allocator, in MemArrayAllocator<U> other) where U : unmanaged, IComponentDisposable<U> {
 
             if (other.arrPtr == this.arrPtr) return;
-            if (this.arrPtr == MemPtr.Null && other.arrPtr == MemPtr.Null) return;
-            if (this.arrPtr != MemPtr.Null && other.arrPtr == MemPtr.Null) {
+            if (this.arrPtr == MemPtr.Invalid && other.arrPtr == MemPtr.Invalid) return;
+            if (this.arrPtr != MemPtr.Invalid && other.arrPtr == MemPtr.Invalid) {
                 this.Dispose(ref allocator);
                 return;
             }
-            if (this.arrPtr == MemPtr.Null) this = new MemArrayAllocator<T>(ref allocator, other.Length);
+            if (this.arrPtr == MemPtr.Invalid) this = new MemArrayAllocator<T>(ref allocator, other.Length);
 
             for (int i = 0; i < this.Length; ++i) {
                 this.As<U>(in allocator, i).OnDispose(ref allocator);
@@ -320,7 +320,7 @@ namespace ME.ECS.Collections.LowLevel {
         [INLINE(256)]
         public void Dispose(ref MemoryAllocator allocator) {
 
-            if (this.arrPtr != MemPtr.Null) {
+            if (this.arrPtr != MemPtr.Invalid) {
                 allocator.Free(this.arrPtr);
             }
             this = default;
@@ -330,7 +330,7 @@ namespace ME.ECS.Collections.LowLevel {
         [INLINE(256)]
         public readonly void* GetUnsafePtr(in MemoryAllocator allocator) {
 
-            return allocator.GetUnsafePtr(this.arrPtr);
+            return allocator.GetUnsafePtr(this.arrPtr).ptr;
 
         }
 
@@ -357,13 +357,13 @@ namespace ME.ECS.Collections.LowLevel {
 
         [INLINE(256)]
         public readonly void* GetUnsafePtr(in MemoryAllocator allocator, int index) {
-            return allocator.GetUnsafePtr(this.GetAllocPtr(in allocator, index));
+            return allocator.GetUnsafePtr(this.GetAllocPtr(in allocator, index)).ptr;
         }
 
         [INLINE(256)]
         public readonly MemPtr GetAllocPtr(in MemoryAllocator allocator, int index) {
             
-            return allocator.RefArrayPtr<T>(this.arrPtr, index);
+            return allocator.RefArrayPtr<T>(this.arrPtr, (uint)index);
             
         }
 
@@ -402,7 +402,7 @@ namespace ME.ECS.Collections.LowLevel {
             newLength *= this.growFactor;
 
             var prevLength = this.Length;
-            this.arrPtr = allocator.ReAllocArray<T>(this.arrPtr, newLength);
+            this.arrPtr = allocator.ReAllocArray<T>(this.arrPtr, (uint)newLength);
             this.version = ++UnsafeMemArrayAllocator.arrayVersion.Data;
             if (options == ClearOptions.ClearMemory) {
                 this.Clear(in allocator, prevLength, newLength - prevLength);
@@ -423,7 +423,7 @@ namespace ME.ECS.Collections.LowLevel {
         public void Clear(in MemoryAllocator allocator, int index, int length) {
 
             var size = Unity.Collections.LowLevel.Unsafe.UnsafeUtility.SizeOf<T>();
-            allocator.MemClear(this.arrPtr, index * size, length * size);
+            allocator.MemClear(this.arrPtr, (uint)(index * size), length * size);
             
         }
 

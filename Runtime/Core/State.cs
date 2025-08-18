@@ -45,7 +45,7 @@ namespace ME.ECS {
         public virtual void Initialize(World world, bool freeze, bool restore) {
             
             // Use 512 KB by default
-            if (this.allocator.isValid == false) this.allocator.Initialize(512 * 1024, -1);
+            if (this.allocator.isValid == false) this.allocator.Initialize(512 * 1024);
 
             world.Register(ref this.allocator, ref this.storage, freeze, restore);
             world.Register(ref this.allocator, ref this.structComponents, freeze, restore);
