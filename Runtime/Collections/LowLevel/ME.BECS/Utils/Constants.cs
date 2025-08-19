@@ -15,8 +15,6 @@ namespace ME.ECS.Collections.LowLevel.Unsafe {
         public const Allocator ALLOCATOR_PERSISTENT = Allocator.Persistent;
         public const Allocator ALLOCATOR_TEMP = Allocator.Temp;
         public const Allocator ALLOCATOR_TEMPJOB = Allocator.TempJob;
-        
-        public static AllocatorManager.AllocatorHandle ALLOCATOR_PERSISTENT_ST => WorldsPersistentAllocator.allocatorPersistent.Allocator.Handle;
 
     }
 
