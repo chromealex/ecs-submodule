@@ -1,4 +1,5 @@
 ﻿using ME.ECS.Collections.LowLevel.Unsafe;
+using UnityEngine;
 
 namespace ME.ECS.Collections.LowLevel {
     
@@ -10,27 +11,26 @@ namespace ME.ECS.Collections.LowLevel {
 
     }
 
-    [UnityEditor.InitializeOnLoadAttribute]
     public static class StaticAllocatorInitializer {
 
-        private static readonly Destructor finalize = new Destructor();
+        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
+        static void Init() {
 
-        static StaticAllocatorInitializer() {
+            if (StaticAllocators.persistent.Data.isValid) {
+                StaticAllocators.persistent.Data.Dispose();
+                Debug.LogWarning("StaticAllocatorInitializer: disposing old persistent allocator");
+            }
+
+            if (StaticAllocators.temp.Data.isValid) {
+                StaticAllocators.temp.Data.Dispose();
+                Debug.LogWarning("StaticAllocatorInitializer: disposing old temp allocator");
+            }
 
             // 4 MB of persistent memory + no max size
             StaticAllocators.persistent.Data = new MemoryAllocator().Initialize(4 * 1024 * 1024);
 
             // 256 KB of temp memory + max size = 256 KB
             StaticAllocators.temp.Data = new MemoryAllocator().Initialize(256 * 1024);
-
-        }
-
-        private sealed class Destructor {
-
-            ~Destructor() {
-                StaticAllocators.persistent.Data.Dispose();
-                StaticAllocators.temp.Data.Dispose();
-            }
 
         }
 
