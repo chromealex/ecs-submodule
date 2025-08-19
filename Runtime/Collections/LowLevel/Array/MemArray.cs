@@ -170,6 +170,13 @@ namespace ME.ECS.Collections.LowLevel {
             
         }
 
+        private static readonly MemArrayAllocator<T> Empty = new MemArrayAllocator<T>() {
+            arrPtr = MemPtr.Invalid,
+            Length = 0,
+            growFactor = 0,
+            version = 0,
+        };
+
         [ME.ECS.Serializer.SerializeField]
         public MemPtr arrPtr;
         [ME.ECS.Serializer.SerializeField]
@@ -186,6 +193,11 @@ namespace ME.ECS.Collections.LowLevel {
 
         [INLINE(256)]
         public MemArrayAllocator(ref MemoryAllocator allocator, int length, ClearOptions clearOptions = ClearOptions.ClearMemory, byte growFactor = 1) {
+
+            if (length == 0u) {
+                this = MemArrayAllocator<T>.Empty;
+                return;
+            }
 
             this.arrPtr = length > 0 ? allocator.AllocArray<T>((uint)length) : MemPtr.Invalid;
             this.Length = length;
