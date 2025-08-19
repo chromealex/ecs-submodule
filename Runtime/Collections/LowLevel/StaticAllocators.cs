@@ -10,9 +10,7 @@ namespace ME.ECS.Collections.LowLevel {
 
     }
 
-    #if UNITY_EDITOR
     [UnityEditor.InitializeOnLoadAttribute]
-    #endif
     public static class StaticAllocatorInitializer {
 
         private static readonly Destructor finalize = new Destructor();
