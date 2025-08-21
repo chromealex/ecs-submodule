@@ -756,7 +756,9 @@ namespace ME.ECS {
         internal string ToEditorTypesString() {
 
             var str = string.Empty;
-            foreach (var c in Worlds.current.GetFilterStaticData(this.id).data.contains) {
+            var enumerator = Worlds.current.GetFilterStaticData(this.id).data.contains.GetEnumerator(Worlds.current.tempAllocator);
+            while (enumerator.MoveNext() == true) {
+                var c = enumerator.Current;
                 var type = string.Empty;
                 foreach (var t in ComponentTypesRegistry.typeId) {
                     if (t.Value == c) {
@@ -768,7 +770,11 @@ namespace ME.ECS {
                 str += $"W<{type}>";
             }
 
-            foreach (var c in Worlds.current.GetFilterStaticData(this.id).data.notContains) {
+            enumerator.Dispose();
+
+            enumerator = Worlds.current.GetFilterStaticData(this.id).data.notContains.GetEnumerator(Worlds.current.tempAllocator);
+            while (enumerator.MoveNext() == true) {
+                var c = enumerator.Current;
                 var type = string.Empty;
                 foreach (var t in ComponentTypesRegistry.typeId) {
                     if (t.Value == c) {
@@ -779,6 +785,8 @@ namespace ME.ECS {
 
                 str += $"WO<{type}>";
             }
+
+            enumerator.Dispose();
 
             return str;
 
