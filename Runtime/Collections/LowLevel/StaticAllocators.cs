@@ -13,8 +13,17 @@ namespace ME.ECS.Collections.LowLevel {
 
     public static class StaticAllocatorInitializer {
 
-        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
-        static void Init() {
+        public static void Init() {
+
+            // 4 MB of persistent memory + no max size
+            StaticAllocators.persistent.Data = new MemoryAllocator().Initialize(4 * 1024 * 1024);
+
+            // 256 KB of temp memory + max size = 256 KB
+            StaticAllocators.temp.Data = new MemoryAllocator().Initialize(256 * 1024);
+
+        }
+
+        public static void Dispose() {
 
             if (StaticAllocators.persistent.Data.isValid) {
                 StaticAllocators.persistent.Data.Dispose();
@@ -25,12 +34,6 @@ namespace ME.ECS.Collections.LowLevel {
                 StaticAllocators.temp.Data.Dispose();
                 Debug.LogWarning("StaticAllocatorInitializer: disposing old temp allocator");
             }
-
-            // 4 MB of persistent memory + no max size
-            StaticAllocators.persistent.Data = new MemoryAllocator().Initialize(4 * 1024 * 1024);
-
-            // 256 KB of temp memory + max size = 256 KB
-            StaticAllocators.temp.Data = new MemoryAllocator().Initialize(256 * 1024);
 
         }
 

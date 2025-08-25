@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+using ME.ECS.Collections.LowLevel;
 
 namespace ME.ECS {
 
@@ -12,7 +12,7 @@ namespace ME.ECS {
         public static World currentWorld;
         public static World current;
         
-        public static readonly List<World> registeredWorlds = new List<World>();
+        public static readonly System.Collections.Generic.List<World> registeredWorlds = new System.Collections.Generic.List<World>();
 
         public static bool isInDeInitialization;
         public static void DeInitializeBegin() {
@@ -28,6 +28,10 @@ namespace ME.ECS {
         }
 
         public static void Register(World world) {
+
+            if (Worlds.registeredWorlds.Count == 0) {
+                StaticAllocatorInitializer.Init();
+            }
             
             Worlds.registeredWorlds.Add(world);
             
@@ -35,13 +39,17 @@ namespace ME.ECS {
         
         public static void UnRegister(World world, int id) {
             
-            if (Worlds.registeredWorlds != null) Worlds.registeredWorlds.Remove(world);
+            Worlds.registeredWorlds.Remove(world);
 
             if (world == Worlds.currentWorld) {
 
                 Worlds.currentWorld = null;
                 Worlds.current = null;
 
+            }
+
+            if (Worlds.registeredWorlds.Count == 0) {
+                StaticAllocatorInitializer.Dispose();
             }
             
         }
