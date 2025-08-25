@@ -1083,7 +1083,7 @@ namespace ME.ECS {
 
                     // Shouldn't merge source, because it leads to lose of deterministic behaviour (allocator hashes mismatch)
                     // BUT if don't merge, state hashes mismatch after 1000 entities limit achieved
-                    from.Merge();
+                    // from.Merge();
                     to.CopyFrom(from);
 
                 }

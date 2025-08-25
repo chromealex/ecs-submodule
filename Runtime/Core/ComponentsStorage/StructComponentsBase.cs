@@ -184,7 +184,7 @@ namespace ME.ECS {
             ME.WeakRef.Reg(reg);
             // Shouldn't merge source, because it leads to lose of deterministic behaviour (allocator hashes mismatch)
             // BUT if don't merge, state hashes mismatch after 1000 entities limit achieved
-            this.Merge();
+            // this.Merge();
             reg.CopyFrom(this);
             return reg;
 
