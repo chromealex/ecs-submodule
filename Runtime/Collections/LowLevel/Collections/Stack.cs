@@ -197,7 +197,7 @@ namespace ME.ECS.Collections.LowLevel {
         public struct EnumeratorNoState : System.Collections.Generic.IEnumerator<T> {
 
             private readonly Stack<T> stack;
-            private readonly MemoryAllocator allocator;
+            private MemoryAllocator allocator;
             private int index;
             private readonly int version;
             private T currentElement;
@@ -271,6 +271,8 @@ namespace ME.ECS.Collections.LowLevel {
                     return this.currentElement;
                 }
             }
+
+            public void SetAllocator(in MemoryAllocator allocator) => this.allocator = allocator;
 
             void System.Collections.IEnumerator.Reset() {
                 if (this.version != this.stack.version) {

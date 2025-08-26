@@ -142,7 +142,7 @@ namespace ME.ECS.Collections.LowLevel {
 
         public struct EnumeratorNoState : System.Collections.Generic.IEnumerator<T> {
             
-            private readonly MemoryAllocator allocator;
+            private MemoryAllocator allocator;
             private readonly MemArrayAllocator<T> list;
             private int index;
 
@@ -163,6 +163,8 @@ namespace ME.ECS.Collections.LowLevel {
             public T Current => this.list[in this.allocator, this.index];
 
             object System.Collections.IEnumerator.Current => this.Current;
+
+            public void SetAllocator(in MemoryAllocator allocator) => this.allocator = allocator;
 
             void System.Collections.IEnumerator.Reset() {
                 this.index = -1;

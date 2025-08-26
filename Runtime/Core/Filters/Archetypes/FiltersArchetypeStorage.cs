@@ -34,7 +34,10 @@ namespace ME.ECS.FiltersArchetype {
                 while (e.MoveNext() == true) {
 
                     var archId = e.Current;
-                    if (item.archetypes.Contains(in allocator, archId) == true) continue;
+                    if (item.archetypes.Contains(in allocator, archId) == true) {
+                        e.SetAllocator(in allocator);
+                        continue;
+                    }
 
                     ref var arch = ref allArchetypes[in allocator, archId];
                     var filterStaticData = filterStaticDataBuffer[in tempAllocator, item.id];
@@ -53,6 +56,8 @@ namespace ME.ECS.FiltersArchetype {
                         item.archetypesList.Add(ref allocator, archId);
 
                     }
+
+                    e.SetAllocator(in allocator);
 
                 }
 
@@ -738,6 +743,8 @@ namespace ME.ECS.FiltersArchetype {
                     this.alive.Remove(ref allocator, id);
                     this.OnDealloc(ref allocator, id);
 
+                    e.SetAllocator(in allocator);
+
                 }
                 e.Dispose();
 
@@ -1016,6 +1023,8 @@ namespace ME.ECS.FiltersArchetype {
                     this.Validate(ref allocator, in req.entity, req.componentId, false);
 
                 }
+
+                e.SetAllocator(in allocator);
 
             }
             e.Dispose();

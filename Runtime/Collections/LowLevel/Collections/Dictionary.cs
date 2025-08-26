@@ -62,7 +62,7 @@ namespace ME.ECS.Collections.LowLevel {
 
         public struct EnumeratorNoState : System.Collections.Generic.IEnumerator<System.Collections.Generic.KeyValuePair<TKey, TValue>> {
 
-            private readonly MemoryAllocator allocator;
+            private MemoryAllocator allocator;
             private readonly Dictionary<TKey, TValue> dictionary;
             private readonly int version;
             private int index;
@@ -104,6 +104,8 @@ namespace ME.ECS.Collections.LowLevel {
             public void Dispose() { }
 
             object System.Collections.IEnumerator.Current => this.current;
+
+            public void SetAllocator(in MemoryAllocator allocator) => this.allocator = allocator;
 
             void System.Collections.IEnumerator.Reset() {
                 if (this.version != this.dictionary.version) {

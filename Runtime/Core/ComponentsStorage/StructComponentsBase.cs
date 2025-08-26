@@ -184,7 +184,7 @@ namespace ME.ECS {
             ME.WeakRef.Reg(reg);
             // Shouldn't merge source, because it leads to lose of deterministic behaviour (allocator hashes mismatch)
             // BUT if don't merge, state hashes mismatch after 1000 entities limit achieved
-            // this.Merge();
+            this.Merge();
             reg.CopyFrom(this);
             return reg;
 
@@ -302,7 +302,7 @@ namespace ME.ECS {
 
             {
                 var tempList = stackalloc StructComponentsContainer.NextTickTask[this.world.currentState.structComponents.nextTickTasks.Count];
-                var e = this.world.currentState.structComponents.nextTickTasks.GetEnumerator(in this.world.currentState.allocator);
+                var e = this.world.currentState.structComponents.nextTickTasks.GetEnumerator();
                 var k = 0;
                 while (e.MoveNext() == true) {
                     var task = e.Current;

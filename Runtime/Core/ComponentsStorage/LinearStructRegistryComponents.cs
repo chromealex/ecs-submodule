@@ -507,6 +507,8 @@ namespace ME.ECS {
 
                         }
 
+                        e.SetAllocator(in allocator);
+
                     }
                     e.Dispose();
 
@@ -1017,6 +1019,8 @@ namespace ME.ECS {
                         var task = e.Current;
                         task.Dispose(ref allocator);
 
+                        e.SetAllocator(in allocator);
+
                     }
                     e.Dispose();
                     this.nextTickTasks.Dispose(ref allocator);
@@ -1083,7 +1087,7 @@ namespace ME.ECS {
 
                     // Shouldn't merge source, because it leads to lose of deterministic behaviour (allocator hashes mismatch)
                     // BUT if don't merge, state hashes mismatch after 1000 entities limit achieved
-                    // from.Merge();
+                    from.Merge();
                     to.CopyFrom(from);
 
                 }
@@ -1374,6 +1378,7 @@ namespace ME.ECS {
                 } else {
                     notification.Dispose(ref allocator);
                 }
+                e.SetAllocator(in allocator);
             }
             e.Dispose();
             structComponentsContainer.nextTickNotifications.Clear(in allocator);
@@ -1391,6 +1396,7 @@ namespace ME.ECS {
                     Worlds.current.RemoveData(notification.entity, notification.data.typeId, StorageType.Default);
                 }
                 notification.Dispose(ref allocator);
+                e.SetAllocator(in allocator);
             }
             e.Dispose();
             structComponentsContainer.endTickNotifications.Clear(in allocator);
@@ -1416,7 +1422,10 @@ namespace ME.ECS {
                     var idx = e.Index;
                     ref var task = ref list.GetByIndex(in allocator, idx);
                     var taskStep = task.GetStep();
-                    if (taskStep != step) continue;
+                    if (taskStep != step) {
+                        e.SetAllocator(in allocator);
+                        continue;
+                    }
                     
                     if (step == ComponentLifetime.NotifyAllSystemsBelow) {
 
@@ -1434,6 +1443,8 @@ namespace ME.ECS {
                         task.NextStep();
                         
                     }
+
+                    e.SetAllocator(in allocator);
                     
                 }
                 e.Dispose();

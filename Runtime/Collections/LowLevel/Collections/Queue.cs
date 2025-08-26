@@ -203,7 +203,7 @@ namespace ME.ECS.Collections.LowLevel {
 
         public struct EnumeratorNoState : System.Collections.Generic.IEnumerator<T> {
 
-            private readonly MemoryAllocator allocator;
+            private MemoryAllocator allocator;
             private Queue<T> q;
             private int index; // -1 = not started, -2 = ended/disposed
             private readonly int version;
@@ -270,6 +270,8 @@ namespace ME.ECS.Collections.LowLevel {
                     return this.currentElement;
                 }
             }
+
+            public void SetAllocator(in MemoryAllocator allocator) => this.allocator = allocator;
 
             void System.Collections.IEnumerator.Reset() {
                 if (this.version != this.q.version) {

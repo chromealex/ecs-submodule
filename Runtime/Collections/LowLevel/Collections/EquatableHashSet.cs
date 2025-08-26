@@ -55,7 +55,7 @@ namespace ME.ECS.Collections.LowLevel {
 
         public struct EnumeratorNoState : System.Collections.Generic.IEnumerator<T> {
 
-            private readonly MemoryAllocator allocator;
+            private MemoryAllocator allocator;
             private readonly EquatableHashSet<T> set;
             private int index;
             private T current;
@@ -90,6 +90,8 @@ namespace ME.ECS.Collections.LowLevel {
             public int Index => this.index - 1;
             
             object System.Collections.IEnumerator.Current => this.Current;
+
+            public void SetAllocator(in MemoryAllocator allocator) => this.allocator = allocator;
 
             void System.Collections.IEnumerator.Reset() {
                 this.index = 0;
