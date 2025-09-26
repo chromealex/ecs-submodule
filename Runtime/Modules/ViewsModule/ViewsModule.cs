@@ -807,7 +807,7 @@ namespace ME.ECS.Views {
             var viewInfo = new ViewInfo(entity, sourceId, this.world.GetStateTick(), DestroyViewBehaviour.DestroyWithEntity);
             var view = new ViewComponent() {
                 viewInfo = viewInfo,
-                seed = this.world.GetSeed(),
+                seed = (uint)this.world.GetRandomRange(0, int.MaxValue),
             };
             this.world.SetData(in entity, view);
 

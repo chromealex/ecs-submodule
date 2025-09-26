@@ -182,7 +182,7 @@ namespace ME.ECS {
                     var viewInfo = new ViewInfo(entity, sourceId, this.world.GetStateTick(), DestroyViewBehaviour.DestroyWithEntity);
                     var view = new ViewComponent() {
                         viewInfo = viewInfo,
-                        seed = (uint)this.world.GetSeed(),
+                        seed = (uint)this.world.GetRandomRange(0, int.MaxValue),
                     };
                     ref var comp = ref components.arr[k];
                     comp.state = 1;
