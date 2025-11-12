@@ -722,6 +722,12 @@ namespace ME.ECS.Network {
 
         }
 
+        private bool ShouldApplyReceivedEvent(ME.ECS.StatesHistory.HistoryEvent historyEvent) {
+
+            return this.statesHistoryModule.ShouldApplyEvent(historyEvent);
+
+        }
+
         protected bool ApplyEvent(ME.ECS.StatesHistory.HistoryEvent historyEvent) {
 
             /*if (historyEvent.storeInHistory == true) {
@@ -845,6 +851,8 @@ namespace ME.ECS.Network {
 
                     var evt = this.serializer.Deserialize(bytes);
                     this.onReceivedEvent?.Invoke(false, evt);
+                    if (this.ShouldApplyReceivedEvent(evt) == false) continue;
+
                     this.ApplyEvent(evt);
 
                 } while (true);

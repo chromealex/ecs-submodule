@@ -270,6 +270,8 @@ namespace ME.ECS.StatesHistory {
 
         void SetPlayersCount(int count);
 
+        bool ShouldApplyEvent(HistoryEvent historyEvent);
+
     }
 
 #if ECS_COMPILE_IL2CPP_OPTIONS
@@ -420,6 +422,12 @@ namespace ME.ECS.StatesHistory {
         public virtual Tick GetCacheSize() {
 
             return this.GetQueueCapacity() * this.GetTicksPerState() * 4;
+
+        }
+
+        public virtual bool ShouldApplyEvent(HistoryEvent historyEvent) {
+
+            return true;
 
         }
 
@@ -642,7 +650,7 @@ namespace ME.ECS.StatesHistory {
 
         }
         
-        public void AddEvent(HistoryEvent historyEvent) {
+        public virtual void AddEvent(HistoryEvent historyEvent) {
 
             if (historyEvent.tick <= Tick.Zero) {
 
